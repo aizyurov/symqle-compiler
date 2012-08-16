@@ -1,0 +1,28 @@
+#Test sdl for interface declarations
+
+/**
+* interface1 select_statement
+*/
+public interface select_statement<T> : Query<T>
+{}
+
+/**
+* this comment should be lost
+*/
+# breaks previous commment
+// this line comment
+/* this multiline comment
+*/
+/**
+* and this javadoc
+* will all appear in the interface comment
+*/
+public interface select_statement_scalar<T> extends Scalar<T> : Query<T>
+{}
+
+public interface from_clause {
+    void add_table(table_reference table);
+}
+
+public interface boolean_expression extends Scalar<Boolean>, Serializable
+{}

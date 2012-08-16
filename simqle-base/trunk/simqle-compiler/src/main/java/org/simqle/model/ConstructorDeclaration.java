@@ -1,0 +1,90 @@
+/*
+* Copyright Alexander Izyurov 2010
+*/
+package org.simqle.model;
+
+import org.simqle.parser.SyntaxTree;
+import org.simqle.processor.GrammarException;
+
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * <br/>20.11.2011
+ *
+ * @author Alexander Izyurov
+ */
+public class ConstructorDeclaration {
+    private final String accessModifier;
+    private final String comment;
+    private final String name;
+    private final String body;
+    private final List<TypeParameter> typeParameters;
+    private final List<FormalParameter> formalParameters;
+
+    public ConstructorDeclaration(SyntaxTree node) throws GrammarException {
+        if (!node.getType().equals("ConstructorDeclaration")) {
+            throw new IllegalArgumentException("Illegal argument: "+node);
+        }
+        accessModifier = Utils.getAccessModifier(node.find("ConstructorModifiers.ConstructorModifier"));
+        name=node.find("Identifier").get(0).getValue();
+        comment = node.getComments();
+        typeParameters = Utils.convertChildren(node, "TypeParameters.TypeParameter", TypeParameter.class);
+        formalParameters = Utils.convertChildren(node, "FormalParameterList.FormalParameter", FormalParameter.class);
+        body = node.find("ConstructorBody").get(0).getImage();
+    }
+
+    public String getAccessModifier() {
+        return accessModifier;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public List<String> getCommentLines() {
+        return Arrays.asList(comment.split("\\r\\n|\\n"));
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public List<TypeParameter> getTypeParameters() {
+        return typeParameters;
+    }
+
+    public List<FormalParameter> getFormalParameters() {
+        return formalParameters;
+    }
+
+    public List<String> getBodyLines() {
+        return Arrays.asList(body.split("\\r\\n|\\n"));
+    }
+
+    public String getSignature() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(accessModifier);
+        if (!typeParameters.isEmpty()) {
+            builder.append(" <");
+            for (TypeParameter param: typeParameters) {
+                builder.append(param.getImage());
+            }
+            builder.append(">");
+        }
+        builder.append(" ");
+        builder.append(name);
+        builder.append("(");
+        for (FormalParameter formalParameter: formalParameters) {
+            builder.append(formalParameter.getImage());
+        }
+        builder.append(")");
+        return builder.toString();
+    }
+
+
+}

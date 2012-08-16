@@ -1,0 +1,8 @@
+public interface expression<T> extends Scalar<T> : Query<T>
+{}
+
+public class GenericExpression<V> implements expression<V> with sqlBuilder
+{}
+
+public class BooleanExpression implements expression<Boolean> with sqlBuilder
+{}
