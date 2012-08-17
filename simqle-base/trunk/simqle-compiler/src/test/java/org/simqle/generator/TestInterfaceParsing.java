@@ -62,6 +62,7 @@ public class TestInterfaceParsing extends TestCase {
         Processor processor = new InterfaceDeclarationsProcessor();
         processor.process(node, model);
         InterfaceGenerator generator = new InterfaceGenerator();
-        generator.generate(model, new File("src/test-data/generated-sorces-1"));
+        new File("target/test-output/").mkdirs();
+        generator.generate(model, new File("target/test-output/generated-sources-1"));
     }
 }
