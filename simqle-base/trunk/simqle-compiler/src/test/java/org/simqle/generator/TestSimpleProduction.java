@@ -14,6 +14,7 @@ import org.simqle.processor.ProductionDeclarationProcessor;
 import org.simqle.test.TestUtils;
 
 import java.io.FileReader;
+import java.io.StringReader;
 import java.util.Arrays;
 import java.util.List;
 
@@ -158,9 +159,22 @@ public class TestSimpleProduction extends TestCase {
             assertEquals(Arrays.asList("final"), formalParameter.getModifiers());
             assertEquals("cursorSpec", formalParameter.getName());
             assertEquals("cursor_specification<T>", formalParameter.getType().getImage());
-
-
+            String expectedBody = "{ return new select_statement<T>() {\n" +
+                    "    @Override\n" +
+                    "    public void z$prepare$select_statement(final SqlContext context) {\n" +
+                    "         cursorSpec.z$prepare$cursor_specification(context);\n" +
+                    "    }\n" +
+                    "    @Override\n" +
+                    "    public Query<T> z$create$select_statement(final SqlContext context) {\n" +
+                    "        return new CompositeQuery<T>(cursorSpec.z$create$cursor_specification(context));\n" +
+                    "    }\n" +
+                    "    };\n" +
+                    "}";
+            assertEquals(expectedBody, methodDeclaration.getMethodBody());
+            // make sure the body is compilable
+            new SimqleParser(new StringReader(methodDeclaration.getMethodBody())).Block();
         }
+
 
     }
 

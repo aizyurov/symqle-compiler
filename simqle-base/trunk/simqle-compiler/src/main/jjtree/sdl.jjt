@@ -1806,10 +1806,11 @@ void AbstractMethodModifier():
 }
 
 /* 14.2 */
-void Block():
+SimpleNode Block():
 {}
 {
     "{" ( BlockStatement() ) * "}"
+  { return jjtThis; }
 }
 
 /* 9.6 */

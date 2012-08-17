@@ -215,6 +215,7 @@ public class ProductionDeclarationProcessor implements Processor {
             throw new ModelException("Method "+requiredQueryType.getImage()+methodName+"(Element element) must be implemented; cannot guess implementation");
         } else {
             final StringBuilder builder = new StringBuilder();
+            builder.append("    @Override\n");
             builder.append("    public "+requiredQueryType.getImage()+" "+methodName+"(final SqlContext context) {\n");
             final String typeArgument = requiredQueryType.getNameChain().get(0).getTypeArguments().get(0).getValue();
             if (delegateIndex==0) {
@@ -256,7 +257,7 @@ public class ProductionDeclarationProcessor implements Processor {
         for (ProductionRule.RuleElement element: rule.getElements()) {
             if (element.getType()!=null) {
                 // all interfaces have z$prepare$ method, so no check here
-                builder.append("         "+element.getName()+"z$prepare$"+element.getType().getNameChain().get(0).getText()+"(context);\n");
+                builder.append("         ").append(element.getName()).append(".z$prepare$").append(element.getType().getNameChain().get(0).getName()).append("(context);\n");
             }
         }
         builder.append("    }\n");
@@ -284,7 +285,7 @@ public class ProductionDeclarationProcessor implements Processor {
             }
             if (element.getType()!=null) {
                 // all interfaces have z$prepare$ method, so no check here
-                builder.append(element.getName()).append(".z$create$").append(element.getType().getNameChain().get(0).getText()).append("(context)");
+                builder.append(element.getName()).append(".z$create$").append(element.getType().getNameChain().get(0).getName()).append("(context)");
             } else {
                 builder.append(element.getName());
             }
@@ -342,7 +343,8 @@ public class ProductionDeclarationProcessor implements Processor {
                 }
             }
         }
-        builder.append("    }\n}");
+        builder.append("    };\n");
+        builder.append("}");
         return builder.toString();
     }
 
