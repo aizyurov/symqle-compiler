@@ -75,6 +75,8 @@ public class TestSimpleProduction extends TestCase {
                 assertEquals(0, parameterType.getTypeArguments().size());
                 assertEquals(Arrays.asList("final"), formalParameter.getModifiers());
                 assertEquals(" { sqlBuilder.z$prepare$cursor_specification(context); } ", TestUtils.normalizeFormatting(prepareMethod.getMethodBody()));
+                // make sure the body is compilable
+                new SimqleParser(new StringReader(prepareMethod.getMethodBody())).Block();
             }
 
 
@@ -98,10 +100,26 @@ public class TestSimpleProduction extends TestCase {
                 assertEquals(0, parameterType.getTypeArguments().size());
                 assertEquals(Arrays.asList("final"), formalParameter.getModifiers());
                 assertEquals(" { return sqlBuilder.z$create$cursor_specification(context); } ", TestUtils.normalizeFormatting(createMethod.getMethodBody()));
+                // make sure the body is compilable
+                new SimqleParser(new StringReader(createMethod.getMethodBody())).Block();
 
             }
 
-            assertNotNull(body.getMethod("toSelectStatement"));
+            {
+                final MethodDeclaration toSelectStatement = body.getMethod("toSelectStatement");
+                assertNotNull(toSelectStatement);
+                assertEquals("protected", toSelectStatement.getAccessModifier());
+                assertFalse(toSelectStatement.isStatic());
+                assertFalse(toSelectStatement.isAbstract());
+                assertEquals("", toSelectStatement.getThrowsClause());
+                assertEquals(0, toSelectStatement.getTypeParameters().size());
+                assertEquals("SelectStatement<T>", toSelectStatement.getResultType().getImage());
+                final List<FormalParameter> formalParameters = toSelectStatement.getFormalParameters();
+                assertEquals(0, formalParameters.size());
+                assertEquals("{ return new SelectStatement<T>(SqlFactory.getInstance().select_statement_IS_cursor_specification(this)); }", TestUtils.normalizeFormatting(toSelectStatement.getMethodBody()));
+                // make sure the body is compilable
+                new SimqleParser(new StringReader(toSelectStatement.getMethodBody())).Block();
+            }
             assertEquals(1, body.getFields().size());
             {
                 final FieldDeclaration fieldDeclaration = body.getFields().get(0);
@@ -146,7 +164,7 @@ public class TestSimpleProduction extends TestCase {
             assertEquals(1, model.getAllFactoryMethods().size());
             final FactoryMethodModel factoryMethod = model.getAllFactoryMethods().get(0);
             final MethodDeclaration methodDeclaration = factoryMethod.getMethodDeclaration();
-            assertEquals("select_statement_IS_cursor_specification<T>", methodDeclaration.getName());
+            assertEquals("select_statement_IS_cursor_specification", methodDeclaration.getName());
             assertEquals("select_statement<T>", methodDeclaration.getResultType().getImage());
             assertFalse(methodDeclaration.isStatic());
             assertFalse(methodDeclaration.isAbstract());

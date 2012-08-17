@@ -14,11 +14,16 @@ import java.util.List;
  */
 public class ProductionRule {
     private final List<RuleElement> ruleElements;
+    private final String returnedInterfaceName;
 
     public ProductionRule(SyntaxTree node) {
         if (!node.getType().equals("ProductionRule")) {
             throw new IllegalArgumentException("Illegal argument: "+node);
         }
+        final SyntaxTree productionDeclaration = node.getParent().getParent();
+        Type returnType = Utils.convertChildren(productionDeclaration, "ClassOrInterfaceType", Type.class).get(0);
+        returnedInterfaceName = returnType.getNameChain().get(0).getName();
+
         ruleElements = new ArrayList<RuleElement>();
         for (SyntaxTree element: node.find("ProductionElement")) {
             final List<TypeNameWithTypeArguments> classOrInterfaceTypeNodes = Utils.convertChildren(element, "IdentifierWithTypeArguments", TypeNameWithTypeArguments.class);
@@ -34,11 +39,11 @@ public class ProductionRule {
 
     public String getName() {
         StringBuilder builder = new StringBuilder();
+        builder.append(returnedInterfaceName)
+                .append("_IS");
         for (RuleElement element: ruleElements) {
-            if (builder.length()==0) {
-                builder.append("_");
-            }
-            builder.append(element.isConst ? element.name : element.type.getNameChain().get(0).getText());
+            builder.append("_");
+            builder.append(element.isConst ? element.name : element.type.getNameChain().get(0).getName());
         }
         return builder.toString();
     }

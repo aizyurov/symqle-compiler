@@ -59,7 +59,7 @@ public class ProductionDeclarationProcessor implements Processor {
                     }
                     MethodDeclaration method = null;
                     try {
-                        method = new MethodDeclaration(false, "public", false, false, typeParameters, returnType, returnType.getNameChain().get(0).getName()+"_IS"+productionRule.getName(), formalParameters, "", "", methodBodySource);
+                        method = new MethodDeclaration(false, "public", false, false, typeParameters, returnType, productionRule.getName(), formalParameters, "", "", methodBodySource);
                     } catch (ModelException e) {
                         throw new RuntimeException("Internal error", e);
                     }
