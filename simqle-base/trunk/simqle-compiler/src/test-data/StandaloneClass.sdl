@@ -1,5 +1,5 @@
 # does not implement any interfaces; all code is manualy written
-public class JustForFun
+public class JustForFun<T,W>
 {
     public String toString() {
         return "wow";

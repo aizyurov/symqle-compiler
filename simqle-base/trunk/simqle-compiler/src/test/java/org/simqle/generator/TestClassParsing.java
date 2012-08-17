@@ -145,5 +145,40 @@ public class TestClassParsing extends TestCase {
 
     }
 
+    public void testUndefinedInterface() throws Exception {
+        Model model = new Model();
+            SimqleParser parser = new SimqleParser(new FileReader("src/test-data/UndefinedInterface.sdl"));
+            SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "UndefinedInterface.sdl");
+        {
+            Processor processor = new InterfaceDeclarationsProcessor();
+            processor.process(node, model);
+        }
+            Processor processor = new ClassDeclarationProcessor();
+        try {
+            processor.process(node, model);
+            fail("GrammarException expected here");
+        } catch (GrammarException e) {
+            // expected
+        }
+    }
+
+    public void testMultipleInterfacesConflict() throws Exception {
+        Model model = new Model();
+            SimqleParser parser = new SimqleParser(new FileReader("src/test-data/MultipleInterfacesConflict.sdl"));
+            SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "MultipleInterfacesConflict.sdl");
+        {
+            Processor processor = new InterfaceDeclarationsProcessor();
+            processor.process(node, model);
+        }
+            Processor processor = new ClassDeclarationProcessor();
+        try {
+            processor.process(node, model);
+            fail("GrammarException expected here");
+        } catch (GrammarException e) {
+            // expected
+            assertTrue(e.getMessage().startsWith("Duplicate variable sqlBuilder"));
+        }
+    }
+
 
 }

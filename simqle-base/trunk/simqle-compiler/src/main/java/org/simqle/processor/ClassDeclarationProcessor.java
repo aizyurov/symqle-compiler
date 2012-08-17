@@ -69,8 +69,7 @@ public class ClassDeclarationProcessor implements Processor {
         final String source = String.format(EXTENSION_CLASS_FORMAT, modifiers, fullExtensionName, fullBaseName);
         final ClassDefinition extensionClassDefinition = ClassDefinition.parse(source);
         // transfer all constructors keeping signature; implement as call to super() with same arguments
-        final List<ConstructorDeclaration> constructors = baseClassDefinition.getBody().getConstructors();
-        for (final ConstructorDeclaration constructor : constructors) {
+        for (final ConstructorDeclaration constructor : baseClassDefinition.getBody().getConstructors()) {
             final List<FormalParameter> formalParameters = constructor.getFormalParameters();
             StringBuilder argumentsBuilder = new StringBuilder();
             for (FormalParameter formalParameter: formalParameters) {
@@ -79,7 +78,6 @@ public class ClassDeclarationProcessor implements Processor {
                 }
                 argumentsBuilder.append(formalParameter.getName());
             }
-            final String argumentsString = argumentsBuilder.toString();
 
             StringBuilder parametersBuilder = new StringBuilder();
             for (FormalParameter formalParameter: formalParameters) {
@@ -88,8 +86,8 @@ public class ClassDeclarationProcessor implements Processor {
                 }
                 parametersBuilder.append(formalParameter.getImage());
             }
-            final String parametersString = parametersBuilder.toString();
-            final String constructorSource = String.format(EXTENSION_CONSTRUCTOR_FORMAT, baseClassDefinition.getPairName(), parametersString, argumentsString);
+            final String constructorSource = String.format(EXTENSION_CONSTRUCTOR_FORMAT, baseClassDefinition.getPairName(),parametersBuilder.toString(),
+                    argumentsBuilder.toString());
             final ConstructorDeclaration constructorDeclaration = ConstructorDeclaration.parse(constructorSource);
             extensionClassDefinition.getBody().unsafeAddConstructorDeclaration((constructorDeclaration));
 
@@ -108,13 +106,14 @@ public class ClassDeclarationProcessor implements Processor {
             final Type type = Utils.convertChildren(interfaceNode, "ClassOrInterfaceType", Type.class).get(0);
             // must have at most one with variable
             final List<SyntaxTree> variables = interfaceNode.find("Identifier");
-            if (!variables.isEmpty()) {
-                final Type previousValue = specialVariablesMap.put(variables.get(0).getValue(), type);
-                if (null!= previousValue) {
-                    throw new GrammarException("Duplicate variable "+variables.get(0).getValue(), interfaceNode);
+            for (SyntaxTree variable: variables) {
+                if (null!= specialVariablesMap.put(variable.getValue(), type)) {
+                    throw new GrammarException("Duplicate variable "+variable.getValue(), interfaceNode);
                 }
             }
         }
+
+
         // process the variables: for each variable we generate private final field;
         // we also generate a constructor with all variables;
         // and methods of each interface, which delegate to these variables (if not exist yet)
