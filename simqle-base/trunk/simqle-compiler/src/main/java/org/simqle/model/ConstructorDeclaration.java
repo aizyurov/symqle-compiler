@@ -3,6 +3,8 @@
 */
 package org.simqle.model;
 
+import org.simqle.parser.ParseException;
+import org.simqle.parser.SimpleNode;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 
@@ -21,6 +23,17 @@ public class ConstructorDeclaration {
     private final String body;
     private final List<TypeParameter> typeParameters;
     private final List<FormalParameter> formalParameters;
+
+    public static ConstructorDeclaration parse(String source) {
+        try {
+            final SimpleNode constructorNode = Utils.createParser(source).ConstructorDeclaration();
+            return new ConstructorDeclaration(new SyntaxTree(constructorNode, source));
+        } catch (ParseException e) {
+            throw new RuntimeException("Internal error", e);
+        } catch (GrammarException e) {
+            throw new RuntimeException("Internal error", e);
+        }
+    }
 
     public ConstructorDeclaration(SyntaxTree node) throws GrammarException {
         if (!node.getType().equals("ConstructorDeclaration")) {

@@ -3,10 +3,13 @@
 */
 package org.simqle.model;
 
+import org.simqle.parser.ParseException;
+import org.simqle.parser.SimpleNode;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -35,6 +38,18 @@ public class ClassDefinition {
     private final List<Type> mimics;
 
     private final Body body;
+
+    public static ClassDefinition parse(String source) {
+        try {
+            final SimpleNode simpleNode = Utils.createParser(source).SimqleClassDeclaration();
+            SyntaxTree syntaxTree = new SyntaxTree(simpleNode, source);
+            return new ClassDefinition(syntaxTree, Collections.<SyntaxTree>emptyList());
+        } catch (ParseException e) {
+            throw new RuntimeException("Internal error", e);
+        } catch (GrammarException e) {
+            throw new RuntimeException("Internal error", e);
+        }
+    }
 
     public ClassDefinition(SyntaxTree node, List<SyntaxTree> importDeclarations) throws GrammarException {
         if (!node.getType().equals("SimqleClassDeclaration")) {
@@ -109,6 +124,20 @@ public class ClassDefinition {
         return body;
     }
 
+    /**
+     * Does not throw ModelException; throws RuntimeException instead
+     * Use from compiler's internal code when you are absolutely sure that
+     * there cannot be any conflict
+     * @param t
+     */
+    public void addMimicsInternal(Type t) {
+        try {
+            addMimics(t);
+        } catch (ModelException e) {
+            throw new RuntimeException("Internal error", e);
+        }
+    }
+
     public void addMimics(Type t) throws ModelException {
         // we can add type if it is the same or if its pairName is different;
         // cannot mimic the same class with different type parameters
@@ -126,6 +155,8 @@ public class ClassDefinition {
     public String getClassName() {
         return getPairName();
     }
+
+
 
     public void addConstructorDeclaration(ConstructorDeclaration constructor) throws ModelException {
         if (constructor.getName().equals(getClassName()) || constructor.getName().equals(getPairName())) {

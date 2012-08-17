@@ -155,7 +155,11 @@ public class Utils {
     public static List<TypeNameWithTypeArguments> substituteTypeArguments(List<TypeNameWithTypeArguments> source, List<TypeParameter> typeParameters, List<TypeArgument> typeArguments) {
         final Map<String, TypeArgument> substitutions = new HashMap<String, TypeArgument>(typeParameters.size());
         for (int i=0; i<typeParameters.size(); i++) {
-            substitutions.put(typeParameters.get(i).getName(), typeArguments.get(i));
+            try {
+                substitutions.put(typeParameters.get(i).getName(), typeArguments.get(i));
+            } catch (Exception e) {
+                throw new RuntimeException("Internal error", e);
+            }
         }
         // type arguments are substituted with wildcards; type names itself are substituted with reference type only
         // it is not exactly correct for "super" bounds; we also do not check for correct bounds here - leaving it to Java compiler
@@ -163,7 +167,8 @@ public class Utils {
         for (TypeNameWithTypeArguments typeNameWithTypeArguments: source) {
             final String name = typeNameWithTypeArguments.getName();
             if (substitutions.containsKey(name)) {
-                result.addAll(substituteTypeArguments(substitutions.get(name).reference.getNameChain(), typeParameters, typeArguments));
+//                result.addAll(substituteTypeArguments(substitutions.get(name).reference.getNameChain(), typeParameters, typeArguments));
+                result.addAll(substitutions.get(name).reference.getNameChain());
             } else {
                 final List<TypeArgument> typeArguments1 = typeNameWithTypeArguments.getTypeArguments();
                 final List<String> newTypeArguments = new ArrayList<String>(typeArguments1.size());

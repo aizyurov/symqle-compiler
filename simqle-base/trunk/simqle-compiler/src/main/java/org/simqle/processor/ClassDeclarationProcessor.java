@@ -35,7 +35,7 @@ public class ClassDeclarationProcessor implements Processor {
                     ClassDefinition extensionClassDefinition = createExtensionClass(baseClassDefinition);
                     model.addClass(new ClassPair(baseClassDefinition, extensionClassDefinition));
                 } catch (ModelException e) {
-                    throw new RuntimeException("Unhandled exception", e);
+                    throw new GrammarException(e.getMessage(), block);
                 }
             }
         }
@@ -44,7 +44,7 @@ public class ClassDeclarationProcessor implements Processor {
     private final static String EXTENSION_CLASS_FORMAT = "%s class %s extends %s {}";
     private final static String EXTENSION_CONSTRUCTOR_FORMAT = "public %s(%s) { super(%s); }";
 
-    private ClassDefinition createExtensionClass(ClassDefinition baseClassDefinition) {
+    private ClassDefinition createExtensionClass(ClassDefinition baseClassDefinition) throws GrammarException {
         final String accessModifier = baseClassDefinition.getAccessModifier();
         final String otherModifiers = Utils.concat(baseClassDefinition.getOtherModifiers(), " ");
         final String modifiers = Utils.concat(" ", accessModifier, otherModifiers);
@@ -67,49 +67,34 @@ public class ClassDeclarationProcessor implements Processor {
         final String fullExtensionName = baseClassDefinition.getPairName()+typeParametersString;
         final String fullBaseName = baseClassDefinition.getClassName()+typeParametersString;
         final String source = String.format(EXTENSION_CLASS_FORMAT, modifiers, fullExtensionName, fullBaseName);
-        try {
-            final SimpleNode node = Utils.createParser(source).SimqleClassDeclaration();
-
-            final ClassDefinition extensionClassDefinition = new ClassDefinition(new SyntaxTree(node, "EXTENSION_CLASS_FORMAT"), Collections.<SyntaxTree>emptyList());
-            // transfer 'mimics' to extension
-            for (Type type: baseClassDefinition.getMimics()) {
-                extensionClassDefinition.addMimics(type);
-            }
-            // transfer all constructors
-            final List<ConstructorDeclaration> constructors = baseClassDefinition.getBody().getConstructors();
-            for (final ConstructorDeclaration constructor : constructors) {
-                final List<FormalParameter> formalParameters = constructor.getFormalParameters();
-                StringBuilder argumentsBuilder = new StringBuilder();
-                for (FormalParameter formalParameter: formalParameters) {
-                    if (argumentsBuilder.length()>0) {
-                        argumentsBuilder.append(", ");
-                    }
-                    argumentsBuilder.append(formalParameter.getName());
+        final ClassDefinition extensionClassDefinition = ClassDefinition.parse(source);
+        // transfer all constructors keeping signature; implement as call to super() with same arguments
+        final List<ConstructorDeclaration> constructors = baseClassDefinition.getBody().getConstructors();
+        for (final ConstructorDeclaration constructor : constructors) {
+            final List<FormalParameter> formalParameters = constructor.getFormalParameters();
+            StringBuilder argumentsBuilder = new StringBuilder();
+            for (FormalParameter formalParameter: formalParameters) {
+                if (argumentsBuilder.length()>0) {
+                    argumentsBuilder.append(", ");
                 }
-                final String argumentsString = argumentsBuilder.toString();
-
-                StringBuilder parametersBuilder = new StringBuilder();
-                for (FormalParameter formalParameter: formalParameters) {
-                    if (parametersBuilder.length()>0) {
-                        parametersBuilder.append(", ");
-                    }
-                    parametersBuilder.append(formalParameter.getImage());
-                }
-                final String parametersString = parametersBuilder.toString();
-                final String constructorSource = String.format(EXTENSION_CONSTRUCTOR_FORMAT, baseClassDefinition.getPairName(), parametersString, argumentsString);
-                final SimpleNode constructorNode = Utils.createParser(constructorSource).ConstructorDeclaration();
-                final ConstructorDeclaration constructorDeclaration = new ConstructorDeclaration(new SyntaxTree(constructorNode, "EXTENSION_CONSTRUCTOR_FORMAT"));
-                extensionClassDefinition.addConstructorDeclaration(constructorDeclaration);
-
+                argumentsBuilder.append(formalParameter.getName());
             }
-            return extensionClassDefinition;
-        } catch (ParseException e) {
-            throw new RuntimeException("Internal error", e);
-        } catch (ModelException e) {
-            throw new RuntimeException("Internal error", e);
-        } catch (GrammarException e) {
-            throw new RuntimeException("Internal error", e);
+            final String argumentsString = argumentsBuilder.toString();
+
+            StringBuilder parametersBuilder = new StringBuilder();
+            for (FormalParameter formalParameter: formalParameters) {
+                if (parametersBuilder.length()>0) {
+                    parametersBuilder.append(", ");
+                }
+                parametersBuilder.append(formalParameter.getImage());
+            }
+            final String parametersString = parametersBuilder.toString();
+            final String constructorSource = String.format(EXTENSION_CONSTRUCTOR_FORMAT, baseClassDefinition.getPairName(), parametersString, argumentsString);
+            final ConstructorDeclaration constructorDeclaration = ConstructorDeclaration.parse(constructorSource);
+            extensionClassDefinition.getBody().unsafeAddConstructorDeclaration((constructorDeclaration));
+
         }
+        return extensionClassDefinition;
     }
 
 
@@ -137,59 +122,55 @@ public class ClassDeclarationProcessor implements Processor {
         // variable without any warning
         for (final Map.Entry<String, Type> entry: specialVariablesMap.entrySet()) {
 
-            try {
-                final String variableName = entry.getKey();
-                final Type interfaceType = entry.getValue();
-                body.addFieldDeclaration(createFieldDeclaration(variableName, interfaceType));
-                final InterfaceDefinition anInterface = model.getInterface(interfaceType.getNameChain().get(0).getName());
-                if (anInterface==null) {
-                    throw new GrammarException("Unknown interface: "+interfaceType.getImage(), interfaceNodes.get(0));
-                }
-                final List<MethodDeclaration> methods = anInterface.getBody().getMethods();
-                final List<TypeArgument> typeArgumentsActual = interfaceType.getNameChain().get(0).getTypeArguments();
-                final List<TypeParameter> typeParameters = anInterface.getTypeParameters();
-                // we should substitute formal type arguments of the method with actual type parameters where appropriate
-                // if unknown name, it is from outer context (not parameter name)
-                for (MethodDeclaration interfaceMethod: methods) {
-                    final Type methodResultType = interfaceMethod.getResultType();
-                    final Type resultType;
-                    if (methodResultType!=null) {
-                        final List<TypeNameWithTypeArguments> resutlTypeInternal = Utils.substituteTypeArguments(methodResultType.getNameChain(), typeParameters, typeArgumentsActual);
-                        resultType = new Type(resutlTypeInternal, methodResultType.getArrayDimensions());
-                    } else {
-                        resultType = null;
-                    }
-                    final String name = interfaceMethod.getName();
-                    // do not care about access modifier: interface method is public abstract by default
-                    // but do not implement static methods
-                    final List<FormalParameter> formalParameters = interfaceMethod.getFormalParameters();
-                    final List<FormalParameter> newFormalParameters = new ArrayList<FormalParameter>(formalParameters.size());
-                    for (FormalParameter formalParameter: formalParameters) {
-                        final String paramName = formalParameter.getName();
-                        final Type paramType = formalParameter.getType();
-                        final Type newType = Utils.substituteTypeArguments(typeArgumentsActual, typeParameters, paramType);
-                        newFormalParameters.add(new FormalParameter(newType, paramName, Arrays.asList("final")));
-                    }
-
-                    final String generatedBody = interfaceMethod.getResultType()==null ?
-                        createVoidDelegatedMethodBody(variableName, name, newFormalParameters) :
-                        createDelegatedMethodBody(variableName, name, newFormalParameters);
-                    if (!interfaceMethod.isStatic()) {
-                        final MethodDeclaration methodDeclaration = new MethodDeclaration(false, "public", false, false, interfaceMethod.getTypeParameters(), resultType, name, newFormalParameters, interfaceMethod.getThrowsClause(), interfaceMethod.getComment(), generatedBody);
-                        try {
-                            body.addMethod(methodDeclaration);
-                        } catch (ModelException e) {
-                            throw new GrammarException(e.getMessage(), interfaceNodes.get(0));
-                        }
-                    }
-                }
-                final ConstructorDeclaration constructor = createConstructor(specialVariablesMap, className);
-                // we know that the constructor name matches class name for sure; can use unsafeAdd
-                body.unsafeAddConstructorDeclaration(constructor);
-
-            } catch (ModelException e) {
-                throw new GrammarException(e.getMessage(), interfaceNodes.get(0));
+            final String variableName = entry.getKey();
+            final Type interfaceType = entry.getValue();
+            body.addFieldDeclaration(createFieldDeclaration(variableName, interfaceType));
+            final InterfaceDefinition anInterface = model.getInterface(interfaceType.getNameChain().get(0).getName());
+            if (anInterface==null) {
+                throw new GrammarException("Unknown interface: "+interfaceType.getImage(), interfaceNodes.get(0));
             }
+            final List<MethodDeclaration> methods = anInterface.getBody().getMethods();
+            final List<TypeArgument> typeArgumentsActual = interfaceType.getNameChain().get(0).getTypeArguments();
+            final List<TypeParameter> typeParameters = anInterface.getTypeParameters();
+            // we should substitute formal type arguments of the method with actual type parameters where appropriate
+            // if unknown name, it is from outer context (not parameter name)
+            for (MethodDeclaration interfaceMethod: methods) {
+                final Type methodResultType = interfaceMethod.getResultType();
+                final Type resultType;
+                if (methodResultType!=null) {
+                    final List<TypeNameWithTypeArguments> resutlTypeInternal = Utils.substituteTypeArguments(methodResultType.getNameChain(), typeParameters, typeArgumentsActual);
+                    resultType = new Type(resutlTypeInternal, methodResultType.getArrayDimensions());
+                } else {
+                    resultType = null;
+                }
+                final String name = interfaceMethod.getName();
+                // do not care about access modifier: interface method is public abstract by default
+                // but do not implement static methods
+                final List<FormalParameter> formalParameters = interfaceMethod.getFormalParameters();
+                final List<FormalParameter> newFormalParameters = new ArrayList<FormalParameter>(formalParameters.size());
+                for (FormalParameter formalParameter: formalParameters) {
+                    final String paramName = formalParameter.getName();
+                    final Type paramType = formalParameter.getType();
+                    final Type newType = Utils.substituteTypeArguments(typeArgumentsActual, typeParameters, paramType);
+                    newFormalParameters.add(new FormalParameter(newType, paramName, Arrays.asList("final")));
+                }
+
+                final String generatedBody = interfaceMethod.getResultType()==null ?
+                    createVoidDelegatedMethodBody(variableName, name, newFormalParameters) :
+                    createDelegatedMethodBody(variableName, name, newFormalParameters);
+                if (!interfaceMethod.isStatic()) {
+                    final MethodDeclaration methodDeclaration = new MethodDeclaration(false, "public", false, false, interfaceMethod.getTypeParameters(), resultType, name, newFormalParameters, interfaceMethod.getThrowsClause(), interfaceMethod.getComment(), generatedBody);
+                    try {
+                        body.addMethod(methodDeclaration);
+                    } catch (ModelException e) {
+                        throw new GrammarException(e.getMessage(), interfaceNodes.get(0));
+                    }
+                }
+            }
+            final ConstructorDeclaration constructor = createConstructor(specialVariablesMap, className);
+            // we know that the constructor name matches class name for sure; can use unsafeAdd
+            body.unsafeAddConstructorDeclaration(constructor);
+
         }
     }
 

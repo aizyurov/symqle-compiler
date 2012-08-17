@@ -9,8 +9,10 @@ import org.simqle.model.*;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.ClassDeclarationProcessor;
+import org.simqle.processor.GrammarException;
 import org.simqle.processor.InterfaceDeclarationsProcessor;
 import org.simqle.processor.Processor;
+import org.simqle.test.TestUtils;
 
 import java.io.FileReader;
 import java.util.Arrays;
@@ -79,5 +81,69 @@ public class TestClassParsing extends TestCase {
         }
 
     }
+
+    public void testDuplicateClass() throws Exception {
+        Model model = new Model();
+            SimqleParser parser = new SimqleParser(new FileReader("src/test-data/DuplicateClass.sdl"));
+            SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "DuplicateClass.sdl");
+        {
+            Processor processor = new InterfaceDeclarationsProcessor();
+            processor.process(node, model);
+        }
+            Processor processor = new ClassDeclarationProcessor();
+        try {
+            processor.process(node, model);
+            fail("GrammarException expected here");
+        } catch (GrammarException e) {
+            // expected
+        }
+    }
+
+    public void testStandaloneClass() throws Exception {
+        Model model = new Model();
+            SimqleParser parser = new SimqleParser(new FileReader("src/test-data/StandaloneClass.sdl"));
+            SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "StandaloneClass.sdl");
+        {
+            Processor processor = new InterfaceDeclarationsProcessor();
+            processor.process(node, model);
+        }
+        {
+            Processor processor = new ClassDeclarationProcessor();
+            processor.process(node, model);
+        }
+        final ClassPair justForFun = model.getClassPair("JustForFun");
+        assertNotNull(justForFun);
+        assertEquals(1, justForFun.getBase().getBody().getMethods().size());
+        assertEquals(0, justForFun.getExtension().getBody().getMethods().size());
+
+    }
+
+    public void testMultipleInterfaces() throws Exception {
+        Model model = new Model();
+            SimqleParser parser = new SimqleParser(new FileReader("src/test-data/MultipleInterfaces.sdl"));
+            SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "MultipleInterfaces.sdl");
+        {
+            Processor processor = new InterfaceDeclarationsProcessor();
+            processor.process(node, model);
+        }
+        {
+            Processor processor = new ClassDeclarationProcessor();
+            processor.process(node, model);
+        }
+        final ClassPair classPair = model.getClassPair("Column");
+        final ClassDefinition base = classPair.getBase();
+        assertEquals(2, base.getBody().getFields().size());
+        for (FieldDeclaration field: base.getBody().getFields()) {
+            if (field.getDeclarators().size()==1 && field.getDeclarators().get(0).getName().equals("nameBuilder")) {
+                assertEquals("private final column_name nameBuilder;", TestUtils.normalizeFormatting(field.getImage()));
+            } else if (field.getDeclarators().size()==1 && field.getDeclarators().get(0).getName().equals("tableColumnBuilder")) {
+                assertEquals("private final table_column<T> tableColumnBuilder;", TestUtils.normalizeFormatting(field.getImage()));
+            } else {
+                fail("Unexpected field: "+field.getImage());
+            }
+        }
+
+    }
+
 
 }
