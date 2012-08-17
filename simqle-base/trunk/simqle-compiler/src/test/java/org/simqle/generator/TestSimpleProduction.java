@@ -74,7 +74,7 @@ public class TestSimpleProduction extends TestCase {
                 assertEquals("SqlContext", parameterType.getName());
                 assertEquals(0, parameterType.getTypeArguments().size());
                 assertEquals(Arrays.asList("final"), formalParameter.getModifiers());
-                assertEquals(" { sqlBuilder.z$prepare$cursor_specification(context); } ", TestUtils.normalizeFormatting(prepareMethod.getMethodBody()));
+                assertEquals("{ sqlBuilder.z$prepare$cursor_specification(context); }", TestUtils.normalizeFormatting(prepareMethod.getMethodBody()));
                 // make sure the body is compilable
                 new SimqleParser(new StringReader(prepareMethod.getMethodBody())).Block();
             }
@@ -99,7 +99,7 @@ public class TestSimpleProduction extends TestCase {
                 assertEquals("SqlContext", parameterType.getName());
                 assertEquals(0, parameterType.getTypeArguments().size());
                 assertEquals(Arrays.asList("final"), formalParameter.getModifiers());
-                assertEquals(" { return sqlBuilder.z$create$cursor_specification(context); } ", TestUtils.normalizeFormatting(createMethod.getMethodBody()));
+                assertEquals("{ return sqlBuilder.z$create$cursor_specification(context); }", TestUtils.normalizeFormatting(createMethod.getMethodBody()));
                 // make sure the body is compilable
                 new SimqleParser(new StringReader(createMethod.getMethodBody())).Block();
 
@@ -138,6 +138,7 @@ public class TestSimpleProduction extends TestCase {
             assertEquals("CursorSpecification", constructor.getName());
             assertEquals(1, constructor.getFormalParameters().size());
             assertEquals("final cursor_specification<T> sqlBuilder", constructor.getFormalParameters().get(0).getImage());
+            assertEquals("{ this.sqlBuilder = sqlBuilder; }", TestUtils.normalizeFormatting(constructor.getBody()));
         }
         {
             final ClassDefinition def = model.getClassPair("CursorSpecification").getExtension();
@@ -158,6 +159,7 @@ public class TestSimpleProduction extends TestCase {
             assertEquals("CursorSpecification", constructor.getName());
             assertEquals(1, constructor.getFormalParameters().size());
             assertEquals("final cursor_specification<T> sqlBuilder", constructor.getFormalParameters().get(0).getImage());
+            assertEquals("{ super(sqlBuilder); }", TestUtils.normalizeFormatting(constructor.getBody()));
         }
 
         {

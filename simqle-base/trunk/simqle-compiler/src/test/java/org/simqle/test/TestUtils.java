@@ -13,7 +13,7 @@ public class TestUtils {
     }
 
     public static String normalizeFormatting(String source) {
-        return source.replaceAll("\\s+", " ");
+        return source.replaceAll("\\s+", " ").trim();
 
     }
 }

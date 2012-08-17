@@ -177,7 +177,7 @@ public class ProductionDeclarationProcessor implements Processor {
         if (delegate==null) {
             throw new ModelException("Method "+requiredReturnType.getImage()+" value(Element element) must be implemented; cannot guess implementation");
         } else {
-            return "        @override\n" +
+            return  "       @Override\n" +
                     "       public "+requiredReturnType.getImage()+" value(final Element element) {\n" +
                     "            return "+delegate.getName() +".value(element); \n" +
                     "       }\n";

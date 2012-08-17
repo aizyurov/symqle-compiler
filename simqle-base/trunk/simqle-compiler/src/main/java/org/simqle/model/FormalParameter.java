@@ -43,7 +43,7 @@ public class FormalParameter {
         }
         image = node.getImage();
         name = node.find("VariableDeclaratorId.Identifier").get(0).getValue();
-        modifiers = Utils.bodies(node.find("VariableModifier"));
+        modifiers = Utils.bodies(node.find("VariableModifiers.VariableModifier"));
     }
 
     public FormalParameter(Type type, String name) {

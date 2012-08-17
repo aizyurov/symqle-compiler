@@ -107,7 +107,7 @@ public class TestScalarProduction extends TestCase {
         assertEquals("expr", formalParameter.getName());
         assertEquals("expression<Boolean>", formalParameter.getType().getImage());
         String expectedBody = "{ return new boolean_expression() {\n" +
-                "        @override\n" +
+                "       @Override\n" +
                 "       public Boolean value(final Element element) {\n" +
                 "            return expr.value(element); \n" +
                 "       }\n" +
