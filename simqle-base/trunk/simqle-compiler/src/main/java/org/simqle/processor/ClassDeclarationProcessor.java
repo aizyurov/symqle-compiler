@@ -114,14 +114,18 @@ public class ClassDeclarationProcessor implements Processor {
 
 
     private void addFields(List<SyntaxTree> interfaceNodes, final Body body, final String className, final Model model) throws GrammarException, ModelException {
-        final Map<String, Type> withVariablesMap = new LinkedHashMap<String, Type>();
+        if (interfaceNodes.isEmpty()) {
+            return;
+        }
+        final Map<String, Type> specialVariablesMap = new LinkedHashMap<String, Type>();
         for (final SyntaxTree interfaceNode: interfaceNodes) {
             // must have exactly one ClassOrInterfaceType
             final Type type = Utils.convertChildren(interfaceNode, "ClassOrInterfaceType", Type.class).get(0);
             // must have at most one with variable
             final List<SyntaxTree> variables = interfaceNode.find("Identifier");
-            if (variables.size()>0) {
-                if (null!=withVariablesMap.put(variables.get(0).getValue(), type)) {
+            if (!variables.isEmpty()) {
+                final Type previousValue = specialVariablesMap.put(variables.get(0).getValue(), type);
+                if (null!= previousValue) {
                     throw new GrammarException("Duplicate variable "+variables.get(0).getValue(), interfaceNode);
                 }
             }
@@ -131,7 +135,7 @@ public class ClassDeclarationProcessor implements Processor {
         // and methods of each interface, which delegate to these variables (if not exist yet)
         // Note: if interfaces have the same method, it will be implemented by delegation to the first
         // variable without any warning
-        for (final Map.Entry<String, Type> entry: withVariablesMap.entrySet()) {
+        for (final Map.Entry<String, Type> entry: specialVariablesMap.entrySet()) {
 
             try {
                 final String variableName = entry.getKey();
@@ -164,20 +168,22 @@ public class ClassDeclarationProcessor implements Processor {
                         final String paramName = formalParameter.getName();
                         final Type paramType = formalParameter.getType();
                         final Type newType = Utils.substituteTypeArguments(typeArgumentsActual, typeParameters, paramType);
-                        newFormalParameters.add(new FormalParameter(newType, paramName));
+                        newFormalParameters.add(new FormalParameter(newType, paramName, Arrays.asList("final")));
                     }
 
-                    final String generatedBody = createDelegatedMethodBody(variableName, name, newFormalParameters);
+                    final String generatedBody = interfaceMethod.getResultType()==null ?
+                        createVoidDelegatedMethodBody(variableName, name, newFormalParameters) :
+                        createDelegatedMethodBody(variableName, name, newFormalParameters);
                     if (!interfaceMethod.isStatic()) {
                         final MethodDeclaration methodDeclaration = new MethodDeclaration(false, "public", false, false, interfaceMethod.getTypeParameters(), resultType, name, newFormalParameters, interfaceMethod.getThrowsClause(), interfaceMethod.getComment(), generatedBody);
                         try {
                             body.addMethod(methodDeclaration);
                         } catch (ModelException e) {
-                            // ignore: method is already declared
+                            throw new GrammarException(e.getMessage(), interfaceNodes.get(0));
                         }
                     }
                 }
-                final ConstructorDeclaration constructor = createConstructor(withVariablesMap, className);
+                final ConstructorDeclaration constructor = createConstructor(specialVariablesMap, className);
                 // we know that the constructor name matches class name for sure; can use unsafeAdd
                 body.unsafeAddConstructorDeclaration(constructor);
 
@@ -190,10 +196,6 @@ public class ClassDeclarationProcessor implements Processor {
     private final String FIELD_FORMAT = Utils.join(8,
             "private final %s %s;");
 
-    private final static String CONSTRUCTOR_HEADER_TEMPLATE = "protected %s(%s) {";
-    private final static String CONSTRUCTOR_LINE_TEMPLATE = "this.%s = %s";
-    private static final String  CONSTRUCTOR_FOOTER_TEMPLATE = "}";
-    
     private FieldDeclaration createFieldDeclaration(String name, Type type) {
         final String declarationSource = String.format(FIELD_FORMAT, type.getImage(), name);
         try {
@@ -210,15 +212,29 @@ public class ClassDeclarationProcessor implements Processor {
             "{",
             "    return %s.%s(%s);",
             "}");
+
+    private final static String GENERATED_VOID_METHOD_BODY_TEMPLATE = Utils.join(8,
+            "{",
+            "    %s.%s(%s);",
+            "}");
+
     private String createDelegatedMethodBody(String variableName, String methodName, List<FormalParameter> parameters) {
-        StringBuilder paramBuilder = new StringBuilder();
+        return createMethodBody(variableName, methodName, parameters, GENERATED_METHOD_BODY_TEMPLATE);
+    }
+
+    private String createVoidDelegatedMethodBody(String variableName, String methodName, List<FormalParameter> parameters) {
+        return createMethodBody(variableName, methodName, parameters, GENERATED_VOID_METHOD_BODY_TEMPLATE);
+    }
+
+    private String createMethodBody(final String variableName, final String methodName, final List<FormalParameter> parameters, final String template) {
+        StringBuilder argumentsBuilder = new StringBuilder();
         for (FormalParameter param: parameters) {
-            if (paramBuilder.length()>0) {
-                paramBuilder.append(", ");
+            if (argumentsBuilder.length()>0) {
+                argumentsBuilder.append(", ");
             }
-            paramBuilder.append(param.getName());
+            argumentsBuilder.append(param.getName());
         }
-        return String.format(GENERATED_METHOD_BODY_TEMPLATE, variableName, methodName, parameters);
+        return String.format(template, variableName, methodName, argumentsBuilder.toString());
     }
 
 

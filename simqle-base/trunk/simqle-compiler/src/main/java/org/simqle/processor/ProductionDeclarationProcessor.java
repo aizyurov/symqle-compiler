@@ -38,20 +38,11 @@ public class ProductionDeclarationProcessor implements Processor {
                     List<FormalParameter> formalParameters = createFormalParameters(productionRule);
                     if (methodBodies.isEmpty()) {
                         // generate the body
-                    // TODO add auto-generates z$create$, z$prepare$ and value methods to the body
                         try {
                             methodBodySource = generateFactoryMethodBody(productionRule, model, returnType);
                         } catch (ModelException e) {
                             throw new GrammarException(e.getMessage(), productionChoice);
                         }
-                        final String valueMethodName = "value";
-//                    final MethodDeclaration valueMethod = returnedInterface.getBody().getMethod(valueMethodName);
-//                    if (body.getMethod(valueMethodName)==null) {
-//                        // create one
-//                        createValueMethodImplementation(valueMethod, productionRule);
-//                    }
-//
-//                    }
                     } else {
                         final String rawImage = methodBodies.get(0).getImage();
                     // mactosubstitutions in body:
@@ -107,7 +98,7 @@ public class ProductionDeclarationProcessor implements Processor {
                         final List<Type> types = Utils.convertChildren(addendum, "Mimics.ClassOrInterfaceType", Type.class);
                         for (Type virtualAncestor: types) {
                             try {
-                                classPair.getBase().addMimics(virtualAncestor);
+                                // only extension mimics other classes; base does not
                                 classPair.getExtension().addMimics(virtualAncestor);
                             } catch (ModelException e) {
                                 throw new GrammarException(e.getMessage(), addendum);
@@ -116,7 +107,7 @@ public class ProductionDeclarationProcessor implements Processor {
                             final String virtualAncestorName = virtualAncestor.getNameChain().get(0).getName();
                             final List<TypeArgument> virtualAncestorTypeArguments = virtualAncestor.getNameChain().get(0).getTypeArguments();
                             final String methodName = "to"+virtualAncestorName;
-                            if (null==model.getClassPair(virtualAncestorName).getBase().getBody().getMethod(methodName)) {
+                            if (null==targetBody.getMethod(methodName)) {
                                 // we expect that there is a trivial implementation;
                                 // it may not compile e.g. because class does not implement proper interface,
                                 // wrong number of parameters, target class not having proper constructor etc.
@@ -129,6 +120,7 @@ public class ProductionDeclarationProcessor implements Processor {
                                                 return typeArgument.getValue();
                                             }
                                         });
+                                methodBodyBuilder.append(typeArgumentsString);
                                 methodBodyBuilder.append("(SqlFactory.getInstance().")
                                 .append(productionRule.getName()).append("(this)); }");
                                 try {
@@ -136,8 +128,9 @@ public class ProductionDeclarationProcessor implements Processor {
                                     MethodDeclaration declaration = new MethodDeclaration(false, "protected", false, false,
                                             Collections.<TypeParameter>emptyList(), virtualAncestor, methodName,
                                             Collections.<FormalParameter>emptyList(), "", "", methodBodyBuilder.toString());
+                                    targetBody.addMethod(declaration);
                                 } catch (ModelException e) {
-                                    // not expected here
+                                    // not expected here: absense of method checked in enclosing if block
                                     throw new RuntimeException("Internal error", e);
                                 }
                             }

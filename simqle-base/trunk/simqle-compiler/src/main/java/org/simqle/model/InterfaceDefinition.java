@@ -66,7 +66,6 @@ public class InterfaceDefinition {
         boolean isSql = false;
         boolean isQuery = false;
         TypeParameter queryParameter = null;
-        TypeParameter scalarParameter = null;
         for (SyntaxTree archetype: archetypes) {
             // mandatory and unique by syntax
             final SyntaxTree name = archetype.find("Identifier").get(0);

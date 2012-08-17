@@ -21,7 +21,6 @@ public class Body {
     private final Set<String> fieldNames = new HashSet<String>();
     private final List<String> otherDeclarations = new ArrayList<String>();
     private final List<ConstructorDeclaration> constructors = new ArrayList<ConstructorDeclaration>();
-    private Set<String> withFieldNames = new HashSet<String>();
 
     /**
      * Creates empty Body
@@ -134,16 +133,6 @@ public class Body {
 
     public List<ConstructorDeclaration> getConstructors() {
         return Collections.unmodifiableList(constructors);
-    }
-
-    public void addWithField(String name) throws ModelException {
-        if (!withFieldNames.add(name)) {
-            throw new ModelException("Duplicate field name: "+name);
-        };
-    }
-
-    public List<String> getWithFieldNames() {
-        return new ArrayList<String>(withFieldNames);
     }
 
     public void merge(Body another) throws ModelException {

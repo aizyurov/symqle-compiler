@@ -37,18 +37,18 @@ public class TestTypeParameters extends TestCase {
         {
             final ClassDefinition classDef = model.getAllClasses().get(0).getBase();
             Assert.assertEquals(3, classDef.getBody().getMethods().size());
-            Assert.assertEquals("public V value(Element element)", classDef.getBody().getMethods().get(0).getSignature().trim());
-            Assert.assertEquals("public Query<V> z$create$expression(SqlContext context)", classDef.getBody().getMethods().get(1).getSignature().trim());
-            Assert.assertEquals("public void z$prepare$expression(SqlContext context)", classDef.getBody().getMethods().get(2).getSignature().trim());
+            Assert.assertEquals("public V value(final Element element)", classDef.getBody().getMethods().get(0).getSignature().trim());
+            Assert.assertEquals("public Query<V> z$create$expression(final SqlContext context)", classDef.getBody().getMethods().get(1).getSignature().trim());
+            Assert.assertEquals("public void z$prepare$expression(final SqlContext context)", classDef.getBody().getMethods().get(2).getSignature().trim());
             Assert.assertEquals(1, classDef.getBody().getFields().size());
             Assert.assertEquals("private final expression<V> sqlBuilder;", classDef.getBody().getFields().get(0).getImage().trim());
         }
         {
             final ClassDefinition classDef = model.getAllClasses().get(1).getBase();
             Assert.assertEquals(3, classDef.getBody().getMethods().size());
-            Assert.assertEquals("public Boolean value(Element element)", classDef.getBody().getMethods().get(0).getSignature().trim());
-            Assert.assertEquals("public Query<Boolean> z$create$expression(SqlContext context)", classDef.getBody().getMethods().get(1).getSignature().trim());
-            Assert.assertEquals("public void z$prepare$expression(SqlContext context)", classDef.getBody().getMethods().get(2).getSignature().trim());
+            Assert.assertEquals("public Boolean value(final Element element)", classDef.getBody().getMethods().get(0).getSignature().trim());
+            Assert.assertEquals("public Query<Boolean> z$create$expression(final SqlContext context)", classDef.getBody().getMethods().get(1).getSignature().trim());
+            Assert.assertEquals("public void z$prepare$expression(final SqlContext context)", classDef.getBody().getMethods().get(2).getSignature().trim());
             Assert.assertEquals(1, classDef.getBody().getFields().size());
             Assert.assertEquals("private final expression<Boolean> sqlBuilder;", classDef.getBody().getFields().get(0).getImage().trim());
         }
