@@ -196,15 +196,13 @@ public class ClassDeclarationProcessor implements Processor {
     private final String FIELD_FORMAT = Utils.join(8,
             "private final %s %s;");
 
-    private FieldDeclaration createFieldDeclaration(String name, Type type) {
+    private FieldDeclaration createFieldDeclaration(String name, Type type) throws GrammarException {
         final String declarationSource = String.format(FIELD_FORMAT, type.getImage(), name);
         try {
             final SimpleNode node = Utils.createParser(declarationSource).FieldDeclaration();
             return new FieldDeclaration(new SyntaxTree(node, "FIELD_FORMAT"));
         } catch (ParseException e) {
-            throw new RuntimeException("Internal Error", e);
-        } catch (GrammarException e) {
-            throw new RuntimeException("Internal Error", e);
+            throw new GrammarException(e);
         }
     }
 
@@ -245,7 +243,7 @@ public class ClassDeclarationProcessor implements Processor {
     private final static String VARIABLE_ASSIGNMENT_FORMAT = "this.%1$s = %1$s;\n";
     private final static String CTR_FORMAL_ARG_FORMAT = "final %s %s";
 
-    private ConstructorDeclaration createConstructor(Map<String, Type> variables, String className) {
+    private ConstructorDeclaration createConstructor(Map<String, Type> variables, String className) throws GrammarException {
         StringBuilder variablesAssignmentBuilder = new StringBuilder();
         StringBuilder formalArgsBuilder = new StringBuilder();
         for (Map.Entry<String, Type> entry: variables.entrySet()) {
@@ -262,9 +260,7 @@ public class ClassDeclarationProcessor implements Processor {
             final SimpleNode node = Utils.createParser(constructorSource).ConstructorDeclaration();
             return new ConstructorDeclaration(new SyntaxTree(node, "CONSTRUCTOR_FORMAT"));
         } catch (ParseException e) {
-            throw new RuntimeException("Internal error", e);
-        } catch (GrammarException e) {
-            throw new RuntimeException("Internal error", e);
+            throw new GrammarException(e);
         }
     }
 

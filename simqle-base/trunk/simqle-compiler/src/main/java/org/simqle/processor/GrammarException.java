@@ -3,6 +3,7 @@
 */
 package org.simqle.processor;
 
+import org.simqle.parser.ParseException;
 import org.simqle.parser.SyntaxTree;
 
 /**
@@ -18,6 +19,10 @@ public class GrammarException extends Exception {
 
     public GrammarException(final String message, final Throwable cause, final SyntaxTree node) {
         super(appendPosition(message, node), cause);
+    }
+
+    public GrammarException(final ParseException parseException) {
+        super(parseException.getMessage(), parseException);
     }
 
     private static String appendPosition(String message, SyntaxTree node) {

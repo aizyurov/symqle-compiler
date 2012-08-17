@@ -58,7 +58,7 @@ public class TestScalarProduction extends TestCase {
                 assertEquals("SqlContext", parameterType.getName());
                 assertEquals(0, parameterType.getTypeArguments().size());
                 assertEquals(Arrays.asList("final"), formalParameter.getModifiers());
-                assertEquals(" { sqlBuilder.z$prepare$boolean_expression(context); } ", TestUtils.normalizeFormatting(prepareMethod.getMethodBody()));
+                assertEquals("{ sqlBuilder.z$prepare$boolean_expression(context); }", TestUtils.normalizeFormatting(prepareMethod.getMethodBody()));
                 // make sure the body is compilable
                 new SimqleParser(new StringReader(prepareMethod.getMethodBody())).Block();
             }
@@ -82,7 +82,7 @@ public class TestScalarProduction extends TestCase {
                 assertEquals("Element", parameterType.getName());
                 assertEquals(0, parameterType.getTypeArguments().size());
                 assertEquals(Arrays.asList("final"), formalParameter.getModifiers());
-                assertEquals(" { return sqlBuilder.value(element); } ", TestUtils.normalizeFormatting(valueMethod.getMethodBody()));
+                assertEquals("{ return sqlBuilder.value(element); }", TestUtils.normalizeFormatting(valueMethod.getMethodBody()));
                 // make sure the body is compilable
                 new SimqleParser(new StringReader(valueMethod.getMethodBody())).Block();
             }

@@ -3,6 +3,8 @@
 */
 package org.simqle.model;
 
+import org.simqle.parser.ParseException;
+import org.simqle.parser.SimpleNode;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 
@@ -34,7 +36,16 @@ public class MethodDeclaration {
     private final String methodBody;
 
     private final String throwsClause;
-    
+
+
+    public static MethodDeclaration parseAbstractMethod(String source) throws GrammarException {
+        try {
+            final SimpleNode simpleNode = Utils.createParser(source).AbstractMethodDeclaration();
+            return new MethodDeclaration(new SyntaxTree(simpleNode, source));
+        } catch (ParseException e) {
+            throw new GrammarException(e);
+        }
+    }
 
     public MethodDeclaration(SyntaxTree node) throws GrammarException {
         if (node.getType().equals("AbstractMethodDeclaration")) {

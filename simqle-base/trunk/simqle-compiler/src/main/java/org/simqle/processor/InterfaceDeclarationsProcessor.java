@@ -4,8 +4,6 @@
 package org.simqle.processor;
 
 import org.simqle.model.*;
-import org.simqle.parser.ParseException;
-import org.simqle.parser.SimpleNode;
 import org.simqle.parser.SyntaxTree;
 
 import java.util.ArrayList;
@@ -85,16 +83,9 @@ public class InterfaceDeclarationsProcessor implements Processor {
             "%s value(Element element);"
             );
 
-    public static MethodDeclaration makeScalarMethod(String typeParameter, String interfaceName) {
+    public static MethodDeclaration makeScalarMethod(String typeParameter, String interfaceName) throws GrammarException {
         final String methodSource = String.format(SCALAR_METHOD_COMMENT_FORMAT, typeParameter, typeParameter, typeParameter, interfaceName);
-        try {
-            final SimpleNode node = Utils.createParser(methodSource).AbstractMethodDeclaration();
-            return new MethodDeclaration(new SyntaxTree(node, "SCALAR_METHOD_COMMENT_FORMAT"));
-        } catch (ParseException e) {
-            throw new RuntimeException("Internal Error", e);
-        } catch (GrammarException e) {
-            throw new RuntimeException("Internal Error", e);
-        }
+        return MethodDeclaration.parseAbstractMethod(methodSource);
     }
 
     private final static String PREPARE_REQUIRED_IMPORT = "import org.simqle.SqlContext;";
@@ -106,16 +97,9 @@ public class InterfaceDeclarationsProcessor implements Processor {
             "void z$prepare$%s(SqlContext context);"
             );
 
-    private MethodDeclaration makePrepareMethod(String interfaceName) {
+    private MethodDeclaration makePrepareMethod(String interfaceName) throws GrammarException {
         final String methodSource = String.format(PREPARE_METHOD_COMMENT_FORMAT, interfaceName, interfaceName);
-        try {
-            final SimpleNode node = Utils.createParser(methodSource).AbstractMethodDeclaration();
-            return new MethodDeclaration(new SyntaxTree(node, "PREPARE_METHOD_COMMENT_FORMAT"));
-        } catch (ParseException e) {
-            throw new RuntimeException("Internal Error", e);
-        } catch (GrammarException e) {
-            throw new RuntimeException("Internal Error", e);
-        }
+        return MethodDeclaration.parseAbstractMethod(methodSource);
     }
 
     private final static String QUERY_REQUIRED_IMPORT = "import org.simqle.Query;";
@@ -128,16 +112,9 @@ public class InterfaceDeclarationsProcessor implements Processor {
             "Query<%s> z$create$%s(SqlContext context);"
             );
 
-    private MethodDeclaration makeQueryMethod(String typeParameter, String interfaceName) {
+    private MethodDeclaration makeQueryMethod(String typeParameter, String interfaceName) throws GrammarException {
         final String methodSource = String.format(QUERY_METHOD_COMMENT_FORMAT, typeParameter, interfaceName);
-        try {
-            final SimpleNode node = Utils.createParser(methodSource).AbstractMethodDeclaration();
-            return new MethodDeclaration(new SyntaxTree(node, "QUERY_METHOD_COMMENT_FORMAT"));
-        } catch (ParseException e) {
-            throw new RuntimeException("Internal Error", e);
-        } catch (GrammarException e) {
-            throw new RuntimeException("Internal Error", e);
-        }
+        return MethodDeclaration.parseAbstractMethod(methodSource);
     }
 
     private final static String SQL_REQUIRED_IMPORT = "import org.simqle.Sql;";
@@ -151,16 +128,8 @@ public class InterfaceDeclarationsProcessor implements Processor {
             );
 
 
-    private MethodDeclaration makeSqlMethod(String interfaceName) {
+    private MethodDeclaration makeSqlMethod(String interfaceName) throws GrammarException {
         final String methodSource = String.format(SQL_METHOD_COMMENT_FORMAT, interfaceName);
-        try {
-            final SimpleNode node = Utils.createParser(methodSource).AbstractMethodDeclaration();
-            return new MethodDeclaration(new SyntaxTree(node,"SQL_METHOD_COMMENT_FORMAT"));
-        } catch (ParseException e) {
-            throw new RuntimeException("Internal Error", e);
-        } catch (GrammarException e) {
-            throw new RuntimeException("Internal Error", e);
-        }
-
+        return MethodDeclaration.parseAbstractMethod(methodSource);
     }
 }
