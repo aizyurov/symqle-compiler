@@ -60,6 +60,7 @@ public class TestSimpleProduction extends TestCase {
                 assertEquals("public", prepareMethod.getAccessModifier());
                 assertFalse(prepareMethod.isStatic());
                 assertFalse(prepareMethod.isAbstract());
+                assertEquals("", prepareMethod.getThrowsClause());
                 assertEquals(0, prepareMethod.getTypeParameters().size());
                 assertNull(prepareMethod.getResultType());
                 final List<FormalParameter> formalParameters = prepareMethod.getFormalParameters();
@@ -82,6 +83,7 @@ public class TestSimpleProduction extends TestCase {
                 assertEquals("public", createMethod.getAccessModifier());
                 assertFalse(createMethod.isStatic());
                 assertFalse(createMethod.isAbstract());
+                assertEquals("", createMethod.getThrowsClause());
                 assertEquals(0, createMethod.getTypeParameters().size());
                 assertEquals("Query<T>", createMethod.getResultType().getImage());
                 final List<FormalParameter> formalParameters = createMethod.getFormalParameters();
@@ -137,6 +139,27 @@ public class TestSimpleProduction extends TestCase {
             assertEquals("CursorSpecification", constructor.getName());
             assertEquals(1, constructor.getFormalParameters().size());
             assertEquals("final cursor_specification<T> sqlBuilder", constructor.getFormalParameters().get(0).getImage());
+        }
+
+        {
+            assertEquals(1, model.getAllFactoryMethods().size());
+            final FactoryMethodModel factoryMethod = model.getAllFactoryMethods().get(0);
+            final MethodDeclaration methodDeclaration = factoryMethod.getMethodDeclaration();
+            assertEquals("select_statement_IS_cursor_specification<T>", methodDeclaration.getName());
+            assertEquals("select_statement<T>", methodDeclaration.getResultType().getImage());
+            assertFalse(methodDeclaration.isStatic());
+            assertFalse(methodDeclaration.isAbstract());
+            assertEquals("public", methodDeclaration.getAccessModifier());
+            assertEquals("", methodDeclaration.getThrowsClause());
+            assertEquals(1, methodDeclaration.getTypeParameters().size());
+            assertEquals("T", methodDeclaration.getTypeParameters().get(0).getImage());
+            assertEquals(1, methodDeclaration.getFormalParameters().size());
+            final FormalParameter formalParameter = methodDeclaration.getFormalParameters().get(0);
+            assertEquals(Arrays.asList("final"), formalParameter.getModifiers());
+            assertEquals("cursorSpec", formalParameter.getName());
+            assertEquals("cursor_specification<T>", formalParameter.getType().getImage());
+
+
         }
 
     }
