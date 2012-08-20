@@ -4,8 +4,6 @@
 package org.simqle.processor;
 
 import org.simqle.model.*;
-import org.simqle.parser.ParseException;
-import org.simqle.parser.SimpleNode;
 import org.simqle.parser.SyntaxTree;
 
 import java.util.*;
@@ -157,14 +155,12 @@ public class ClassDeclarationProcessor implements Processor {
                 final String generatedBody = interfaceMethod.getResultType()==null ?
                     createVoidDelegatedMethodBody(variableName, name, newFormalParameters) :
                     createDelegatedMethodBody(variableName, name, newFormalParameters);
-                if (!interfaceMethod.isStatic()) {
                     final MethodDeclaration methodDeclaration = new MethodDeclaration(false, "public", false, false, interfaceMethod.getTypeParameters(), resultType, name, newFormalParameters, interfaceMethod.getThrowsClause(), interfaceMethod.getComment(), generatedBody);
                     try {
                         body.addMethod(methodDeclaration);
                     } catch (ModelException e) {
-                        throw new GrammarException(e.getMessage(), interfaceNodes.get(0));
+                        throw new GrammarException("Method \""+name+"\" already defined but generation requested", interfaceNodes.get(0));
                     }
-                }
             }
             final ConstructorDeclaration constructor = createConstructor(specialVariablesMap, className);
             // we know that the constructor name matches class name for sure; can use unsafeAdd
@@ -178,12 +174,7 @@ public class ClassDeclarationProcessor implements Processor {
 
     private FieldDeclaration createFieldDeclaration(String name, Type type) throws GrammarException {
         final String declarationSource = String.format(FIELD_FORMAT, type.getImage(), name);
-        try {
-            final SimpleNode node = Utils.createParser(declarationSource).FieldDeclaration();
-            return new FieldDeclaration(new SyntaxTree(node, "FIELD_FORMAT"));
-        } catch (ParseException e) {
-            throw new GrammarException(e);
-        }
+        return FieldDeclaration.parse(declarationSource);
     }
 
     private final static String GENERATED_METHOD_BODY_TEMPLATE = Utils.join(8,
@@ -236,12 +227,7 @@ public class ClassDeclarationProcessor implements Processor {
             formalArgsBuilder.append(String.format(CTR_FORMAL_ARG_FORMAT, type.getImage(), variable));
         }
         final String constructorSource = String.format(CONSTRUCTOR_FORMAT, className, formalArgsBuilder.toString(), variablesAssignmentBuilder.toString());
-        try {
-            final SimpleNode node = Utils.createParser(constructorSource).ConstructorDeclaration();
-            return new ConstructorDeclaration(new SyntaxTree(node, "CONSTRUCTOR_FORMAT"));
-        } catch (ParseException e) {
-            throw new GrammarException(e);
-        }
+        return ConstructorDeclaration.parse(constructorSource);
     }
 
 }

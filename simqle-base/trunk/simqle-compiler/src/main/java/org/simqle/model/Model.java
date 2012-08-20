@@ -19,7 +19,7 @@ public class Model {
     public void addInterface(InterfaceDefinition def) throws ModelException {
         final String name = def.getName();
         if (interfaces.containsKey(name)) {
-            throw new ModelException("Diplicate interface: "+name);
+            throw new ModelException("Duplicate interface: "+name);
         }
         interfaces.put(name, def);
     }

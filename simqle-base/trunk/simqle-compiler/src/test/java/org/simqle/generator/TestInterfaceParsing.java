@@ -11,6 +11,7 @@ import org.simqle.model.Model;
 import org.simqle.model.Type;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
+import org.simqle.processor.GrammarException;
 import org.simqle.processor.InterfaceDeclarationsProcessor;
 import org.simqle.processor.Processor;
 
@@ -52,7 +53,59 @@ public class TestInterfaceParsing extends TestCase {
         final List<String> importLines = def1.getImportLines();
         Assert.assertTrue(importLines.contains("import org.simqle.SqlContext;"));
         Assert.assertTrue(importLines.contains("import org.simqle.Query;"));
-        Assert.assertEquals(2, importLines.size());
+        Assert.assertTrue(importLines.contains("import java.util.List;"));
+        Assert.assertEquals(3, importLines.size());
+    }
+
+    public void testExplicitValueMethod() throws Exception {
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/ExplicitValueMethodDeclaration.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "ExplicitValueMethodDeclaration.sdl");
+        final Model model = new Model();
+        try {
+            new InterfaceDeclarationsProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            // expected
+            assertTrue(e.getMessage().startsWith("Method \"value\" cannot be defined explicitly"));
+        }
+    }
+
+    public void testExplicitPrepareMethod() throws Exception {
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/ExplicitPrepareMethodDeclaration.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "ExplicitPrepareMethodDeclaration.sdl");
+        final Model model = new Model();
+        try {
+            new InterfaceDeclarationsProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            // expected
+            assertTrue(e.getMessage().startsWith("Method \"z$prepare$expression\" cannot be defined explicitly"));
+        }
+    }
+
+    public void testExplicitCreateMethod() throws Exception {
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/ExplicitCreateMethodDeclaration.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "ExplicitCreateMethodDeclaration.sdl");
+        final Model model = new Model();
+        try {
+            new InterfaceDeclarationsProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            // expected
+            assertTrue(e.getMessage().startsWith("Method \"z$create$expression\" cannot be defined explicitly"));
+        }
+    }
+
+    public void testDuplicateInterface() throws Exception {
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/DuplicateInterface.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "DuplicateInterface.sdl");
+        final Model model = new Model();
+        try {
+            new InterfaceDeclarationsProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage().startsWith("Duplicate interface: test_interface"));
+        }
     }
 
     public void testGenerate() throws Exception {

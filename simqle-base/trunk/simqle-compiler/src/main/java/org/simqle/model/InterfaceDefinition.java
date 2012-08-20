@@ -102,14 +102,14 @@ public class InterfaceDefinition {
         if (isScalar()) {
             this.importLines.add("import org.simqle.Scalar;");
         }
+        this.importLines.add("import org.simqle.SqlContext;");
         this.isQuery = isQuery;
         this.queryTypeParameter = queryParameter;
-        final List<SyntaxTree> bodies = node.find("InterfaceBody");
-        if (bodies.isEmpty()) {
-            this.body = new Body();
-        } else {
-            this.body = new Body(bodies.get(0));
-        }
+
+        // exactly one body guaranteed by syntax
+        body = Utils.convertChildren(node, "InterfaceBody", Body.class).get(0);
+
+
         comment = node.getComments();
         StringBuilder declarationBuilder = new StringBuilder();
         declarationBuilder.append(getChildrenImage(node, "InterfaceModifiers"))

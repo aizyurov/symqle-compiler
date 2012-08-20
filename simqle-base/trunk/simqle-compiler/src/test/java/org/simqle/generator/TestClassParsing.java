@@ -180,5 +180,34 @@ public class TestClassParsing extends TestCase {
         }
     }
 
+    public void testComplexInterface() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/ComplexInterface.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "ComplexInterface.sdl");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        final ClassDefinition baseClass = model.getClassPair("TestClass").getBase();
+        final MethodDeclaration dumpMethod = baseClass.getBody().getMethod("dump");
+        assertNotNull(dumpMethod);
+        assertEquals("public void dump(final OutputStream os, final boolean compress)", TestUtils.normalizeFormatting(dumpMethod.getSignature()));
+        assertEquals("{ sqlBuilder.dump(os, compress); }", TestUtils.normalizeFormatting(dumpMethod.getMethodBody()));
+    }
+
+    public void testGeneratedMethodConflict() throws Exception {
+        Model model = new Model();
+            SimqleParser parser = new SimqleParser(new FileReader("src/test-data/GeneratedMethodConflict.sdl"));
+            SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "GeneratedMethodConflict.sdl");
+        {
+            Processor processor = new InterfaceDeclarationsProcessor();
+            processor.process(node, model);
+        }
+            Processor processor = new ClassDeclarationProcessor();
+        try {
+            processor.process(node, model);
+            fail("GrammarException expected here");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage().startsWith("Method \"dump\" already defined but generation requested"));
+        }
+    }
 
 }

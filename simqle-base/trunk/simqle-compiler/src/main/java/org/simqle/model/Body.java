@@ -22,12 +22,6 @@ public class Body {
     private final List<String> otherDeclarations = new ArrayList<String>();
     private final List<ConstructorDeclaration> constructors = new ArrayList<ConstructorDeclaration>();
 
-    /**
-     * Creates empty Body
-     */
-    public Body() {
-    }
-
     public Body(SyntaxTree node) throws GrammarException {
         if (!node.getType().equals("InterfaceBody") && !node.getType().equals("ClassBody")) {
             throw new IllegalArgumentException("Illegal argument: "+node);

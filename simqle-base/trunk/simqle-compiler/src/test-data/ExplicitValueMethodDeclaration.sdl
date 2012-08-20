@@ -1,0 +1,4 @@
+public interface expression<T> extends Scalar<T>
+{
+    Integer value();
+}

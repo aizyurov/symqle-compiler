@@ -3,6 +3,8 @@
 */
 package org.simqle.model;
 
+import org.simqle.parser.ParseException;
+import org.simqle.parser.SimpleNode;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 
@@ -29,6 +31,17 @@ public class FieldDeclaration {
 
     private final List<VariableDeclarator> declarators;
 
+
+    public static FieldDeclaration parse(String source) {
+        try {
+            final SimpleNode node = Utils.createParser(source).FieldDeclaration();
+            return new FieldDeclaration(new SyntaxTree(node, source));
+        } catch (ParseException e) {
+            throw new RuntimeException("Internal error", e);
+        } catch (GrammarException e) {
+            throw new RuntimeException("Internal error", e);
+        }
+    }
 
     public FieldDeclaration(SyntaxTree node) throws GrammarException {
         if (!node.getType().equals("FieldDeclaration")) {

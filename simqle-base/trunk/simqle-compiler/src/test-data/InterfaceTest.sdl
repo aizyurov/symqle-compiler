@@ -1,5 +1,6 @@
 #Test sdl for interface declarations
 
+import java.util.List;
 /**
 * interface1 select_statement
 */

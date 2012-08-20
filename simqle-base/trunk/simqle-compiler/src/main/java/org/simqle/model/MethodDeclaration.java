@@ -38,12 +38,14 @@ public class MethodDeclaration {
     private final String throwsClause;
 
 
-    public static MethodDeclaration parseAbstractMethod(String source) throws GrammarException {
+    public static MethodDeclaration parseAbstractMethod(String source) {
         try {
             final SimpleNode simpleNode = Utils.createParser(source).AbstractMethodDeclaration();
             return new MethodDeclaration(new SyntaxTree(simpleNode, source));
         } catch (ParseException e) {
-            throw new GrammarException(e);
+            throw new RuntimeException("Internal error", e);
+        } catch (GrammarException e) {
+            throw new RuntimeException("Internal error", e);
         }
     }
 
