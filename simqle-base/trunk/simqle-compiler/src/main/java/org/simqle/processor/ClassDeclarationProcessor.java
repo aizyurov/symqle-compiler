@@ -135,8 +135,8 @@ public class ClassDeclarationProcessor implements Processor {
                 final Type methodResultType = interfaceMethod.getResultType();
                 final Type resultType;
                 if (methodResultType!=null) {
-                    final List<TypeNameWithTypeArguments> resutlTypeInternal = Utils.substituteTypeArguments(methodResultType.getNameChain(), typeParameters, typeArgumentsActual);
-                    resultType = new Type(resutlTypeInternal, methodResultType.getArrayDimensions());
+
+                    resultType = Utils.substituteTypeArguments(typeArgumentsActual,typeParameters, methodResultType);
                 } else {
                     resultType = null;
                 }
