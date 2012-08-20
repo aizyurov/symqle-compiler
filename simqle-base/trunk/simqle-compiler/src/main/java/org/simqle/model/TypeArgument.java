@@ -4,6 +4,7 @@
 package org.simqle.model;
 
 import org.simqle.parser.SyntaxTree;
+import org.simqle.processor.GrammarException;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,7 +22,7 @@ public class TypeArgument {
     final String boundType;
     final Type reference;
 
-    public TypeArgument(SyntaxTree node) {
+    public TypeArgument(SyntaxTree node)  throws GrammarException {
         if (!node.getType().equals("TypeArgument")) {
             throw new IllegalArgumentException("Illegal argument: "+node);
         }

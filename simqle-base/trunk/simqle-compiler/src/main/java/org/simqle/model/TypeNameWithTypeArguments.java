@@ -4,6 +4,7 @@
 package org.simqle.model;
 
 import org.simqle.parser.SyntaxTree;
+import org.simqle.processor.GrammarException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,7 +24,7 @@ public class TypeNameWithTypeArguments {
     private final String text;
 
 
-    public TypeNameWithTypeArguments(SyntaxTree node) {
+    public TypeNameWithTypeArguments(SyntaxTree node)  throws GrammarException {
         if (!node.getType().equals("IdentifierWithTypeArguments")) {
             throw new IllegalArgumentException("Illegal argument: "+node);
         }

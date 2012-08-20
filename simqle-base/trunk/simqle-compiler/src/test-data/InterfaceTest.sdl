@@ -5,7 +5,9 @@ import java.util.List;
 * interface1 select_statement
 */
 public interface select_statement<T> : Query<T>
-{}
+{
+    boolean YES = true;
+}
 
 /**
 * this comment should be lost

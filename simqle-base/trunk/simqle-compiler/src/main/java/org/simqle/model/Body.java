@@ -35,7 +35,7 @@ public class Body {
                 if (child.getType().equals("AbstractMethodDeclaration")) {
                     MethodDeclaration methodDeclaration = new MethodDeclaration(child);
                     if (methods.containsKey(methodDeclaration.getName())) {
-                        throw new GrammarException("Method overloading is not allowed in Simqle", child);
+                        throw new GrammarException("Method overloading is not allowed in Simqle: "+methodDeclaration.getName(), child);
                     } else {
                         methods.put(methodDeclaration.getName(), methodDeclaration);
                     }

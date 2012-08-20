@@ -1,6 +1,7 @@
 package org.simqle.model;
 
 import org.simqle.parser.SyntaxTree;
+import org.simqle.processor.GrammarException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ public class ProductionRule {
     private final List<RuleElement> ruleElements;
     private final String returnedInterfaceName;
 
-    public ProductionRule(SyntaxTree node) {
+    public ProductionRule(SyntaxTree node) throws GrammarException {
         if (!node.getType().equals("ProductionRule")) {
             throw new IllegalArgumentException("Illegal argument: "+node);
         }

@@ -3,7 +3,6 @@
 */
 package org.simqle.generator;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.simqle.model.InterfaceDefinition;
 import org.simqle.model.MethodDeclaration;
@@ -14,6 +13,7 @@ import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 import org.simqle.processor.InterfaceDeclarationsProcessor;
 import org.simqle.processor.Processor;
+import org.simqle.test.TestUtils;
 
 import java.io.File;
 import java.io.FileReader;
@@ -33,28 +33,31 @@ public class TestInterfaceParsing extends TestCase {
         Processor processor = new InterfaceDeclarationsProcessor();
         processor.process(node, model);
         final List<InterfaceDefinition> interfaceDefinitionList = model.getAllInterfaces();
-        Assert.assertEquals(4, interfaceDefinitionList.size());
+        assertEquals(4, interfaceDefinitionList.size());
         final InterfaceDefinition def1 = interfaceDefinitionList.get(0);
 
         final String comment = def1.getComment();
-        Assert.assertNotNull(comment);
-        Assert.assertTrue(comment.contains("interface1 select_statement"));
-        Assert.assertFalse(comment.contains("#"));
+        assertNotNull(comment);
+        assertTrue(comment.contains("interface1 select_statement"));
+        assertFalse(comment.contains("#"));
 
-        Assert.assertEquals("select_statement", def1.getName());
-        Assert.assertTrue(def1.getBody().hasMethod("z$prepare$select_statement"));
+        assertEquals("select_statement", def1.getName());
+        assertTrue(def1.getBody().hasMethod("z$prepare$select_statement"));
         final MethodDeclaration method1 = def1.getBody().getMethod("z$prepare$select_statement");
-        Assert.assertNull(method1.getResultType());
-        Assert.assertEquals("void z$prepare$select_statement(SqlContext context)", method1.getSignature());
-        Assert.assertEquals(1, method1.getFormalParameters().size());
+        assertNull(method1.getResultType());
+        assertEquals("void z$prepare$select_statement(SqlContext context)", method1.getSignature());
+        assertEquals(1, method1.getFormalParameters().size());
         final Type arg0type = method1.getFormalParameters().get(0).getType();
-        Assert.assertEquals("SqlContext", arg0type.getNameChain().get(0).getName());
+        assertEquals("SqlContext", arg0type.getNameChain().get(0).getName());
 
         final List<String> importLines = def1.getImportLines();
-        Assert.assertTrue(importLines.contains("import org.simqle.SqlContext;"));
-        Assert.assertTrue(importLines.contains("import org.simqle.Query;"));
-        Assert.assertTrue(importLines.contains("import java.util.List;"));
-        Assert.assertEquals(3, importLines.size());
+        assertTrue(importLines.contains("import org.simqle.SqlContext;"));
+        assertTrue(importLines.contains("import org.simqle.Query;"));
+        assertTrue(importLines.contains("import java.util.List;"));
+        assertEquals(3, importLines.size());
+
+        assertEquals(1, def1.getBody().getOtherDeclarations().size());
+        assertEquals("boolean YES = true;", TestUtils.normalizeFormatting(def1.getBody().getOtherDeclarations().get(0)));
     }
 
     public void testExplicitValueMethod() throws Exception {
@@ -105,6 +108,18 @@ public class TestInterfaceParsing extends TestCase {
             fail("GrammarException expected");
         } catch (GrammarException e) {
             assertTrue(e.getMessage().startsWith("Duplicate interface: test_interface"));
+        }
+    }
+
+    public void testDuplicateMethodInInterface() throws Exception {
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/InterfaceMethodOverloading.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "InterfaceMethodOverloading.sdl");
+        final Model model = new Model();
+        try {
+            new InterfaceDeclarationsProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage().startsWith("Method overloading is not allowed in Simqle: getValue"));
         }
     }
 

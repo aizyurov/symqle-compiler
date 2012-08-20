@@ -4,6 +4,7 @@
 package org.simqle.model;
 
 import org.simqle.parser.SyntaxTree;
+import org.simqle.processor.GrammarException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +31,7 @@ public class FormalParameter {
     private final boolean ellipsis;
     
 
-    public FormalParameter(SyntaxTree node) {
+    public FormalParameter(SyntaxTree node) throws GrammarException {
         final Type rawType = convertChildren(node, "Type", Type.class).get(0);
         if (node.getType().equals("FormalParameter")) {
             type = rawType;

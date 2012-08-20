@@ -9,6 +9,7 @@ import org.simqle.processor.GrammarException;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
@@ -24,9 +25,40 @@ public class Utils {
     }
 
     public static interface Factory<T> {
-        T create(SyntaxTree node);
+        T create(SyntaxTree node)  throws GrammarException;
     }
-    public static <T> List<T> convertChildren(SyntaxTree parent, String path, Factory<T> factory) {
+
+    private static class ReflectionFactory<T>  implements Factory<T> {
+        private final Constructor<T> constructor;
+
+        private ReflectionFactory(Class<T> clazz) {
+            try {
+                constructor = clazz.getConstructor(SyntaxTree.class);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException("Internal error: no appropriate constructor in "+clazz.getName(), e);
+            }
+        }
+
+        @Override
+        public T create(final SyntaxTree node) throws GrammarException {
+            try {
+                return constructor.newInstance(node);
+            } catch (InstantiationException e) {
+                throw new RuntimeException("Internal error", e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Internal error", e);
+            } catch (InvocationTargetException e) {
+                final Throwable cause = e.getCause();
+                if (cause instanceof GrammarException) {
+                    throw (GrammarException) cause;
+                } else {
+                    throw new RuntimeException("Internal error", e);
+                }
+            }
+        }
+    }
+
+    public static <T> List<T> convertChildren(SyntaxTree parent, String path, Factory<T> factory)  throws GrammarException {
         List<T> children = new ArrayList<T>();
         for (SyntaxTree child: parent.find(path)) {
             children.add(factory.create(child));
@@ -34,22 +66,8 @@ public class Utils {
         return children;
     }
 
-    public static <T> List<T> convertChildren(SyntaxTree parent, String path, Class<T> clazz) {
-        List<T> children = new ArrayList<T>();
-        for (SyntaxTree child: parent.find(path)) {
-            try {
-                children.add(clazz.getConstructor(SyntaxTree.class).newInstance(child));
-            } catch (InstantiationException e) {
-                throw new RuntimeException("Unhandled exception", e);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Unhandled exception", e);
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException("Unhandled exception", e);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("Unhandled exception", e);
-            }
-        }
-        return children;
+    public static <T> List<T> convertChildren(SyntaxTree parent, String path, Class<T> clazz) throws GrammarException {
+        return convertChildren(parent, path, new ReflectionFactory<T>(clazz));
     }
 
     public static String getChildrenImage(SyntaxTree parent, String path) {

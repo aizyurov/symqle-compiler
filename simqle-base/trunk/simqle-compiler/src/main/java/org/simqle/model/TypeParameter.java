@@ -4,6 +4,7 @@
 package org.simqle.model;
 
 import org.simqle.parser.SyntaxTree;
+import org.simqle.processor.GrammarException;
 
 import java.util.List;
 import static org.simqle.model.Utils.*;
@@ -18,7 +19,7 @@ public class TypeParameter {
     private final List<Type> typeBound;
     private final String image;
 
-    public TypeParameter(SyntaxTree node) {
+    public TypeParameter(SyntaxTree node) throws GrammarException{
         if (!node.getType().equals("TypeParameter")) {
             throw new IllegalArgumentException("Illegal argument: "+node);
         }

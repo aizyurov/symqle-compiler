@@ -4,6 +4,7 @@
 package org.simqle.model;
 
 import org.simqle.parser.SyntaxTree;
+import org.simqle.processor.GrammarException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +23,7 @@ public class Type {
     private final int arrayDimensions;
     private final String image;
 
-    public Type(SyntaxTree node) {
+    public Type(SyntaxTree node) throws GrammarException {
         final SyntaxTree start = node.getType().equals("Type") ? node.getChildren().get(0) : node;
         
         if (start.getType().equals("ClassOrInterfaceType")) {
