@@ -79,7 +79,7 @@ public class Body {
         for (VariableDeclarator declarator: declarators) {
             final String name = declarator.getName();
             if (fieldNames.contains(name)) {
-                throw new ModelException("Duplicate field "+name);
+                throw new ModelException("Duplicate field: "+name);
             } else {
                 fieldNames.add(name);
             }
@@ -90,12 +90,13 @@ public class Body {
     public void addMethod(MethodDeclaration methodDeclaration) throws ModelException {
         final String name = methodDeclaration.getName();
         if (methods.containsKey(name)) {
-            throw new ModelException("Method overloading is not allowed in Simqle");
+            throw new ModelException("Duplicate method: "+name+"; method overloading is not allowed in Simqle");
         }
         methods.put(name, methodDeclaration);
     }
 
-    // package scope; use ClassDefinition.addConstructor()
+    // the name of constructor is nor verified against class name (not available here)
+    // leaving for Java compiler
     public void unsafeAddConstructorDeclaration(ConstructorDeclaration declaration) {
         constructors.add(declaration);
     }
@@ -140,7 +141,7 @@ public class Body {
             unsafeAddConstructorDeclaration(constructor);
         }
         for (String otherDeclaration: another.otherDeclarations) {
-            otherDeclarations.add(otherDeclaration);
+            addOtherDeclaration(otherDeclaration);
         }
     }
 

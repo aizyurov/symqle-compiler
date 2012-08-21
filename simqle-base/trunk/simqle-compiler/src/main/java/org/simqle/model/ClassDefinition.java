@@ -156,14 +156,4 @@ public class ClassDefinition {
         return getPairName();
     }
 
-
-
-    public void addConstructorDeclaration(ConstructorDeclaration constructor) throws ModelException {
-        if (constructor.getName().equals(getClassName()) || constructor.getName().equals(getPairName())) {
-            body.unsafeAddConstructorDeclaration(constructor);
-        } else {
-            throw new ModelException("Constructor name \""+constructor.getName()+"\" does not match class name");
-        }
-    }
-
 }

@@ -212,4 +212,30 @@ public class TestClassParsing extends TestCase {
         }
     }
 
+    public void testDuplicateMethod() throws Exception {
+        Model model = new Model();
+            SimqleParser parser = new SimqleParser(new FileReader("src/test-data/DuplicateMethod.sdl"));
+            SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "DuplicateMEthod.sdl");
+            new InterfaceDeclarationsProcessor().process(node, model);
+        try {
+            new ClassDeclarationProcessor().process(node, model);
+            fail("GrammarException expected here");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage().startsWith("Duplicate method: dump"));
+        }
+    }
+
+    public void testDuplicateField() throws Exception {
+        Model model = new Model();
+            SimqleParser parser = new SimqleParser(new FileReader("src/test-data/DuplicateField.sdl"));
+            SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "DuplicateField.sdl");
+            new InterfaceDeclarationsProcessor().process(node, model);
+        try {
+            new ClassDeclarationProcessor().process(node, model);
+            fail("GrammarException expected here");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage().startsWith("Duplicate field: variable"));
+        }
+    }
+
 }

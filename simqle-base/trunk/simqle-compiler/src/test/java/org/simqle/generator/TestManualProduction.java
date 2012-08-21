@@ -5,6 +5,7 @@ import org.simqle.model.*;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.ClassDeclarationProcessor;
+import org.simqle.processor.GrammarException;
 import org.simqle.processor.InterfaceDeclarationsProcessor;
 import org.simqle.processor.ProductionDeclarationProcessor;
 import org.simqle.test.TestUtils;
@@ -47,6 +48,36 @@ public class TestManualProduction extends TestCase {
         assertEquals(1, otherDeclarations.size());
         assertEquals("private static class Inner { }", TestUtils.normalizeFormatting(otherDeclarations.get(0)));
         assertEquals(0, model.getClassPair("BooleanExpression").getExtension().getBody().getOtherDeclarations().size());
+    }
+
+    public void testDuplicateMethod() throws Exception {
+            Model model = new Model();
+            SimqleParser parser = new SimqleParser(new FileReader("src/test-data/AddendumDuplicateMethod.sdl"));
+            SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "AddendumDuplicateMethod.sdl");
+        try {
+            new InterfaceDeclarationsProcessor().process(node, model);
+            new ClassDeclarationProcessor().process(node, model);
+            new ProductionDeclarationProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage().startsWith("Duplicate method: value"));
+        }
+
+    }
+
+    public void testDuplicateField() throws Exception {
+            Model model = new Model();
+            SimqleParser parser = new SimqleParser(new FileReader("src/test-data/AddendumDuplicateField.sdl"));
+            SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "AddendumDuplicateField.sdl");
+        try {
+            new InterfaceDeclarationsProcessor().process(node, model);
+            new ClassDeclarationProcessor().process(node, model);
+            new ProductionDeclarationProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage().startsWith("Duplicate field: myBuilder"));
+        }
+
     }
 
     private void verifyBooleanExpressionClass(final Model model) throws Exception {
@@ -162,4 +193,6 @@ public class TestManualProduction extends TestCase {
         new SimqleParser(new StringReader(methodDeclaration.getMethodBody())).Block();
 
     }
+
+
 }
