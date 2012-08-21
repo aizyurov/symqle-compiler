@@ -40,7 +40,6 @@ public class ClassDeclarationProcessor implements Processor {
     }
 
     private final static String EXTENSION_CLASS_FORMAT = "%s class %s extends %s {}";
-    private final static String EXTENSION_CONSTRUCTOR_FORMAT = "public %s(%s) { super(%s); }";
 
     private ClassDefinition createExtensionClass(ClassDefinition baseClassDefinition) throws GrammarException {
         final String accessModifier = baseClassDefinition.getAccessModifier();
@@ -66,30 +65,6 @@ public class ClassDeclarationProcessor implements Processor {
         final String fullBaseName = baseClassDefinition.getClassName()+typeParametersString;
         final String source = String.format(EXTENSION_CLASS_FORMAT, modifiers, fullExtensionName, fullBaseName);
         final ClassDefinition extensionClassDefinition = ClassDefinition.parse(source);
-        // transfer all constructors keeping signature; implement as call to super() with same arguments
-        for (final ConstructorDeclaration constructor : baseClassDefinition.getBody().getConstructors()) {
-            final List<FormalParameter> formalParameters = constructor.getFormalParameters();
-            StringBuilder argumentsBuilder = new StringBuilder();
-            for (FormalParameter formalParameter: formalParameters) {
-                if (argumentsBuilder.length()>0) {
-                    argumentsBuilder.append(", ");
-                }
-                argumentsBuilder.append(formalParameter.getName());
-            }
-
-            StringBuilder parametersBuilder = new StringBuilder();
-            for (FormalParameter formalParameter: formalParameters) {
-                if (parametersBuilder.length()>0) {
-                    parametersBuilder.append(", ");
-                }
-                parametersBuilder.append(formalParameter.getImage());
-            }
-            final String constructorSource = String.format(EXTENSION_CONSTRUCTOR_FORMAT, baseClassDefinition.getPairName(),parametersBuilder.toString(),
-                    argumentsBuilder.toString());
-            final ConstructorDeclaration constructorDeclaration = ConstructorDeclaration.parse(constructorSource);
-            extensionClassDefinition.getBody().unsafeAddConstructorDeclaration((constructorDeclaration));
-
-        }
         return extensionClassDefinition;
     }
 

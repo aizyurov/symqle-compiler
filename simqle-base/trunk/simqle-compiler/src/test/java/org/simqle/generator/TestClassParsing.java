@@ -72,12 +72,14 @@ public class TestClassParsing extends TestCase {
             // declared method an 2 interface methods are not overridden in extension class
             Assert.assertEquals(0, body.getMethods().size());
             Set<String> expectedMethodNames = new HashSet<String>(Arrays.asList(""));
-            Assert.assertEquals(1, body.getConstructors().size());
+            // at this point there should be no extension class constructors;
+            // they are added in ProductionProcessor
+            Assert.assertEquals(0, body.getConstructors().size());
             // should have a constructor in extension class with the same parameter(s) as in the base class
-            final ConstructorDeclaration constructor = body.getConstructors().get(0);
-            Assert.assertEquals("SelectStatement", constructor.getName());
-            Assert.assertEquals(1, constructor.getFormalParameters().size());
-            Assert.assertEquals("final select_statement<T> sqlBuilder", constructor.getFormalParameters().get(0).getImage());
+//            final ConstructorDeclaration constructor = body.getConstructors().get(0);
+//            Assert.assertEquals("SelectStatement", constructor.getName());
+//            Assert.assertEquals(1, constructor.getFormalParameters().size());
+//            Assert.assertEquals("final select_statement<T> sqlBuilder", constructor.getFormalParameters().get(0).getImage());
         }
 
     }

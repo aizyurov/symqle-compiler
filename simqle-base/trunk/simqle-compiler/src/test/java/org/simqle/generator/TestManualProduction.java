@@ -23,7 +23,7 @@ import java.util.List;
  */
 public class TestManualProduction extends TestCase {
 
-    public void testParsing() throws Exception {
+    public void testDeclarationsInClassDefinition() throws Exception {
         Model model = new Model();
         SimqleParser parser = new SimqleParser(new FileReader("src/test-data/ManualProduction.sdl"));
         SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "ManualProduction.sdl");
@@ -32,6 +32,21 @@ public class TestManualProduction extends TestCase {
         new ProductionDeclarationProcessor().process(node, model);
         verifyBooleanExpressionClass(model);
         verifyProductionMethod(model);
+    }
+
+    public void testDeclarationsInAddendum() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/ManualProductionWithAddendum.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "ManualProductionWithAddendum.sdl");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        new ProductionDeclarationProcessor().process(node, model);
+        verifyBooleanExpressionClass(model);
+        verifyProductionMethod(model);
+        final List<String> otherDeclarations = model.getClassPair("BooleanExpression").getBase().getBody().getOtherDeclarations();
+        assertEquals(1, otherDeclarations.size());
+        assertEquals("private static class Inner { }", TestUtils.normalizeFormatting(otherDeclarations.get(0)));
+        assertEquals(0, model.getClassPair("BooleanExpression").getExtension().getBody().getOtherDeclarations().size());
     }
 
     private void verifyBooleanExpressionClass(final Model model) throws Exception {
