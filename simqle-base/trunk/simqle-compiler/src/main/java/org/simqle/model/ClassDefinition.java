@@ -9,7 +9,6 @@ import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -24,7 +23,6 @@ public class ClassDefinition {
     private final Set<String> otherModifiers;
     private final List<Annotation> annotations;
 
-    private final List<String> imports = new ArrayList<String>();
 
     // the class pairName
     private final String pairName;
@@ -36,7 +34,6 @@ public class ClassDefinition {
 
     private final List<Type> implementedInterfaces;
 
-    private final List<Type> mimics;
 
     private final Body body;
 
@@ -44,7 +41,7 @@ public class ClassDefinition {
         try {
             final SimpleNode simpleNode = Utils.createParser(source).SimqleClassDeclaration();
             SyntaxTree syntaxTree = new SyntaxTree(simpleNode, source);
-            return new ClassDefinition(syntaxTree, Collections.<SyntaxTree>emptyList());
+            return new ClassDefinition(syntaxTree);
         } catch (ParseException e) {
             throw new RuntimeException("Internal error", e);
         } catch (GrammarException e) {
@@ -52,13 +49,10 @@ public class ClassDefinition {
         }
     }
 
-    public ClassDefinition(SyntaxTree node, List<SyntaxTree> importDeclarations) throws GrammarException {
+    public ClassDefinition(SyntaxTree node) throws GrammarException {
         if (!node.getType().equals("SimqleClassDeclaration")) {
             throw new IllegalArgumentException("Illegal argument: "+node);
         }
-        this.imports.addAll(convertAsBodies(importDeclarations));
-        final List<SyntaxTree> internalImports = node.find("ImportDeclaration");
-        this.imports.addAll(convertAsBodies(internalImports));
         final List<SyntaxTree> modifiers = node.find("ClassModifiers.ClassModifier");
         this.accessModifier = Utils.getAccessModifier(modifiers);
         this.otherModifiers = Utils.getNonAccessModifiers(modifiers);
@@ -72,17 +66,9 @@ public class ClassDefinition {
             this.extendedClass = new Type(extendedTypes.get(0));
         }
         this.implementedInterfaces = Utils.convertChildren(node, "SimqleInterfaces.ImplementedInterface.ClassOrInterfaceType", Type.class);
-        this.mimics = Utils.convertChildren(node, "Mimics.ClassOrInterfaceType", Type.class);
+//        this.mimics = Utils.convertChildren(node, "Mimics.ClassOrInterfaceType", Type.class);
         this.body = new Body(node.find("ClassBody").get(0));
 
-    }
-
-    private static List<String> convertAsBodies(List<SyntaxTree> nodes) {
-        return Utils.convertToStringList(nodes, new Function<String, SyntaxTree>() {
-            public String apply(SyntaxTree syntaxTree) {
-                return syntaxTree.getBody();
-            }
-        });
     }
 
     public String getAccessModifier() {
@@ -97,11 +83,7 @@ public class ClassDefinition {
         return annotations;
     }
 
-    public List<String> getImports() {
-        return imports;
-    }
-
-    public String getPairName() {
+    public final String getPairName() {
         return pairName;
     }
 
@@ -117,40 +99,8 @@ public class ClassDefinition {
         return implementedInterfaces;
     }
 
-    public List<Type> getMimics() {
-        return mimics;
-    }
-
     public Body getBody() {
         return body;
-    }
-
-    /**
-     * Does not throw ModelException; throws RuntimeException instead
-     * Use from compiler's internal code when you are absolutely sure that
-     * there cannot be any conflict
-     * @param t
-     */
-    public void addMimicsInternal(Type t) {
-        try {
-            addMimics(t);
-        } catch (ModelException e) {
-            throw new RuntimeException("Internal error", e);
-        }
-    }
-
-    public void addMimics(Type t) throws ModelException {
-        // we can add type if it is the same or if its pairName is different;
-        // cannot mimic the same class with different type parameters
-        if (mimics.contains(t)) {
-            return;
-        }
-        for (Type m: mimics) {
-            if (m.getNameChain().equals(t.getNameChain())) {
-                throw new ModelException("Cannot mimic one class with different type parameters");
-            }
-        }
-        mimics.add(t);
     }
 
     public String getClassName() {

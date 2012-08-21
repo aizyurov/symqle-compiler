@@ -27,11 +27,15 @@ public class ClassDeclarationProcessor implements Processor {
                 final List<SyntaxTree> importDeclarations = block.find("ImportDeclaration");
                 // only one class declaration may be inside a block
                 final SyntaxTree simqleClassDeclaration = simqleClassDeclarations.get(0);
-                ClassDefinition baseClassDefinition = new BaseClassDefinition(simqleClassDeclaration, importDeclarations);
+                ClassDefinition baseClassDefinition = new BaseClassDefinition(simqleClassDeclaration);
                 try {
                     addFields(simqleClassDeclaration.find("SimqleInterfaces.ImplementedInterface"), baseClassDefinition.getBody(), baseClassDefinition.getPairName(), model);
                     ClassDefinition extensionClassDefinition = createExtensionClass(baseClassDefinition);
-                    model.addClass(new ClassPair(baseClassDefinition, extensionClassDefinition));
+                    final ClassPair classPair = new ClassPair(baseClassDefinition, extensionClassDefinition);
+                    classPair.addPublishedImports(Utils.bodies(importDeclarations));
+                    classPair.addInternalImports(Utils.bodies(simqleClassDeclaration.find("ImportDeclaration")));
+                    classPair.addMimics(Utils.convertChildren(simqleClassDeclaration, "Mimics.ClassOrInterfaceType", Type.class));
+                    model.addClass(classPair);
                 } catch (ModelException e) {
                     throw new GrammarException(e.getMessage(), block);
                 }
@@ -64,8 +68,7 @@ public class ClassDeclarationProcessor implements Processor {
         final String fullExtensionName = baseClassDefinition.getPairName()+typeParametersString;
         final String fullBaseName = baseClassDefinition.getClassName()+typeParametersString;
         final String source = String.format(EXTENSION_CLASS_FORMAT, modifiers, fullExtensionName, fullBaseName);
-        final ClassDefinition extensionClassDefinition = ClassDefinition.parse(source);
-        return extensionClassDefinition;
+        return ClassDefinition.parse(source);
     }
 
 

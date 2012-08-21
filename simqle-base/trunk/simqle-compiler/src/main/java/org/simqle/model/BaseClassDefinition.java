@@ -3,8 +3,6 @@ package org.simqle.model;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 
-import java.util.List;
-
 /**
  * Created by IntelliJ IDEA.
  * User: lvovich
@@ -14,8 +12,8 @@ import java.util.List;
  */
 public class BaseClassDefinition extends ClassDefinition {
 
-    public BaseClassDefinition(final SyntaxTree node, final List<SyntaxTree> importDeclarations) throws GrammarException {
-        super(node, importDeclarations);
+    public BaseClassDefinition(final SyntaxTree node) throws GrammarException {
+        super(node);
     }
 
     @Override

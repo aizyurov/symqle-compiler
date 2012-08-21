@@ -98,8 +98,7 @@ public class ProductionDeclarationProcessor implements Processor {
                         final List<Type> types = Utils.convertChildren(addendum, "Mimics.ClassOrInterfaceType", Type.class);
                         for (Type virtualAncestor: types) {
                             try {
-                                // only extension mimics other classes; base does not
-                                classPair.getExtension().addMimics(virtualAncestor);
+                                classPair.addMimics(Collections.singleton(virtualAncestor));
                             } catch (ModelException e) {
                                 throw new GrammarException(e.getMessage(), addendum);
                             }

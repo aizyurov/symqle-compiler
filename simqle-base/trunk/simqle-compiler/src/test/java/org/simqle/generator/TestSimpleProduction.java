@@ -42,13 +42,17 @@ public class TestSimpleProduction extends TestCase {
         }
         final List<ClassPair> classDefinitionList = model.getAllClasses();
         assertEquals(2, classDefinitionList.size());
+        final ClassPair classPair = model.getClassPair("CursorSpecification");
+        assertEquals(1, classPair.getMimics().size());
+        final List<String> importLines = classPair.getPublishedImports();
+        assertTrue(importLines.contains("import java.util.Map;"));
+        assertEquals(1, importLines.size());
+        final List<String> internalImportLines = classPair.getInternalImports();
+        assertTrue(internalImportLines.contains("import java.util.HashMap;"));
+        assertEquals(1, internalImportLines.size());
         {
-            final ClassDefinition def = model.getClassPair("CursorSpecification").getBase();
+            final ClassDefinition def = classPair.getBase();
 
-            final List<String> importLines = def.getImports();
-            assertTrue(importLines.contains("import java.util.Map;"));
-            assertTrue(importLines.contains("import java.util.HashMap;"));
-            assertEquals(2, importLines.size());
             final Body body = def.getBody();
             // declared method an 2 interface methods
             assertEquals(3, body.getMethods().size());
@@ -127,7 +131,6 @@ public class TestSimpleProduction extends TestCase {
                 assertEquals("", fieldDeclaration.getDeclarators().get(0).getInitializer());
             }
 
-            assertEquals(0, def.getMimics().size());
             assertNull(def.getExtendedClass());
             assertEquals(1, body.getConstructors().size());
             final ConstructorDeclaration constructor = body.getConstructors().get(0);
@@ -138,17 +141,13 @@ public class TestSimpleProduction extends TestCase {
             assertEquals("{ this.sqlBuilder = sqlBuilder; }", TestUtils.normalizeFormatting(constructor.getBody()));
         }
         {
-            final ClassDefinition def = model.getClassPair("CursorSpecification").getExtension();
+            final ClassDefinition def = classPair.getExtension();
 
             assertEquals("CursorSpecification", def.getPairName());
-            final List<String> importLines = def.getImports();
-            // by convention, all imports go to base, extention does not have imports
-            assertEquals(0, importLines.size());
             final Body body = def.getBody();
             // declared method and 2 interface methods are not overridden in extension class
             assertEquals(0, body.getMethods().size());
             assertEquals(0, body.getFields().size());
-            assertEquals(1, def.getMimics().size());
             assertNotNull(def.getExtendedClass());
             assertEquals(1, body.getConstructors().size());
             // should have a constructor in extension class with the same parameter(s) as in the base class
@@ -214,9 +213,44 @@ public class TestSimpleProduction extends TestCase {
             productionProcessor.process(node, model);
             fail("GrammarException expected");
         } catch (GrammarException e) {
+            e.printStackTrace();
             assertTrue(e.getMessage().startsWith("TypeParameters do not match"));
         }
 
+    }
+
+    public void testDoubleMimics() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/DoubleMimics.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "DoubleMimics.sdl");
+        Processor interfaceProcessor = new InterfaceDeclarationsProcessor();
+        interfaceProcessor.process(node, model);
+        Processor processor = new ClassDeclarationProcessor();
+        processor.process(node, model);
+        Processor productionProcessor = new ProductionDeclarationProcessor();
+        productionProcessor.process(node, model);
+        final ClassPair classPair = model.getClassPair("BooleanExpression");
+        final ClassDefinition base = classPair.getBase();
+        assertEquals(1, classPair.getMimics().size());
+        assertEquals("Expression", classPair.getMimics().iterator().next().getNameChain().get(0).getName());
+
+    }
+
+    public void testWrongDoubleMimics() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/WrongDoubleMimics.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "WrongDoubleMimics.sdl");
+        Processor interfaceProcessor = new InterfaceDeclarationsProcessor();
+        interfaceProcessor.process(node, model);
+        Processor processor = new ClassDeclarationProcessor();
+        processor.process(node, model);
+        Processor productionProcessor = new ProductionDeclarationProcessor();
+        try {
+            productionProcessor.process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage().startsWith("Cannot mimic one class with different type parameters"));
+        }
     }
 
 }

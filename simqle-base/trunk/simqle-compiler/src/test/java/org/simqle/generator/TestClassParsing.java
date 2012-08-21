@@ -54,10 +54,13 @@ public class TestClassParsing extends TestCase {
             final List<Type> implementedInterfaces = def.getImplementedInterfaces();
             assertEquals(1, implementedInterfaces.size());
             assertEquals("select_statement", implementedInterfaces.get(0).getNameChain().get(0).getName());
-            final List<String> importLines = def.getImports();
+            final List<String> importLines = classDefinitionList.get(0).getPublishedImports();
             assertTrue(importLines.contains("import java.util.List;"));
-            assertEquals(4, importLines.size());
-            assertTrue(importLines.contains("import java.util.LinkedList;"));
+            assertEquals(3, importLines.size());
+
+            final List<String> internalImportLines = classDefinitionList.get(0).getInternalImports();
+            assertTrue(internalImportLines.contains("import java.util.LinkedList;"));
+            assertEquals(1, internalImportLines.size());
             final Body body = def.getBody();
             // declared method an 2 interface methods
             assertEquals(3, body.getMethods().size());
@@ -79,8 +82,6 @@ public class TestClassParsing extends TestCase {
             assertEquals(0, annotations.size());
             final List<Type> implementedInterfaces = def.getImplementedInterfaces();
             assertEquals(0, implementedInterfaces.size());
-            final List<String> importLines = def.getImports();
-            assertEquals(0, importLines.size());
             final Body body = def.getBody();
             // declared method an 2 interface methods are not overridden in extension class
             assertEquals(0, body.getMethods().size());
