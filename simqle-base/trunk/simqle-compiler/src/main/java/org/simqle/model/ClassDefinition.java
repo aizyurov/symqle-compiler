@@ -11,6 +11,7 @@ import org.simqle.processor.GrammarException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <br/>19.11.2011
@@ -20,7 +21,7 @@ import java.util.List;
 public class ClassDefinition {
 
     private final String accessModifier;
-    private final List<String> otherModifiers;
+    private final Set<String> otherModifiers;
     private final List<Annotation> annotations;
 
     private final List<String> imports = new ArrayList<String>();
@@ -89,7 +90,7 @@ public class ClassDefinition {
     }
 
     public List<String> getOtherModifiers() {
-        return otherModifiers;
+        return new ArrayList<String>(otherModifiers);
     }
 
     public List<Annotation> getAnnotations() {

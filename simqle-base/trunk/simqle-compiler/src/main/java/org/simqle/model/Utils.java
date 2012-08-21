@@ -164,8 +164,8 @@ public class Utils {
         return accessModifier;
     }
 
-    public static List<String> getNonAccessModifiers(List<SyntaxTree> nodes) {
-        final List<String> stringList = values(nodes);
+    public static Set<String> getNonAccessModifiers(List<SyntaxTree> nodes) {
+        final Set<String> stringList = new HashSet<String>(values(nodes));
         stringList.removeAll(ACCESS_MODIFIERS);
         return stringList;
     }

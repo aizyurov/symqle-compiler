@@ -2,8 +2,7 @@
 import java.util.List;
 import org.simqle.core.Database;
 import java.sql.SQLException;
-@ThreadSafe
-public class SelectStatement<T> implements select_statement<T> with sqlBuilder
+class SelectStatement<T> implements select_statement<T> with sqlBuilder
 /* implementation import -- will NOT be propagated to classes, which mimic this */
 import java.util.LinkedList;
 {
@@ -25,3 +24,14 @@ import java.util.LinkedList;
     }
 }
 
+interface cursor_specification<T> : Query<T>
+{}
+
+import java.util.Map;
+class CursorSpecification<T> implements cursor_specification<T> with sqlBuilder
+import java.util.HashMap;
+{}
+
+<M> select_statement<M> ::= cursorSpec:cursor_specification<M>
+    :: CursorSpecification<M> mimics SelectStatement<M> {}
+;

@@ -8,7 +8,9 @@ import org.simqle.parser.SimpleNode;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.simqle.model.Utils.convertChildren;
 
@@ -21,7 +23,7 @@ public class FieldDeclaration {
 
     private final String image;
 
-    private final List<String> otherModifiers;
+    private final Set<String> otherModifiers;
 
     private final String accessModifier;
 
@@ -61,7 +63,7 @@ public class FieldDeclaration {
     }
 
     public List<String> getOtherModifiers() {
-        return otherModifiers;
+        return new ArrayList<String>(otherModifiers);
     }
 
     public String getAccessModifier() {

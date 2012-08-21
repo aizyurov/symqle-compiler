@@ -3,7 +3,6 @@
 */
 package org.simqle.generator;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.simqle.model.*;
 import org.simqle.parser.SimqleParser;
@@ -42,44 +41,58 @@ public class TestClassParsing extends TestCase {
             processor.process(node, model);
         }
         final List<ClassPair> classDefinitionList = model.getAllClasses();
-        Assert.assertEquals(1, classDefinitionList.size());
+        assertEquals(1, classDefinitionList.size());
         {
             final ClassDefinition def = classDefinitionList.get(0).getBase();
 
-            Assert.assertEquals("SelectStatement", def.getPairName());
+            assertEquals("SelectStatement", def.getPairName());
+            assertEquals("public", def.getAccessModifier());
+            assertEquals(0, def.getOtherModifiers().size());
+            final List<Annotation> annotations = def.getAnnotations();
+            assertEquals(1, annotations.size());
+            assertEquals("ThreadSafe", annotations.get(0).getName());
+            final List<Type> implementedInterfaces = def.getImplementedInterfaces();
+            assertEquals(1, implementedInterfaces.size());
+            assertEquals("select_statement", implementedInterfaces.get(0).getNameChain().get(0).getName());
             final List<String> importLines = def.getImports();
-            Assert.assertTrue(importLines.contains("import java.util.List;"));
-            Assert.assertEquals(4, importLines.size());
-            Assert.assertTrue(importLines.contains("import java.util.LinkedList;"));
+            assertTrue(importLines.contains("import java.util.List;"));
+            assertEquals(4, importLines.size());
+            assertTrue(importLines.contains("import java.util.LinkedList;"));
             final Body body = def.getBody();
             // declared method an 2 interface methods
-            Assert.assertEquals(3, body.getMethods().size());
+            assertEquals(3, body.getMethods().size());
             Set<String> expectedMethodNames = new HashSet<String>(Arrays.asList(""));
-            Assert.assertEquals(1, body.getConstructors().size());
+            assertEquals(1, body.getConstructors().size());
             final ConstructorDeclaration constructor = body.getConstructors().get(0);
             // actually the constructor name should be @SelectStatement$", the assigned value will be ignored at class generation
-            Assert.assertEquals("SelectStatement", constructor.getName());
-            Assert.assertEquals(1, constructor.getFormalParameters().size());
-            Assert.assertEquals("final select_statement<T> sqlBuilder", constructor.getFormalParameters().get(0).getImage());
+            assertEquals("SelectStatement", constructor.getName());
+            assertEquals(1, constructor.getFormalParameters().size());
+            assertEquals("final select_statement<T> sqlBuilder", constructor.getFormalParameters().get(0).getImage());
         }
         {
             final ClassDefinition def = classDefinitionList.get(0).getExtension();
 
-            Assert.assertEquals("SelectStatement", def.getPairName());
+            assertEquals("SelectStatement", def.getPairName());
+            assertEquals("public", def.getAccessModifier());
+            assertEquals(0, def.getOtherModifiers().size());
+            final List<Annotation> annotations = def.getAnnotations();
+            assertEquals(0, annotations.size());
+            final List<Type> implementedInterfaces = def.getImplementedInterfaces();
+            assertEquals(0, implementedInterfaces.size());
             final List<String> importLines = def.getImports();
-            Assert.assertEquals(0, importLines.size());
+            assertEquals(0, importLines.size());
             final Body body = def.getBody();
             // declared method an 2 interface methods are not overridden in extension class
-            Assert.assertEquals(0, body.getMethods().size());
+            assertEquals(0, body.getMethods().size());
             Set<String> expectedMethodNames = new HashSet<String>(Arrays.asList(""));
             // at this point there should be no extension class constructors;
             // they are added in ProductionProcessor
-            Assert.assertEquals(0, body.getConstructors().size());
+            assertEquals(0, body.getConstructors().size());
             // should have a constructor in extension class with the same parameter(s) as in the base class
 //            final ConstructorDeclaration constructor = body.getConstructors().get(0);
-//            Assert.assertEquals("SelectStatement", constructor.getName());
-//            Assert.assertEquals(1, constructor.getFormalParameters().size());
-//            Assert.assertEquals("final select_statement<T> sqlBuilder", constructor.getFormalParameters().get(0).getImage());
+//            assertEquals("SelectStatement", constructor.getName());
+//            assertEquals(1, constructor.getFormalParameters().size());
+//            assertEquals("final select_statement<T> sqlBuilder", constructor.getFormalParameters().get(0).getImage());
         }
 
     }

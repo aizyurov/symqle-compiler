@@ -7,10 +7,7 @@ import junit.framework.TestCase;
 import org.simqle.model.*;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
-import org.simqle.processor.ClassDeclarationProcessor;
-import org.simqle.processor.InterfaceDeclarationsProcessor;
-import org.simqle.processor.Processor;
-import org.simqle.processor.ProductionDeclarationProcessor;
+import org.simqle.processor.*;
 import org.simqle.test.TestUtils;
 
 import java.io.FileReader;
@@ -195,6 +192,30 @@ public class TestSimpleProduction extends TestCase {
             new SimqleParser(new StringReader(methodDeclaration.getMethodBody())).Block();
         }
 
+
+    }
+
+    public void testWrongTypeInMimics() throws Exception {
+        Model model = new Model();
+        {
+            SimqleParser parser = new SimqleParser(new FileReader("src/test-data/InterfaceTest.sdl"));
+            SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "InterfaceTest.sdl");
+            Processor processor = new InterfaceDeclarationsProcessor();
+            processor.process(node, model);
+        }
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/WrongTypeInMimics.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "WrongTypeInMimics.sdl");
+        Processor interfaceProcessor = new InterfaceDeclarationsProcessor();
+        interfaceProcessor.process(node, model);
+        Processor processor = new ClassDeclarationProcessor();
+        processor.process(node, model);
+        Processor productionProcessor = new ProductionDeclarationProcessor();
+        try {
+            productionProcessor.process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage().startsWith("TypeParameters do not match"));
+        }
 
     }
 

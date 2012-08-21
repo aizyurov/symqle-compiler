@@ -23,14 +23,5 @@ public class BaseClassDefinition extends ClassDefinition {
         return getPairName()+"$";
     }
 
-    /**
-     * Base class is always package scope
-     * @return
-     */
-    @Override
-    public String getAccessModifier() {
-        return "";
-    }
-
 
 }
