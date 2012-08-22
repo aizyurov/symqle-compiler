@@ -330,7 +330,6 @@ public class TestSimpleProduction extends TestCase {
         }
     }
 
-    // WrongTypeParametersOfRuleElement
     public void testWrongTypeParametersOfRuleElement() throws Exception {
         Model model = new Model();
         SimqleParser parser = new SimqleParser(new FileReader("src/test-data/WrongTypeParametersOfRuleElement.sdl"));
@@ -342,6 +341,20 @@ public class TestSimpleProduction extends TestCase {
             fail("GrammarException expected");
         } catch (GrammarException e) {
             assertTrue(e.getMessage(), e.getMessage().startsWith("Rule element prim:primary requires 1 type parameter, found: 0"));
+        }
+    }
+
+    public void testWrongConstantRuleElement() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/WrongConstantRuleElement.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "WrongConstantRuleElement.sdl");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        try {
+            new ProductionDeclarationProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage(), e.getMessage().startsWith("LEFTPAREN is not a constant non-terminal"));
         }
     }
 

@@ -31,7 +31,11 @@ public class ProductionRule {
             // mandatory and unique
             final String name = element.find("Identifier").get(0).getValue();
             if (classOrInterfaceTypeNodes.isEmpty()) {
-                ruleElements.add(new RuleElement(name));
+                try {
+                    ruleElements.add(new RuleElement(name));
+                } catch (ModelException e) {
+                    throw new GrammarException(e.getMessage(), node);
+                }
             } else {
                 ruleElements.add(new RuleElement(new Type(classOrInterfaceTypeNodes, 0), name));
             }
@@ -64,10 +68,14 @@ public class ProductionRule {
             this.isConst = false;
         }
 
-        private RuleElement(final String constant) {
-            this.type = null;
-            this.name = constant;
-            this.isConst = true;
+        private RuleElement(final String constant) throws ModelException {
+            if (Constants.isConstant(constant)) {
+                this.type = null;
+                this.name = constant;
+                this.isConst = true;
+            } else {
+                throw new ModelException(constant+" is not a constant non-terminal");
+            }
         }
 
         public Type getType() {
