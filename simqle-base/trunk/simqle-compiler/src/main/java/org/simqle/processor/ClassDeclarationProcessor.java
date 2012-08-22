@@ -5,6 +5,7 @@ package org.simqle.processor;
 
 import org.simqle.model.*;
 import org.simqle.parser.SyntaxTree;
+import org.simqle.util.Utils;
 
 import java.util.*;
 

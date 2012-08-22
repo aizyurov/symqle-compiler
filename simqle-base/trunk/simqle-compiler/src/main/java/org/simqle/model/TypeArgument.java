@@ -5,11 +5,12 @@ package org.simqle.model;
 
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
+import org.simqle.util.Assert;
 
 import java.util.Collections;
 import java.util.List;
 
-import static org.simqle.model.Utils.*;
+import static org.simqle.util.Utils.*;
 
 /**
  * <br/>13.11.2011
@@ -17,15 +18,13 @@ import static org.simqle.model.Utils.*;
  * @author Alexander Izyurov
  */
 public class TypeArgument {
-    final boolean isWildCardArgument;
-    // "extends" | "super" | null; in the last case reference should be null
-    final String boundType;
-    final Type reference;
+    private final boolean isWildCardArgument;
+    // "extends" | "super" | null
+    private final String boundType;
+    private final Type reference;
 
     public TypeArgument(SyntaxTree node)  throws GrammarException {
-        if (!node.getType().equals("TypeArgument")) {
-            throw new IllegalArgumentException("Illegal argument: "+node);
-        }
+        Assert.assertOneOf(node.getType(), "TypeArgument");
         final List<Type> references = convertChildren(node, "ReferenceType", Type.class);
         if (!references.isEmpty()) {
             isWildCardArgument = false;
@@ -38,6 +37,18 @@ public class TypeArgument {
             List<Type> boundReferences = convertChildren(node, "WildcardBounds.ReferenceType", Type.class);
             reference = boundReferences.isEmpty() ? null : boundReferences.get(0);
         }
+    }
+
+    public Type getReference() {
+        return reference;
+    }
+
+    public String getBoundType() {
+        return boundType;
+    }
+
+    public boolean isWildCardArgument() {
+        return isWildCardArgument;
     }
 
     public TypeArgument(String simpleType) {

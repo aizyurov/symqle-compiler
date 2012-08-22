@@ -5,9 +5,10 @@ package org.simqle.model;
 
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
+import org.simqle.util.Assert;
 
 import java.util.List;
-import static org.simqle.model.Utils.*;
+import static org.simqle.util.Utils.*;
 
 /**
  * <br/>13.11.2011
@@ -20,9 +21,7 @@ public class TypeParameter {
     private final String image;
 
     public TypeParameter(SyntaxTree node) throws GrammarException{
-        if (!node.getType().equals("TypeParameter")) {
-            throw new IllegalArgumentException("Illegal argument: "+node);
-        }
+        Assert.assertOneOf(node.getType(), "TypeParameter");
         name = node.find("Identifier").get(0).getValue();
         typeBound = convertChildren(node, "TypeBound.ClassOrInterfaceType", Type.class);
         image = node.getImage();

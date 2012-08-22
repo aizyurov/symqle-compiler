@@ -7,6 +7,8 @@ import org.simqle.parser.ParseException;
 import org.simqle.parser.SimpleNode;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
+import org.simqle.util.Assert;
+import org.simqle.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,9 +52,7 @@ public class ClassDefinition {
     }
 
     public ClassDefinition(SyntaxTree node) throws GrammarException {
-        if (!node.getType().equals("SimqleClassDeclaration")) {
-            throw new IllegalArgumentException("Illegal argument: "+node);
-        }
+        Assert.assertOneOf(node.getType(), "SimqleClassDeclaration");
         final List<SyntaxTree> modifiers = node.find("ClassModifiers.ClassModifier");
         this.accessModifier = Utils.getAccessModifier(modifiers);
         this.otherModifiers = Utils.getNonAccessModifiers(modifiers);

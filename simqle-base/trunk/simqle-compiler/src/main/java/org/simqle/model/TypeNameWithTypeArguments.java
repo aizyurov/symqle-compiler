@@ -5,12 +5,13 @@ package org.simqle.model;
 
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
+import org.simqle.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.simqle.model.Utils.*;
+import static org.simqle.util.Utils.*;
 
 
 /**
@@ -25,9 +26,7 @@ public class TypeNameWithTypeArguments {
 
 
     public TypeNameWithTypeArguments(SyntaxTree node)  throws GrammarException {
-        if (!node.getType().equals("IdentifierWithTypeArguments")) {
-            throw new IllegalArgumentException("Illegal argument: "+node);
-        }
+        Assert.assertOneOf(node.getType(), "IdentifierWithTypeArguments");
         typeArguments = convertChildren(node, "TypeArguments.TypeArgument", TypeArgument.class);
         name = node.find("Identifier").get(0).getValue();
         text = node.getImage();

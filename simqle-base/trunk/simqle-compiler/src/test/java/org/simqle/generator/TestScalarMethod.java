@@ -16,7 +16,6 @@ public class TestScalarMethod extends TestCase {
     public void test() throws Exception {
         final MethodDeclaration methodDeclaration = InterfaceDeclarationsProcessor.makeScalarMethod("T", "SelectSublist");
         assertEquals("value", methodDeclaration.getName());
-        assertTrue(methodDeclaration.isInterfaceMethod());
         assertEquals("T", methodDeclaration.getResultType().getNameChain().get(0).getName());
         assertEquals(1, methodDeclaration.getFormalParameters().size());
         assertEquals("final Element element", methodDeclaration.getFormalParameters().get(0).getImage());

@@ -5,12 +5,13 @@ package org.simqle.model;
 
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
+import org.simqle.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.simqle.model.Utils.*;
+import static org.simqle.util.Utils.*;
 
 /**
  * <br/>13.11.2011
@@ -25,6 +26,8 @@ public class Type {
 
     public Type(SyntaxTree node) throws GrammarException {
         final SyntaxTree start = node.getType().equals("Type") ? node.getChildren().get(0) : node;
+
+        Assert.assertOneOf(start.getType(), "ClassOrInterfaceType", "ReferenceType", "PrimitiveType");
         
         if (start.getType().equals("ClassOrInterfaceType")) {
             nameChain = convertChildren(start, "IdentifierWithTypeArguments", TypeNameWithTypeArguments.class);
@@ -37,11 +40,9 @@ public class Type {
                 nameChain = convertChildren(start, "ClassOrInterfaceType.IdentifierWithTypeArguments", TypeNameWithTypeArguments.class);
             }
             arrayDimensions = start.find("ArrayOf").size();
-        } else if (start.getType().equals("PrimitiveType")) {
+        } else /* PrimitiveType */ {
             nameChain = Collections.singletonList(new TypeNameWithTypeArguments(start.getValue()));
             arrayDimensions = 0;
-        } else {
-            throw new IllegalArgumentException("Illegal argument: "+start);
         }
         this.image = node.getImage().trim();
     }

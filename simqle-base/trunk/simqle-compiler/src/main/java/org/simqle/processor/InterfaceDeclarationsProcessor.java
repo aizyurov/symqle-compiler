@@ -5,6 +5,7 @@ package org.simqle.processor;
 
 import org.simqle.model.*;
 import org.simqle.parser.SyntaxTree;
+import org.simqle.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,7 +112,7 @@ public class InterfaceDeclarationsProcessor implements Processor {
             "* @return sql conforming to <code>this</code> syntax",
             "*/",
             "Sql z$create$%s(final SqlContext context);"
-            );
+    );
 
 
     private MethodDeclaration makeSqlMethod(String interfaceName) throws GrammarException {

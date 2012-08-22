@@ -7,12 +7,14 @@ import org.simqle.parser.ParseException;
 import org.simqle.parser.SimpleNode;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
+import org.simqle.util.Assert;
+import org.simqle.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static org.simqle.model.Utils.convertChildren;
+import static org.simqle.util.Utils.convertChildren;
 
 /**
  * <br/>13.11.2011
@@ -46,9 +48,7 @@ public class FieldDeclaration {
     }
 
     public FieldDeclaration(SyntaxTree node) throws GrammarException {
-        if (!node.getType().equals("FieldDeclaration")) {
-            throw new IllegalArgumentException("Illegal argument: "+node);
-        }
+        Assert.assertOneOf(node.getType(), "FieldDeclaration");
         image = node.getImage();
         type = convertChildren(node, "Type", Type.class).get(0);
         declarators = convertChildren(node, "VariableDeclarator", VariableDeclarator.class);

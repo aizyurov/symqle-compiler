@@ -4,6 +4,7 @@
 package org.simqle.generator;
 
 import org.simqle.model.*;
+import org.simqle.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,10 +68,10 @@ public class InterfaceModel {
         final List<Type> extended = definition.getExtended();
         return  extended.isEmpty() ? "" :
                 Utils.formatList(extended, "extends ", ", ", "", new Function<String, Type>() {
-            public String apply(Type type) {
-                return type.getImage();
-            }
-        });
+                    public String apply(Type type) {
+                        return type.getImage();
+                    }
+                });
     }
 
     public List<MethodDeclaration> getMethods() {

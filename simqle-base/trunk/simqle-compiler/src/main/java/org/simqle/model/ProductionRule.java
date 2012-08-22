@@ -2,6 +2,8 @@ package org.simqle.model;
 
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
+import org.simqle.util.Assert;
+import org.simqle.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +20,7 @@ public class ProductionRule {
     private final String returnedInterfaceName;
 
     public ProductionRule(SyntaxTree node) throws GrammarException {
-        if (!node.getType().equals("ProductionRule")) {
-            throw new IllegalArgumentException("Illegal argument: "+node);
-        }
+        Assert.assertOneOf(node.getType(), "ProductionRule");
         final SyntaxTree productionDeclaration = node.getParent().getParent();
         Type returnType = Utils.convertChildren(productionDeclaration, "ClassOrInterfaceType", Type.class).get(0);
         returnedInterfaceName = returnType.getNameChain().get(0).getName();

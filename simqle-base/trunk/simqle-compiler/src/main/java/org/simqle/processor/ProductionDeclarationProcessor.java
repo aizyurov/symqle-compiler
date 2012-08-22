@@ -5,6 +5,7 @@ package org.simqle.processor;
 
 import org.simqle.model.*;
 import org.simqle.parser.SyntaxTree;
+import org.simqle.util.Utils;
 
 import java.util.*;
 
@@ -57,12 +58,30 @@ public class ProductionDeclarationProcessor implements Processor {
                         substitutions.put("_CREATE_", createMethodName);
                         methodBodySource = makeSubstitutions(rawImage, substitutions);
                     }
-                    MethodDeclaration method = null;
-                    try {
-                        method = new MethodDeclaration(false, "public", false, false, typeParameters, returnType, productionRule.getName(), formalParameters, "", "", methodBodySource);
-                    } catch (ModelException e) {
-                        throw new RuntimeException("Internal error", e);
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("public ");
+                    if (!typeParameters.isEmpty()) {
+                        builder.append(Utils.formatList(typeParameters, "<", ", ", ">", new Function<String, TypeParameter>() {
+                            @Override
+                            public String apply(final TypeParameter typeParameter) {
+                                return typeParameter.getImage();
+                            }
+                        }));
+                        builder.append(" ");
                     }
+                    builder.append(returnType.getImage())
+                            .append(" ")
+                            .append(productionRule.getName())
+                            .append("(");
+                    builder.append(Utils.formatList(formalParameters, "", ", ", "", new Function<String, FormalParameter>() {
+                        @Override
+                        public String apply(final FormalParameter formalParameter) {
+                            return formalParameter.getImage();
+                        }
+                    }));
+                    builder.append(")");
+                    builder.append(methodBodySource);
+                    MethodDeclaration method = MethodDeclaration.parse(builder.toString());
                     final FactoryMethodModel factoryMethodModel = new FactoryMethodModel(imports,  implImports, productionRule,
                             method);
                     // add it to the model

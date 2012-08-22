@@ -5,6 +5,7 @@ package org.simqle.model;
 
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
+import org.simqle.util.Assert;
 
 import java.util.*;
 
@@ -23,9 +24,7 @@ public class Body {
     private final List<ConstructorDeclaration> constructors = new ArrayList<ConstructorDeclaration>();
 
     public Body(SyntaxTree node) throws GrammarException {
-        if (!node.getType().equals("InterfaceBody") && !node.getType().equals("ClassBody")) {
-            throw new IllegalArgumentException("Illegal argument: "+node);
-        }
+        Assert.assertOneOf(node.getType(), "InterfaceBody", "ClassBody");
 
         // suppose it is InterfaceBody
         {

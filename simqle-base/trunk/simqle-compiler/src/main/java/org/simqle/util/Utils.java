@@ -1,8 +1,9 @@
 /*
 * Copyright Alexander Izyurov 2010
 */
-package org.simqle.model;
+package org.simqle.util;
 
+import org.simqle.model.*;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
@@ -182,7 +183,7 @@ public class Utils {
             final String name = typeNameWithTypeArguments.getName();
             if (substitutions.containsKey(name)) {
 //                result.addAll(substituteTypeArguments(substitutions.get(name).reference.getNameChain(), typeParameters, typeArguments));
-                result.addAll(substitutions.get(name).reference.getNameChain());
+                result.addAll(substitutions.get(name).getReference().getNameChain());
             } else {
                 final List<TypeArgument> typeArguments1 = typeNameWithTypeArguments.getTypeArguments();
                 final List<String> newTypeArguments = new ArrayList<String>(typeArguments1.size());

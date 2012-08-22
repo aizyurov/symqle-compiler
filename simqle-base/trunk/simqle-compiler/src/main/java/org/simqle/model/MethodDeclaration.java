@@ -7,10 +7,13 @@ import org.simqle.parser.ParseException;
 import org.simqle.parser.SimpleNode;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
+import org.simqle.util.Assert;
+import org.simqle.util.Utils;
 
 import java.util.List;
+import java.util.Set;
 
-import static org.simqle.model.Utils.convertChildren;
+import static org.simqle.util.Utils.convertChildren;
 
 /**
  * <br/>13.11.2011
@@ -18,7 +21,6 @@ import static org.simqle.model.Utils.convertChildren;
  * @author Alexander Izyurov
  */
 public class MethodDeclaration {
-    private final boolean isInterfaceMethod;
     private final String accessModifier;
     private final boolean isStatic;
     private final boolean isAbstract;
@@ -60,35 +62,18 @@ public class MethodDeclaration {
     }
 
     public MethodDeclaration(SyntaxTree node) throws GrammarException {
-        if (node.getType().equals("AbstractMethodDeclaration")) {
-            isInterfaceMethod = true;
-        } else if (node.getType().equals("MethodDeclaration")) {
-            isInterfaceMethod = false;
-        } else {
-            throw new IllegalArgumentException("IllegalArgument: "+node);
-        }
+        Assert.assertOneOf(node.getType(), "AbstractMethodDeclaration", "MethodDeclaration");
+        final boolean isInterfaceMethod = node.getType().equals("AbstractMethodDeclaration");
         String accessModifier="";
-        boolean isAbstract = false;
-        boolean isStatic = false;
         // actually only one find returns non-empty list
         final List<SyntaxTree> modifiers = node.find("AbstractMethodModifiers.AbstractMethodModifier");
         modifiers.addAll(node.find("MethodModifiers.MethodModifier"));
-        for (SyntaxTree modifier : modifiers) {
-            final String value = modifier.getValue();
-            if (value.equals("public") || value.equals("protected") || value.equals("private")) {
-                if (!accessModifier.equals("")) {
-                    throw new GrammarException("incompatible modifiers: "+accessModifier+", "+value, modifier);
-                }
-                accessModifier = value;
-            } else if (value.equals("abstract")) {
-                isAbstract = true;
-            } else if (value.equals("static")) {
-                isStatic = true;
-            }
-        }
+        accessModifier = Utils.getAccessModifier(modifiers);
+        final Set<String> otherModifiers = Utils.getNonAccessModifiers(modifiers);
+        final boolean isAbstract = otherModifiers.contains("abstract");
         this.accessModifier = accessModifier;
         this.isAbstract = isInterfaceMethod || isAbstract;
-        this.isStatic = isStatic;
+        this.isStatic = otherModifiers.contains("static");
 
         typeParameters = convertChildren(node, "TypeParameters.TypeParameter", TypeParameter.class);
         final List<SyntaxTree> resultTypes = node.find("ResultType.Type");
@@ -117,7 +102,6 @@ public class MethodDeclaration {
 
     @Deprecated
     public MethodDeclaration(boolean interfaceMethod, String accessModifier, boolean aStatic, boolean anAbstract, List<TypeParameter> typeParameters, Type resultType, String name, List<FormalParameter> formalParameters, String throwsClause, String comment, String methodBody) throws ModelException {
-        isInterfaceMethod = interfaceMethod;
         this.accessModifier = accessModifier;
         isStatic = aStatic;
         isAbstract = anAbstract;
@@ -133,10 +117,6 @@ public class MethodDeclaration {
 
     public String getName() {
         return name;
-    }
-
-    public boolean isInterfaceMethod() {
-        return isInterfaceMethod;
     }
 
     public String getAccessModifier() {

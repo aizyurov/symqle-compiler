@@ -4,6 +4,8 @@
 package org.simqle.model;
 
 import org.simqle.parser.SyntaxTree;
+import org.simqle.util.Assert;
+import org.simqle.util.Utils;
 
 import java.util.List;
 
@@ -17,9 +19,7 @@ public class VariableDeclarator {
     private final String initializer;
 
     public VariableDeclarator(SyntaxTree node) {
-        if (!node.getType().equals("VariableDeclarator")) {
-            throw new IllegalArgumentException("Illegal argument: "+node);
-        }
+        Assert.assertOneOf(node.getType(), "VariableDeclarator");
         name = node.find("VariableDeclaratorId").get(0).getValue();
         final List<String> initializers = Utils.bodies(node.find("VariableInitializer"));
         this.initializer = initializers.isEmpty() ? "" : " = " +initializers.get(0);

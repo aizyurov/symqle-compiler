@@ -7,6 +7,8 @@ import org.simqle.parser.ParseException;
 import org.simqle.parser.SimpleNode;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
+import org.simqle.util.Assert;
+import org.simqle.util.Utils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -36,9 +38,7 @@ public class ConstructorDeclaration {
     }
 
     public ConstructorDeclaration(SyntaxTree node) throws GrammarException {
-        if (!node.getType().equals("ConstructorDeclaration")) {
-            throw new IllegalArgumentException("Illegal argument: "+node);
-        }
+        Assert.assertOneOf(node.getType(), "ConstructorDeclaration");
         accessModifier = Utils.getAccessModifier(node.find("ConstructorModifiers.ConstructorModifier"));
         name=node.find("Identifier").get(0).getValue();
         comment = node.getComments();

@@ -5,11 +5,13 @@ package org.simqle.model;
 
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
+import org.simqle.util.Assert;
+import org.simqle.util.Utils;
 
 import java.util.*;
 
-import static org.simqle.model.Utils.convertChildren;
-import static org.simqle.model.Utils.getChildrenImage;
+import static org.simqle.util.Utils.convertChildren;
+import static org.simqle.util.Utils.getChildrenImage;
 
 /**
  * <br/>13.11.2011
@@ -35,9 +37,7 @@ public class InterfaceDefinition {
     private final String declaration;
 
     public InterfaceDefinition(SyntaxTree node, List<String> importLines) throws GrammarException {
-        if (!node.getType().equals("SimqleInterfaceDeclaration")) {
-            throw new IllegalArgumentException("Illegal argument: "+node);
-        }
+        Assert.assertOneOf(node.getType(), "SimqleInterfaceDeclaration");
 
         this.importLines = new TreeSet<String>(importLines);
         {
