@@ -1,8 +1,8 @@
 package org.simqle.generator;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.simqle.model.ClassDefinition;
+import org.simqle.model.MethodDeclaration;
 import org.simqle.model.Model;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
@@ -33,24 +33,66 @@ public class TestTypeParameters extends TestCase {
             Processor processor = new ClassDeclarationProcessor();
             processor.process(node, model);
         }
-        Assert.assertEquals(2, model.getAllClasses().size());
+        assertEquals(2, model.getAllClasses().size());
         {
-            final ClassDefinition classDef = model.getAllClasses().get(0).getBase();
-            Assert.assertEquals(3, classDef.getBody().getMethods().size());
-            Assert.assertEquals("public V value(final Element element)", classDef.getBody().getMethods().get(0).getSignature().trim());
-            Assert.assertEquals("public Query<V> z$create$expression(final SqlContext context)", classDef.getBody().getMethods().get(1).getSignature().trim());
-            Assert.assertEquals("public void z$prepare$expression(final SqlContext context)", classDef.getBody().getMethods().get(2).getSignature().trim());
-            Assert.assertEquals(1, classDef.getBody().getFields().size());
-            Assert.assertEquals("private final expression<V> sqlBuilder;", classDef.getBody().getFields().get(0).getImage().trim());
+            final ClassDefinition classDef = model.getClassPair("GenericExpression").getBase();
+            assertEquals(3, classDef.getBody().getMethods().size());
+
+            {
+                final MethodDeclaration valueMethod = classDef.getBody().getMethod("value");
+                assertNotNull(valueMethod);
+                assertEquals("V", valueMethod.getResultType().getImage());
+                assertEquals(1, valueMethod.getFormalParameters().size());
+                assertEquals("final Element element", valueMethod.getFormalParameters().get(0).getImage());
+            }
+
+            {
+                final MethodDeclaration createMethod = classDef.getBody().getMethod("z$create$expression");
+                assertNotNull(createMethod);
+                assertEquals("Query<V>", createMethod.getResultType().getImage());
+                assertEquals(1, createMethod.getFormalParameters().size());
+                assertEquals("final SqlContext context", createMethod.getFormalParameters().get(0).getImage());
+            }
+
+            {
+                final MethodDeclaration prepareMethod = classDef.getBody().getMethod("z$prepare$expression");
+                assertNotNull(prepareMethod);
+                assertNull("void", prepareMethod.getResultType());
+                assertEquals(1, prepareMethod.getFormalParameters().size());
+                assertEquals("final SqlContext context", prepareMethod.getFormalParameters().get(0).getImage());
+            }
+
+            assertEquals(1, classDef.getBody().getFields().size());
+            assertEquals("private final expression<V> sqlBuilder;", classDef.getBody().getFields().get(0).getImage().trim());
         }
         {
-            final ClassDefinition classDef = model.getAllClasses().get(1).getBase();
-            Assert.assertEquals(3, classDef.getBody().getMethods().size());
-            Assert.assertEquals("public Boolean value(final Element element)", classDef.getBody().getMethods().get(0).getSignature().trim());
-            Assert.assertEquals("public Query<Boolean> z$create$expression(final SqlContext context)", classDef.getBody().getMethods().get(1).getSignature().trim());
-            Assert.assertEquals("public void z$prepare$expression(final SqlContext context)", classDef.getBody().getMethods().get(2).getSignature().trim());
-            Assert.assertEquals(1, classDef.getBody().getFields().size());
-            Assert.assertEquals("private final expression<Boolean> sqlBuilder;", classDef.getBody().getFields().get(0).getImage().trim());
+            final ClassDefinition classDef = model.getClassPair("BooleanExpression").getBase();
+            assertEquals(3, classDef.getBody().getMethods().size());
+            {
+                final MethodDeclaration valueMethod = classDef.getBody().getMethod("value");
+                assertNotNull(valueMethod);
+                assertEquals("Boolean", valueMethod.getResultType().getImage());
+                assertEquals(1, valueMethod.getFormalParameters().size());
+                assertEquals("final Element element", valueMethod.getFormalParameters().get(0).getImage());
+            }
+
+            {
+                final MethodDeclaration createMethod = classDef.getBody().getMethod("z$create$expression");
+                assertNotNull(createMethod);
+                assertEquals("Query<Boolean>", createMethod.getResultType().getImage());
+                assertEquals(1, createMethod.getFormalParameters().size());
+                assertEquals("final SqlContext context", createMethod.getFormalParameters().get(0).getImage());
+            }
+
+            {
+                final MethodDeclaration prepareMethod = classDef.getBody().getMethod("z$prepare$expression");
+                assertNotNull(prepareMethod);
+                assertNull(prepareMethod.getResultType());
+                assertEquals(1, prepareMethod.getFormalParameters().size());
+                assertEquals("final SqlContext context", prepareMethod.getFormalParameters().get(0).getImage());
+            }
+            assertEquals(1, classDef.getBody().getFields().size());
+            assertEquals("private final expression<Boolean> sqlBuilder;", classDef.getBody().getFields().get(0).getImage().trim());
         }
 
     }

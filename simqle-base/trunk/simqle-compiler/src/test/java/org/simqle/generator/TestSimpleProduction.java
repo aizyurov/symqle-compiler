@@ -269,8 +269,11 @@ public class TestSimpleProduction extends TestCase {
         }
         final FactoryMethodModel method1 = methodsByName.get("primary_IS_LEFT_PAREN_expression_RIGHT_PAREN");
         assertNotNull(method1);
-        final String signature = method1.getMethodDeclaration().getSignature();
-        assertEquals("public <T> primary<T> primary_IS_LEFT_PAREN_expression_RIGHT_PAREN(final expression<T> expr)", TestUtils.normalizeFormatting(signature));
+        final Type resultType = method1.getMethodDeclaration().getResultType();
+        assertEquals("primary<T>", resultType.getImage());
+        assertEquals("public", method1.getMethodDeclaration().getAccessModifier());
+        assertEquals(1, method1.getMethodDeclaration().getFormalParameters().size());
+        assertEquals("final expression<T> expr", method1.getMethodDeclaration().getFormalParameters().get(0).getImage());
         final String body = method1.getMethodDeclaration().getMethodBody();
         assertEquals(TestUtils.normalizeFormatting("{ return new primary<T>() {\n" +
                 "       @Override\n" +

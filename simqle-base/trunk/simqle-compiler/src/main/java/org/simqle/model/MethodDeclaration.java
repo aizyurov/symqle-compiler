@@ -31,7 +31,6 @@ public class MethodDeclaration {
 
 
     private final String comment;
-    private final String signature;
     // null for abstract methods
     private final String methodBody;
 
@@ -41,6 +40,17 @@ public class MethodDeclaration {
     public static MethodDeclaration parseAbstractMethod(String source) {
         try {
             final SimpleNode simpleNode = Utils.createParser(source).AbstractMethodDeclaration();
+            return new MethodDeclaration(new SyntaxTree(simpleNode, source));
+        } catch (ParseException e) {
+            throw new RuntimeException("Internal error", e);
+        } catch (GrammarException e) {
+            throw new RuntimeException("Internal error", e);
+        }
+    }
+
+    public static MethodDeclaration parse(String source) {
+        try {
+            final SimpleNode simpleNode = Utils.createParser(source).MethodDeclaration();
             return new MethodDeclaration(new SyntaxTree(simpleNode, source));
         } catch (ParseException e) {
             throw new RuntimeException("Internal error", e);
@@ -95,30 +105,9 @@ public class MethodDeclaration {
         formalParameters.addAll(convertChildren(node, "MethodDeclarator.FormalParameterList.FormalParameterWithEllipsis", FormalParameter.class));
         
         comment = node.getComments();
-        StringBuilder signatureBuilder = new StringBuilder();
-        for (int i=0; i<modifiers.size(); i++) {
-            signatureBuilder.append(modifiers.get(i).getBody());
-            signatureBuilder.append(" ");
-        }
-        for (SyntaxTree typeParams: node.find("TypeParameters")) {
-            signatureBuilder.append(typeParams.getBody());
-            signatureBuilder.append(" ");
-        }
-        for (SyntaxTree resultType: node.find("ResultType")) {
-            signatureBuilder.append(resultType.getBody());
-            signatureBuilder.append(" ");
-        }
-        for (SyntaxTree declarator: node.find("MethodDeclarator")) {
-            signatureBuilder.append(declarator.getBody());
-        }
-        String throwsString = "";
-        for (SyntaxTree throwsClause: node.find("Throws")) {
-            signatureBuilder.append(" ");
-            signatureBuilder.append(throwsClause.getBody());
-            throwsString = throwsClause.getBody();
-        }
-        this.throwsClause = throwsString;
-        signature = signatureBuilder.toString();
+        final List<String> throwClauses = Utils.bodies(node.find("Throws"));
+        // may be at most one by grammar
+        this.throwsClause = Utils.concat(throwClauses, " ");
         StringBuilder bodyBuilder = new StringBuilder();
         for (SyntaxTree bodyBlock: node.find("MethodBody.Block")) {
             bodyBuilder.append(bodyBlock.getImage());
@@ -126,6 +115,7 @@ public class MethodDeclaration {
         methodBody = bodyBuilder.length()==0 ? null : bodyBuilder.toString();
     }
 
+    @Deprecated
     public MethodDeclaration(boolean interfaceMethod, String accessModifier, boolean aStatic, boolean anAbstract, List<TypeParameter> typeParameters, Type resultType, String name, List<FormalParameter> formalParameters, String throwsClause, String comment, String methodBody) throws ModelException {
         isInterfaceMethod = interfaceMethod;
         this.accessModifier = accessModifier;
@@ -136,42 +126,7 @@ public class MethodDeclaration {
         this.name = name;
         this.formalParameters = formalParameters;
         this.comment = comment;
-        StringBuilder signatureBuilder = new StringBuilder();
-        signatureBuilder.append(accessModifier);
-        if (isAbstract && !isInterfaceMethod) {
-            signatureBuilder.append(" abstract");
-        }
-        if (isStatic) {
-            signatureBuilder.append(" static");
-        }
-        if (typeParameters.size()>0) {
-            signatureBuilder.append(" <");
-            for (int i=0; i<typeParameters.size(); i++) {
-                TypeParameter param = typeParameters.get(i);
-                if (i>0) {
-                    signatureBuilder.append(param);
-                }
-                signatureBuilder.append(param.getImage());
-            }
-            signatureBuilder.append(">");
-        }
-        signatureBuilder.append(" ")
-                .append(resultType == null ? "void" : resultType.getImage())
-                .append(" ")
-                .append(name)
-                .append("(");
-        for (int i=0; i<formalParameters.size(); i++) {
-            FormalParameter formalParam = formalParameters.get(i);
-            if (i>0) {
-                signatureBuilder.append(", ");
-            }
-            signatureBuilder.append(formalParam.getImage());
-        }
-        signatureBuilder.append(") ");
-        signatureBuilder.append(throwsClause);
         this.throwsClause = throwsClause;
-        signature = signatureBuilder.toString();
-
         this.methodBody = methodBody;
         // TODO validate body
     }
@@ -210,10 +165,6 @@ public class MethodDeclaration {
 
     public String getComment() {
         return comment;
-    }
-
-    public String getSignature() {
-        return signature;
     }
 
     public String getMethodBody() {

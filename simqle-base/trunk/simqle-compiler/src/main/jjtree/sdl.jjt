@@ -26,6 +26,18 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+/* Copyright (c) Alexander Izyurov, 2011-2012
+ * This is JAVACC grammar of Simqle definition language.
+ * Simqle grammar includes a subset of Java language grammar,
+ * based on Java language specification, 3rd edition
+ * http://docs.oracle.com/javase/specs/jls/se5.0/html/j3TOC.html
+ * Lexical part is borrowed from Javacc grammar of Java 1.5 by
+ * Sreenivasa Viswanadha, see copyright notice above.
+ * Productions are derived fron JLS, with appropriate changes
+ * to have LL grammar, comment to each production refers to
+ * a section of JLS, which it is based upon
+ */
+
 options {
   JAVA_UNICODE_ESCAPE = true;
   ERROR_REPORTING = false;
@@ -1571,10 +1583,13 @@ void FieldModifier():
 }
 
 /* 8.4 */
-void MethodDeclaration():
+SimpleNode MethodDeclaration():
 {}
 {
     MethodModifiers() [ TypeParameters() ] ResultType() MethodDeclarator() [ Throws() ] MethodBody()
+    {
+        return jjtThis;
+    }
 }
 
 /* 8.4.3 */
@@ -2684,16 +2699,11 @@ void MultiplicativeOp():
 }
 
 
-/*********** TODO ***********/
-
-
-
-
-
+/** Simqle supports only MarkerAnnotation -- simplified rule */
 void Annotation():
 {}
 {
-    "@" Identifier() //FIXME
+    "@" Identifier()
 }
 
 

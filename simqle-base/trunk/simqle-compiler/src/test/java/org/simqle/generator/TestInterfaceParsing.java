@@ -7,7 +7,6 @@ import junit.framework.TestCase;
 import org.simqle.model.InterfaceDefinition;
 import org.simqle.model.MethodDeclaration;
 import org.simqle.model.Model;
-import org.simqle.model.Type;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
@@ -15,7 +14,6 @@ import org.simqle.processor.InterfaceDeclarationsProcessor;
 import org.simqle.processor.Processor;
 import org.simqle.test.TestUtils;
 
-import java.io.File;
 import java.io.FileReader;
 import java.util.List;
 
@@ -45,10 +43,9 @@ public class TestInterfaceParsing extends TestCase {
         assertTrue(def1.getBody().hasMethod("z$prepare$select_statement"));
         final MethodDeclaration method1 = def1.getBody().getMethod("z$prepare$select_statement");
         assertNull(method1.getResultType());
-        assertEquals("void z$prepare$select_statement(SqlContext context)", method1.getSignature());
         assertEquals(1, method1.getFormalParameters().size());
-        final Type arg0type = method1.getFormalParameters().get(0).getType();
-        assertEquals("SqlContext", arg0type.getNameChain().get(0).getName());
+        assertEquals("final SqlContext context", method1.getFormalParameters().get(0).getImage());
+        assertNull(method1.getResultType());
 
         final List<String> importLines = def1.getImportLines();
         assertTrue(importLines.contains("import org.simqle.SqlContext;"));
@@ -121,16 +118,5 @@ public class TestInterfaceParsing extends TestCase {
         } catch (GrammarException e) {
             assertTrue(e.getMessage().startsWith("Method overloading is not allowed in Simqle: getValue"));
         }
-    }
-
-    public void testGenerate() throws Exception {
-        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/InterfaceTest.sdl"));
-        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "InterfaceTest.sdl");
-        Model model = new Model();
-        Processor processor = new InterfaceDeclarationsProcessor();
-        processor.process(node, model);
-        InterfaceGenerator generator = new InterfaceGenerator();
-        new File("target/test-output/").mkdirs();
-        generator.generate(model, new File("target/test-output/generated-sources-1"));
     }
 }

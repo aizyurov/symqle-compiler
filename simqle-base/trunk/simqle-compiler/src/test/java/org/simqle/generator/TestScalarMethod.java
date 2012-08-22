@@ -17,7 +17,9 @@ public class TestScalarMethod extends TestCase {
         final MethodDeclaration methodDeclaration = InterfaceDeclarationsProcessor.makeScalarMethod("T", "SelectSublist");
         assertEquals("value", methodDeclaration.getName());
         assertTrue(methodDeclaration.isInterfaceMethod());
-        assertEquals("T value(Element element)", methodDeclaration.getSignature());
+        assertEquals("T", methodDeclaration.getResultType().getNameChain().get(0).getName());
+        assertEquals(1, methodDeclaration.getFormalParameters().size());
+        assertEquals("final Element element", methodDeclaration.getFormalParameters().get(0).getImage());
         final String expectedComment="        /**\n" +
                 "        * Converts data from row element to Java object of type T\n" +
                 "        * @param element row element containing the data\n" +

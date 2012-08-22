@@ -205,7 +205,9 @@ public class TestClassParsing extends TestCase {
         final ClassDefinition baseClass = model.getClassPair("TestClass").getBase();
         final MethodDeclaration dumpMethod = baseClass.getBody().getMethod("dump");
         assertNotNull(dumpMethod);
-        assertEquals("public void dump(final OutputStream os, final boolean compress)", TestUtils.normalizeFormatting(dumpMethod.getSignature()));
+        assertEquals(2, dumpMethod.getFormalParameters().size());
+        assertEquals("final OutputStream os", dumpMethod.getFormalParameters().get(0).getImage());
+        assertEquals("final boolean compress", dumpMethod.getFormalParameters().get(1).getImage());
         assertEquals("{ sqlBuilder.dump(os, compress); }", TestUtils.normalizeFormatting(dumpMethod.getMethodBody()));
     }
 

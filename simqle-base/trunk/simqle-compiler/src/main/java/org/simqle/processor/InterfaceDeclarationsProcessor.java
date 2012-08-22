@@ -63,59 +63,59 @@ public class InterfaceDeclarationsProcessor implements Processor {
         }
     }
 
-    private final static String SCALAR_METHOD_COMMENT_FORMAT = Utils.join(8,
+    private final static String SCALAR_METHOD_FORMAT = Utils.join(8,
             "/**",
             "* Converts data from row element to Java object of type %s",
             "* @param element row element containing the data",
             "* @return object of type %s, may be null",
             "*/",
-            "%s value(Element element);"
+            "%s value(final Element element);"
             );
 
     public static MethodDeclaration makeScalarMethod(String typeParameter, String interfaceName) throws GrammarException {
-        final String methodSource = String.format(SCALAR_METHOD_COMMENT_FORMAT, typeParameter, typeParameter, typeParameter, interfaceName);
+        final String methodSource = String.format(SCALAR_METHOD_FORMAT, typeParameter, typeParameter, typeParameter, interfaceName);
         return MethodDeclaration.parseAbstractMethod(methodSource);
     }
 
-    private final static String PREPARE_METHOD_COMMENT_FORMAT = Utils.join(8,
+    private final static String PREPARE_METHOD_FORMAT = Utils.join(8,
             "/**",
             "* Prepares SQL context for construction of %s Sql clause",
             "* @param context the Sql construction context",
             "*/",
-            "void z$prepare$%s(SqlContext context);"
+            "void z$prepare$%s(final SqlContext context);"
             );
 
     private MethodDeclaration makePrepareMethod(String interfaceName) throws GrammarException {
-        final String methodSource = String.format(PREPARE_METHOD_COMMENT_FORMAT, interfaceName, interfaceName);
+        final String methodSource = String.format(PREPARE_METHOD_FORMAT, interfaceName, interfaceName);
         return MethodDeclaration.parseAbstractMethod(methodSource);
     }
 
-    private final static String QUERY_METHOD_COMMENT_FORMAT = Utils.join(8,
+    private final static String QUERY_METHOD_FORMAT = Utils.join(8,
             "/**",
             "* Creates a Query",
             "* @param context the Sql construction context",
             "* @return query conforming to <code>this</code> syntax",
             "*/",
-            "Query<%s> z$create$%s(SqlContext context);"
+            "Query<%s> z$create$%s(final SqlContext context);"
             );
 
     private MethodDeclaration makeQueryMethod(String typeParameter, String interfaceName) throws GrammarException {
-        final String methodSource = String.format(QUERY_METHOD_COMMENT_FORMAT, typeParameter, interfaceName);
+        final String methodSource = String.format(QUERY_METHOD_FORMAT, typeParameter, interfaceName);
         return MethodDeclaration.parseAbstractMethod(methodSource);
     }
 
-    private final static String SQL_METHOD_COMMENT_FORMAT = Utils.join(8,
+    private final static String SQL_METHOD_FORMAT = Utils.join(8,
             "/**",
             "* Creates an Sql representing <code>this</code>",
             "* @param context the Sql construction context",
             "* @return sql conforming to <code>this</code> syntax",
             "*/",
-            "Sql z$create$%s(SqlContext context);"
+            "Sql z$create$%s(final SqlContext context);"
             );
 
 
     private MethodDeclaration makeSqlMethod(String interfaceName) throws GrammarException {
-        final String methodSource = String.format(SQL_METHOD_COMMENT_FORMAT, interfaceName);
+        final String methodSource = String.format(SQL_METHOD_FORMAT, interfaceName);
         return MethodDeclaration.parseAbstractMethod(methodSource);
     }
 }
