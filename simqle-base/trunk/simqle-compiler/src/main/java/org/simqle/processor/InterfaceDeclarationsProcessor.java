@@ -63,7 +63,6 @@ public class InterfaceDeclarationsProcessor implements Processor {
         }
     }
 
-    private final static String SCALAR_REQUIRED_IMPORT = "import org.simqle.Element;";
     private final static String SCALAR_METHOD_COMMENT_FORMAT = Utils.join(8,
             "/**",
             "* Converts data from row element to Java object of type %s",
@@ -78,7 +77,6 @@ public class InterfaceDeclarationsProcessor implements Processor {
         return MethodDeclaration.parseAbstractMethod(methodSource);
     }
 
-    private final static String PREPARE_REQUIRED_IMPORT = "import org.simqle.SqlContext;";
     private final static String PREPARE_METHOD_COMMENT_FORMAT = Utils.join(8,
             "/**",
             "* Prepares SQL context for construction of %s Sql clause",
@@ -92,7 +90,6 @@ public class InterfaceDeclarationsProcessor implements Processor {
         return MethodDeclaration.parseAbstractMethod(methodSource);
     }
 
-    private final static String QUERY_REQUIRED_IMPORT = "import org.simqle.Query;";
     private final static String QUERY_METHOD_COMMENT_FORMAT = Utils.join(8,
             "/**",
             "* Creates a Query",
@@ -107,7 +104,6 @@ public class InterfaceDeclarationsProcessor implements Processor {
         return MethodDeclaration.parseAbstractMethod(methodSource);
     }
 
-    private final static String SQL_REQUIRED_IMPORT = "import org.simqle.Sql;";
     private final static String SQL_METHOD_COMMENT_FORMAT = Utils.join(8,
             "/**",
             "* Creates an Sql representing <code>this</code>",

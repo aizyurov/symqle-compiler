@@ -13,7 +13,9 @@ import org.simqle.test.TestUtils;
 import java.io.FileReader;
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <br/>15.11.2011
@@ -252,5 +254,53 @@ public class TestSimpleProduction extends TestCase {
             assertTrue(e.getMessage().startsWith("Cannot mimic one class with different type parameters"));
         }
     }
+
+    public void testConstantsInProduction() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/ProductionWithConstants.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "ProductionWithConstants.sdl");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        new ProductionDeclarationProcessor().process(node, model);
+        final List<FactoryMethodModel> allFactoryMethods = model.getAllFactoryMethods();
+        Map<String, FactoryMethodModel> methodsByName = new HashMap<String, FactoryMethodModel>();
+        for (FactoryMethodModel method: allFactoryMethods) {
+            methodsByName.put(method.getName(), method);
+        }
+        final FactoryMethodModel method1 = methodsByName.get("primary_IS_LEFT_PAREN_expression_RIGHT_PAREN");
+        assertNotNull(method1);
+        final String signature = method1.getMethodDeclaration().getSignature();
+        assertEquals("public <T> primary<T> primary_IS_LEFT_PAREN_expression_RIGHT_PAREN(final expression<T> expr)", TestUtils.normalizeFormatting(signature));
+        final String body = method1.getMethodDeclaration().getMethodBody();
+        assertEquals(TestUtils.normalizeFormatting("{ return new primary<T>() {\n" +
+                "       @Override\n" +
+                "       public T value(final Element element) {\n" +
+                "            return expr.value(element); \n" +
+                "       }\n" +
+                "    @Override\n" +
+                "    public void z$prepare$primary(final SqlContext context) {\n" +
+                "         expr.z$prepare$expression(context);\n" +
+                "    }\n" +
+                "    @Override\n" +
+                "    public Sql z$create$primary(final SqlContext context) {\n" +
+                "        return new CompositeSql(LEFT_PAREN, expr.z$create$expression(context), RIGHT_PAREN);    }\n" +
+                "    };\n" +
+                "}"), TestUtils.normalizeFormatting(body));
+    }
+
+    public void testMistypeInProductionResult() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/MistypeInProductionResult.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "MistypeInProductionResult.sdl");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        try {
+            new ProductionDeclarationProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage(), e.getMessage().startsWith("Unknown interface: prmary"));
+        }
+    }
+
 
 }
