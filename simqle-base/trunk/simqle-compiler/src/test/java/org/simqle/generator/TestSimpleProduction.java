@@ -302,5 +302,47 @@ public class TestSimpleProduction extends TestCase {
         }
     }
 
+    public void testMistypeInProductionElementType() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/MistypeInProductionElementType.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "MistypeInProductionElementType.sdl");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        try {
+            new ProductionDeclarationProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage(), e.getMessage().startsWith("Unknown interface: epression"));
+        }
+    }
+
+    public void testWrongTypeParametersOfProductionResult() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/WrongTypeParametersOfProductionResult.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "WrongTypeParametersOfProductionResult.sdl");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        try {
+            new ProductionDeclarationProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage(), e.getMessage().startsWith("Return type expression requires 1 type parameter, found: 0"));
+        }
+    }
+
+    // WrongTypeParametersOfRuleElement
+    public void testWrongTypeParametersOfRuleElement() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/WrongTypeParametersOfRuleElement.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "WrongTypeParametersOfRuleElement.sdl");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        try {
+            new ProductionDeclarationProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage(), e.getMessage().startsWith("Rule element prim:primary requires 1 type parameter, found: 0"));
+        }
+    }
 
 }

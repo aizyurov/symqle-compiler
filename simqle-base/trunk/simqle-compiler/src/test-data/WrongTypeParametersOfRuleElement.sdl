@@ -1,0 +1,11 @@
+public interface expression<T> extends Scalar<T>
+{}
+
+public interface primary<T> extends Scalar<T>
+{}
+
+<T> expression<T> ::= prim:primary
+;
+
+<T> primary<T> ::= LEFT_PAREN expr:expression<T> RIGHT_PAREN
+;

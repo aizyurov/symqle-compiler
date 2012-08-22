@@ -189,7 +189,11 @@ public class ProductionDeclarationProcessor implements Processor {
         ProductionRule.RuleElement delegate = null;
         for (ProductionRule.RuleElement element: rule.getElements()) {
             if (element.getType()!=null) {
-                final InterfaceDefinition elementInterface = model.getInterface(element.getType().getNameChain().get(0).getName());
+                final String name = element.getType().getNameChain().get(0).getName();
+                final InterfaceDefinition elementInterface = model.getInterface(name);
+                if (elementInterface == null) {
+                    throw new ModelException("Unknown interface: "+name);
+                }
                 final MethodDeclaration elementValueMethod = elementInterface.getBody().getMethod("value");
                 if (elementValueMethod==null) {
                     continue;
@@ -198,7 +202,7 @@ public class ProductionDeclarationProcessor implements Processor {
                 final List<TypeParameter> typeParameters = elementInterface.getTypeParameters();
                 final List<TypeArgument> typeArguments = element.getType().getNameChain().get(0).getTypeArguments();
                 if (typeArguments.size()!=typeParameters.size()) {
-                    throw new ModelException(element.getName()+":"+element.getType().getNameChain().get(0).getName()+" requires "+typeParameters.size()+", found: "+typeArguments.size());
+                    throw new ModelException("Rule element "+element.getName()+":"+ name +" requires "+typeParameters.size()+" type parameter, found: "+typeArguments.size());
                 }
                 if (Utils.substituteTypeArguments(typeArguments, typeParameters, elementValueMethod.getResultType()).equals(requiredReturnType)) {
                     delegate = element;
@@ -346,7 +350,7 @@ public class ProductionDeclarationProcessor implements Processor {
         builder.append("() {\n");
         final List<TypeParameter> typeParameters = returnedInterface.getTypeParameters();
         if (typeArguments.size()!=typeParameters.size()) {
-            throw new ModelException("Returned value "+returnType+" requires "+typeParameters.size()+", found: "+typeArguments.size());
+            throw new ModelException("Return type "+returnType.getImage()+" requires "+typeParameters.size()+" type parameter, found: "+typeArguments.size());
         }
         {
             final MethodDeclaration valueMethod = returnedInterface.getBody().getMethod("value");
