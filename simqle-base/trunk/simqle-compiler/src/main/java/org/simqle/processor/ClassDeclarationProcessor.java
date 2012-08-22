@@ -140,10 +140,11 @@ public class ClassDeclarationProcessor implements Processor {
                         throw new GrammarException("Method \""+name+"\" already defined but generation requested", interfaceNodes.get(0));
                     }
             }
+        }
+        if (!specialVariablesMap.isEmpty()) {
             final ConstructorDeclaration constructor = createConstructor(specialVariablesMap, className);
             // we know that the constructor name matches class name for sure; can use unsafeAdd
             body.unsafeAddConstructorDeclaration(constructor);
-
         }
     }
 

@@ -133,6 +133,7 @@ public class TestManualProduction extends TestCase {
         }
 
         {
+            assertEquals(1, base.getBody().getConstructors().size());
             final ConstructorDeclaration constructor = base.getBody().getConstructors().get(0);
             assertEquals("BooleanExpression", constructor.getName());
             assertEquals(1, constructor.getFormalParameters().size());

@@ -7,10 +7,7 @@ import junit.framework.TestCase;
 import org.simqle.model.*;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
-import org.simqle.processor.ClassDeclarationProcessor;
-import org.simqle.processor.GrammarException;
-import org.simqle.processor.InterfaceDeclarationsProcessor;
-import org.simqle.processor.Processor;
+import org.simqle.processor.*;
 import org.simqle.test.TestUtils;
 
 import java.io.FileReader;
@@ -146,18 +143,51 @@ public class TestClassParsing extends TestCase {
             Processor processor = new ClassDeclarationProcessor();
             processor.process(node, model);
         }
-        final ClassPair classPair = model.getClassPair("Column");
-        final ClassDefinition base = classPair.getBase();
-        assertEquals(2, base.getBody().getFields().size());
-        for (FieldDeclaration field: base.getBody().getFields()) {
-            if (field.getDeclarators().size()==1 && field.getDeclarators().get(0).getName().equals("nameBuilder")) {
-                assertEquals("private final column_name nameBuilder;", TestUtils.normalizeFormatting(field.getImage()));
-            } else if (field.getDeclarators().size()==1 && field.getDeclarators().get(0).getName().equals("tableColumnBuilder")) {
-                assertEquals("private final table_column<T> tableColumnBuilder;", TestUtils.normalizeFormatting(field.getImage()));
-            } else {
-                fail("Unexpected field: "+field.getImage());
+        {
+            final ClassPair classPair = model.getClassPair("Column");
+            final ClassDefinition base = classPair.getBase();
+            assertEquals(2, base.getBody().getFields().size());
+            for (FieldDeclaration field: base.getBody().getFields()) {
+                if (field.getDeclarators().size()==1 && field.getDeclarators().get(0).getName().equals("nameBuilder")) {
+                    assertEquals("private final column_name nameBuilder;", TestUtils.normalizeFormatting(field.getImage()));
+                } else if (field.getDeclarators().size()==1 && field.getDeclarators().get(0).getName().equals("tableColumnBuilder")) {
+                    assertEquals("private final table_column<T> tableColumnBuilder;", TestUtils.normalizeFormatting(field.getImage()));
+                } else {
+                    fail("Unexpected field: "+field.getImage());
+                }
             }
         }
+        {
+            final ClassPair classPair = model.getClassPair("Column");
+            final ClassDefinition base = classPair.getBase();
+            final List<ConstructorDeclaration> constructors = base.getBody().getConstructors();
+            assertEquals(1, constructors.size());
+            final ConstructorDeclaration constructorDeclaration = constructors.get(0);
+            assertEquals(2, constructorDeclaration.getFormalParameters().size());
+            assertEquals("final column_name nameBuilder",
+                    constructorDeclaration.getFormalParameters().get(0).getImage());
+            assertEquals("final table_column<T> tableColumnBuilder",
+                    TestUtils.normalizeFormatting(constructorDeclaration.getFormalParameters().get(1).getImage()));
+            assertEquals("{ this.nameBuilder = nameBuilder; this.tableColumnBuilder = tableColumnBuilder; }", TestUtils.normalizeFormatting(constructorDeclaration.getBody()));
+        }
+        {
+            Processor processor = new ProductionDeclarationProcessor();
+            processor.process(node, model);
+        }
+        {
+            final ClassPair classPair = model.getClassPair("Column");
+            final ClassDefinition derived = classPair.getExtension();
+            final List<ConstructorDeclaration> constructors = derived.getBody().getConstructors();
+            assertEquals(1, constructors.size());
+            final ConstructorDeclaration constructorDeclaration = constructors.get(0);
+            assertEquals(2, constructorDeclaration.getFormalParameters().size());
+            assertEquals("final column_name nameBuilder",
+                    constructorDeclaration.getFormalParameters().get(0).getImage());
+            assertEquals("final table_column<T> tableColumnBuilder",
+                    TestUtils.normalizeFormatting(constructorDeclaration.getFormalParameters().get(1).getImage()));
+            assertEquals("{ super(nameBuilder, tableColumnBuilder); }", TestUtils.normalizeFormatting(constructorDeclaration.getBody()));
+        }
+
 
     }
 

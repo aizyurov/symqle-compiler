@@ -360,23 +360,18 @@ public class ProductionDeclarationProcessor implements Processor {
             }
         }
         {
-        final String prepareMethodName = "z$prepare$" + returnedInterfaceName;
-            final MethodDeclaration prepareMethod = returnedInterface.getBody().getMethod(prepareMethodName);
-            if (prepareMethod!=null) {
-                // prepare method is void, so no type parameters substitution here
-                builder.append(generatePrepareMethodSource(prepareMethodName, productionRule));
-            }
+            final String prepareMethodName = "z$prepare$" + returnedInterfaceName;
+            // prepare method is void, so no type parameters substitution here
+            builder.append(generatePrepareMethodSource(prepareMethodName, productionRule));
         }
         {
             final String createMethodName = "z$create$" + returnedInterfaceName;
             final MethodDeclaration createMethod = returnedInterface.getBody().getMethod(createMethodName);
-            if (createMethod!=null) {
-                Type requiredReturnType = Utils.substituteTypeArguments(typeArguments, typeParameters, createMethod.getResultType());
-                if (returnedInterface.isQuery()) {
-                    builder.append(generateCreateQueryMethodSource(createMethodName, requiredReturnType, productionRule, model));
-                } else {
-                    builder.append(generateCreateSqlMethodSource(createMethodName, productionRule));
-                }
+            Type requiredReturnType = Utils.substituteTypeArguments(typeArguments, typeParameters, createMethod.getResultType());
+            if (returnedInterface.isQuery()) {
+                builder.append(generateCreateQueryMethodSource(createMethodName, requiredReturnType, productionRule, model));
+            } else {
+                builder.append(generateCreateSqlMethodSource(createMethodName, productionRule));
             }
         }
         builder.append("    };\n");
