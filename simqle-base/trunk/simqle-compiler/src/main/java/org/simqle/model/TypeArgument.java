@@ -39,6 +39,12 @@ public class TypeArgument {
         }
     }
 
+    public TypeArgument(final boolean wildCardArgument, final String boundType, final Type reference) {
+        isWildCardArgument = wildCardArgument;
+        this.boundType = boundType;
+        this.reference = reference;
+    }
+
     public Type getReference() {
         return reference;
     }

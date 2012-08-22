@@ -32,12 +32,9 @@ public class TypeNameWithTypeArguments {
         text = node.getImage();
     }
 
-    public TypeNameWithTypeArguments(final String classOrVoidName, final List<String> typeArguments) {
+    public TypeNameWithTypeArguments(final String classOrVoidName, final List<TypeArgument> typeArguments) {
         this.name = classOrVoidName;
-        this.typeArguments = new ArrayList<TypeArgument>(typeArguments.size());
-        for (String arg: typeArguments) {
-            this.typeArguments.add(new TypeArgument(arg));
-        }
+        this.typeArguments = new ArrayList<TypeArgument>(typeArguments);
         StringBuilder textBuilder = new StringBuilder();
         textBuilder.append(classOrVoidName);
         if (!typeArguments.isEmpty()) {
@@ -46,14 +43,14 @@ public class TypeNameWithTypeArguments {
                 if (i>0) {
                     textBuilder.append(",");
                 }
-                textBuilder.append(typeArguments.get(i));
+                textBuilder.append(typeArguments.get(i).getValue());
             }
             textBuilder.append(">");
         }
         text = textBuilder.toString();
     }
     public TypeNameWithTypeArguments(final String classOrVoidName) {
-        this(classOrVoidName, Collections.<String>emptyList());
+        this(classOrVoidName, Collections.<TypeArgument>emptyList());
     }
 
     public String getName() {

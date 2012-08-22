@@ -178,27 +178,38 @@ public class Utils {
         }
         // type arguments are substituted with wildcards; type names itself are substituted with reference type only
         // it is not exactly correct for "super" bounds; we also do not check for correct bounds here - leaving it to Java compiler
-        final List<TypeNameWithTypeArguments> result = new ArrayList<TypeNameWithTypeArguments>(source.size());
-        for (TypeNameWithTypeArguments typeNameWithTypeArguments: source) {
-            final String name = typeNameWithTypeArguments.getName();
-            if (substitutions.containsKey(name)) {
-//                result.addAll(substituteTypeArguments(substitutions.get(name).reference.getNameChain(), typeParameters, typeArguments));
-                result.addAll(substitutions.get(name).getReference().getNameChain());
-            } else {
-                final List<TypeArgument> typeArguments1 = typeNameWithTypeArguments.getTypeArguments();
-                final List<String> newTypeArguments = new ArrayList<String>(typeArguments1.size());
-                for (TypeArgument typeArgument: typeArguments1) {
-                    final String value = typeArgument.getValue();
-                    if (substitutions.containsKey(value)) {
-                        newTypeArguments.add(substitutions.get(value).getValue());
-                    } else {
-                        newTypeArguments.add(value);
+        final String name = source.get(0).getName();
+        // if the source is just a type perameter name, substitute it for its value (mutatis mutandis)
+        if (source.size()==1 && substitutions.containsKey(name)) {
+                // if bound is "super", substitute for "Object" else for reference (valid for not-bound and "extends")
+                List<TypeNameWithTypeArguments> chain = "super".equals(substitutions.get(name).getBoundType()) ?
+                        Collections.singletonList(new TypeNameWithTypeArguments("Object")) :
+                        substitutions.get(name).getReference().getNameChain() ;
+                return substitutions.get(name).getReference().getNameChain();
+        } else {
+            final List<TypeNameWithTypeArguments> result = new ArrayList<TypeNameWithTypeArguments>(source.size());
+            //  the source is a class name, may be with type arguments. Replase type parameter in type arguments only;
+            // if the type parameter appears as a class name, it is an error
+            for (TypeNameWithTypeArguments typeNameWithTypeArguments: source) {
+                final String typeName = typeNameWithTypeArguments.getName();
+                if (substitutions.containsKey(typeName)) {
+                    throw new IllegalArgumentException(typeName+" is a parameter and cannot appear in this context: "+
+                            substitutions.get(name).getReference().getImage());
+                } else {
+                    final List<TypeArgument> currentTypeArguments = typeNameWithTypeArguments.getTypeArguments();
+                    final List<TypeArgument> newTypeArguments = new ArrayList<TypeArgument>(currentTypeArguments.size());
+                    for (TypeArgument typeArgument: currentTypeArguments) {
+                        final Type reference = typeArgument.getReference();
+                        // make substitutions in this Type
+                        final Type newType = reference == null ? null : substituteTypeArguments(typeArguments, typeParameters, reference);
+                        TypeArgument newTypeArgument = new TypeArgument(typeArgument.isWildCardArgument(), typeArgument.getBoundType(), newType);
+                        newTypeArguments.add(newTypeArgument);
                     }
+                    result.add(new TypeNameWithTypeArguments(name, newTypeArguments));
                 }
-                result.add(new TypeNameWithTypeArguments(name, newTypeArguments));
             }
+            return result;
         }
-        return result;
     }
 
     private static List<String> ACCESS_MODIFIERS = Arrays.asList("public", "protected", "private");
