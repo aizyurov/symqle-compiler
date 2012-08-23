@@ -1,0 +1,8 @@
+public interface select_sublist<T> extends Scalar<T> : Query<T>
+{}
+
+public interface value_expression<T> extends Scalar<T>
+{}
+
+<T> select_sublist<T> ::= expr:value_expression<T>
+;

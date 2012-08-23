@@ -43,7 +43,7 @@ public class TypeNameWithTypeArguments {
                 if (i>0) {
                     textBuilder.append(",");
                 }
-                textBuilder.append(typeArguments.get(i).getValue());
+                textBuilder.append(typeArguments.get(i).getImage());
             }
             textBuilder.append(">");
         }

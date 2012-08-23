@@ -182,10 +182,11 @@ public class Utils {
         // if the source is just a type perameter name, substitute it for its value (mutatis mutandis)
         if (source.size()==1 && substitutions.containsKey(name)) {
                 // if bound is "super", substitute for "Object" else for reference (valid for not-bound and "extends")
-                List<TypeNameWithTypeArguments> chain = "super".equals(substitutions.get(name).getBoundType()) ?
+                List<TypeNameWithTypeArguments> chain =
+                        "super".equals(substitutions.get(name).getBoundType()) || substitutions.get(name).getReference()==null ?
                         Collections.singletonList(new TypeNameWithTypeArguments("Object")) :
                         substitutions.get(name).getReference().getNameChain() ;
-                return substitutions.get(name).getReference().getNameChain();
+                return chain;
         } else {
             final List<TypeNameWithTypeArguments> result = new ArrayList<TypeNameWithTypeArguments>(source.size());
             //  the source is a class name, may be with type arguments. Replase type parameter in type arguments only;

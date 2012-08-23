@@ -373,4 +373,33 @@ public class TestSimpleProduction extends TestCase {
             assertTrue(e.getMessage(), e.getMessage().startsWith("Class not found: BoleanExpression"));
         }
     }
+
+    public void testNoGuessForScalar() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/NoGuessForScalar.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "NoGuessForScalar");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        try {
+            new ProductionDeclarationProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage(), e.getMessage().startsWith("Method Boolean value(Element element) must be implemented; cannot guess implementation"));
+        }
+    }
+
+    public void testNoGuessForQuery() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/NoGuessForQuery.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "NoGuessForQuery");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        try {
+            new ProductionDeclarationProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage(), e.getMessage().startsWith("Method Query<T> z$create$select_sublist(SqlContext context) must be implemented; cannot guess implementation"));
+        }
+    }
+
 }

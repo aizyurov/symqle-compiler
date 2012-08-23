@@ -32,7 +32,7 @@ public class InterfaceDeclarationsProcessor implements Processor {
                 final Body body = definition.getBody();
                 final String interfaceName = definition.getName();
                 if (definition.isScalar()) {
-                    final MethodDeclaration valueMethod = makeScalarMethod(definition.getScalarTypeArgument().getValue(), interfaceName);
+                    final MethodDeclaration valueMethod = makeScalarMethod(definition.getScalarTypeArgument().getImage(), interfaceName);
                         try {
                             body.addMethod(valueMethod);
                         } catch (ModelException e) {

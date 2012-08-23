@@ -268,12 +268,12 @@ public class ProductionDeclarationProcessor implements Processor {
             }
         }
         if (delegateIndex<0) {
-            throw new ModelException("Method "+requiredQueryType.getImage()+methodName+"(Element element) must be implemented; cannot guess implementation");
+            throw new ModelException("Method "+requiredQueryType.getImage()+" "+methodName+"(SqlContext context) must be implemented; cannot guess implementation");
         } else {
             final StringBuilder builder = new StringBuilder();
             builder.append("    @Override\n");
             builder.append("    public "+requiredQueryType.getImage()+" "+methodName+"(final SqlContext context) {\n");
-            final String typeArgument = requiredQueryType.getNameChain().get(0).getTypeArguments().get(0).getValue();
+            final String typeArgument = requiredQueryType.getNameChain().get(0).getTypeArguments().get(0).getImage();
             if (delegateIndex==0) {
                 // short form
                 builder.append("        return new CompositeQuery<"+typeArgument+">(");
@@ -355,17 +355,12 @@ public class ProductionDeclarationProcessor implements Processor {
         builder.append("{ return new ").append(returnType.getNameChain().get(0).getName());
         final List<TypeArgument> typeArguments = returnType.getNameChain().get(0).getTypeArguments();
         if (!typeArguments.isEmpty()) {
-            builder.append("<");
-            boolean isFirst = true;
-            for (TypeArgument typeArgument: typeArguments) {
-                if (isFirst) {
-                    isFirst = false;
-                } else {
-                    builder.append(",");
+            builder.append(Utils.formatList(typeArguments, "<", ",", ">", new Function<String, TypeArgument>() {
+                @Override
+                public String apply(final TypeArgument typeArgument) {
+                    return typeArgument.getImage();
                 }
-                builder.append(typeArgument.getValue());
-            }
-            builder.append(">");
+            }));
         }
         builder.append("() {\n");
         final List<TypeParameter> typeParameters = returnedInterface.getTypeParameters();

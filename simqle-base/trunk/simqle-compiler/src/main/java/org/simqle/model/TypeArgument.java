@@ -63,8 +63,8 @@ public class TypeArgument {
         reference = new Type(Collections.singletonList(new TypeNameWithTypeArguments(simpleType)), 0);
     }
 
-    public String getValue() {
-        return boundType == null ? reference.getImage() : boundType + " " + reference.getImage();
+    public String getImage() {
+        return boundType == null ? reference.getImage() : "? "+boundType + " " + reference.getImage();
     }
 
     @Override
