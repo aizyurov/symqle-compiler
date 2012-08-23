@@ -216,7 +216,8 @@ public class ProductionDeclarationProcessor implements Processor {
                 }
                 final MethodDeclaration elementValueMethod = elementInterface.getBody().getMethod("value");
                 if (elementValueMethod==null) {
-                    continue;
+                    // give up
+                    break;
                 }
                 // compare return types of Value methods using parameter substitutions
                 final List<TypeParameter> typeParameters = elementInterface.getTypeParameters();
@@ -226,8 +227,8 @@ public class ProductionDeclarationProcessor implements Processor {
                 }
                 if (Utils.substituteTypeArguments(typeArguments, typeParameters, elementValueMethod.getResultType()).equals(requiredReturnType)) {
                     delegate = element;
-                    break;
                 }
+                break;
             }
         }
         if (delegate==null) {
@@ -251,9 +252,10 @@ public class ProductionDeclarationProcessor implements Processor {
                 final String elementInterfaceName = element.getType().getNameChain().get(0).getName();
                 final InterfaceDefinition elementInterface = model.getInterface(elementInterfaceName);
                 final String elementCreateMethodName = "z$create$"+elementInterfaceName;
-                final MethodDeclaration elementValueMethod = elementInterface.getBody().getMethod(elementCreateMethodName);
-                if (elementValueMethod==null) {
-                    continue;
+                final MethodDeclaration elementCreateMethod = elementInterface.getBody().getMethod(elementCreateMethodName);
+                if (elementCreateMethod==null) {
+                    // give up
+                    break;
                 }
                 // compare return types of Value methods using parameter substitutions
                 final List<TypeParameter> typeParameters = elementInterface.getTypeParameters();
@@ -261,10 +263,10 @@ public class ProductionDeclarationProcessor implements Processor {
                 if (typeArguments.size()!=typeParameters.size()) {
                     throw new ModelException(element.getName()+":"+ elementInterfaceName +" requires "+typeParameters.size()+", found: "+typeArguments.size());
                 }
-                if (Utils.substituteTypeArguments(typeArguments, typeParameters, elementValueMethod.getResultType()).equals(requiredQueryType)) {
+                if (Utils.substituteTypeArguments(typeArguments, typeParameters, elementCreateMethod.getResultType()).equals(requiredQueryType)) {
                     delegateIndex = i;
-                    break;
                 }
+                break;
             }
         }
         if (delegateIndex<0) {
@@ -287,7 +289,7 @@ public class ProductionDeclarationProcessor implements Processor {
                 final String queryVariableName = delegate.getName()+"_query";
                 builder.append("        final DataExtractor<"+typeArgument+"> "+queryVariableName+" = "+delegate.getName()+".z$create$"+delegateTypeName+"(context); \n");
                 builder.append("        return new CompoundQuery<"+typeArgument+">(");
-                builder.append("             "+queryVariableName+", new CompositeSql(");
+                builder.append(queryVariableName+", new CompositeSql(");
                 for (int i=0; i<elements.size(); i++) {
                     if (i>0) {
                         builder.append(", ");

@@ -1,0 +1,10 @@
+public interface row_value_predicand
+{}
+
+public interface comparison_predicate<T> extends Scalar<T>
+{}
+
+# the elements do not implement Scalar, so no guess
+comparison_predicate<Boolean> ::=
+    left:row_value_predicand EQ right:row_value_predicand
+;

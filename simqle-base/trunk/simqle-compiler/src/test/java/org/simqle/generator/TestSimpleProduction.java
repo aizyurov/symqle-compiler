@@ -388,6 +388,20 @@ public class TestSimpleProduction extends TestCase {
         }
     }
 
+    public void testNoGuessForScalar2() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/NoGuessForScalar2.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "NoGuessForScalar2");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        try {
+            new ProductionDeclarationProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage(), e.getMessage().startsWith("Method Boolean value(Element element) must be implemented; cannot guess implementation"));
+        }
+    }
+
     public void testNoGuessForQuery() throws Exception {
         Model model = new Model();
         SimqleParser parser = new SimqleParser(new FileReader("src/test-data/NoGuessForQuery.sdl"));
@@ -400,6 +414,36 @@ public class TestSimpleProduction extends TestCase {
         } catch (GrammarException e) {
             assertTrue(e.getMessage(), e.getMessage().startsWith("Method Query<T> z$create$select_sublist(SqlContext context) must be implemented; cannot guess implementation"));
         }
+    }
+
+    public void testQueryAutogeneration() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/QueryTest.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "QueryTest");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        new ProductionDeclarationProcessor().process(node, model);
+        final List<FactoryMethodModel> allFactoryMethods = model.getAllFactoryMethods();
+        assertEquals(1, allFactoryMethods.size());
+        final FactoryMethodModel factoryMethodModel = allFactoryMethods.get(0);
+        assertEquals("query_base_IS_SELECT_select_list", factoryMethodModel.getName());
+        assertEquals("query_base<T>", factoryMethodModel.getMethodDeclaration().getResultType().getImage());
+        assertEquals(1, factoryMethodModel.getMethodDeclaration().getFormalParameters().size());
+        assertEquals("final select_list<T> list", factoryMethodModel.getMethodDeclaration().getFormalParameters().get(0).getImage());
+        final String body = factoryMethodModel.getMethodDeclaration().getMethodBody();
+        assertEquals(TestUtils.normalizeFormatting("{ return new query_base<T>() {\n" +
+                "    @Override\n" +
+                "    public void z$prepare$query_base(final SqlContext context) {\n" +
+                "         list.z$prepare$select_list(context);\n" +
+                "    }\n" +
+                "    @Override\n" +
+                "    public Query<T> z$create$query_base(final SqlContext context) {\n" +
+                "        final DataExtractor<T> list_query = list.z$create$select_list(context); \n" +
+                "        return new CompoundQuery<T>(list_query, new CompositeSql(SELECT, list_query)\n" +
+                "            );\n" +
+                "        }\n" +
+                "    };\n" +
+                "}"), TestUtils.normalizeFormatting(body));
     }
 
 }

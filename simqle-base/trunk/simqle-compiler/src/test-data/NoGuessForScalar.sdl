@@ -4,6 +4,7 @@ public interface row_value_predicand<T> extends Scalar<T>
 public interface comparison_predicate<T> extends Scalar<T>
 {}
 
+# the elements implement Scalar with different type argument, so no guess
 comparison_predicate<Boolean> ::=
     left:row_value_predicand<?> EQ right:row_value_predicand<?>
 ;
