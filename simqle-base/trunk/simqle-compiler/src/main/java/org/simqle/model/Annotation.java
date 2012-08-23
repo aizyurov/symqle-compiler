@@ -17,9 +17,6 @@ public class Annotation {
 
     public Annotation(SyntaxTree node) throws GrammarException {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), "Annotation", node.getType());
-        if (!node.getType().equals("Annotation")) {
-            throw new IllegalArgumentException("Illegal argument: "+node);
-        }
         name = node.find("Identifier").get(0).getValue();
     }
 

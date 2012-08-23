@@ -13,7 +13,9 @@ import java.util.Set;
  */
 public class Constants {
 
-    private Constants() {
+    // package scope to make Cobertura happy - it would better be private
+    Constants() {
+        throw new RuntimeException("No instances");
     }
 
     private static final String[] constants= {

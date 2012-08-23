@@ -460,5 +460,39 @@ public class TestSimpleProduction extends TestCase {
         }
     }
 
+    public void testMultiParameterProduction() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/MultiParameterProduction.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "MultiParameterProduction.sdl");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        new ProductionDeclarationProcessor().process(node, model);
+        final List<FactoryMethodModel> allFactoryMethods = model.getAllFactoryMethods();
+        assertEquals(1, allFactoryMethods.size());
+        final FactoryMethodModel factoryMethodModel = allFactoryMethods.get(0);
+        assertEquals("select_list_IS_select_list_COMMA_select_list", factoryMethodModel.getName());
+        assertEquals("select_list<Pair<T,U>>", factoryMethodModel.getMethodDeclaration().getResultType().getImage());
+        assertEquals(2, factoryMethodModel.getMethodDeclaration().getFormalParameters().size());
+        assertEquals("final select_list<T> first", factoryMethodModel.getMethodDeclaration().getFormalParameters().get(0).getImage());
+        assertEquals("final select_list<U> second", TestUtils.normalizeFormatting(factoryMethodModel.getMethodDeclaration().getFormalParameters().get(1).getImage()));
+        final String body = factoryMethodModel.getMethodDeclaration().getMethodBody();
+        assertEquals(TestUtils.normalizeFormatting(" {\n" +
+                "    return new select_list<Pair<T,U>>() {\n" +
+                "        public Query<Pair<T,U>> z$create$select_list(final SqlContext context) {\n" +
+                "            final Query<T> sql0 = arg0.z$create$select_list(context);\n" +
+                "            final Query<U> sql1 = arg1.z$create$select_list(context);\n" +
+                "            DataExtractor<Pair<T,U>> extractor = new DataExtractor<Pair<T, U>>() {\n" +
+                "                public Pair<T, U> extract(final Row row) throws SQLException {\n" +
+                "                    final T first = sql0.extract(row);\n" +
+                "                    final U second = sql1.extract(row);\n" +
+                "                    return Pair.of(first, second);\n" +
+                "                }\n" +
+                "            };\n" +
+                "            return new CompoundQuery<Pair<T,U>>(extractor, new CompositeSql(sql0, SqlTerminal.COMMA, sql1));\n" +
+                "        }\n" +
+                "    };\n" +
+                "}"), TestUtils.normalizeFormatting(body));
+    }
+
 
 }
