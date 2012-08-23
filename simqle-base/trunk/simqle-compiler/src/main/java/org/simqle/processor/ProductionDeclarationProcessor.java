@@ -207,7 +207,8 @@ public class ProductionDeclarationProcessor implements Processor {
                                                    ProductionRule rule, final Model model) throws ModelException {
         // find suitable candidate
         ProductionRule.RuleElement delegate = null;
-        for (ProductionRule.RuleElement element: rule.getElements()) {
+        for (Iterator<ProductionRule.RuleElement> iterator = rule.getElements().iterator(); iterator.hasNext(); ) {
+            ProductionRule.RuleElement element = iterator.next();
             if (element.getType()!=null) {
                 final String name = element.getType().getNameChain().get(0).getName();
                 final InterfaceDefinition elementInterface = model.getInterface(name);
@@ -253,15 +254,11 @@ public class ProductionDeclarationProcessor implements Processor {
                 final InterfaceDefinition elementInterface = model.getInterface(elementInterfaceName);
                 final String elementCreateMethodName = "z$create$"+elementInterfaceName;
                 final MethodDeclaration elementCreateMethod = elementInterface.getBody().getMethod(elementCreateMethodName);
-                if (elementCreateMethod==null) {
-                    // give up
-                    break;
-                }
                 // compare return types of Value methods using parameter substitutions
                 final List<TypeParameter> typeParameters = elementInterface.getTypeParameters();
                 final List<TypeArgument> typeArguments = element.getType().getNameChain().get(0).getTypeArguments();
                 if (typeArguments.size()!=typeParameters.size()) {
-                    throw new ModelException(element.getName()+":"+ elementInterfaceName +" requires "+typeParameters.size()+", found: "+typeArguments.size());
+                    throw new ModelException(element.getName()+":"+ elementInterfaceName +" requires "+typeParameters.size()+" type parameters, found: "+typeArguments.size());
                 }
                 if (Utils.substituteTypeArguments(typeArguments, typeParameters, elementCreateMethod.getResultType()).equals(requiredQueryType)) {
                     delegateIndex = i;

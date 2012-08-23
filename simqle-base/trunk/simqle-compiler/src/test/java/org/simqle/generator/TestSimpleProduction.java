@@ -446,4 +446,19 @@ public class TestSimpleProduction extends TestCase {
                 "}"), TestUtils.normalizeFormatting(body));
     }
 
+    public void testWrongTypeParametersInProduction() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/WrongTypeParametersInProduction.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "WrongTypeParametersInProduction.sdl");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        try {
+            new ProductionDeclarationProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage(), e.getMessage().startsWith("list:select_list requires 1 type parameters, found: 0"));
+        }
+    }
+
+
 }

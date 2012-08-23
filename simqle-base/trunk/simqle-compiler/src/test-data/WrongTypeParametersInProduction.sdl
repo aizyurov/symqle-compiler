@@ -1,0 +1,8 @@
+public interface query_base<T> : Query<T>
+{}
+
+public interface select_list<T> : Query<T>
+{}
+
+<T> query_base<T> ::= SELECT list:select_list
+;
