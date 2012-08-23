@@ -4,6 +4,7 @@
 package org.simqle.model;
 
 import org.simqle.parser.SyntaxTree;
+import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
 
 /**
@@ -14,8 +15,8 @@ import org.simqle.util.Assert;
 public class Annotation {
     private String name;
 
-    public Annotation(SyntaxTree node) {
-        Assert.assertOneOf("Annotation", node.getType());
+    public Annotation(SyntaxTree node) throws GrammarException {
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), "Annotation", node.getType());
         if (!node.getType().equals("Annotation")) {
             throw new IllegalArgumentException("Illegal argument: "+node);
         }

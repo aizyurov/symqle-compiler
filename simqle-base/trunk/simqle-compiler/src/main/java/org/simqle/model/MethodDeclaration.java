@@ -62,7 +62,7 @@ public class MethodDeclaration {
     }
 
     public MethodDeclaration(SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(node.getType(), "AbstractMethodDeclaration", "MethodDeclaration");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "AbstractMethodDeclaration", "MethodDeclaration");
         final boolean isInterfaceMethod = node.getType().equals("AbstractMethodDeclaration");
         String accessModifier="";
         // actually only one find returns non-empty list

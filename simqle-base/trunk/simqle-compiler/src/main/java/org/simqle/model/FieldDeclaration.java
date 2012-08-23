@@ -48,7 +48,7 @@ public class FieldDeclaration {
     }
 
     public FieldDeclaration(SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(node.getType(), "FieldDeclaration");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "FieldDeclaration");
         image = node.getImage();
         type = convertChildren(node, "Type", Type.class).get(0);
         declarators = convertChildren(node, "VariableDeclarator", VariableDeclarator.class);

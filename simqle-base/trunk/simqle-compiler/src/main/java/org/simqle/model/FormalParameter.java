@@ -35,7 +35,7 @@ public class FormalParameter {
 
     public FormalParameter(SyntaxTree node) throws GrammarException {
         final Type rawType = convertChildren(node, "Type", Type.class).get(0);
-        Assert.assertOneOf(node.getType(), "FormalParameter", "FormalParameterWithEllipsis");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "FormalParameter", "FormalParameterWithEllipsis");
         if (node.getType().equals("FormalParameter")) {
             type = rawType;
             ellipsis = false;

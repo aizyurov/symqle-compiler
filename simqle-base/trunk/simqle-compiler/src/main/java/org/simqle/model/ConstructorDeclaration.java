@@ -38,7 +38,7 @@ public class ConstructorDeclaration {
     }
 
     public ConstructorDeclaration(SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(node.getType(), "ConstructorDeclaration");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "ConstructorDeclaration");
         accessModifier = Utils.getAccessModifier(node.find("ConstructorModifiers.ConstructorModifier"));
         name=node.find("Identifier").get(0).getValue();
         comment = node.getComments();

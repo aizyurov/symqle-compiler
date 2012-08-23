@@ -21,7 +21,7 @@ public class TypeParameter {
     private final String image;
 
     public TypeParameter(SyntaxTree node) throws GrammarException{
-        Assert.assertOneOf(node.getType(), "TypeParameter");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "TypeParameter");
         name = node.find("Identifier").get(0).getValue();
         typeBound = convertChildren(node, "TypeBound.ClassOrInterfaceType", Type.class);
         image = node.getImage();

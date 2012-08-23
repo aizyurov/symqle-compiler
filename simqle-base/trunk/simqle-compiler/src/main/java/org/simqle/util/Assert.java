@@ -10,16 +10,16 @@ import java.util.Set;
  * Time: 15:27
  * To change this template use File | Settings | File Templates.
  */
-public class Assert {
+public class Assert{
 
     Assert() {
         throw new IllegalStateException("No instances - this is a utility class");
     }
 
-    public static <T> void assertOneOf(T actual, T... expected) {
+    public static <T, E extends Exception> void assertOneOf(E throwIfFalse, T actual, T... expected) throws E {
         Set<T> expectedSet = new HashSet<T>(Arrays.asList(expected));
         if (!expectedSet.contains(actual)) {
-            throw new IllegalArgumentException(actual+" not in "+expectedSet);
+            throw throwIfFalse;
         }
     }
 

@@ -21,6 +21,10 @@ import java.util.*;
  */
 public class Utils {
 
+    Utils() {
+        throw new RuntimeException("No instances: utility class");
+    }
+
     public static Type substituteTypeArguments(final List<TypeArgument> typeArgumentsActual, final List<TypeParameter> typeParameters, final Type paramType) {
         return new Type(substituteTypeArguments(paramType.getNameChain(), typeParameters, typeArgumentsActual), paramType.getArrayDimensions());
     }
@@ -44,10 +48,6 @@ public class Utils {
         public T create(final SyntaxTree node) throws GrammarException {
             try {
                 return constructor.newInstance(node);
-            } catch (InstantiationException e) {
-                throw new RuntimeException("Internal error", e);
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Internal error", e);
             } catch (InvocationTargetException e) {
                 final Throwable cause = e.getCause();
                 if (cause instanceof GrammarException) {
@@ -55,6 +55,8 @@ public class Utils {
                 } else {
                     throw new RuntimeException("Internal error", e);
                 }
+            } catch (Exception e) {
+                throw new RuntimeException("Internal error", e);
             }
         }
     }

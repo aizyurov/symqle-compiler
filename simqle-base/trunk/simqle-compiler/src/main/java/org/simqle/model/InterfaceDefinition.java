@@ -37,7 +37,7 @@ public class InterfaceDefinition {
     private final String declaration;
 
     public InterfaceDefinition(SyntaxTree node, List<String> importLines) throws GrammarException {
-        Assert.assertOneOf(node.getType(), "SimqleInterfaceDeclaration");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SimqleInterfaceDeclaration");
 
         this.importLines = new TreeSet<String>(importLines);
         {

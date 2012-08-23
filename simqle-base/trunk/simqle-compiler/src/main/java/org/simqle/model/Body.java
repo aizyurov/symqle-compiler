@@ -24,7 +24,7 @@ public class Body {
     private final List<ConstructorDeclaration> constructors = new ArrayList<ConstructorDeclaration>();
 
     public Body(SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(node.getType(), "InterfaceBody", "ClassBody");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "InterfaceBody", "ClassBody");
 
         // suppose it is InterfaceBody
         {

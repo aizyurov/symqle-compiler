@@ -20,7 +20,7 @@ public class ProductionRule {
     private final String returnedInterfaceName;
 
     public ProductionRule(SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(node.getType(), "ProductionRule");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "ProductionRule");
         final SyntaxTree productionDeclaration = node.getParent().getParent();
         Type returnType = Utils.convertChildren(productionDeclaration, "ClassOrInterfaceType", Type.class).get(0);
         returnedInterfaceName = returnType.getNameChain().get(0).getName();

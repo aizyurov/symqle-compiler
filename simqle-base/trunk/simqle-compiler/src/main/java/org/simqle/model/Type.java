@@ -27,7 +27,7 @@ public class Type {
     public Type(SyntaxTree node) throws GrammarException {
         final SyntaxTree start = node.getType().equals("Type") ? node.getChildren().get(0) : node;
 
-        Assert.assertOneOf(start.getType(), "ClassOrInterfaceType", "ReferenceType", "PrimitiveType");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), start.getType(), "ClassOrInterfaceType", "ReferenceType", "PrimitiveType");
         
         if (start.getType().equals("ClassOrInterfaceType")) {
             nameChain = convertChildren(start, "IdentifierWithTypeArguments", TypeNameWithTypeArguments.class);

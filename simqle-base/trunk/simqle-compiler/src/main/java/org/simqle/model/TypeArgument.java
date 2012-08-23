@@ -24,7 +24,7 @@ public class TypeArgument {
     private final Type reference;
 
     public TypeArgument(SyntaxTree node)  throws GrammarException {
-        Assert.assertOneOf(node.getType(), "TypeArgument");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "TypeArgument");
         final List<Type> references = convertChildren(node, "ReferenceType", Type.class);
         if (!references.isEmpty()) {
             isWildCardArgument = false;

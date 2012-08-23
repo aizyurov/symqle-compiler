@@ -52,7 +52,7 @@ public class ClassDefinition {
     }
 
     public ClassDefinition(SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(node.getType(), "SimqleClassDeclaration");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SimqleClassDeclaration");
         final List<SyntaxTree> modifiers = node.find("ClassModifiers.ClassModifier");
         this.accessModifier = Utils.getAccessModifier(modifiers);
         this.otherModifiers = Utils.getNonAccessModifiers(modifiers);

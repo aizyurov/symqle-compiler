@@ -18,16 +18,16 @@ public class AssertTest extends TestCase {
         final String actual = actualBuilder.toString();
         assertFalse(expected == actual);
         assertEquals(expected, actual);
-        Assert.assertOneOf(actual, expected);
+        Assert.assertOneOf(new RuntimeException("test failed"), actual, expected);
     }
 
     public void testNullsAreEqual() {
-        Assert.assertOneOf(null, (String) null);
+        Assert.assertOneOf(new RuntimeException("test failed"), null, (String) null);
     }
 
     public void testNotEqual() {
         try {
-            Assert.assertOneOf("actual", "expected");
+            Assert.assertOneOf(new IllegalArgumentException("actual not in [expected]"), "actual", "expected");
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             assertEquals("actual not in [expected]", e.getMessage());
@@ -36,14 +36,14 @@ public class AssertTest extends TestCase {
 
     public void testNullIsNotEqual() {
         try {
-            Assert.assertOneOf(null, "expected");
+            Assert.assertOneOf(new IllegalArgumentException("null not in [expected]"), null, "expected");
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             assertEquals("null not in [expected]", e.getMessage());
         }
 
         try {
-            Assert.assertOneOf("actual", (String) null);
+            Assert.assertOneOf(new IllegalArgumentException("actual not in [null]"), "actual", (String) null);
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
             assertEquals("actual not in [null]", e.getMessage());
@@ -58,18 +58,17 @@ public class AssertTest extends TestCase {
         assertFalse(expected == actual);
         assertEquals(expected, actual);
         final String expected2 = "expected2";
-        Assert.assertOneOf(actual, expected2, expected);
-        Assert.assertOneOf(actual, expected, expected2);
+        Assert.assertOneOf(new RuntimeException("test failed"), actual, expected2, expected);
+        Assert.assertOneOf(new RuntimeException("test failed"), actual, expected, expected2);
 
     }
 
     public void testNoMatchMultiple() {
         try {
-            Assert.assertOneOf("actual", "expected1", "expected2");
+            Assert.assertOneOf(new IllegalArgumentException("actual not in [expected1, expected2]"), "actual", "expected1", "expected2");
             fail("IllegalArgumentException expected");
         } catch (IllegalArgumentException e) {
-            assertTrue("actual not in [expected1, expected2]".equals(e.getMessage())
-                    || "actual not in [expected2, expected1]".equals(e.getMessage()));
+            assertTrue("actual not in [expected1, expected2]".equals(e.getMessage()));
         }
     }
 

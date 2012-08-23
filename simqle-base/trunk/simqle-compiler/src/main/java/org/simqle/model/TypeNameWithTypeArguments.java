@@ -26,7 +26,7 @@ public class TypeNameWithTypeArguments {
 
 
     public TypeNameWithTypeArguments(SyntaxTree node)  throws GrammarException {
-        Assert.assertOneOf(node.getType(), "IdentifierWithTypeArguments");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "IdentifierWithTypeArguments");
         typeArguments = convertChildren(node, "TypeArguments.TypeArgument", TypeArgument.class);
         name = node.find("Identifier").get(0).getValue();
         text = node.getImage();
