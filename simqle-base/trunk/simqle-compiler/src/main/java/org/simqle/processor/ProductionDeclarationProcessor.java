@@ -5,9 +5,14 @@ package org.simqle.processor;
 
 import org.simqle.model.*;
 import org.simqle.parser.SyntaxTree;
+import org.simqle.util.Callback;
+import org.simqle.util.CallbackIterator;
+import org.simqle.util.StopException;
 import org.simqle.util.Utils;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * <br/>20.11.2011
@@ -206,32 +211,35 @@ public class ProductionDeclarationProcessor implements Processor {
     private String generateValueMethodSource(final Type requiredReturnType,
                                                    ProductionRule rule, final Model model) throws ModelException {
         // find suitable candidate
-        ProductionRule.RuleElement delegate = null;
-        for (Iterator<ProductionRule.RuleElement> iterator = rule.getElements().iterator(); iterator.hasNext(); ) {
-            ProductionRule.RuleElement element = iterator.next();
-            if (element.getType()!=null) {
-                final String name = element.getType().getNameChain().get(0).getName();
-                final InterfaceDefinition elementInterface = model.getInterface(name);
-                if (elementInterface == null) {
-                    throw new ModelException("Unknown interface: "+name);
+        final AtomicReference<ProductionRule.RuleElement> delegateRef = new AtomicReference<ProductionRule.RuleElement>();
+        new CallbackIterator<ProductionRule.RuleElement, ModelException>(rule.getElements()).iterate(new Callback<ProductionRule.RuleElement, ModelException>() {
+            @Override
+            public void call(final ProductionRule.RuleElement element) throws StopException, ModelException {
+                if (element.getType()!=null) {
+                    final String name = element.getType().getNameChain().get(0).getName();
+                    final InterfaceDefinition elementInterface = model.getInterface(name);
+                    if (elementInterface == null) {
+                        throw new ModelException("Unknown interface: "+name);
+                    }
+                    final MethodDeclaration elementValueMethod = elementInterface.getBody().getMethod("value");
+                    if (elementValueMethod==null) {
+                        // give up
+                        throw new StopException();
+                    }
+                    // compare return types of Value methods using parameter substitutions
+                    final List<TypeParameter> typeParameters = elementInterface.getTypeParameters();
+                    final List<TypeArgument> typeArguments = element.getType().getNameChain().get(0).getTypeArguments();
+                    if (typeArguments.size()!=typeParameters.size()) {
+                        throw new ModelException("Rule element "+element.getName()+":"+ name +" requires "+typeParameters.size()+" type parameter, found: "+typeArguments.size());
+                    }
+                    if (Utils.substituteTypeArguments(typeArguments, typeParameters, elementValueMethod.getResultType()).equals(requiredReturnType)) {
+                        delegateRef.set(element);
+                    }
+                    throw new StopException();
                 }
-                final MethodDeclaration elementValueMethod = elementInterface.getBody().getMethod("value");
-                if (elementValueMethod==null) {
-                    // give up
-                    break;
-                }
-                // compare return types of Value methods using parameter substitutions
-                final List<TypeParameter> typeParameters = elementInterface.getTypeParameters();
-                final List<TypeArgument> typeArguments = element.getType().getNameChain().get(0).getTypeArguments();
-                if (typeArguments.size()!=typeParameters.size()) {
-                    throw new ModelException("Rule element "+element.getName()+":"+ name +" requires "+typeParameters.size()+" type parameter, found: "+typeArguments.size());
-                }
-                if (Utils.substituteTypeArguments(typeArguments, typeParameters, elementValueMethod.getResultType()).equals(requiredReturnType)) {
-                    delegate = element;
-                }
-                break;
             }
-        }
+        });
+        final ProductionRule.RuleElement delegate = delegateRef.get();
         if (delegate==null) {
             throw new ModelException("Method "+requiredReturnType.getImage()+" value(Element element) must be implemented; cannot guess implementation");
         } else {
@@ -245,27 +253,34 @@ public class ProductionDeclarationProcessor implements Processor {
     private String generateCreateQueryMethodSource(final String methodName, final Type requiredQueryType,
                                                    ProductionRule rule, final Model model) throws ModelException {
         // find suitable candidate
-        int delegateIndex = -1;
+        final AtomicInteger delegateIndexHolder = new AtomicInteger(-1);
         final List<ProductionRule.RuleElement> elements = rule.getElements();
-        for (int i=0; i<elements.size(); i++) {
-            final ProductionRule.RuleElement element = elements.get(i);
-            if (element.getType()!=null) {
-                final String elementInterfaceName = element.getType().getNameChain().get(0).getName();
-                final InterfaceDefinition elementInterface = model.getInterface(elementInterfaceName);
-                final String elementCreateMethodName = "z$create$"+elementInterfaceName;
-                final MethodDeclaration elementCreateMethod = elementInterface.getBody().getMethod(elementCreateMethodName);
-                // compare return types of Value methods using parameter substitutions
-                final List<TypeParameter> typeParameters = elementInterface.getTypeParameters();
-                final List<TypeArgument> typeArguments = element.getType().getNameChain().get(0).getTypeArguments();
-                if (typeArguments.size()!=typeParameters.size()) {
-                    throw new ModelException(element.getName()+":"+ elementInterfaceName +" requires "+typeParameters.size()+" type parameters, found: "+typeArguments.size());
+        CallbackIterator<ProductionRule.RuleElement, ModelException> callbackIterator =
+                new CallbackIterator<ProductionRule.RuleElement, ModelException>(elements);
+        callbackIterator.iterate(new Callback<ProductionRule.RuleElement, ModelException>() {
+            private int position = 0;
+            @Override
+            public void call(final ProductionRule.RuleElement element) throws StopException, ModelException {
+                if (element.getType()!=null) {
+                    final String elementInterfaceName = element.getType().getNameChain().get(0).getName();
+                    final InterfaceDefinition elementInterface = model.getInterface(elementInterfaceName);
+                    final String elementCreateMethodName = "z$create$"+elementInterfaceName;
+                    final MethodDeclaration elementCreateMethod = elementInterface.getBody().getMethod(elementCreateMethodName);
+                    // compare return types of Value methods using parameter substitutions
+                    final List<TypeParameter> typeParameters = elementInterface.getTypeParameters();
+                    final List<TypeArgument> typeArguments = element.getType().getNameChain().get(0).getTypeArguments();
+                    if (typeArguments.size()!=typeParameters.size()) {
+                        throw new ModelException(element.getName()+":"+ elementInterfaceName +" requires "+typeParameters.size()+" type parameters, found: "+typeArguments.size());
+                    }
+                    if (Utils.substituteTypeArguments(typeArguments, typeParameters, elementCreateMethod.getResultType()).equals(requiredQueryType)) {
+                        delegateIndexHolder.set(position);
+                    }
+                    throw new StopException();
                 }
-                if (Utils.substituteTypeArguments(typeArguments, typeParameters, elementCreateMethod.getResultType()).equals(requiredQueryType)) {
-                    delegateIndex = i;
-                }
-                break;
+                position += 1;
             }
-        }
+        });
+        final int delegateIndex = delegateIndexHolder.get();
         if (delegateIndex<0) {
             throw new ModelException("Method "+requiredQueryType.getImage()+" "+methodName+"(SqlContext context) must be implemented; cannot guess implementation");
         } else {
