@@ -57,7 +57,7 @@ public class TestSimpleProduction extends TestCase {
 
             final Body body = def.getBody();
             // declared method an 2 interface methods
-            assertEquals(3, body.getMethods().size());
+            assertEquals(2, body.getMethods().size());
             {
                 final MethodDeclaration prepareMethod = body.getMethod("z$prepare$cursor_specification");
                 assertNotNull(prepareMethod);
@@ -108,21 +108,6 @@ public class TestSimpleProduction extends TestCase {
 
             }
 
-            {
-                final MethodDeclaration toSelectStatement = body.getMethod("toSelectStatement");
-                assertNotNull(toSelectStatement);
-                assertEquals("protected", toSelectStatement.getAccessModifier());
-                assertFalse(toSelectStatement.isStatic());
-                assertFalse(toSelectStatement.isAbstract());
-                assertEquals("", toSelectStatement.getThrowsClause());
-                assertEquals(0, toSelectStatement.getTypeParameters().size());
-                assertEquals("SelectStatement<T>", toSelectStatement.getResultType().getImage());
-                final List<FormalParameter> formalParameters = toSelectStatement.getFormalParameters();
-                assertEquals(0, formalParameters.size());
-                assertEquals("{ return new SelectStatement<T>(SqlFactory.getInstance().select_statement_IS_cursor_specification(this)); }", TestUtils.normalizeFormatting(toSelectStatement.getMethodBody()));
-                // make sure the body is compilable
-                new SimqleParser(new StringReader(toSelectStatement.getMethodBody())).Block();
-            }
             assertEquals(1, body.getFields().size());
             {
                 final FieldDeclaration fieldDeclaration = body.getFields().get(0);
@@ -361,4 +346,31 @@ public class TestSimpleProduction extends TestCase {
         }
     }
 
+    public void testDuplicateProduction() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/DuplicateProduction.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "DuplicateProduction.sdl");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        try {
+            new ProductionDeclarationProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage(), e.getMessage().startsWith("Duplicate rule primary_IS_LEFT_PAREN_expression_RIGHT_PAREN"));
+        }
+    }
+
+    public void testClassNameMistypeInAddendum() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/ClassNameMistypeInAddendum.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "ClassNameMistypeInAddendum");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        try {
+            new ProductionDeclarationProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage(), e.getMessage().startsWith("Class not found: BoleanExpression"));
+        }
+    }
 }

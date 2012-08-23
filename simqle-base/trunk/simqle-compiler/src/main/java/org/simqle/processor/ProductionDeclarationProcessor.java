@@ -121,37 +121,38 @@ public class ProductionDeclarationProcessor implements Processor {
                             } catch (ModelException e) {
                                 throw new GrammarException(e.getMessage(), addendum);
                             }
-                            // create toXxx method if possible and not exists
-                            final String virtualAncestorName = virtualAncestor.getNameChain().get(0).getName();
-                            final List<TypeArgument> virtualAncestorTypeArguments = virtualAncestor.getNameChain().get(0).getTypeArguments();
-                            final String methodName = "to"+virtualAncestorName;
-                            if (null==targetBody.getMethod(methodName)) {
-                                // we expect that there is a trivial implementation;
-                                // it may not compile e.g. because class does not implement proper interface,
-                                // wrong number of parameters, target class not having proper constructor etc.
-                                StringBuilder methodBodyBuilder = new StringBuilder();
-                                methodBodyBuilder.append("{ return new ").append(virtualAncestorName);
-                                String typeArgumentsString = virtualAncestorTypeArguments.isEmpty() ? "" :
-                                        Utils.formatList(virtualAncestorTypeArguments, "<", ",", ">", new Function<String, TypeArgument>() {
-                                            @Override
-                                            public String apply(final TypeArgument typeArgument) {
-                                                return typeArgument.getValue();
-                                            }
-                                        });
-                                methodBodyBuilder.append(typeArgumentsString);
-                                methodBodyBuilder.append("(SqlFactory.getInstance().")
-                                .append(productionRule.getName()).append("(this)); }");
-                                try {
-                                    // TODO make final -requires changes in MethodDeclaration
-                                    MethodDeclaration declaration = new MethodDeclaration(false, "protected", false, false,
-                                            Collections.<TypeParameter>emptyList(), virtualAncestor, methodName,
-                                            Collections.<FormalParameter>emptyList(), "", "", methodBodyBuilder.toString());
-                                    targetBody.addMethod(declaration);
-                                } catch (ModelException e) {
-                                    // not expected here: absense of method checked in enclosing if block
-                                    throw new RuntimeException("Internal error", e);
-                                }
-                            }
+//                            // create toXxx method if possible and not exists
+                            // TODO move to MimicsProcessor
+//                            final String virtualAncestorName = virtualAncestor.getNameChain().get(0).getName();
+//                            final List<TypeArgument> virtualAncestorTypeArguments = virtualAncestor.getNameChain().get(0).getTypeArguments();
+//                            final String methodName = "to"+virtualAncestorName;
+//                            if (null==targetBody.getMethod(methodName)) {
+//                                // we expect that there is a trivial implementation;
+//                                // it may not compile e.g. because class does not implement proper interface,
+//                                // wrong number of parameters, target class not having proper constructor etc.
+//                                StringBuilder methodBodyBuilder = new StringBuilder();
+//                                methodBodyBuilder.append("{ return new ").append(virtualAncestorName);
+//                                String typeArgumentsString = virtualAncestorTypeArguments.isEmpty() ? "" :
+//                                        Utils.formatList(virtualAncestorTypeArguments, "<", ",", ">", new Function<String, TypeArgument>() {
+//                                            @Override
+//                                            public String apply(final TypeArgument typeArgument) {
+//                                                return typeArgument.getValue();
+//                                            }
+//                                        });
+//                                methodBodyBuilder.append(typeArgumentsString);
+//                                methodBodyBuilder.append("(SqlFactory.getInstance().")
+//                                .append(productionRule.getName()).append("(this)); }");
+//                                try {
+//                                    // TODO make final -requires changes in MethodDeclaration
+//                                    MethodDeclaration declaration = new MethodDeclaration(false, "protected", false, false,
+//                                            Collections.<TypeParameter>emptyList(), virtualAncestor, methodName,
+//                                            Collections.<FormalParameter>emptyList(), "", "", methodBodyBuilder.toString());
+//                                    targetBody.addMethod(declaration);
+//                                } catch (ModelException e) {
+//                                    // not expected here: absense of method checked in enclosing if block
+//                                    throw new RuntimeException("Internal error", e);
+//                                }
+//                            }
                         }
 
                     }

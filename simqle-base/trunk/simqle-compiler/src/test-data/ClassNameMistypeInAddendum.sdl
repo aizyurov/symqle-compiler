@@ -1,0 +1,16 @@
+public interface expression<T> extends Scalar<T>
+{}
+
+public class Expression<T> implements expression<T>
+{}
+
+public interface boolean_expression extends Scalar<Boolean>
+{}
+
+public class BooleanExpression implements boolean_expression with sqlBuilder
+{}
+
+boolean_expression ::= expr:expression<Boolean>
+::
+BoleanExpression mimics Expression<Boolean> {}
+;
