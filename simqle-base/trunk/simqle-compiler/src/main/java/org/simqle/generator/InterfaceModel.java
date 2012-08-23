@@ -37,8 +37,7 @@ public class InterfaceModel {
 
     public String getTypeParameters() {
         final List<TypeParameter> parameters = definition.getTypeParameters();
-        return parameters.isEmpty() ? "" :
-                Utils.formatList(parameters, "<", ", ", ">", new Function<String, TypeParameter>() {
+        return Utils.formatList(parameters, "<", ", ", ">", new Function<String, TypeParameter>() {
                     public String apply(TypeParameter typeParameter) {
                         return typeParameter.getImage();
                     }
@@ -66,8 +65,7 @@ public class InterfaceModel {
 
     public String getExtendsList() {
         final List<Type> extended = definition.getExtended();
-        return  extended.isEmpty() ? "" :
-                Utils.formatList(extended, "extends ", ", ", "", new Function<String, Type>() {
+        return  Utils.formatList(extended, "extends ", ", ", "", new Function<String, Type>() {
                     public String apply(Type type) {
                         return type.getImage();
                     }

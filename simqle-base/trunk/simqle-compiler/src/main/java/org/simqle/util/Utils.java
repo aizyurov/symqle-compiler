@@ -114,8 +114,23 @@ public class Utils {
         return new SimqleParser(reader);
     }
 
+    /**
+     * Formats the list as follows:
+     * prefix, separator-separated items converted with function, suffix.
+     * If the list is empty, returns empty stirng (no prefix and suffix)!
+     * @param list
+     * @param prefix
+     * @param separator
+     * @param suffix
+     * @param function
+     * @param <T>
+     * @return
+     */
     public static <T> String formatList(List<T> list, String prefix, 
                                  String separator, String suffix, Function<String, T> function) {
+        if (list.isEmpty()) {
+            return "";
+        }
         StringBuilder builder = new StringBuilder();
         builder.append(prefix);
         for (int i=0; i<list.size(); i++) {

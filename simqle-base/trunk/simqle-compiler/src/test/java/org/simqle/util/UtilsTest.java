@@ -45,6 +45,7 @@ public class UtilsTest extends TestCase {
             Utils.convertChildren(node, "SimqleDeclarationBlock", BadClass.class);
             fail("RuntimeException expected");
         } catch (RuntimeException e) {
+            e.printStackTrace();
             assertEquals("Internal error", e.getMessage());
         }
     }
@@ -80,7 +81,7 @@ public class UtilsTest extends TestCase {
     }
 
 
-    private static abstract class BadClass {
+    private static class BadClass {
         public BadClass(final SyntaxTree node) {
             throw new NullPointerException();
         }

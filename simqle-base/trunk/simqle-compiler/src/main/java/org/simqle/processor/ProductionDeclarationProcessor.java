@@ -65,15 +65,12 @@ public class ProductionDeclarationProcessor implements Processor {
                     }
                     StringBuilder builder = new StringBuilder();
                     builder.append("public ");
-                    if (!typeParameters.isEmpty()) {
-                        builder.append(Utils.formatList(typeParameters, "<", ", ", ">", new Function<String, TypeParameter>() {
-                            @Override
-                            public String apply(final TypeParameter typeParameter) {
-                                return typeParameter.getImage();
-                            }
-                        }));
-                        builder.append(" ");
-                    }
+                    builder.append(Utils.formatList(typeParameters, "<", ", ", "> ", new Function<String, TypeParameter>() {
+                        @Override
+                        public String apply(final TypeParameter typeParameter) {
+                            return typeParameter.getImage();
+                        }
+                    }));
                     builder.append(returnType.getImage())
                             .append(" ")
                             .append(productionRule.getName())
@@ -368,14 +365,12 @@ public class ProductionDeclarationProcessor implements Processor {
         StringBuilder builder = new StringBuilder();
         builder.append("{ return new ").append(returnType.getNameChain().get(0).getName());
         final List<TypeArgument> typeArguments = returnType.getNameChain().get(0).getTypeArguments();
-        if (!typeArguments.isEmpty()) {
-            builder.append(Utils.formatList(typeArguments, "<", ",", ">", new Function<String, TypeArgument>() {
-                @Override
-                public String apply(final TypeArgument typeArgument) {
-                    return typeArgument.getImage();
-                }
-            }));
-        }
+        builder.append(Utils.formatList(typeArguments, "<", ",", ">", new Function<String, TypeArgument>() {
+            @Override
+            public String apply(final TypeArgument typeArgument) {
+                return typeArgument.getImage();
+            }
+        }));
         builder.append("() {\n");
         final List<TypeParameter> typeParameters = returnedInterface.getTypeParameters();
         if (typeArguments.size()!=typeParameters.size()) {
