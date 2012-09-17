@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 import org.simqle.model.InterfaceDefinition;
 import org.simqle.model.MethodDeclaration;
 import org.simqle.model.Model;
+import org.simqle.model.Type;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
@@ -55,6 +56,12 @@ public class TestInterfaceParsing extends TestCase {
 
         assertEquals(1, def1.getBody().getOtherDeclarations().size());
         assertEquals("boolean YES = true;", TestUtils.normalizeFormatting(def1.getBody().getOtherDeclarations().get(0)));
+
+        final InterfaceDefinition boolean_expression = model.getInterface("boolean_expression");
+        final List<Type> extended = boolean_expression.getExtended();
+        assertEquals(2, extended.size());
+        final List<MethodDeclaration> methods = boolean_expression.getBody().getMethods();
+        assertEquals(3, methods.size());
     }
 
     public void testExplicitValueMethod() throws Exception {

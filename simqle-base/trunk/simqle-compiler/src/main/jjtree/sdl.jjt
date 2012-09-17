@@ -1042,17 +1042,8 @@ void SimqleInterfaceDeclaration():
      Identifier()
      [ TypeParameters() ]
      [ ExtendsInterfaces() ]
-     [ Archetypes() ]
+     [ ":" Archetype() ]
      InterfaceBody()
-}
-
-void Archetypes():
-{}
-{
-/* current archetypes are "Sql" (default), "Query<T>", "Scalar<T>
- type T should be either one of type parameters of the interface of known class
- */
-    ":" Archetype() ( "," Archetype() ) *
 }
 
 void Archetype():

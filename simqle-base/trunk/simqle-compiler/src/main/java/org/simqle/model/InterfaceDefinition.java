@@ -22,10 +22,11 @@ public class InterfaceDefinition {
     private final Set<String> importLines;
     private final String name;
     private final String accessModifier;
-    private final List<String> otherModifiers;
+    private final Set<String> otherModifiers;
     private final List<TypeParameter> typeParameters;
     private final List<Type> extended;
     private final boolean isQuery;
+    private final boolean isSql;
     private final TypeParameter queryTypeParameter;
     private final Body body;
 
@@ -40,29 +41,14 @@ public class InterfaceDefinition {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SimqleInterfaceDeclaration");
 
         this.importLines = new TreeSet<String>(importLines);
-        {
-            String accessModifier = "";
-            List<String> otherModifiers = new ArrayList<String>();
-            for (SyntaxTree modifier: node.find("InterfaceModifiers.InterfaceModifier")) {
-                final String value = modifier.getValue();
-                if ("public".equals(value) || "protected".equals(value) || "private".equals(value)) {
-                    if (accessModifier.equals("")) {
-                        accessModifier = value;
-                    } else {
-                        throw new GrammarException("Invalid access modifiers: "+accessModifier+", "+value, modifier);
-                    }
-                } else {
-                    otherModifiers.add(value);
-                }
-            }
-            this.accessModifier = accessModifier;
-            this.otherModifiers = otherModifiers;
-        }
+        final List<SyntaxTree> modifierNodes = node.find("InterfaceModifiers.InterfaceModifier");
+        this.accessModifier = Utils.getAccessModifier(modifierNodes);
+        this.otherModifiers = Utils.getNonAccessModifiers(modifierNodes);
         this.name = node.find("Identifier").get(0).getValue();
         this.typeParameters = convertChildren(node, "TypeParameters.TypeParameter", TypeParameter.class);
         this.extended = convertChildren(node, "ExtendsInterfaces.ClassOrInterfaceType", Type.class);
         validateScalarExtension(node);
-        final List<SyntaxTree> archetypes = node.find("Archetypes.Archetype");
+        final List<SyntaxTree> archetypes = node.find("Archetype");
         boolean isSql = false;
         boolean isQuery = false;
         TypeParameter queryParameter = null;
@@ -70,12 +56,6 @@ public class InterfaceDefinition {
             // mandatory and unique by syntax
             final SyntaxTree name = archetype.find("Identifier").get(0);
             if ("Query".equals(name.getValue())) {
-                if (isSql) {
-                    throw new GrammarException("Incompatible archetypes", node);
-                }
-                if (isQuery) {
-                    throw new GrammarException("Multiple Query archetype declaration", node);
-                }
                 final List<SyntaxTree> typeParameterNodes = archetype.find("TypeParameters.TypeParameter");
                 if (typeParameterNodes.size()!=1) {
                     throw new GrammarException("Query archetype requires one type parameter", node);
@@ -83,12 +63,6 @@ public class InterfaceDefinition {
                 isQuery = true;
                 queryParameter = new TypeParameter(typeParameterNodes.get(0));
             } else if ("Sql".equals(name.getValue())) {
-                if (isSql) {
-                    throw new GrammarException("Multiple Sql archetype declaration", node);
-                }
-                if (isQuery) {
-                    throw new GrammarException("Incompatible archetypes", node);
-                }
                 isSql = true;
             } else {
                 throw new GrammarException("Unknown archetype: "+name.getValue(), name );
@@ -96,7 +70,7 @@ public class InterfaceDefinition {
         }
         if (isQuery) {
             this.importLines.add("import org.simqle.Query;");
-        } else {
+        } else if (isSql) {
             this.importLines.add("import org.simqle.Sql;");
         }
         if (isScalar()) {
@@ -104,6 +78,7 @@ public class InterfaceDefinition {
         }
         this.importLines.add("import org.simqle.SqlContext;");
         this.isQuery = isQuery;
+        this.isSql = isSql;
         this.queryTypeParameter = queryParameter;
 
         // exactly one body guaranteed by syntax
@@ -137,7 +112,7 @@ public class InterfaceDefinition {
     }
 
     public List<String> getOtherModifiers() {
-        return Collections.unmodifiableList(otherModifiers);
+        return new ArrayList<String>(otherModifiers);
     }
 
     public List<TypeParameter> getTypeParameters() {
