@@ -1,11 +1,9 @@
 package org.simqle.processor;
 
 import org.simqle.model.*;
+import org.simqle.util.Utils;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -20,7 +18,80 @@ public class MimicsProcessor {
         createConverterMethods(model);
         final Map<String, Set<String>> primaryImplementors = collectPrimaryImplementors(model);
         for (String signature: primaryImplementors.keySet()) {
+            createDelegatingMethods(signature, model, primaryImplementors.get(signature));
+        }
 
+    }
+
+    private void createDelegatingMethods(final String signature, final Model model, final Set<String> primaryImplementors) throws ModelException {
+        Set<String> currentActiveSet = null;
+        Set<String> nextActiveSet = new HashSet<String>(primaryImplementors);
+        Set<String> unknown = new HashSet<String>();
+        // init unknown
+        for (ClassPair pair: model.getAllClasses()) {
+            final String className = pair.getExtension().getClassName();
+            if (!currentActiveSet.contains(className)) {
+                unknown.add(className);
+            }
+        }
+        while (!nextActiveSet.isEmpty()) {
+            currentActiveSet = nextActiveSet;
+            nextActiveSet = new HashSet<String>();
+            for (Iterator<String> iterator = unknown.iterator(); iterator.hasNext(); ) {
+                final String candidateName = iterator.next();
+                final ClassPair candidate = model.getClassPair(candidateName);
+                Set<Type> ancestorCandidates = new HashSet<Type>();
+                for (Type virtualAncestor: candidate.getMimics()) {
+                    final ClassPair classPair = model.findClassPair(virtualAncestor);
+                    if (currentActiveSet.contains(classPair.getExtension().getClassName())) {
+                        ancestorCandidates.add(virtualAncestor);
+                    }
+                }
+                if (ancestorCandidates.isEmpty()) {
+                    continue;
+                }
+                final Type chosenAncestorType = ancestorCandidates.iterator().next();
+                if (ancestorCandidates.size()>1) {
+                    System.err.println("Multiple candidates for delegation of "+signature+" in "+candidateName+"; chosing "+chosenAncestorType.getImage());
+                }
+                final ClassPair chosenAncestor = model.findClassPair(chosenAncestorType);
+                final MethodDeclaration baseMethod = chosenAncestor.getBase().getBody().getMethod(signature);
+                final MethodDeclaration methodToDelegate = baseMethod !=null ? baseMethod : chosenAncestor.getExtension().getBody().getMethod(signature);
+                // should never be null
+                // now construct the delegating method
+                // substitute type parameters
+                final Type delegateResultType = methodToDelegate.getResultType();
+                final Type myResultType = Utils.substituteTypeArguments(chosenAncestorType.getNameChain().get(0).getTypeArguments(), candidate.getExtension().getTypeParameters(), delegateResultType);
+
+                final List<FormalParameter> delegateFormalParameters = methodToDelegate.getFormalParameters();
+                final List<FormalParameter> myFormalParameters = new ArrayList<FormalParameter>(delegateFormalParameters.size());
+                for (FormalParameter parameter: delegateFormalParameters) {
+                    myFormalParameters.add(new FormalParameter(
+                            Utils.substituteTypeArguments(chosenAncestorType.getNameChain().get(0).getTypeArguments(), candidate.getExtension().getTypeParameters(), parameter.getType()),
+                            parameter.getName(),
+                            parameter.getModifiers()
+                    ));
+                }
+                candidate.getExtension().getBody().addMethod(new MethodDeclaration(false, "public", false, false,
+                        methodToDelegate.getTypeParameters(),
+                        myResultType,
+                        methodToDelegate.getName(),
+                        myFormalParameters,
+                        methodToDelegate.getThrowsClause(),
+                        "", // TODO add comment
+                        "{ "+
+                                (myResultType.equals(Type.VOID) ? "" : "return ")
+                                +"to"+chosenAncestor.getExtension().getClassName()+"()."+methodToDelegate.getName()+
+                                Utils.formatList(myFormalParameters, "(", ", ", ")", new Function<String, FormalParameter>() {
+                                    @Override
+                                    public String apply(final FormalParameter formalParameter) {
+                                        return formalParameter.getName();
+                                    }
+                                })+"; }"
+                        ));
+                nextActiveSet.add(candidate.getExtension().getClassName());
+                iterator.remove();
+            }
         }
 
     }
