@@ -31,29 +31,23 @@ public class InterfaceDeclarationsProcessor implements Processor {
                 final InterfaceDefinition definition = new InterfaceDefinition(interfaceDeclaration, importLines);
                 final Body body = definition.getBody();
                 final String interfaceName = definition.getName();
-                if (definition.isScalar()) {
-                    final MethodDeclaration valueMethod = makeScalarMethod(definition.getScalarTypeArgument().getImage(), interfaceName);
-                        try {
-                            body.addMethod(valueMethod);
-                        } catch (ModelException e) {
-                            throw new GrammarException("Method \"value\" cannot be defined explicitly", interfaceDeclaration);
-                        }
-                }
 
-                final MethodDeclaration prepareMethod = makePrepareMethod(interfaceName);
-                try {
-                    body.addMethod(prepareMethod);
-                } catch (ModelException e) {
-                    throw new GrammarException("Method \"z$prepare$"+interfaceName+"\" cannot be defined explicitly", interfaceDeclaration);
-                }
+                if (definition.isQuery() || definition.isSql()) {
+                    final MethodDeclaration prepareMethod = makePrepareMethod(interfaceName);
+                    try {
+                        body.addMethod(prepareMethod);
+                    } catch (ModelException e) {
+                        throw new GrammarException("Method \"z$prepare$"+interfaceName+"\" cannot be defined explicitly", interfaceDeclaration);
+                    }
 
-                final MethodDeclaration methodToAdd = definition.isQuery() ?
-                        makeQueryMethod(definition.getQueryTypeParameter().getImage(), interfaceName) :
-                        makeSqlMethod(interfaceName);
-                try {
-                    body.addMethod(methodToAdd);
-                } catch (ModelException e) {
-                    throw new GrammarException("Method \"z$create$"+interfaceName+"\" cannot be defined explicitly", interfaceDeclaration);
+                    final MethodDeclaration methodToAdd = definition.isQuery() ?
+                            makeQueryMethod(definition.getQueryTypeParameter().getImage(), interfaceName) :
+                            makeSqlMethod(interfaceName);
+                    try {
+                        body.addMethod(methodToAdd);
+                    } catch (ModelException e) {
+                        throw new GrammarException("Method \"z$create$"+interfaceName+"\" cannot be defined explicitly", interfaceDeclaration);
+                    }
                 }
                 try {
                     model.addInterface(definition);

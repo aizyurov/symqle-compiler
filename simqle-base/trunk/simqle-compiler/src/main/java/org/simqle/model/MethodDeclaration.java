@@ -154,4 +154,21 @@ public class MethodDeclaration {
     public String getThrowsClause() {
         return throwsClause;
     }
+
+    /**
+     * Not the same signature as javac generates!
+     * @return
+     */
+    public String getSignature() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(name)
+                .append(
+                    Utils.formatList(formalParameters, "(", ",", ")", new Function<String, FormalParameter>() {
+                        @Override
+                        public String apply(final FormalParameter formalParameter) {
+                            return formalParameter.getType().getImage();
+                        }
+                    }));
+        return builder.toString();
+    }
 }

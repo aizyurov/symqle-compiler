@@ -4,10 +4,7 @@
 package org.simqle.generator;
 
 import junit.framework.TestCase;
-import org.simqle.model.InterfaceDefinition;
-import org.simqle.model.MethodDeclaration;
-import org.simqle.model.Model;
-import org.simqle.model.Type;
+import org.simqle.model.*;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
@@ -32,7 +29,7 @@ public class TestInterfaceParsing extends TestCase {
         Processor processor = new InterfaceDeclarationsProcessor();
         processor.process(node, model);
         final List<InterfaceDefinition> interfaceDefinitionList = model.getAllInterfaces();
-        assertEquals(4, interfaceDefinitionList.size());
+        assertEquals(5, interfaceDefinitionList.size());
         final InterfaceDefinition def1 = interfaceDefinitionList.get(0);
 
         final String comment = def1.getComment();
@@ -59,8 +56,8 @@ public class TestInterfaceParsing extends TestCase {
 
         final InterfaceDefinition boolean_expression = model.getInterface("boolean_expression");
         final List<Type> extended = boolean_expression.getExtended();
-        assertEquals(2, extended.size());
-        final List<MethodDeclaration> methods = boolean_expression.getBody().getMethods();
+        assertEquals(1, extended.size());
+        final List<MethodDeclaration> methods = boolean_expression.getAllMethods(model);
         assertEquals(3, methods.size());
     }
 
@@ -70,10 +67,11 @@ public class TestInterfaceParsing extends TestCase {
         final Model model = new Model();
         try {
             new InterfaceDeclarationsProcessor().process(node, model);
+            model.getInterface("expression").getAllMethods(model);
             fail("GrammarException expected");
-        } catch (GrammarException e) {
+        } catch (ModelException e) {
             // expected
-            assertTrue(e.getMessage().startsWith("Method \"value\" cannot be defined explicitly"));
+            assertTrue(e.getMessage().startsWith("Return type conflict:"));
         }
     }
 
@@ -83,6 +81,7 @@ public class TestInterfaceParsing extends TestCase {
         final Model model = new Model();
         try {
             new InterfaceDeclarationsProcessor().process(node, model);
+            model.getInterface("expression").getAllMethods(model);
             fail("GrammarException expected");
         } catch (GrammarException e) {
             // expected
@@ -96,6 +95,7 @@ public class TestInterfaceParsing extends TestCase {
         final Model model = new Model();
         try {
             new InterfaceDeclarationsProcessor().process(node, model);
+            model.getInterface("expression").getAllMethods(model);
             fail("GrammarException expected");
         } catch (GrammarException e) {
             // expected

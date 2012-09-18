@@ -1,10 +1,15 @@
-public interface expression<T> extends Scalar<T>
+public interface Scalar<T>
+{
+    T value(final Element element);
+}
+
+public interface expression<T> extends Scalar<T> : Sql
 {}
 
 public class Expression<T> implements expression<T>
 {}
 
-public interface boolean_expression extends Scalar<Boolean>
+public interface boolean_expression extends Scalar<Boolean> : Sql
 {}
 
 public class BooleanExpression implements boolean_expression mimics Expression<Boolean>

@@ -1,7 +1,12 @@
-public interface row_value_predicand<T> extends Scalar<T>
+public interface Scalar<T>
+{
+    T value(final Element element);
+}
+
+public interface row_value_predicand<T> extends Scalar<T> : Sql
 {}
 
-public interface comparison_predicate<T> extends Scalar<T>
+public interface comparison_predicate<T> extends Scalar<T> : Sql
 {}
 
 # the elements implement Scalar with different type argument, so no guess

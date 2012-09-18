@@ -23,9 +23,14 @@ public interface select_statement<T> : Query<T>
 public interface select_statement_scalar<T> extends Scalar<T> : Query<T>
 {}
 
-public interface from_clause {
+public interface Scalar<T>
+{
+    T value(final Element element);
+}
+
+public interface from_clause : Sql {
     void add_table(table_reference table);
 }
 
-public interface boolean_expression extends Scalar<Boolean>, Serializable
+public interface boolean_expression extends Scalar<Boolean> : Sql
 {}

@@ -1,4 +1,9 @@
-public interface expression<T> extends Scalar<T>
+public interface Scalar<T>
+{
+    T value(final Element element);
+}
+
+public interface expression<T> extends Scalar<T> : Sql
 {
     Integer z$create$expression();
 }

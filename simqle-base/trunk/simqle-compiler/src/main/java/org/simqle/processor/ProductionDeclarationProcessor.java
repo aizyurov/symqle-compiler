@@ -39,6 +39,8 @@ public class ProductionDeclarationProcessor implements Processor {
                     final InterfaceDefinition returnedInterface = model.getInterface(interfaceName);
                     if (returnedInterface==null) {
                         throw new GrammarException("Unknown interface: "+interfaceName, productionChoice);
+                    } else if (!returnedInterface.isQuery() && !returnedInterface.isSql()) {
+                        throw new GrammarException("Does not have Query nor Sql archetype: "+interfaceName, productionChoice);
                     }
                     final String methodBodySource;
                     List<FormalParameter> formalParameters = createFormalParameters(productionRule);
@@ -218,7 +220,7 @@ public class ProductionDeclarationProcessor implements Processor {
                     if (elementInterface == null) {
                         throw new ModelException("Unknown interface: "+name);
                     }
-                    final MethodDeclaration elementValueMethod = elementInterface.getBody().getMethod("value");
+                    final MethodDeclaration elementValueMethod = elementInterface.getMethodBySignature("value(Element)", model);
                     if (elementValueMethod==null) {
                         // give up
                         throw new StopException();
@@ -377,7 +379,7 @@ public class ProductionDeclarationProcessor implements Processor {
             throw new ModelException("Return type "+returnType.getImage()+" requires "+typeParameters.size()+" type parameter, found: "+typeArguments.size());
         }
         {
-            final MethodDeclaration valueMethod = returnedInterface.getBody().getMethod("value");
+            final MethodDeclaration valueMethod = returnedInterface.getMethodBySignature("value(Element)", model);
             if (valueMethod!=null) {
                 Type requiredReturnType = Utils.substituteTypeArguments(typeArguments, typeParameters, valueMethod.getResultType());
                 builder.append(generateValueMethodSource(requiredReturnType, productionRule, model));
@@ -394,8 +396,10 @@ public class ProductionDeclarationProcessor implements Processor {
             Type requiredReturnType = Utils.substituteTypeArguments(typeArguments, typeParameters, createMethod.getResultType());
             if (returnedInterface.isQuery()) {
                 builder.append(generateCreateQueryMethodSource(createMethodName, requiredReturnType, productionRule, model));
-            } else {
+            } else if (returnedInterface.isSql()) {
                 builder.append(generateCreateSqlMethodSource(createMethodName, productionRule));
+            } else {
+                throw new ModelException("Return type should have Sql or Query archetype");
             }
         }
         builder.append("    };\n");

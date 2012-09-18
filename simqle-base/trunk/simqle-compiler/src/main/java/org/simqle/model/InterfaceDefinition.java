@@ -12,6 +12,7 @@ import java.util.*;
 
 import static org.simqle.util.Utils.convertChildren;
 import static org.simqle.util.Utils.getChildrenImage;
+import static org.simqle.util.Utils.substituteTypeArguments;
 
 /**
  * <br/>13.11.2011
@@ -139,26 +140,21 @@ public class InterfaceDefinition {
         return isQuery;
     }
 
+    public boolean isSql() {
+        return isSql;
+    }
+
     public TypeParameter getQueryTypeParameter() {
         return queryTypeParameter;
     }
 
-    public boolean isScalar() {
+    private boolean isScalar() {
         for (Type extendedType: extended) {
             if (extendedType.getNameChain().size()==1 && extendedType.getNameChain().get(0).getName().equals("Scalar")) {
                 return true;
             }
         }
         return false;
-    }
-
-    public TypeArgument getScalarTypeArgument() {
-        for (Type extendedType: extended) {
-            if (extendedType.getNameChain().size()==1 && extendedType.getNameChain().get(0).getName().equals("Scalar")) {
-                return extendedType.getNameChain().get(0).getTypeArguments().get(0);
-            }
-        }
-        return null;
     }
 
     private void validateScalarExtension(SyntaxTree node) throws GrammarException {
@@ -171,6 +167,86 @@ public class InterfaceDefinition {
             }
         }
     }
+
+    /**
+     * Returns all methods - declared and inherited
+     * Note: a method may be returned more than once, if it is inherited from multiple parents ofr both inherited and declared
+     * @param model we need model to have access to inherited methods
+     * @return
+     */
+    public List<MethodDeclaration> getAllMethods(final Model model) throws ModelException {
+        // Map of methods by signature
+        Map<String, MethodDeclaration> allMethods = collectAllMethods(model);
+        return new ArrayList<MethodDeclaration>(allMethods.values());
+    }
+
+    public MethodDeclaration getMethodBySignature(final String signature, final Model model) throws ModelException {
+        Map<String, MethodDeclaration> allMethods = collectAllMethods(model);
+        return allMethods.get(signature);
+    }
+
+    private Map<String, MethodDeclaration> collectAllMethods(final Model model) throws ModelException {
+        Map<String, MethodDeclaration> allMethods = new HashMap<String, MethodDeclaration>();
+        final List<MethodDeclaration> declaredMethods = body.getMethods();
+        for (MethodDeclaration method: declaredMethods) {
+            final String signature = method.getSignature();
+            final MethodDeclaration existingMethod = allMethods.get(signature);
+            // ignoring conflicting throws for now - leavng for java compiler
+            if (existingMethod!=null && !existingMethod.getResultType().equals(method.getResultType())) {
+                throw new ModelException("Return type conflict: "+existingMethod.getResultType().getImage()+" and "+method.getResultType().getImage()+" "+signature);
+            } else {
+                // overwrite
+                allMethods.put(signature, method);
+            }
+        }
+
+        for (Type type: extended) {
+            final List<TypeNameWithTypeArguments> nameChain = type.getNameChain();
+            if (nameChain.size()!=1) {
+                throw new ModelException("Extended interface should have simple name");
+            }
+            final TypeNameWithTypeArguments typeNameWithTypeArguments = nameChain.get(0);
+            final InterfaceDefinition parentInterface = model.getInterface(typeNameWithTypeArguments.getName());
+            if (parentInterface==null) {
+                throw new ModelException("Interface not found: "+typeNameWithTypeArguments.getName());
+            }
+            final List<MethodDeclaration> inheritedMethods = parentInterface.getAllMethods(model);
+            for (MethodDeclaration method: inheritedMethods) {
+                final Type parentResultType = method.getResultType();
+                final Type resultType = substituteTypeArguments(typeNameWithTypeArguments.getTypeArguments(), parentInterface.getTypeParameters(), parentResultType);
+                final List<FormalParameter> parentFormalParameters = method.getFormalParameters();
+                final List<FormalParameter> formalParameters = new ArrayList<FormalParameter>(parentFormalParameters.size());
+                for (FormalParameter parameter: parentFormalParameters) {
+                    final List<String> modifiers = parameter.getModifiers();
+                    final String paramName = parameter.getName();
+                    final Type parentParamType = parameter.getType();
+                    final Type paramType = substituteTypeArguments(typeNameWithTypeArguments.getTypeArguments(), parentInterface.getTypeParameters(), parentParamType);
+                    formalParameters.add(new FormalParameter(paramType, paramName, modifiers));
+                }
+                final String throwsClause = method.getThrowsClause();
+                final String methodName = method.getName();
+                // TODO we potentially can have a conflict of method type parameters and this thype parameters;
+                // method type parameters should better be renamed to avoid this conflict
+                // leaving as is for now
+                final MethodDeclaration generatedMethod = new MethodDeclaration(true, "public", false, true, method.getTypeParameters(),
+                        resultType, methodName, formalParameters, throwsClause, "", null);
+                final String signature = generatedMethod.getSignature();
+                final MethodDeclaration existingMethod = allMethods.get(signature);
+                // ignoring conflicting throws for now - leavng for java compiler
+                if (existingMethod!=null && !existingMethod.getResultType().equals(generatedMethod.getResultType())) {
+                    throw new ModelException("Return type conflict: "+existingMethod.getResultType().getImage()+" and "+generatedMethod.getResultType().getImage()+" "+signature);
+                } else {
+                    // overwrite
+                    allMethods.put(signature, generatedMethod);
+                }
+
+
+            }
+        }
+        return allMethods;
+    }
+
+
 }
 
 

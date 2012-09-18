@@ -105,7 +105,7 @@ public class ClassDeclarationProcessor implements Processor {
             if (anInterface==null) {
                 throw new GrammarException("Unknown interface: "+interfaceType.getImage(), interfaceNodes.get(0));
             }
-            final List<MethodDeclaration> methods = anInterface.getBody().getMethods();
+            final List<MethodDeclaration> methods = anInterface.getAllMethods(model);
             final List<TypeArgument> typeArgumentsActual = interfaceType.getNameChain().get(0).getTypeArguments();
             final List<TypeParameter> typeParameters = anInterface.getTypeParameters();
             // we should substitute formal type arguments of the method with actual type parameters where appropriate
