@@ -112,13 +112,7 @@ public class ClassDeclarationProcessor implements Processor {
             // if unknown name, it is from outer context (not parameter name)
             for (MethodDeclaration interfaceMethod: methods) {
                 final Type methodResultType = interfaceMethod.getResultType();
-                final Type resultType;
-                if (methodResultType!=null) {
-
-                    resultType = Utils.substituteTypeArguments(typeArgumentsActual,typeParameters, methodResultType);
-                } else {
-                    resultType = null;
-                }
+                final Type resultType= Utils.substituteTypeArguments(typeArgumentsActual,typeParameters, methodResultType);
                 final String name = interfaceMethod.getName();
                 // do not care about access modifier: interface method is public abstract by default
                 // but do not implement static methods

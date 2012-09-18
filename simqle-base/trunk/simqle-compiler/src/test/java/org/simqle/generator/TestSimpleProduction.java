@@ -494,5 +494,20 @@ public class TestSimpleProduction extends TestCase {
                 "}"), TestUtils.normalizeFormatting(body));
     }
 
+    public void testWrongReturnType() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/WrongReturnTypeInProduction.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "WrongReturnTypeInProduction.sdl");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        try {
+            new ProductionDeclarationProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage().startsWith("Does not have Query nor Sql archetype: Scalar["));
+        }
+
+    }
+
 
 }

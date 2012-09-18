@@ -396,10 +396,8 @@ public class ProductionDeclarationProcessor implements Processor {
             Type requiredReturnType = Utils.substituteTypeArguments(typeArguments, typeParameters, createMethod.getResultType());
             if (returnedInterface.isQuery()) {
                 builder.append(generateCreateQueryMethodSource(createMethodName, requiredReturnType, productionRule, model));
-            } else if (returnedInterface.isSql()) {
+            } else  {
                 builder.append(generateCreateSqlMethodSource(createMethodName, productionRule));
-            } else {
-                throw new ModelException("Return type should have Sql or Query archetype");
             }
         }
         builder.append("    };\n");
