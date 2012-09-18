@@ -121,7 +121,7 @@ public class ProductionDeclarationProcessor implements Processor {
                         final List<Type> types = Utils.convertChildren(addendum, "Mimics.ClassOrInterfaceType", Type.class);
                         for (Type virtualAncestor: types) {
                             try {
-                                classPair.addMimics(Collections.singleton(virtualAncestor));
+                                classPair.addMimics(virtualAncestor, productionRule.getName());
                             } catch (ModelException e) {
                                 throw new GrammarException(e.getMessage(), addendum);
                             }

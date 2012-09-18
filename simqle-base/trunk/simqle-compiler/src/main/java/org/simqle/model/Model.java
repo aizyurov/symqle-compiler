@@ -42,6 +42,13 @@ public class Model {
         return classes.get(name);
     }
 
+    public ClassPair findClassPair(Type type) throws ModelException {
+        if (type.getNameChain().size()!=1) {
+            throw new ModelException("Class name should be a simple name, actually "+type.getImage());
+        }
+        return getClassPair(type.getNameChain().get(0).getName());
+    }
+
     public List<ClassPair> getAllClasses() {
         return new ArrayList<ClassPair>(classes.values());
     }

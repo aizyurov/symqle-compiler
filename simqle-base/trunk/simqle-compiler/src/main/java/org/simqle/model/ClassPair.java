@@ -17,7 +17,7 @@ public class ClassPair {
     private final ClassDefinition extension;
     private final Set<String> publishedImports = new HashSet<String>();
     private final Set<String> internalImports = new HashSet<String>();
-    private final Set<Type> mimics = new HashSet<Type>();
+    private final Map<Type, String> mimics = new HashMap<Type, String>();
 
 
 
@@ -43,7 +43,7 @@ public class ClassPair {
     }
 
     public Set<Type> getMimics() {
-        return new HashSet<Type>(mimics);
+        return new HashSet<Type>(mimics.keySet());
     }
 
     public void addPublishedImports(Collection<String> imports) {
@@ -52,20 +52,29 @@ public class ClassPair {
     public void addInternalImports(Collection<String> imports) {
         internalImports.addAll(imports);
     }
-    public void addMimics(Collection<Type> addedMimics)  throws ModelException {
-        for (Type t: addedMimics) {
-            // we can add type if it is the same or if its pairName is different;
+
+    /**
+     *
+     * @param ancestor the virtual ancestor
+     * @param ruleName the rule, which defines mimics. May be null/
+     * @throws ModelException
+     */
+    public void addMimics(final Type ancestor, final String ruleName)  throws ModelException {
+        // we can add type if it is the same or if its pairName is different;
             // cannot mimic the same class with different type parameters
-            if (mimics.contains(t)) {
+            if (mimics.containsKey(ancestor)) {
                 return;
             }
-            for (Type m: mimics) {
-                if (m.getNameChain().get(0).getName().equals(t.getNameChain().get(0).getName())) {
+            for (Type m: mimics.keySet()) {
+                if (m.getNameChain().get(0).getName().equals(ancestor.getNameChain().get(0).getName())) {
                     throw new ModelException("Cannot mimic one class with different type parameters");
                 }
             }
-            mimics.add(t);
-        }
+            mimics.put(ancestor, ruleName);
+    }
+
+    public String getRuleNameForMimics(Type type) {
+        return mimics.get(type);
     }
 
 }

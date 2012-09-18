@@ -35,7 +35,11 @@ public class ClassDeclarationProcessor implements Processor {
                     final ClassPair classPair = new ClassPair(baseClassDefinition, extensionClassDefinition);
                     classPair.addPublishedImports(Utils.bodies(importDeclarations));
                     classPair.addInternalImports(Utils.bodies(simqleClassDeclaration.find("ImportDeclaration")));
-                    classPair.addMimics(Utils.convertChildren(simqleClassDeclaration, "Mimics.ClassOrInterfaceType", Type.class));
+                    final List<Type> virtualAncestors = Utils.convertChildren(simqleClassDeclaration, "Mimics.ClassOrInterfaceType", Type.class);
+                    for (Type t: virtualAncestors) {
+                        // no associated production, so ruleName==null
+                        classPair.addMimics(t, null);
+                    }
                     model.addClass(classPair);
                 } catch (ModelException e) {
                     throw new GrammarException(e.getMessage(), block);

@@ -3,7 +3,9 @@
 */
 package org.simqle.processor;
 
+import org.simqle.generator.Generator;
 import org.simqle.model.Model;
+import org.simqle.model.ModelException;
 import org.simqle.parser.ParseException;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
@@ -19,13 +21,16 @@ import java.util.List;
  */
 public class Director {
     private Processor[] processors = {
-            new InterfaceDeclarationsProcessor()
+            new InterfaceDeclarationsProcessor(),
+            new ClassDeclarationProcessor(),
+            new ProductionDeclarationProcessor(),
     };
 
+    private final MimicsProcessor mimicsProcessor = new MimicsProcessor();
 
+    private Generator[] generators = {};
 
-    
-    public void doAll(final File[] sources, final File outputDirectory) throws IOException, GrammarException, ParseException {
+    public void doAll(final File[] sources, final File outputDirectory) throws IOException, GrammarException, ParseException, ModelException {
         List<SyntaxTree> parsedSources = new ArrayList<SyntaxTree>(sources.length);
         for (File source: sources) {
             Reader reader = new InputStreamReader(new FileInputStream(source));
@@ -42,7 +47,10 @@ public class Director {
                 processor. process(source, model);
             }
         }
-
+        mimicsProcessor.process(model);
+        for (Generator generator: generators) {
+            generator.generate(model, outputDirectory);
+        }
     }
 
 }

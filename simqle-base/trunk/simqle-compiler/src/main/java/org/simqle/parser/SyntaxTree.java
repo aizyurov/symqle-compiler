@@ -117,7 +117,7 @@ public class SyntaxTree {
         return find(nameList);
     }
 
-    public List<SyntaxTree> find(List<String> nameList) {
+    private List<SyntaxTree> find(List<String> nameList) {
         if (nameList.isEmpty()) {
             return Collections.singletonList(this);
         } else {
