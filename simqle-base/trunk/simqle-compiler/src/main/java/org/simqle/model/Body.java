@@ -87,11 +87,11 @@ public class Body {
     }
 
     public void addMethod(MethodDeclaration methodDeclaration) throws ModelException {
-        final String name = methodDeclaration.getName();
-        if (methods.containsKey(name)) {
-            throw new ModelException("Duplicate method: "+name+"; method overloading is not allowed in Simqle");
+        final String signature = methodDeclaration.getSignature();
+        if (methods.containsKey(signature)) {
+            throw new ModelException("Duplicate method: "+signature);
         }
-        methods.put(name, methodDeclaration);
+        methods.put(signature, methodDeclaration);
     }
 
     // the name of constructor is nor verified against class name (not available here)
@@ -104,8 +104,8 @@ public class Body {
         return methods.containsKey(methodName);
     }
 
-    public MethodDeclaration getMethod(String methodName) {
-        return methods.get(methodName);
+    public MethodDeclaration getMethod(String signature) {
+        return methods.get(signature);
     }
 
     public List<String> getOtherDeclarations() {

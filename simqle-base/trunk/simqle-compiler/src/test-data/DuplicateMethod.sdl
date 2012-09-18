@@ -7,5 +7,5 @@ public class TestClass<T> implements test_interface<T> with sqlBuilder
     public void dump(OutputStream os) {
         // do nothing
     }
-    void dump(OutputStream os, boolean compress);
+    public void dump(OutputStream os) throws RuntimeException;
 }

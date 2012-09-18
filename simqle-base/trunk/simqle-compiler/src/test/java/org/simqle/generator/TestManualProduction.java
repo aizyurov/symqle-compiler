@@ -85,14 +85,14 @@ public class TestManualProduction extends TestCase {
         final ClassDefinition base = classPair.getBase();
 
         {
-            final MethodDeclaration prepareMethod = base.getBody().getMethod("z$prepare$boolean_expression");
+            final MethodDeclaration prepareMethod = base.getBody().getMethod("z$prepare$boolean_expression(SqlContext)");
             assertNotNull(prepareMethod);
             assertEquals("public", prepareMethod.getAccessModifier());
             assertFalse(prepareMethod.isStatic());
             assertFalse(prepareMethod.isAbstract());
             assertEquals("", prepareMethod.getThrowsClause());
             assertEquals(0, prepareMethod.getTypeParameters().size());
-            assertNull(prepareMethod.getResultType());
+            assertEquals(Type.VOID, prepareMethod.getResultType());
             final List<FormalParameter> formalParameters = prepareMethod.getFormalParameters();
             assertEquals(1, formalParameters.size());
             final FormalParameter formalParameter = formalParameters.get(0);
@@ -109,7 +109,7 @@ public class TestManualProduction extends TestCase {
         }
 
         {
-            final MethodDeclaration valueMethod = base.getBody().getMethod("value");
+            final MethodDeclaration valueMethod = base.getBody().getMethod("value(Element)");
             assertNotNull(valueMethod);
             assertEquals("public", valueMethod.getAccessModifier());
             assertFalse(valueMethod.isStatic());

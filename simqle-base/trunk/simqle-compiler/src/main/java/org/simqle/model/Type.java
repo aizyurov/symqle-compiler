@@ -20,6 +20,8 @@ import static org.simqle.util.Utils.*;
  */
 public class Type {
 
+    public final static Type VOID = new Type(Collections.singletonList(new TypeNameWithTypeArguments("void")),0);
+
     private final List<TypeNameWithTypeArguments> nameChain;
     private final int arrayDimensions;
     private final String image;

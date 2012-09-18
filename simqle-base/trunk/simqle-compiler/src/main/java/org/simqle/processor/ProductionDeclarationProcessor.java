@@ -264,7 +264,8 @@ public class ProductionDeclarationProcessor implements Processor {
                     final String elementInterfaceName = element.getType().getNameChain().get(0).getName();
                     final InterfaceDefinition elementInterface = model.getInterface(elementInterfaceName);
                     final String elementCreateMethodName = "z$create$"+elementInterfaceName;
-                    final MethodDeclaration elementCreateMethod = elementInterface.getBody().getMethod(elementCreateMethodName);
+                    final String elementCreateMethodSignature = elementCreateMethodName + "(SqlContext)";
+                    final MethodDeclaration elementCreateMethod = elementInterface.getBody().getMethod(elementCreateMethodSignature);
                     // compare return types of Value methods using parameter substitutions
                     final List<TypeParameter> typeParameters = elementInterface.getTypeParameters();
                     final List<TypeArgument> typeArguments = element.getType().getNameChain().get(0).getTypeArguments();
@@ -392,7 +393,8 @@ public class ProductionDeclarationProcessor implements Processor {
         }
         {
             final String createMethodName = "z$create$" + returnedInterfaceName;
-            final MethodDeclaration createMethod = returnedInterface.getBody().getMethod(createMethodName);
+            final String createMethodSignature = createMethodName + "(SqlContext)";
+            final MethodDeclaration createMethod = returnedInterface.getBody().getMethod(createMethodSignature);
             Type requiredReturnType = Utils.substituteTypeArguments(typeArguments, typeParameters, createMethod.getResultType());
             if (returnedInterface.isQuery()) {
                 builder.append(generateCreateQueryMethodSource(createMethodName, requiredReturnType, productionRule, model));

@@ -38,12 +38,12 @@ public class TestInterfaceParsing extends TestCase {
         assertFalse(comment.contains("#"));
 
         assertEquals("select_statement", def1.getName());
-        assertTrue(def1.getBody().hasMethod("z$prepare$select_statement"));
-        final MethodDeclaration method1 = def1.getBody().getMethod("z$prepare$select_statement");
-        assertNull(method1.getResultType());
+        assertTrue(def1.getBody().hasMethod("z$prepare$select_statement(SqlContext)"));
+        final MethodDeclaration method1 = def1.getBody().getMethod("z$prepare$select_statement(SqlContext)");
+        assertEquals(Type.VOID, method1.getResultType());
         assertEquals(1, method1.getFormalParameters().size());
         assertEquals("final SqlContext context", method1.getFormalParameters().get(0).getImage());
-        assertNull(method1.getResultType());
+        assertEquals(Type.VOID, method1.getResultType());
 
         final List<String> importLines = def1.getImportLines();
         assertTrue(importLines.contains("import org.simqle.SqlContext;"));
@@ -82,10 +82,10 @@ public class TestInterfaceParsing extends TestCase {
         try {
             new InterfaceDeclarationsProcessor().process(node, model);
             model.getInterface("expression").getAllMethods(model);
-            fail("GrammarException expected");
-        } catch (GrammarException e) {
+            fail("ModelException expected");
+        } catch (ModelException e) {
             // expected
-            assertTrue(e.getMessage().startsWith("Method \"z$prepare$expression\" cannot be defined explicitly"));
+            assertTrue(e.getMessage().startsWith("Return type conflict: Integer and void"));
         }
     }
 
@@ -96,10 +96,10 @@ public class TestInterfaceParsing extends TestCase {
         try {
             new InterfaceDeclarationsProcessor().process(node, model);
             model.getInterface("expression").getAllMethods(model);
-            fail("GrammarException expected");
-        } catch (GrammarException e) {
+            fail("ModelException expected");
+        } catch (ModelException e) {
             // expected
-            assertTrue(e.getMessage().startsWith("Method \"z$create$expression\" cannot be defined explicitly"));
+            assertTrue(e.getMessage().startsWith("Return type conflict: "));
         }
     }
 

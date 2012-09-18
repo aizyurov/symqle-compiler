@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 import org.simqle.model.ClassDefinition;
 import org.simqle.model.MethodDeclaration;
 import org.simqle.model.Model;
+import org.simqle.model.Type;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.ClassDeclarationProcessor;
@@ -39,7 +40,7 @@ public class TestTypeParameters extends TestCase {
             assertEquals(3, classDef.getBody().getMethods().size());
 
             {
-                final MethodDeclaration valueMethod = classDef.getBody().getMethod("value");
+                final MethodDeclaration valueMethod = classDef.getBody().getMethod("value(Element)");
                 assertNotNull(valueMethod);
                 assertEquals("V", valueMethod.getResultType().getImage());
                 assertEquals(1, valueMethod.getFormalParameters().size());
@@ -47,7 +48,7 @@ public class TestTypeParameters extends TestCase {
             }
 
             {
-                final MethodDeclaration createMethod = classDef.getBody().getMethod("z$create$expression");
+                final MethodDeclaration createMethod = classDef.getBody().getMethod("z$create$expression(SqlContext)");
                 assertNotNull(createMethod);
                 assertEquals("Query<V>", createMethod.getResultType().getImage());
                 assertEquals(1, createMethod.getFormalParameters().size());
@@ -55,9 +56,9 @@ public class TestTypeParameters extends TestCase {
             }
 
             {
-                final MethodDeclaration prepareMethod = classDef.getBody().getMethod("z$prepare$expression");
+                final MethodDeclaration prepareMethod = classDef.getBody().getMethod("z$prepare$expression(SqlContext)");
                 assertNotNull(prepareMethod);
-                assertNull("void", prepareMethod.getResultType());
+                assertEquals(Type.VOID, prepareMethod.getResultType());
                 assertEquals(1, prepareMethod.getFormalParameters().size());
                 assertEquals("final SqlContext context", prepareMethod.getFormalParameters().get(0).getImage());
             }
@@ -69,7 +70,7 @@ public class TestTypeParameters extends TestCase {
             final ClassDefinition classDef = model.getClassPair("BooleanExpression").getBase();
             assertEquals(3, classDef.getBody().getMethods().size());
             {
-                final MethodDeclaration valueMethod = classDef.getBody().getMethod("value");
+                final MethodDeclaration valueMethod = classDef.getBody().getMethod("value(Element)");
                 assertNotNull(valueMethod);
                 assertEquals("Boolean", valueMethod.getResultType().getImage());
                 assertEquals(1, valueMethod.getFormalParameters().size());
@@ -77,7 +78,7 @@ public class TestTypeParameters extends TestCase {
             }
 
             {
-                final MethodDeclaration createMethod = classDef.getBody().getMethod("z$create$expression");
+                final MethodDeclaration createMethod = classDef.getBody().getMethod("z$create$expression(SqlContext)");
                 assertNotNull(createMethod);
                 assertEquals("Query<Boolean>", createMethod.getResultType().getImage());
                 assertEquals(1, createMethod.getFormalParameters().size());
@@ -85,9 +86,9 @@ public class TestTypeParameters extends TestCase {
             }
 
             {
-                final MethodDeclaration prepareMethod = classDef.getBody().getMethod("z$prepare$expression");
+                final MethodDeclaration prepareMethod = classDef.getBody().getMethod("z$prepare$expression(SqlContext)");
                 assertNotNull(prepareMethod);
-                assertNull(prepareMethod.getResultType());
+                assertEquals(Type.VOID, prepareMethod.getResultType());
                 assertEquals(1, prepareMethod.getFormalParameters().size());
                 assertEquals("final SqlContext context", prepareMethod.getFormalParameters().get(0).getImage());
             }

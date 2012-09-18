@@ -10,6 +10,7 @@ import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -79,7 +80,7 @@ public class MethodDeclaration {
         final List<SyntaxTree> resultTypes = node.find("ResultType.Type");
         if (resultTypes.isEmpty()) {
             // void
-            resultType = null;
+            resultType = Type.VOID;
         } else {
             resultType = new Type(resultTypes.get(0));
         }
@@ -160,13 +161,23 @@ public class MethodDeclaration {
      * @return
      */
     public String getSignature() {
-        StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = new StringBuilder();
         builder.append(name)
                 .append(
                     Utils.formatList(formalParameters, "(", ",", ")", new Function<String, FormalParameter>() {
                         @Override
                         public String apply(final FormalParameter formalParameter) {
-                            return formalParameter.getType().getImage();
+                            // create erasure of Type
+                            final Type type = formalParameter.getType();
+                            final List<TypeNameWithTypeArguments> nameChain = type.getNameChain();
+                            StringBuilder innerBuilder = new StringBuilder();
+                            for (TypeNameWithTypeArguments typeNameWTA: nameChain) {
+                                if (innerBuilder.length()>0) {
+                                    innerBuilder.append(".");
+                                }
+                                innerBuilder.append(typeNameWTA.getName());
+                            }
+                            return innerBuilder.toString();
                         }
                     }));
         return builder.toString();

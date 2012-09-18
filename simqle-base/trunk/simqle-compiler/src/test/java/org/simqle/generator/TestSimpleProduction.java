@@ -59,14 +59,14 @@ public class TestSimpleProduction extends TestCase {
             // declared method an 2 interface methods
             assertEquals(2, body.getMethods().size());
             {
-                final MethodDeclaration prepareMethod = body.getMethod("z$prepare$cursor_specification");
+                final MethodDeclaration prepareMethod = body.getMethod("z$prepare$cursor_specification(SqlContext)");
                 assertNotNull(prepareMethod);
                 assertEquals("public", prepareMethod.getAccessModifier());
                 assertFalse(prepareMethod.isStatic());
                 assertFalse(prepareMethod.isAbstract());
                 assertEquals("", prepareMethod.getThrowsClause());
                 assertEquals(0, prepareMethod.getTypeParameters().size());
-                assertNull(prepareMethod.getResultType());
+                assertEquals(Type.VOID, prepareMethod.getResultType());
                 final List<FormalParameter> formalParameters = prepareMethod.getFormalParameters();
                 assertEquals(1, formalParameters.size());
                 final FormalParameter formalParameter = formalParameters.get(0);
@@ -84,7 +84,7 @@ public class TestSimpleProduction extends TestCase {
 
 
             {
-                final MethodDeclaration createMethod = body.getMethod("z$create$cursor_specification");
+                final MethodDeclaration createMethod = body.getMethod("z$create$cursor_specification(SqlContext)");
                 assertNotNull(createMethod);
                 assertEquals("public", createMethod.getAccessModifier());
                 assertFalse(createMethod.isStatic());

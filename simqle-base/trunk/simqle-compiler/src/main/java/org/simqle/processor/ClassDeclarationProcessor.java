@@ -129,7 +129,7 @@ public class ClassDeclarationProcessor implements Processor {
                     newFormalParameters.add(new FormalParameter(newType, paramName, Arrays.asList("final")));
                 }
 
-                final String generatedBody = interfaceMethod.getResultType()==null ?
+                final String generatedBody = interfaceMethod.getResultType().equals(Type.VOID) ?
                     createVoidDelegatedMethodBody(variableName, name, newFormalParameters) :
                     createDelegatedMethodBody(variableName, name, newFormalParameters);
                     final MethodDeclaration methodDeclaration = new MethodDeclaration(false, "public", false, false, interfaceMethod.getTypeParameters(), resultType, name, newFormalParameters, interfaceMethod.getThrowsClause(), interfaceMethod.getComment(), generatedBody);

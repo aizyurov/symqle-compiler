@@ -5,7 +5,7 @@ public interface test_interface<T>
 
 public class TestClass<T> implements test_interface<T> with sqlBuilder
 {
-    public void dump(OutputStream os) {
+    public Integer dump(OutputStream os, boolean compress) {
         // do nothing
     }
 }

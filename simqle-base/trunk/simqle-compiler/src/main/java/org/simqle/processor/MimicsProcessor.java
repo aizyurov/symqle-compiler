@@ -52,29 +52,29 @@ public class MimicsProcessor {
                     throw new ModelException("Class not found: "+type.getImage());
                 }
                 final String className = classPair.getBase().getClassName();
-                final String methodName = "to" + className;
-                final MethodDeclaration converterMethod = pair.getBase().getBody().getMethod(methodName);
+                final String signature = "to" + className+"()";
+                final MethodDeclaration converterMethod = pair.getBase().getBody().getMethod(signature);
                 if (converterMethod==null || converterMethod.getFormalParameters().size()>0) {
                     // this is a different method, implement
                     final String ruleName = pair.getRuleNameForMimics(type);
                     if (ruleName==null) {
-                        throw new ModelException("No idea how to implement "+type.getImage()+" "+methodName+"();");
+                        throw new ModelException("No idea how to implement "+type.getImage()+" "+signature+";");
                     }
-                    pair.getBase().getBody().addMethod(generateConverterImplementation(methodName, type, ruleName));
+                    pair.getBase().getBody().addMethod(generateConverterImplementation(signature, type, ruleName));
                 } else if (converterMethod!=null && !converterMethod.getResultType().equals(type)) {
-                    throw new ModelException("Wrong conversion method "+methodName+" required return type "+type+", actual "+converterMethod.getResultType());
+                    throw new ModelException("Wrong conversion method "+signature+" required return type "+type+", actual "+converterMethod.getResultType());
                 }
             }
         }
     }
 
-    private MethodDeclaration generateConverterImplementation(final String methodName, final Type type, String ruleName) {
+    private MethodDeclaration generateConverterImplementation(final String signature, final Type type, String ruleName) {
         StringBuilder builder = new StringBuilder();
         builder.append("protected final ")
                 .append(type.getImage())
                 .append(" ")
-                .append(methodName)
-                .append("() {")
+                .append(signature)
+                .append(" {")
                 .append("    return new ").append(type.getImage()).append("(SqlFactory.getInstance().")
                 .append(ruleName).append("(this));")
                 .append("    }");

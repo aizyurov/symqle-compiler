@@ -233,7 +233,7 @@ public class TestClassParsing extends TestCase {
         new InterfaceDeclarationsProcessor().process(node, model);
         new ClassDeclarationProcessor().process(node, model);
         final ClassDefinition baseClass = model.getClassPair("TestClass").getBase();
-        final MethodDeclaration dumpMethod = baseClass.getBody().getMethod("dump");
+        final MethodDeclaration dumpMethod = baseClass.getBody().getMethod("dump(OutputStream,boolean)");
         assertNotNull(dumpMethod);
         assertEquals(2, dumpMethod.getFormalParameters().size());
         assertEquals("final OutputStream os", dumpMethod.getFormalParameters().get(0).getImage());

@@ -5,5 +5,5 @@ public interface Scalar<T>
 
 public interface expression<T> extends Scalar<T> : Sql
 {
-    Integer z$create$expression();
+    Integer z$create$expression(final SqlContext context);
 }
