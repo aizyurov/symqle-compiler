@@ -10,7 +10,6 @@ import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -163,8 +162,9 @@ public class MethodDeclaration {
     public String getSignature() {
         final StringBuilder builder = new StringBuilder();
         builder.append(name)
+                .append("(")
                 .append(
-                    Utils.formatList(formalParameters, "(", ",", ")", new Function<String, FormalParameter>() {
+                    Utils.formatList(formalParameters, "", ",", "", new Function<String, FormalParameter>() {
                         @Override
                         public String apply(final FormalParameter formalParameter) {
                             // create erasure of Type
@@ -179,7 +179,8 @@ public class MethodDeclaration {
                             }
                             return innerBuilder.toString();
                         }
-                    }));
+                    }))
+                .append(")");
         return builder.toString();
     }
 }

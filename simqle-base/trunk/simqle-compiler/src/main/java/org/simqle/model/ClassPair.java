@@ -62,15 +62,13 @@ public class ClassPair {
     public void addMimics(final Type ancestor, final String ruleName)  throws ModelException {
         // we can add type if it is the same or if its pairName is different;
             // cannot mimic the same class with different type parameters
-            if (mimics.containsKey(ancestor)) {
-                return;
-            }
             for (Type m: mimics.keySet()) {
-                if (m.getNameChain().get(0).getName().equals(ancestor.getNameChain().get(0).getName())) {
+                if (m.getNameChain().get(0).getName().equals(ancestor.getNameChain().get(0).getName()) && (!m.equals(ancestor))) {
                     throw new ModelException("Cannot mimic one class with different type parameters");
                 }
             }
-            mimics.put(ancestor, ruleName);
+        // in case of double mimics the last one overwrites (thus ruleName will be set in ProductionDeclarationsProcessor if not set in ClassDeclarationsProcessor)
+        mimics.put(ancestor, ruleName);
     }
 
     public String getRuleNameForMimics(Type type) {

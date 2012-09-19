@@ -30,7 +30,7 @@ public class MimicsProcessor {
         // init unknown
         for (ClassPair pair: model.getAllClasses()) {
             final String className = pair.getExtension().getClassName();
-            if (!currentActiveSet.contains(className)) {
+            if (!nextActiveSet.contains(className)) {
                 unknown.add(className);
             }
         }
@@ -122,7 +122,7 @@ public class MimicsProcessor {
                 if (classPair==null) {
                     throw new ModelException("Class not found: "+type.getImage());
                 }
-                final String className = classPair.getBase().getClassName();
+                final String className = classPair.getExtension().getClassName();
                 final String signature = "to" + className+"()";
                 final MethodDeclaration converterMethod = pair.getBase().getBody().getMethod(signature);
                 if (converterMethod==null || converterMethod.getFormalParameters().size()>0) {
