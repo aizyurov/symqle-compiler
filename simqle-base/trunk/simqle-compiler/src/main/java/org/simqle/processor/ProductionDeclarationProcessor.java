@@ -109,7 +109,10 @@ public class ProductionDeclarationProcessor implements Processor {
                             throw new GrammarException("TypeParameters do not match to that in class definition: "+classTypeParameters, addendum);
                         }
                         // exactly one by syntax
-                        Body classBody = Utils.convertChildren(addendum, "ClassBody", Body.class).get(0);
+                        final String rawBody = addendum.find("ClassBody").get(0).getImage();
+                        final String replacement = "SqlFactory.getInstance()." + productionRule.getName();
+                        final String bodySource = rawBody.replaceAll("_APPLY_RULE_", replacement);
+                        Body classBody = Body.parseClassBody(bodySource);
                         // copy everything to base
                         Body targetBody = classPair.getBase().getBody();
                         try {

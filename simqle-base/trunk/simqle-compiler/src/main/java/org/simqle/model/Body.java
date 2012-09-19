@@ -3,9 +3,12 @@
 */
 package org.simqle.model;
 
+import org.simqle.parser.ParseException;
+import org.simqle.parser.SimpleNode;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
+import org.simqle.util.Utils;
 
 import java.util.*;
 
@@ -22,6 +25,18 @@ public class Body {
     private final Set<String> fieldNames = new HashSet<String>();
     private final List<String> otherDeclarations = new ArrayList<String>();
     private final List<ConstructorDeclaration> constructors = new ArrayList<ConstructorDeclaration>();
+
+    public static Body parseClassBody(String source) {
+        try {
+            final SimpleNode simpleNode = Utils.createParser(source).ClassBody();
+            return new Body(new SyntaxTree(simpleNode, source));
+        } catch (ParseException e) {
+            throw new RuntimeException("Internal error", e);
+        } catch (GrammarException e) {
+            throw new RuntimeException("Internal error", e);
+        }
+
+    }
 
     public Body(SyntaxTree node) throws GrammarException {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "InterfaceBody", "ClassBody");

@@ -1,0 +1,56 @@
+public interface Scalar<T>
+{
+    T value(final Element element);
+}
+
+public interface expression<T> extends Scalar<T> : Sql
+{}
+
+public class Expression<T> implements expression<T> with exBuilder
+{
+}
+
+public interface term<T> extends Scalar<T> : Sql
+{}
+
+public class Term<T> implements term<T> with tBuilder
+{
+}
+
+<T> expression<T> ::=
+    t:term<T>
+        :: Term<T> mimics Expression<T>
+{}
+|
+    e:expression<T> PLUS t:term<T>
+        :: Expression<T>
+        {
+            public Expression<T> add(final term t) {
+                return new Expression<T>(_APPLY_RULE_(this, t));
+            }
+        }
+;
+
+public interface primary<T> extends Scalar<T> : Sql
+{
+}
+
+public class Primary<T> implements primary<T> with pBuilder
+{}
+
+<T> term<T> ::=
+    p:primary<T>
+        :: Primary<T> mimics Term<T> {}
+|
+    t:term<T> ASTERISK p:primary<T>
+        :: Term<T>
+        {
+            public Term<T> mult(final primary<T> p) {
+                return new Term<T>(SqlFactory.getInstance()._APPLY_RULE_(this, p));
+            }
+        }
+;
+
+<T> primary<T> ::= LEFT_PAREN e:expression<T> RIGHT_PAREN
+    :: Expression<T> mimics Primary<T> {}
+;

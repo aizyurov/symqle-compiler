@@ -8,6 +8,7 @@ import org.simqle.processor.ClassDeclarationProcessor;
 import org.simqle.processor.InterfaceDeclarationsProcessor;
 import org.simqle.processor.MimicsProcessor;
 import org.simqle.processor.ProductionDeclarationProcessor;
+import org.simqle.test.TestUtils;
 
 import java.io.FileReader;
 
@@ -58,6 +59,37 @@ public class TestMimics extends TestCase {
 
         final MethodDeclaration privateMethod = extension.getBody().getMethod("hash(Integer)");
         assertNull(privateMethod);
+    }
+
+    public void testCyclic() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/CyclicMimics.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "CyclicMimics.sdl");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        new ProductionDeclarationProcessor().process(node, model);
+        new MimicsProcessor().process(model);
+        assertNotNull(model);
+        final ClassPair expression = model.getClassPair("Expression");
+        final ClassDefinition expressionBase = expression.getBase();
+        final ClassDefinition expressionExtension = expression.getExtension();
+        // add should be implemented directly in base
+        assertNotNull(expressionBase.getBody().getMethod("add(term)"));
+        final MethodDeclaration addMethod = expressionBase.getBody().getMethod("add(term)");
+        assertEquals("{ return new Expression<T>(SqlFactory.getInstance().expression_IS_expression_PLUS_term(this, t)); }", TestUtils.normalizeFormatting(addMethod.getMethodBody()));
+
+        assertNull(expressionExtension.getBody().getMethod("add(term)"));
+        // mult should be implemented by delegation
+        assertNull(expressionBase.getBody().getMethod("mult(primary)"));
+        assertNotNull(expressionExtension.getBody().getMethod("mult(primary)"));
+        final MethodDeclaration delegatedMultMethod = expressionExtension.getBody().getMethod("mult(primary)");
+        assertEquals("{ return toPrimary().mult(p); }", TestUtils.normalizeFormatting(delegatedMultMethod.getMethodBody()));
+
+        // primary must in turn delegate to Term
+        final MethodDeclaration delegatedMult2 = model.getClassPair("Primary").getExtension().getBody().getMethod("mult(primary)");
+        assertNotNull(delegatedMult2);
+        assertEquals("{ return toTerm().mult(p); }", TestUtils.normalizeFormatting(delegatedMult2.getMethodBody()));
+
     }
 
 }
