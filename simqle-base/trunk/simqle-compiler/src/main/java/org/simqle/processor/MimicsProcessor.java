@@ -20,8 +20,89 @@ public class MimicsProcessor {
         for (String signature: primaryImplementors.keySet()) {
             createDelegatingMethods(signature, model, primaryImplementors.get(signature));
         }
+        final List<InterfaceDefinition> allInterfaces = model.getAllInterfaces();
+        final Map<String, Set<String>> interfacePrimaryImplementors = collectInterfaces(model);
+        for (String name: interfacePrimaryImplementors.keySet()) {
+            createImplementedInterfaces(name, interfacePrimaryImplementors.get(name), model);
+        }
 
     }
+
+    private void createImplementedInterfaces(final String interfaceName, final Set<String> primaryImplementors, final Model model) throws ModelException {
+        Set<String> currentActiveSet = new HashSet<String>();
+        Set<String> nextActiveSet = new HashSet<String>(primaryImplementors);
+        Set<String> unknown = new HashSet<String>();
+
+        // init unknown
+        for (ClassPair pair: model.getAllClasses()) {
+            final String className = pair.getExtension().getClassName();
+            if (!nextActiveSet.contains(className)) {
+                unknown.add(className);
+            }
+        }
+
+        while (!nextActiveSet.isEmpty()) {
+            currentActiveSet.clear();
+            currentActiveSet.addAll(nextActiveSet);
+            nextActiveSet.clear();
+            for (Iterator<String> iterator = unknown.iterator(); iterator.hasNext(); ) {
+                final String candidateName = iterator.next();
+                final ClassPair candidate = model.getClassPair(candidateName);
+                Set<Type> ancestorCandidates = new HashSet<Type>();
+                for (Type virtualAncestor: candidate.getMimics()) {
+                    final ClassPair classPair = model.findClassPair(virtualAncestor);
+                    if (currentActiveSet.contains(classPair.getExtension().getClassName())) {
+                        ancestorCandidates.add(virtualAncestor);
+                    }
+                }
+                if (ancestorCandidates.isEmpty()) {
+                    continue;
+                }
+                final Type chosenAncestorType = ancestorCandidates.iterator().next();
+                if (ancestorCandidates.size()>1) {
+                    System.err.println("Multiple candidates for delegation of "+interfaceName+" in "+candidateName+"; chosing "+chosenAncestorType.getImage());
+                }
+                final ClassPair chosenAncestor = model.findClassPair(chosenAncestorType);
+                List<Type> interfaces = new ArrayList<Type>(chosenAncestor.getExtension().getImplementedInterfaces());
+                interfaces.addAll(chosenAncestor.getBase().getImplementedInterfaces());
+                Type interfaceToImplement = null;
+                for (Type interfaceToTest: interfaces) {
+                    if (interfaceToTest.getNameChain().get(interfaceToTest.getNameChain().size()-1).getName().equals(interfaceName)) {
+                        interfaceToImplement = interfaceToTest;
+                        break;
+                    }
+                }
+                if (interfaceToImplement==null) {
+                    throw new IllegalStateException("Interface "+interfaceName+" expected but not found in class "+chosenAncestor.getExtension().getClassName());
+                }
+                // parameters substitution
+                Type implementedInterface = Utils.substituteTypeArguments(chosenAncestorType.getNameChain().get(0).getTypeArguments(), chosenAncestor.getExtension().getTypeParameters(), interfaceToImplement);
+                candidate.getExtension().addImplementedInterface(implementedInterface);
+                nextActiveSet.add(candidate.getExtension().getClassName());
+                iterator.remove();
+            }
+        }
+    }
+
+    private Map<String, Set<String>> collectInterfaces(Model model) {
+        Map<String, Set<String>> interfaceImplementationMap = new HashMap<String, Set<String>>();
+        for (ClassPair pair: model.getAllClasses()) {
+
+            final List<Type> interfaces = pair.getExtension().getImplementedInterfaces();
+            interfaces.addAll(pair.getBase().getImplementedInterfaces());
+            for (Type type: interfaces) {
+                final String interfaceName = type.getNameChain().get(type.getNameChain().size() - 1).getName();
+                Set<String> implementors = interfaceImplementationMap.get(interfaceName);
+                if (implementors==null) {
+                    implementors = new HashSet<String>();
+                    interfaceImplementationMap.put(interfaceName, implementors);
+                }
+                implementors.add(pair.getExtension().getClassName());
+            }
+        }
+        return interfaceImplementationMap;
+    }
+
 
     private void createDelegatingMethods(final String signature, final Model model, final Set<String> primaryImplementors) throws ModelException {
         Set<String> currentActiveSet = null;
@@ -61,7 +142,7 @@ public class MimicsProcessor {
                 // now construct the delegating method
                 // substitute type parameters
                 final Type delegateResultType = methodToDelegate.getResultType();
-                final Type myResultType = Utils.substituteTypeArguments(chosenAncestorType.getNameChain().get(0).getTypeArguments(), candidate.getExtension().getTypeParameters(), delegateResultType);
+                final Type myResultType = Utils.substituteTypeArguments(chosenAncestorType.getNameChain().get(0).getTypeArguments(), chosenAncestor.getExtension().getTypeParameters(), delegateResultType);
 
                 final List<FormalParameter> delegateFormalParameters = methodToDelegate.getFormalParameters();
                 final List<FormalParameter> myFormalParameters = new ArrayList<FormalParameter>(delegateFormalParameters.size());

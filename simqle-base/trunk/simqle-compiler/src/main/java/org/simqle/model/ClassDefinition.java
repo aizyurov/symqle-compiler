@@ -80,7 +80,7 @@ public class ClassDefinition {
     }
 
     public List<Annotation> getAnnotations() {
-        return annotations;
+        return new ArrayList<Annotation>(annotations);
     }
 
     public final String getPairName() {
@@ -88,7 +88,7 @@ public class ClassDefinition {
     }
 
     public List<TypeParameter> getTypeParameters() {
-        return typeParameters;
+        return new ArrayList<TypeParameter>(typeParameters);
     }
 
     public Type getExtendedClass() {
@@ -96,7 +96,7 @@ public class ClassDefinition {
     }
 
     public List<Type> getImplementedInterfaces() {
-        return implementedInterfaces;
+        return new ArrayList<Type>(implementedInterfaces);
     }
 
     public Body getBody() {
@@ -105,6 +105,11 @@ public class ClassDefinition {
 
     public String getClassName() {
         return getPairName();
+    }
+
+    public void addImplementedInterface(final Type interfaceType) {
+        // TODO check for duplicates
+        implementedInterfaces.add(interfaceType);
     }
 
 }

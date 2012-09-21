@@ -11,6 +11,9 @@ import org.simqle.processor.ProductionDeclarationProcessor;
 import org.simqle.test.TestUtils;
 
 import java.io.FileReader;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -59,6 +62,11 @@ public class TestMimics extends TestCase {
 
         final MethodDeclaration privateMethod = extension.getBody().getMethod("hash(Integer)");
         assertNull(privateMethod);
+
+        final List<Type> implementedInterfaces = extension.getImplementedInterfaces();
+        assertEquals(1, implementedInterfaces.size());
+        final Type interfaceType = implementedInterfaces.get(0);
+        assertEquals("expression<Boolean>", interfaceType.getImage());
     }
 
     public void testCyclic() throws Exception {
@@ -77,6 +85,15 @@ public class TestMimics extends TestCase {
         assertNotNull(expressionBase.getBody().getMethod("add(term)"));
         final MethodDeclaration addMethod = expressionBase.getBody().getMethod("add(term)");
         assertEquals("{ return new Expression<T>(SqlFactory.getInstance().expression_IS_expression_PLUS_term(this, t)); }", TestUtils.normalizeFormatting(addMethod.getMethodBody()));
+        final List<Type> expressionInterfaces = expressionExtension.getImplementedInterfaces();
+        assertEquals(2, expressionInterfaces.size());
+        Set<String> typeImages = new HashSet<String>();
+        for (Type t: expressionInterfaces) {
+            typeImages.add(t.getImage());
+        }
+        assertEquals(2, typeImages.size());
+        assertTrue(typeImages.contains("term<T>"));
+        assertTrue(typeImages.contains("primary<T>"));
 
         assertNull(expressionExtension.getBody().getMethod("add(term)"));
         // mult should be implemented by delegation
