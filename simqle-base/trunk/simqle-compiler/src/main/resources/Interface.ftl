@@ -5,23 +5,23 @@
 
 package ${packageName};
 
-<#list imports as import>${import}
+<#list definition.importLines as import>${import}
 </#list>
 
-${comment}
+${definition.comment}
 /**
 * Represents
 * ${name}
 * symbol of SQL language.
 <#if typeParameters != "">
-* @param <${firstTypeParameter}> type, to which this object can be converted when appears in the result set</#if>
+* @param <${definition.typeParameters[0]}> type, to which this object can be converted when appears in the result set</#if>
 */
 <#list modifiers as modifier>${modifier} </#list> interface ${name}${typeParameters} ${extendsList}{
-<#list methods as method>${method.comment}
-    ${method.signature};
+<#list definition.body.methods as method>${method.comment}
+    ${method.declaration};
 
 </#list>
-<#list otherDeclarations as declaration>${declaration}
+<#list definition.body.otherDeclarations as declaration>${declaration}
 
 </#list>
 }

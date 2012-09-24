@@ -44,18 +44,6 @@ public class InterfaceModel {
                 });
     }
 
-    public List<String> getImports() {
-        return definition.getImportLines();
-    }
-
-    public String getFirstTypeParameter() {
-        final List<TypeParameter> parameters = definition.getTypeParameters();
-        if (parameters.isEmpty()) {
-            throw new IllegalStateException("This interface has no parameters");
-        }
-        return parameters.get(0).getName();
-    }
-
     public List<String> getModifiers() {
         List<String> modifiers = new ArrayList<String>();
         modifiers.add(definition.getAccessModifier());
@@ -70,18 +58,6 @@ public class InterfaceModel {
                         return type.getImage();
                     }
                 });
-    }
-
-    public List<MethodDeclaration> getMethods() {
-        return definition.getBody().getMethods();
-    }
-
-    public List<String> getOtherDeclarations() {
-        return definition.getBody().getOtherDeclarations();
-    }
-
-    public String getComment() {
-        return definition.getComment();
     }
 
 }

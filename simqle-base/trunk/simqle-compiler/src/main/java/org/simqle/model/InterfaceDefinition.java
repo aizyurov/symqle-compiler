@@ -74,10 +74,9 @@ public class InterfaceDefinition {
         } else if (isSql) {
             this.importLines.add("import org.simqle.Sql;");
         }
-        if (isScalar()) {
-            this.importLines.add("import org.simqle.Scalar;");
+        if (isSql || isQuery) {
+            this.importLines.add("import org.simqle.SqlContext;");
         }
-        this.importLines.add("import org.simqle.SqlContext;");
         this.isQuery = isQuery;
         this.isSql = isSql;
         this.queryTypeParameter = queryParameter;
@@ -146,15 +145,6 @@ public class InterfaceDefinition {
 
     public TypeParameter getQueryTypeParameter() {
         return queryTypeParameter;
-    }
-
-    private boolean isScalar() {
-        for (Type extendedType: extended) {
-            if (extendedType.getNameChain().size()==1 && extendedType.getNameChain().get(0).getName().equals("Scalar")) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private void validateScalarExtension(SyntaxTree node) throws GrammarException {

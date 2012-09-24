@@ -183,4 +183,40 @@ public class MethodDeclaration {
                 .append(")");
         return builder.toString();
     }
+
+    /**
+     * Declaration (everything but body)
+     * @return
+     */
+    public String getDeclaration() {
+        final StringBuilder builder = new StringBuilder();
+        builder.append(Utils.formatList(typeParameters, "<", ",", "> ", new Function<String, TypeParameter>() {
+            @Override
+            public String apply(final TypeParameter typeParameter) {
+                return typeParameter.getImage();
+            }
+        }));
+        builder.append(accessModifier).append(" ");
+        builder.append(resultType.getImage()).append(" ");
+        builder.append(name).append("(");
+        builder.append(                    Utils.formatList(formalParameters, "", ",", "", new Function<String, FormalParameter>() {
+                        @Override
+                        public String apply(final FormalParameter formalParameter) {
+                            // create erasure of Type
+                            final Type type = formalParameter.getType();
+                            final List<TypeNameWithTypeArguments> nameChain = type.getNameChain();
+                            StringBuilder innerBuilder = new StringBuilder();
+                            for (TypeNameWithTypeArguments typeNameWTA: nameChain) {
+                                if (innerBuilder.length()>0) {
+                                    innerBuilder.append(".");
+                                }
+                                innerBuilder.append(typeNameWTA.getName());
+                            }
+                            return innerBuilder.toString();
+                        }
+                    }));
+        builder.append(") ");
+        builder.append(throwsClause).append(throwsClause.equals("") ? "" : " ");
+        return builder.toString();
+    }
 }
