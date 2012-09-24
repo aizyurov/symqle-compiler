@@ -22,8 +22,8 @@ public abstract class SqlFactory {
         return new GenericSqlFactory();
     }
 
-<#list productions as production>
-    public abstract ${production.declaration};
+<#list factoryMethods as factoryMethod>
+    public abstract ${factoryMethod.methodDeclaration.declarationWithoutModifiers};
 </#list>
 
 }

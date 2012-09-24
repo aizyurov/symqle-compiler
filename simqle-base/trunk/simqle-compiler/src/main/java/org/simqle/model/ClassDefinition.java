@@ -112,4 +112,18 @@ public class ClassDefinition {
         implementedInterfaces.add(interfaceType);
     }
 
+    public String getImplementsStatement() {
+        return Utils.formatList(implementedInterfaces, "implements ", ", ", "", new Function<String, Type>() {
+            @Override
+            public String apply(final Type type) {
+                return type.getImage();
+            }
+        });
+    }
+
+    public String getExtendsStatement() {
+        return extendedClass == null ? "" :
+                "extends "+extendedClass.getImage();
+    }
+
 }

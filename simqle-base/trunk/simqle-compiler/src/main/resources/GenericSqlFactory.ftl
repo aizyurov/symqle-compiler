@@ -5,29 +5,23 @@
 
 package ${packageName};
 
-import java.sql.SQLException;
-import org.simqle.core.FromClause;
-
 <#list imports as import>${import}
+</#list>
+<#list implementationImports as import>${import}
 </#list>
 
 import org.simqle.*;
 import static org.simqle.SqlTerminal.*;
 
 /**
-* This class implements Sql language productions according to sql-2003 specification.
+* This class defines methods, implementing Sql language productions.
+* Method names are self-descriptive.
 */
 
 public class GenericSqlFactory extends SqlFactory {
 
-<#list productions as production>
-    public ${production.declaration} {
-
-${production.implementation}
-
-}
-// end of ${production.methodName}
-
+<#list factoryMethods as factoryMethod>
+    public ${factoryMethod.methodDeclaration.declarationWithoutModifiers} ${factoryMethod.methodDeclaration.methodBody}
 </#list>
 
 }

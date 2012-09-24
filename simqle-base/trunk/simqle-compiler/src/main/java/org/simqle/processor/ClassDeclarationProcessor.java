@@ -30,7 +30,7 @@ public class ClassDeclarationProcessor implements Processor {
                 final SyntaxTree simqleClassDeclaration = simqleClassDeclarations.get(0);
                 ClassDefinition baseClassDefinition = new BaseClassDefinition(simqleClassDeclaration);
                 try {
-                    addFields(simqleClassDeclaration.find("SimqleInterfaces.ImplementedInterface"), baseClassDefinition.getBody(), baseClassDefinition.getPairName(), model);
+                    addFields(simqleClassDeclaration.find("SimqleInterfaces.ImplementedInterface"), baseClassDefinition.getBody(), baseClassDefinition.getClassName(), model);
                     ClassDefinition extensionClassDefinition = createExtensionClass(baseClassDefinition);
                     final ClassPair classPair = new ClassPair(baseClassDefinition, extensionClassDefinition);
                     classPair.addPublishedImports(Utils.bodies(importDeclarations));

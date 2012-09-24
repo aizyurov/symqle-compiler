@@ -99,5 +99,25 @@ public class ConstructorDeclaration {
         return builder.toString();
     }
 
-
+    public String getImage() {
+        StringBuilder builder = new StringBuilder();
+        builder.append(accessModifier).append(" ");
+        builder.append(Utils.formatList(typeParameters, "<", ", ", "> ", new Function<String, TypeParameter>() {
+            @Override
+            public String apply(final TypeParameter typeParameter) {
+                return typeParameter.getImage();
+            }
+        }));
+        builder.append(name);
+        builder.append("(");
+        builder.append(Utils.formatList(formalParameters, "", ", ", "", new Function<String, FormalParameter>() {
+            @Override
+            public String apply(final FormalParameter formalParameter) {
+                return formalParameter.getImage();
+            }
+        }));
+        builder.append(") ");
+        builder.append(body);
+        return builder.toString();
+    }
 }

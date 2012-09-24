@@ -81,7 +81,7 @@ public class Body {
                 } else if (type.equals("ConstructorDeclaration")){
                     unsafeAddConstructorDeclaration(new ConstructorDeclaration(child));
                 } else {
-                    // just copy to other otherDeclarations
+                    // just copy to other otherDeclarations         ClassDef
                     otherDeclarations.add(child.getImage());
                 }
             }
@@ -157,6 +157,30 @@ public class Body {
         for (String otherDeclaration: another.otherDeclarations) {
             addOtherDeclaration(otherDeclaration);
         }
+    }
+
+    public String toString() {
+
+        StringBuilder builder = new StringBuilder();
+        builder.append("{").append(Utils.LINE_BREAK);
+        for (FieldDeclaration field: fields) {
+            builder.append(field.getImage()).append(Utils.LINE_BREAK);
+        }
+        builder.append(Utils.LINE_BREAK);
+        for (ConstructorDeclaration ctr: constructors) {
+            builder.append(ctr.getImage());
+        }
+        builder.append(Utils.LINE_BREAK);
+        for (MethodDeclaration method: methods.values()) {
+            builder.append(method.getDeclaration()).append(" ").append(method.getMethodBody());
+            builder.append(Utils.LINE_BREAK);
+        }
+        builder.append(Utils.LINE_BREAK);
+        for (String otherDeclaration: otherDeclarations) {
+            builder.append(otherDeclaration).append(Utils.LINE_BREAK);
+        }
+        builder.append("}").append(Utils.LINE_BREAK);
+        return builder.toString();
     }
 
 }
