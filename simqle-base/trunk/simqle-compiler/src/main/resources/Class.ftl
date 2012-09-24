@@ -8,7 +8,8 @@ package ${packageName};
 
 <#list imports as import>${import}
 </#list>
+import org.simqle.*;
 
-class ${classPair.base.className} ${classPair.base.extendsStatement} ${classPair.base.implementsStatement} ${classPair.base.body}
+class ${classPair.base.className}${classPair.base.typeParametersString} ${classPair.base.extendsStatement} ${classPair.base.implementsStatement} ${classPair.base.body}
 
-public class ${classPair.extension.className} ${classPair.extension.extendsStatement} ${classPair.extension.implementsStatement} ${classPair.extension.body}
+public class ${classPair.extension.className}${classPair.extension.typeParametersString} ${classPair.extension.extendsStatement} ${classPair.extension.implementsStatement} ${classPair.extension.body}

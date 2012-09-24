@@ -20,8 +20,11 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
+import org.simqle.generator.*;
+import org.simqle.processor.Director;
 
-import java.io.*;
+import java.io.File;
+import java.io.FilenameFilter;
 
 /**
  * Goal which touches a timestamp file.
@@ -45,7 +48,7 @@ public class MyMojo
     /**
      * The directory where generated sources are put. This directory is included
      * to project sources.
-     * @parameter expression="${outputDirectory}" default-value="${project.build.directory}/generated-sources/main/simqle"
+     * @parameter expression="${outputDirectory}" default-value="${project.build.directory}/generated-sources/main/"
      * @required
      */
     private File outputDirectory;
@@ -53,7 +56,7 @@ public class MyMojo
     /**
      * The directory where generated test sources are put. This directory is included
      * to project test sources.
-     * @parameter expression="${testOutputDirectory}" default-value="${project.build.directory}/generated-sources/test/simqle"
+     * @parameter expression="${testOutputDirectory}" default-value="${project.build.directory}/generated-sources/test/"
      * @required
      */
     private File testOutputDirectory;
@@ -73,29 +76,23 @@ public class MyMojo
         prepareDirectory(outputDirectory);
         prepareDirectory(testOutputDirectory);
 
-//        final Model model = new Model();
-//        final GrammarParser modeler = new GrammarParser();
-//        for (File source: sourceDirectory.listFiles(new FileFilter() {
-//            public boolean accept(File pathname) {
-//                return pathname.isFile() && pathname.getPairName().endsWith(".sdl");
-//            }
-//        })) {
-//            final SyntaxTree syntaxTree = parseSourceFile(source);
-//            try {
-//                modeler.process(model, syntaxTree);
-//            } catch (GrammarException e) {
-//                throw new MojoFailureException(e.getMessage());
-//            }
-//        }
-//        CodeGenerator codeGenerator = new CodeGenerator();
-//        try {
-//            codeGenerator.generate(outputDirectory, model);
-//            codeGenerator.generateTestSources(testOutputDirectory, model);
-//        } catch (IOException e) {
-//            throw new MojoExecutionException("Code generation failed", e);
-//        } catch (TemplateException e) {
-//            throw new MojoExecutionException("Code generation failed", e);
-//        }
+        final Director director = new Director(new Generator[]{
+                new InterfaceGenerator(),
+                new ClassGenerator(),
+                new FactoryGenerator(),
+                new GenericFactoryGenerator()
+        });
+        try {
+            director.doAll(sourceDirectory.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(final File dir, final String name) {
+                    return name.endsWith(".sdl");
+                }
+            }), outputDirectory);
+        } catch (Exception e) {
+            throw new MojoFailureException(e.toString());
+        }
+
         project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
         project.addTestCompileSourceRoot(testOutputDirectory.getAbsolutePath());
     }

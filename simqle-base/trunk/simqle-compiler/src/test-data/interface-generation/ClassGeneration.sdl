@@ -25,7 +25,7 @@ public class Term<T> implements term<T> with tBuilder
     e:expression<T> PLUS t:term<T>
         :: Expression<T>
         {
-            public Expression<T> add(final term t) {
+            public Expression<T> add(final term<T> t) {
                 return new Expression<T>(_APPLY_RULE_(this, t));
             }
         }

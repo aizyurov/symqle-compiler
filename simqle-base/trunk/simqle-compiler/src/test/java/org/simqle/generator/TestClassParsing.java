@@ -65,7 +65,7 @@ public class TestClassParsing extends TestCase {
             assertEquals(1, body.getConstructors().size());
             final ConstructorDeclaration constructor = body.getConstructors().get(0);
             // actually the constructor name should be @SelectStatement$", the assigned value will be ignored at class generation
-            assertEquals("SelectStatement", constructor.getName());
+            assertEquals("SelectStatement$", constructor.getName());
             assertEquals(1, constructor.getFormalParameters().size());
             assertEquals("final select_statement<T> sqlBuilder", constructor.getFormalParameters().get(0).getImage());
         }
@@ -174,6 +174,7 @@ public class TestClassParsing extends TestCase {
             Processor processor = new ProductionDeclarationProcessor();
             processor.process(node, model);
         }
+        new MimicsProcessor().process(model);
         {
             final ClassPair classPair = model.getClassPair("Column");
             final ClassDefinition derived = classPair.getExtension();

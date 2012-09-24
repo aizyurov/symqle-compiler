@@ -15,6 +15,7 @@ import java.util.*;
 public class MimicsProcessor {
 
     public void process(final Model model) throws ModelException {
+        addConstructorsForDerivedClasses(model);
         createConverterMethods(model);
         final Map<String, Set<String>> primaryImplementors = collectPrimaryImplementors(model);
         for (String signature: primaryImplementors.keySet()) {
@@ -27,6 +28,37 @@ public class MimicsProcessor {
         }
 
     }
+
+    private void addConstructorsForDerivedClasses(final Model model) {
+        for (ClassPair classPair : model.getAllClasses()) {
+            final ClassDefinition baseClassDefinition = classPair.getBase();
+            final ClassDefinition extensionClassDefinition = classPair.getExtension();
+            // transfer all constructors keeping signature; implement as call to super() with same arguments
+            for (final ConstructorDeclaration constructor : baseClassDefinition.getBody().getConstructors()) {
+                final List<FormalParameter> formalParameters = constructor.getFormalParameters();
+                StringBuilder argumentsBuilder = new StringBuilder();
+                for (FormalParameter formalParameter: formalParameters) {
+                    if (argumentsBuilder.length()>0) {
+                        argumentsBuilder.append(", ");
+                    }
+                    argumentsBuilder.append(formalParameter.getName());
+                }
+
+                StringBuilder parametersBuilder = new StringBuilder();
+                for (FormalParameter formalParameter: formalParameters) {
+                    if (parametersBuilder.length()>0) {
+                        parametersBuilder.append(", ");
+                    }
+                    parametersBuilder.append(formalParameter.getImage());
+                }
+                final String constructorSource = String.format(EXTENSION_CONSTRUCTOR_FORMAT, baseClassDefinition.getPairName(),parametersBuilder.toString(),
+                        argumentsBuilder.toString());
+                final ConstructorDeclaration constructorDeclaration = ConstructorDeclaration.parse(constructorSource);
+                extensionClassDefinition.getBody().unsafeAddConstructorDeclaration((constructorDeclaration));
+            }
+        }
+    }
+
 
     private void createImplementedInterfaces(final String interfaceName, final Set<String> primaryImplementors, final Model model) throws ModelException {
         Set<String> currentActiveSet = new HashSet<String>();
@@ -232,4 +264,8 @@ public class MimicsProcessor {
                 .append("    }");
         return MethodDeclaration.parse(builder.toString());
     }
+
+    private final static String EXTENSION_CONSTRUCTOR_FORMAT = "public %s(%s) { super(%s); }";
+
+
 }

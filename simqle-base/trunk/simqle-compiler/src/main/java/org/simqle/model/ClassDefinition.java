@@ -126,4 +126,13 @@ public class ClassDefinition {
                 "extends "+extendedClass.getImage();
     }
 
+    public String getTypeParametersString() {
+        return Utils.formatList(typeParameters, "<", ",", ">", new Function<String, TypeParameter>() {
+            @Override
+            public String apply(final TypeParameter typeParameter) {
+                return typeParameter.getImage();
+            }
+        });
+    }
+
 }

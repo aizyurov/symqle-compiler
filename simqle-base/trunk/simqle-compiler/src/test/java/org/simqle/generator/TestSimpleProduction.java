@@ -122,7 +122,7 @@ public class TestSimpleProduction extends TestCase {
             assertEquals(1, body.getConstructors().size());
             final ConstructorDeclaration constructor = body.getConstructors().get(0);
             // actually the constructor name should be @SelectStatement$", the assigned value will be ignored at class generation
-            assertEquals("CursorSpecification", constructor.getName());
+            assertEquals("CursorSpecification$", constructor.getName());
             assertEquals(1, constructor.getFormalParameters().size());
             assertEquals("final cursor_specification<T> sqlBuilder", constructor.getFormalParameters().get(0).getImage());
             assertEquals("{ this.sqlBuilder = sqlBuilder; }", TestUtils.normalizeFormatting(constructor.getBody()));
@@ -136,13 +136,8 @@ public class TestSimpleProduction extends TestCase {
             assertEquals(0, body.getMethods().size());
             assertEquals(0, body.getFields().size());
             assertNotNull(def.getExtendedClass());
-            assertEquals(1, body.getConstructors().size());
-            // should have a constructor in extension class with the same parameter(s) as in the base class
-            final ConstructorDeclaration constructor = body.getConstructors().get(0);
-            assertEquals("CursorSpecification", constructor.getName());
-            assertEquals(1, constructor.getFormalParameters().size());
-            assertEquals("final cursor_specification<T> sqlBuilder", constructor.getFormalParameters().get(0).getImage());
-            assertEquals("{ super(sqlBuilder); }", TestUtils.normalizeFormatting(constructor.getBody()));
+            // constructors are added later by MimicsProcessor
+            assertEquals(0, body.getConstructors().size());
         }
 
         {

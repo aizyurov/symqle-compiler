@@ -47,7 +47,7 @@ public class TestGeneration extends TestCase {
             "public  interface Scalar<T> {\n" +
             "\n" +
             "    \n" +
-            "     T value(Element) ;\n" +
+            "     T value(Element element) ;\n" +
             "\n" +
             "}\n";
 
@@ -87,14 +87,14 @@ public class TestGeneration extends TestCase {
             "        * @param context the Sql construction context\n" +
             "        * @return query conforming to <code>this</code> syntax\n" +
             "        */\n" +
-            "        Query<T> z$create$select_statement_scalar(SqlContext) ;\n" +
+            "        Query<T> z$create$select_statement_scalar(final SqlContext context) ;\n" +
             "\n" +
             "        /**\n" +
             "        * Prepares SQL context for construction of select_statement_scalar Sql clause\n" +
             "        * @param context the Sql construction context\n" +
             "        */\n" +
             "        \n" +
-            "     void z$prepare$select_statement_scalar(SqlContext) ;\n" +
+            "     void z$prepare$select_statement_scalar(final SqlContext context) ;\n" +
             "\n" +
             "}\n";
 }

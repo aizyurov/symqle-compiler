@@ -4,10 +4,7 @@ import junit.framework.TestCase;
 import org.simqle.model.*;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
-import org.simqle.processor.ClassDeclarationProcessor;
-import org.simqle.processor.GrammarException;
-import org.simqle.processor.InterfaceDeclarationsProcessor;
-import org.simqle.processor.ProductionDeclarationProcessor;
+import org.simqle.processor.*;
 import org.simqle.test.TestUtils;
 
 import java.io.FileReader;
@@ -31,6 +28,7 @@ public class TestManualProduction extends TestCase {
         new InterfaceDeclarationsProcessor().process(node, model);
         new ClassDeclarationProcessor().process(node, model);
         new ProductionDeclarationProcessor().process(node, model);
+        new MimicsProcessor().process(model);
         verifyBooleanExpressionClass(model);
         verifyProductionMethod(model);
     }
@@ -42,6 +40,7 @@ public class TestManualProduction extends TestCase {
         new InterfaceDeclarationsProcessor().process(node, model);
         new ClassDeclarationProcessor().process(node, model);
         new ProductionDeclarationProcessor().process(node, model);
+        new MimicsProcessor().process(model);
         verifyBooleanExpressionClass(model);
         verifyProductionMethod(model);
         final List<String> otherDeclarations = model.getClassPair("BooleanExpression").getBase().getBody().getOtherDeclarations();
