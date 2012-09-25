@@ -180,7 +180,7 @@ public class MimicsProcessor {
                 final List<FormalParameter> myFormalParameters = new ArrayList<FormalParameter>(delegateFormalParameters.size());
                 for (FormalParameter parameter: delegateFormalParameters) {
                     myFormalParameters.add(new FormalParameter(
-                            Utils.substituteTypeArguments(chosenAncestorType.getNameChain().get(0).getTypeArguments(), candidate.getExtension().getTypeParameters(), parameter.getType()),
+                            Utils.substituteTypeArguments(chosenAncestorType.getNameChain().get(0).getTypeArguments(), chosenAncestor.getBase().getTypeParameters(), parameter.getType()),
                             parameter.getName(),
                             parameter.getModifiers()
                     ));
@@ -194,13 +194,13 @@ public class MimicsProcessor {
                         "", // TODO add comment
                         "{ "+
                                 (myResultType.equals(Type.VOID) ? "" : "return ")
-                                +"to"+chosenAncestor.getExtension().getClassName()+"()."+methodToDelegate.getName()+
-                                Utils.formatList(myFormalParameters, "(", ", ", ")", new Function<String, FormalParameter>() {
+                                +"to"+chosenAncestor.getExtension().getClassName()+"()."+methodToDelegate.getName()+"("+
+                                Utils.formatList(myFormalParameters, "", ", ", "", new Function<String, FormalParameter>() {
                                     @Override
                                     public String apply(final FormalParameter formalParameter) {
                                         return formalParameter.getName();
                                     }
-                                })+"; }"
+                                })+"); }"
                         ));
                 nextActiveSet.add(candidate.getExtension().getClassName());
                 iterator.remove();

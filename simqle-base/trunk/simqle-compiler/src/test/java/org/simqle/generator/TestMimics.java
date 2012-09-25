@@ -109,4 +109,34 @@ public class TestMimics extends TestCase {
 
     }
 
+    public void testTypedMimicsUntyped() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/TypedMimicsUntyped.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "TypedMimicsUntyped.sdl");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        new ProductionDeclarationProcessor().process(node, model);
+        new MimicsProcessor().process(model);
+        final ClassDefinition valueClass = model.getClassPair("Value").getExtension();
+        final MethodDeclaration createMethod = valueClass.getBody().getMethod("z$create$sort_key(SqlContext)");
+        assertNotNull(createMethod);
+        assertEquals("Sql", createMethod.getResultType().getImage());
+    }
+
+    public void testNoArgMethodInMimics() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/TypedMimicsUntyped.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "TypedMimicsUntyped.sdl");
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
+        new ProductionDeclarationProcessor().process(node, model);
+        new MimicsProcessor().process(model);
+        final ClassDefinition valueClass = model.getClassPair("Value").getExtension();
+        final MethodDeclaration noArgMethod = valueClass.getBody().getMethod("noArgMethod()");
+        assertNotNull(noArgMethod);
+        assertEquals("void", noArgMethod.getResultType().getImage());
+        assertEquals("{ toSortKey().noArgMethod(); }", TestUtils.normalizeFormatting(noArgMethod.getMethodBody()));
+
+    }
+
 }
