@@ -280,7 +280,11 @@ public class ProductionDeclarationProcessor implements Processor {
                     if (i==delegateIndex) {
                         builder.append(queryVariableName);
                     } else {
-                        builder.append(elements.get(i).getName());
+                        final ProductionRule.RuleElement ruleElement = elements.get(i);
+                        builder.append(ruleElement.getName());
+                        if (!ruleElement.isConst()) {
+                            builder.append(".z$create$").append(ruleElement.getType().getNameChain().get(0).getName()).append("(context)");
+                        }
                     }
                 }
                 builder.append(")\n");
