@@ -433,7 +433,7 @@ public class TestSimpleProduction extends TestCase {
                 "    }\n" +
                 "    @Override\n" +
                 "    public Query<T> z$create$query_base(final SqlContext context) {\n" +
-                "        final DataExtractor<T> list_query = list.z$create$select_list(context); \n" +
+                "        final Query<T> list_query = list.z$create$select_list(context); \n" +
                 "        return new CompoundQuery<T>(list_query, new CompositeSql(SELECT, list_query)\n" +
                 "            );\n" +
                 "        }\n" +

@@ -270,7 +270,7 @@ public class ProductionDeclarationProcessor implements Processor {
                 final ProductionRule.RuleElement delegate = elements.get(delegateIndex);
                 final String delegateTypeName = delegate.getType().getNameChain().get(0).getName();
                 final String queryVariableName = delegate.getName()+"_query";
-                builder.append("        final DataExtractor<"+typeArgument+"> "+queryVariableName+" = "+delegate.getName()+".z$create$"+delegateTypeName+"(context); \n");
+                builder.append("        final Query<"+typeArgument+"> "+queryVariableName+" = "+delegate.getName()+".z$create$"+delegateTypeName+"(context); \n");
                 builder.append("        return new CompoundQuery<"+typeArgument+">(");
                 builder.append(queryVariableName+", new CompositeSql(");
                 for (int i=0; i<elements.size(); i++) {
