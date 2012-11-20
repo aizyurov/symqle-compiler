@@ -25,7 +25,7 @@ public class Utils {
         throw new RuntimeException("No instances: utility class");
     }
 
-    public static Type substituteTypeArguments(final List<TypeArgument> typeArgumentsActual, final List<TypeParameter> typeParameters, final Type paramType) {
+    public static Type substituteTypeArguments(final List<TypeArgument> typeArgumentsActual, final List<TypeParameter> typeParameters, final Type paramType) throws ModelException {
         return paramType == null ? null :
                 new Type(substituteTypeArguments(paramType.getNameChain(), typeParameters, typeArgumentsActual), paramType.getArrayDimensions());
     }
@@ -189,8 +189,11 @@ public class Utils {
         return stringList;
     }
 
-    private static List<TypeNameWithTypeArguments> substituteTypeArguments(List<TypeNameWithTypeArguments> source, List<TypeParameter> typeParameters, List<TypeArgument> typeArguments) {
+    private static List<TypeNameWithTypeArguments> substituteTypeArguments(List<TypeNameWithTypeArguments> source, List<TypeParameter> typeParameters, List<TypeArgument> typeArguments) throws ModelException {
         final Map<String, TypeArgument> substitutions = new HashMap<String, TypeArgument>(typeParameters.size());
+        if (typeParameters.size()!=typeArguments.size()) {
+            throw new ModelException("Required "+typeParameters.size()+" parameters but found "+typeArguments.size());
+        }
         for (int i=0; i<typeParameters.size(); i++) {
             substitutions.put(typeParameters.get(i).getName(), typeArguments.get(i));
         }

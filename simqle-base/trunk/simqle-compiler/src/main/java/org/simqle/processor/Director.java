@@ -41,6 +41,9 @@ public class Director {
             try {
                 SimqleParser parser = new SimqleParser(reader);
                 parsedSources.add(new SyntaxTree(parser.SimqleUnit(), source.getName()));
+            } catch (ParseException e) {
+                System.err.println(e.getMessage()+" ["+source.getName()+"]");
+                throw e;
             } finally {
                 reader.close();
             }
