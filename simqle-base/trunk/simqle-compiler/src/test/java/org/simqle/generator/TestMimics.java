@@ -40,11 +40,11 @@ public class TestMimics extends TestCase {
         assertEquals("protected", toExpression.getAccessModifier());
         assertEquals("", toExpression.getThrowsClause());
         assertEquals("Expression<Boolean>", toExpression.getResultType().getImage());
-        final MethodDeclaration createExpressionMethod = extension.getBody().getMethod("z$create$expression(SqlContext)");
+        final MethodDeclaration createExpressionMethod = extension.getBody().getMethod("z$create$expression_(SqlContext)");
         assertNotNull(createExpressionMethod);
         assertEquals("public", createExpressionMethod.getAccessModifier());
         assertEquals("", createExpressionMethod.getThrowsClause());
-        assertEquals("{ return toExpression().z$create$expression(context); }", createExpressionMethod.getMethodBody());
+        assertEquals("{ return toExpression().z$create$expression_(context); }", createExpressionMethod.getMethodBody());
         final Type resultType = createExpressionMethod.getResultType();
         assertEquals("Sql", resultType.getImage());
 
@@ -66,7 +66,7 @@ public class TestMimics extends TestCase {
         final List<Type> implementedInterfaces = extension.getImplementedInterfaces();
         assertEquals(1, implementedInterfaces.size());
         final Type interfaceType = implementedInterfaces.get(0);
-        assertEquals("expression<Boolean>", interfaceType.getImage());
+        assertEquals("expression_<Boolean>", interfaceType.getImage());
     }
 
     public void testCyclic() throws Exception {
@@ -84,7 +84,7 @@ public class TestMimics extends TestCase {
         // add should be implemented directly in base
         assertNotNull(expressionBase.getBody().getMethod("add(term)"));
         final MethodDeclaration addMethod = expressionBase.getBody().getMethod("add(term)");
-        assertEquals("{ return new Expression<T>(SqlFactory.getInstance().expression_IS_expression_PLUS_term(this, t)); }", TestUtils.normalizeFormatting(addMethod.getMethodBody()));
+        assertEquals("{ return new Expression<T>(SqlFactory.getInstance().expression__IS_expression__PLUS_term_(this, t)); }", TestUtils.normalizeFormatting(addMethod.getMethodBody()));
         final List<Type> expressionInterfaces = expressionExtension.getImplementedInterfaces();
         assertEquals(2, expressionInterfaces.size());
         Set<String> typeImages = new HashSet<String>();
@@ -92,18 +92,18 @@ public class TestMimics extends TestCase {
             typeImages.add(t.getImage());
         }
         assertEquals(2, typeImages.size());
-        assertTrue(typeImages.contains("term<T>"));
-        assertTrue(typeImages.contains("primary<T>"));
+        assertTrue(typeImages.contains("term_<T>"));
+        assertTrue(typeImages.contains("primary_<T>"));
 
-        assertNull(expressionExtension.getBody().getMethod("add(term)"));
+        assertNull(expressionExtension.getBody().getMethod("add(term_)"));
         // mult should be implemented by delegation
-        assertNull(expressionBase.getBody().getMethod("mult(primary)"));
-        assertNotNull(expressionExtension.getBody().getMethod("mult(primary)"));
-        final MethodDeclaration delegatedMultMethod = expressionExtension.getBody().getMethod("mult(primary)");
+        assertNull(expressionBase.getBody().getMethod("mult(primary_)"));
+        assertNotNull(expressionExtension.getBody().getMethod("mult(primary_)"));
+        final MethodDeclaration delegatedMultMethod = expressionExtension.getBody().getMethod("mult(primary_)");
         assertEquals("{ return toPrimary().mult(p); }", TestUtils.normalizeFormatting(delegatedMultMethod.getMethodBody()));
 
         // primary must in turn delegate to Term
-        final MethodDeclaration delegatedMult2 = model.getClassPair("Primary").getExtension().getBody().getMethod("mult(primary)");
+        final MethodDeclaration delegatedMult2 = model.getClassPair("Primary").getExtension().getBody().getMethod("mult(primary_)");
         assertNotNull(delegatedMult2);
         assertEquals("{ return toTerm().mult(p); }", TestUtils.normalizeFormatting(delegatedMult2.getMethodBody()));
 

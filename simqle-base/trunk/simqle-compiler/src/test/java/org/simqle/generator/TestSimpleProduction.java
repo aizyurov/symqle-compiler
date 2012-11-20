@@ -195,8 +195,7 @@ public class TestSimpleProduction extends TestCase {
             productionProcessor.process(node, model);
             fail("GrammarException expected");
         } catch (GrammarException e) {
-            e.printStackTrace();
-            assertTrue(e.getMessage().startsWith("TypeParameters do not match"));
+            assertTrue(e.getMessage(), e.getMessage().startsWith("TypeParameters do not match"));
         }
 
     }

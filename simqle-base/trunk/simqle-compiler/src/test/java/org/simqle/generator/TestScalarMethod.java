@@ -6,9 +6,10 @@ package org.simqle.generator;
 import junit.framework.TestCase;
 import org.simqle.model.MethodDeclaration;
 import org.simqle.processor.InterfaceDeclarationsProcessor;
+import org.simqle.test.TestUtils;
 
 /**
- * <br/>13.11.2011
+ * <br/>13.11.2011                                                         
  *
  * @author Alexander Izyurov
  */
@@ -24,6 +25,6 @@ public class TestScalarMethod extends TestCase {
                 "        * @param element row element containing the data\n" +
                 "        * @return object of type T, may be null\n" +
                 "        */";
-        assertEquals(expectedComment.trim(), methodDeclaration.getComment().trim());
+        assertEquals(TestUtils.normalizeFormatting(expectedComment), TestUtils.normalizeFormatting(methodDeclaration.getComment()));
     }
 }

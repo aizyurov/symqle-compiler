@@ -94,7 +94,7 @@ public class TestScalarProduction extends TestCase {
         assertEquals(1, model.getAllFactoryMethods().size());
         final FactoryMethodModel factoryMethod = model.getAllFactoryMethods().get(0);
         final MethodDeclaration methodDeclaration = factoryMethod.getMethodDeclaration();
-        assertEquals("boolean_expression_IS_expression", methodDeclaration.getName());
+        assertEquals("boolean_expression_IS_expression_", methodDeclaration.getName());
         assertEquals("boolean_expression", methodDeclaration.getResultType().getImage());
         assertFalse(methodDeclaration.isStatic());
         assertFalse(methodDeclaration.isAbstract());
@@ -105,7 +105,7 @@ public class TestScalarProduction extends TestCase {
         final FormalParameter formalParameter = methodDeclaration.getFormalParameters().get(0);
         assertEquals(Arrays.asList("final"), formalParameter.getModifiers());
         assertEquals("expr", formalParameter.getName());
-        assertEquals("expression<Boolean>", formalParameter.getType().getImage());
+        assertEquals("expression_<Boolean>", formalParameter.getType().getImage());
         String expectedBody = "{ return new boolean_expression() {\n" +
                 "       @Override\n" +
                 "       public Boolean value(final Element element) throws SQLException {\n" +
@@ -113,11 +113,11 @@ public class TestScalarProduction extends TestCase {
                 "       }\n" +
                 "    @Override\n" +
                 "    public void z$prepare$boolean_expression(final SqlContext context) {\n" +
-                "         expr.z$prepare$expression(context);\n" +
+                "         expr.z$prepare$expression_(context);\n" +
                 "    }\n" +
                 "    @Override\n" +
                 "    public Sql z$create$boolean_expression(final SqlContext context) {\n" +
-                "        return new CompositeSql(expr.z$create$expression(context));    }\n" +
+                "        return new CompositeSql(expr.z$create$expression_(context));    }\n" +
                 "    };\n" +
                 "}";
         assertEquals(expectedBody, methodDeclaration.getMethodBody());

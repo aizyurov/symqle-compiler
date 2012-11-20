@@ -16,12 +16,17 @@ public class Model {
     private final Map<String, ClassPair> classes = new LinkedHashMap<String, ClassPair>();
     private final Map<String, FactoryMethodModel> factoryMethods = new HashMap<String, FactoryMethodModel>();
 
+    private final Set<String> caseInsensitiveClassNames = new HashSet<String>();
+
     public void addInterface(InterfaceDefinition def) throws ModelException {
         final String name = def.getName();
         if (interfaces.containsKey(name)) {
             throw new ModelException("Duplicate interface: "+name);
+        } else if (caseInsensitiveClassNames.contains(name.toUpperCase())) {
+            throw new ModelException("Name duplicate under Windows: "+name);
         }
         interfaces.put(name, def);
+        caseInsensitiveClassNames.add(name.toUpperCase());
     }
 
     public InterfaceDefinition getInterface(String name) {
@@ -33,9 +38,13 @@ public class Model {
     }
 
     public void addClass(ClassPair classPair) throws ModelException {
-        if (null!=classes.put(classPair.getExtension().getPairName(), classPair)) {
+        String name = classPair.getExtension().getPairName();
+        if (null!=classes.put(name, classPair)) {
             throw new ModelException("Duplicate class "+classPair.getExtension().getPairName());
+        } else if (caseInsensitiveClassNames.contains(name.toUpperCase())) {
+            throw new ModelException("Name duplicate under Windows: "+name);
         }
+        caseInsensitiveClassNames.add(name.toUpperCase());
     }
 
     public ClassPair getClassPair(String name) {
