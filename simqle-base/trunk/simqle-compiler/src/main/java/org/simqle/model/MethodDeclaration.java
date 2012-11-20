@@ -10,8 +10,10 @@ import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static org.simqle.util.Utils.convertChildren;
 
@@ -30,6 +32,8 @@ public class MethodDeclaration {
 
     private final String name;
     private final List<FormalParameter> formalParameters;
+
+    private final Set<String> otherModifiers;
 
 
     private final String comment;
@@ -74,6 +78,7 @@ public class MethodDeclaration {
         this.accessModifier = accessModifier;
         this.isAbstract = isInterfaceMethod || isAbstract;
         this.isStatic = otherModifiers.contains("static");
+        this.otherModifiers = new TreeSet<String>(otherModifiers);
 
         typeParameters = convertChildren(node, "TypeParameters.TypeParameter", TypeParameter.class);
         final List<SyntaxTree> resultTypes = node.find("ResultType.Type");
@@ -112,6 +117,13 @@ public class MethodDeclaration {
         this.comment = comment;
         this.throwsClause = throwsClause;
         this.methodBody = methodBody;
+        this.otherModifiers = new TreeSet<String>();
+        if (isStatic()) {
+            this.otherModifiers.add("static");
+        }
+        if (isAbstract() && ! interfaceMethod) {
+            this.otherModifiers.add("abstract");
+        }
         // TODO validate body
     }
 
@@ -210,6 +222,9 @@ public class MethodDeclaration {
     }
 
     public String getDeclaration() {
-        return accessModifier+" "+getDeclarationWithoutModifiers();
+        List<String> modifiers = new ArrayList<String>();
+        modifiers.add(accessModifier);
+        modifiers.addAll(otherModifiers);
+        return Utils.concat(modifiers, " ") + " " + getDeclarationWithoutModifiers();
     }
 }

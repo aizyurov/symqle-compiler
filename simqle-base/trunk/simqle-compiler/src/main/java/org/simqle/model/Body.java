@@ -172,7 +172,8 @@ public class Body {
         }
         builder.append(Utils.LINE_BREAK);
         for (MethodDeclaration method: methods.values()) {
-            builder.append(method.getDeclaration()).append(" ").append(method.getMethodBody());
+            final String methodBody = method.getMethodBody();
+            builder.append(method.getDeclaration()).append(" ").append(methodBody == null ? ";" : methodBody);
             builder.append(Utils.LINE_BREAK);
         }
         builder.append(Utils.LINE_BREAK);
