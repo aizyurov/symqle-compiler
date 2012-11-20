@@ -90,6 +90,7 @@ public class MyMojo
                 }
             }), outputDirectory);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new MojoFailureException(e.toString());
         }
 
