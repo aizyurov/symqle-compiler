@@ -35,6 +35,25 @@ public class ClassDeclarationProcessor implements Processor {
                     final ClassPair classPair = new ClassPair(baseClassDefinition, extensionClassDefinition);
                     classPair.addPublishedImports(Utils.bodies(importDeclarations));
                     classPair.addInternalImports(Utils.bodies(simqleClassDeclaration.find("ImportDeclaration")));
+                    final Set<Type> allInterfaces = new HashSet<Type>();
+                    final Set<Type> interfacesToInvestigate = new HashSet<Type>(baseClassDefinition.getImplementedInterfaces());
+                    while (!interfacesToInvestigate.isEmpty()) {
+                        final Type currentIntf = interfacesToInvestigate.iterator().next();
+                        allInterfaces.add(currentIntf);
+                        interfacesToInvestigate.remove(currentIntf);
+                        final InterfaceDefinition currentIntfDef = model.getInterface(currentIntf.getNameChain().get(0).getName());
+                        if (currentIntfDef!=null) {
+                            final Set<Type> newInterfaces = new HashSet<Type>(currentIntfDef.getExtended());
+                            newInterfaces.removeAll(allInterfaces);
+                            interfacesToInvestigate.addAll(newInterfaces);
+                        }
+                    }
+                    for (Type intf :  allInterfaces) {
+                        if ("Scalar".equals(intf.getNameChain().get(0).getName())) {
+                            classPair.addInternalImports(Collections.singletonList("import java.sql.SQLException;"));
+                        }
+
+                    }
                     final List<Type> virtualAncestors = Utils.convertChildren(simqleClassDeclaration, "Mimics.ClassOrInterfaceType", Type.class);
                     for (Type t: virtualAncestors) {
                         // no associated production, so ruleName==null

@@ -10,8 +10,11 @@ package ${packageName};
 <#list implementationImports as import>${import}
 </#list>
 
+import java.sql.SQLException;
+
 import org.simqle.*;
 import static org.simqle.SqlTerminal.*;
+
 
 /**
 * This class defines methods, implementing Sql language productions.

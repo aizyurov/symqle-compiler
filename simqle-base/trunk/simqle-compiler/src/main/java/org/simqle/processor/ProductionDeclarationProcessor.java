@@ -214,7 +214,7 @@ public class ProductionDeclarationProcessor implements Processor {
             throw new ModelException("Method "+requiredReturnType.getImage()+" value(Element element) must be implemented; cannot guess implementation");
         } else {
             return  "       @Override\n" +
-                    "       public "+requiredReturnType.getImage()+" value(final Element element) {\n" +
+                    "       public "+requiredReturnType.getImage()+" value(final Element element) throws SQLException {\n" +
                     "            return "+delegate.getName() +".value(element); \n" +
                     "       }\n";
         }

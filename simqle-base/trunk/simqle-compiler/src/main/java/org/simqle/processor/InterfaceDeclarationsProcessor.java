@@ -64,7 +64,7 @@ public class InterfaceDeclarationsProcessor implements Processor {
             "* @param element row element containing the data",
             "* @return object of type %s, may be null",
             "*/",
-            "%s value(final Element element);"
+            "%s value(final Element element) throws SQLException;"
             );
 
     public static MethodDeclaration makeScalarMethod(String typeParameter, String interfaceName) throws GrammarException {

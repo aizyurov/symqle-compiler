@@ -257,7 +257,7 @@ public class TestSimpleProduction extends TestCase {
         final String body = method1.getMethodDeclaration().getMethodBody();
         assertEquals(TestUtils.normalizeFormatting("{ return new primary<T>() {\n" +
                 "       @Override\n" +
-                "       public T value(final Element element) {\n" +
+                "       public T value(final Element element) throws SQLException {\n" +
                 "            return expr.value(element); \n" +
                 "       }\n" +
                 "    @Override\n" +
