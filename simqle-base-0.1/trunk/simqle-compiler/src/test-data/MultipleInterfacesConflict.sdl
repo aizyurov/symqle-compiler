@@ -1,0 +1,8 @@
+public interface column_name
+{}
+
+public interface table_column<T> extends Scalar<T>
+{}
+
+public class Column<T> implements column_name with sqlBuilder, table_column<T> with sqlBuilder
+{}

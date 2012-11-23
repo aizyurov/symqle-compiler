@@ -1,0 +1,57 @@
+public interface Scalar<T>
+{
+    T value(final Element element);
+}
+public interface expression_<T> extends Scalar<T> : Sql
+{}
+
+public class Expression<T> implements expression_<T>
+{}
+
+public interface boolean_expression extends Scalar<Boolean> : Sql
+{}
+
+public class BooleanExpression implements boolean_expression
+{
+    private final boolean_expression myBuilder;
+
+    public BooleanExpression(final boolean_expression myBuilder) {
+        this.myBuilder = myBuilder;
+    }
+
+    @Override
+    public void z$prepare$boolean_expression(final SqlContext myContext) {
+             myBuilder.z$prepare$boolean_expression(myContext);
+    }
+    @Override
+    public Sql z$create$boolean_expression(final SqlContext myContext) {
+        return new CompositeSql(myBuilder.z$create$boolean_expression(myContext));
+    }
+
+    @Override
+   public Boolean value(final Element myElement) {
+        return myBuilder.value(myElement);
+   }
+}
+
+boolean_expression ::= expr:expression_<Boolean> { return new boolean_expression() {
+       @Override
+       public Boolean value(final Element myElement) {
+            return expr.value(myElement);
+       }
+        @Override
+        public void z$prepare$booleant_expression(final SqlContext myContext) {
+             expr.z$prepare$expression(myContext);
+        }
+        @Override
+        public Sql z$create$boolean_expression(final SqlContext myContext) {
+            return new CompositeSql(expr.z$create$expression(myContext));
+        }
+    };
+}
+::
+BooleanExpression mimics Expression<Boolean>
+{
+    private final boolean_expression myBuilder;
+}
+;

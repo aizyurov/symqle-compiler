@@ -1,0 +1,37 @@
+/* declaration imports -- will be propagated to classes, which mimic this */
+import java.util.List;
+import org.simqle.core.Database;
+import java.sql.SQLException;
+class SelectStatement<T> implements select_statement<T> with sqlBuilder
+/* implementation import -- will NOT be propagated to classes, which mimic this */
+import java.util.LinkedList;
+{
+    // TODO add scroll
+    public List<T> list(final Database database)  throws SQLException {
+        final SqlContext context = new SqlContext();
+        context.set(FromClause.class, new FromClause());
+        context.set(ColumnNameProvider.class, new ColumnNameProvider());
+        this.z$prepare$select_statement(context);
+        final List<T> list = new LinkedList<T>();
+        final Query<T> query = z$create$select_statement(context);
+        database.query(query, new IteratorCallback<Row>() {
+            public int iterate(final Row row) throws SQLException {
+                list.add(query.extract(row));
+                return 1;
+            }
+        });
+        return list;
+    }
+}
+
+interface cursor_specification<T> : Query<T>
+{}
+
+import java.util.Map;
+class CursorSpecification<T> implements cursor_specification<T> with sqlBuilder
+import java.util.HashMap;
+{}
+
+<M> select_statement<M> ::= cursorSpec:cursor_specification<M>
+    :: CursorSpecification<M> mimics SelectStatement<M> {}
+;

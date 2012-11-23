@@ -1,0 +1,9 @@
+public interface test_interface<T>
+{
+    void dump(OutputStream os, boolean compress);
+}
+
+public class TestClass<T> implements test_interface<T> with sqlBuilder
+{
+
+}

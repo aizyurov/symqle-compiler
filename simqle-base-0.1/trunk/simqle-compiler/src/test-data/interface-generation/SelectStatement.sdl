@@ -1,0 +1,65 @@
+
+# corresponds to direct_select-statement in Sql-2003.2
+public interface select_statement<T> : Query<T> {}
+
+class SelectStatement<T> implements select_statement<T> with sqlBuilder
+import java.util.List;
+import java.util.LinkedList;
+import java.sql.SQLException;
+{
+    // TODO add scroll
+    // TODO uncomment wgen ready (requires FromClause)
+    /*
+    public List<T> list(final Database database)  throws SQLException {
+        final SqlContext context = new SqlContext();
+        context.set(FromClause.class, new FromClause());
+        context.set(ColumnNameProvider.class, new ColumnNameProvider());
+        this.z$prepare$select_statement(context);
+        final List<T> list = new LinkedList<T>();
+        final Query<T> query = this.z$create$select_statement(context);
+        database.query(query, new IteratorCallback<Row>() {
+            public int iterate(final Row row) throws SQLException {
+                list.add(query.extract(row));
+                return 1;
+            }
+        });
+        return list;
+    }
+    */
+}
+
+
+
+# direct_select_statement:_multiple_rows ::= cursor_specification
+# cursor_specification ::= query_expression [ order_by_clause ] [ updatability_clause ]
+# updatability_clause ::= FOR { READ ONLY | UPDATE [ OF column_name_list ] }
+
+# Simqle re-defines this in the following way:
+# updateability_clause moves to select_statement;
+# OF column_name_list is not supported in the current version (0.7)
+
+<T> select_statement<T> ::= cspec:cursor_specification<T>
+    :: CursorSpecification<T> mimics SelectStatement<T> {}
+
+| cspec:cursor_specification<T>  FOR READ ONLY
+    :: CursorSpecification<T>
+    {
+        public SelectStatement<T> forReadOnly() {
+            return new SelectStatement<T>(_APPLY_RULE_(this));
+        }
+    }
+
+| cspec:cursor_specification<T> FOR UPDATE
+    :: CursorSpecification<T>
+    {
+        public SelectStatement<T> forUpdate() {
+            return new SelectStatement<T>(_APPLY_RULE_(this));
+        }
+    }
+;
+
+interface cursor_specification<T> : Query<T> {}
+
+class CursorSpecification<T> implements cursor_specification<T> with sqlBuilder
+{}
+

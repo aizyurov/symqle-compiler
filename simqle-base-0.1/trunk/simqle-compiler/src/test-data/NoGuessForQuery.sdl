@@ -1,0 +1,13 @@
+public interface Scalar<T>
+{
+    T value(final Element element);
+}
+
+public interface select_sublist<T> extends Scalar<T> : Query<T>
+{}
+
+public interface value_expression<T> extends Scalar<T> : Sql
+{}
+
+<T> select_sublist<T> ::= expr:value_expression<T>
+;

@@ -1,0 +1,7 @@
+1. Test multiple arguments in factory method - 07.08
+2. Test multiple arguments when DataExtractor is not the first - 08.08
+3. Test value() generation -09.08
+4. Optimize z$create$ generation when there is a single argument (no need to create CompositeQuery/CompositeSql,
+just delegate to z$create$. -10.08
+5. Implement mimics - 13-14.08
+6. Test mimics -15-16.08

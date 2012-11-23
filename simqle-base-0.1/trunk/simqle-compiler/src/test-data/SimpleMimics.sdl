@@ -1,0 +1,33 @@
+public interface Scalar<T>
+{
+    T value(final Element element);
+}
+
+public interface expression_<T> extends Scalar<T> : Sql
+{}
+
+public class Expression<T> implements expression_<T> with exBuilder
+{
+    public String toString() {
+        return "expression";
+    }
+    public static Expression createEmptyString() {
+        return "";
+    }
+    private int hash(Integer source) {
+        return source.hashCode();
+    }
+}
+
+public interface boolean_expression extends Scalar<Boolean> : Sql
+{}
+
+public class BooleanExpression implements boolean_expression with myBuilder mimics Expression<Boolean>
+{
+}
+
+boolean_expression ::= expr:expression_<Boolean>
+::
+BooleanExpression mimics Expression<Boolean> {
+}
+;
