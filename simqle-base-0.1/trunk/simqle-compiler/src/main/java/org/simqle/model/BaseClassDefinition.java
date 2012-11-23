@@ -16,10 +16,8 @@ public class BaseClassDefinition extends ClassDefinition {
         super(node);
     }
 
-    @Override
-    public String getClassName() {
-        return getPairName()+"$";
+    public String getBaseClassName() {
+        return getClassName()+"$";
     }
-
 
 }

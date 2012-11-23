@@ -51,7 +51,7 @@ public class MimicsProcessor {
                     }
                     parametersBuilder.append(formalParameter.getImage());
                 }
-                final String constructorSource = String.format(EXTENSION_CONSTRUCTOR_FORMAT, baseClassDefinition.getPairName(),parametersBuilder.toString(),
+                final String constructorSource = String.format(EXTENSION_CONSTRUCTOR_FORMAT, baseClassDefinition.getClassName(),parametersBuilder.toString(),
                         argumentsBuilder.toString());
                 final ConstructorDeclaration constructorDeclaration = ConstructorDeclaration.parse(constructorSource);
                 extensionClassDefinition.getBody().unsafeAddConstructorDeclaration((constructorDeclaration));

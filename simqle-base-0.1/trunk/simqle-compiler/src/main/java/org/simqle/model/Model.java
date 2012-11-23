@@ -38,9 +38,9 @@ public class Model {
     }
 
     public void addClass(ClassPair classPair) throws ModelException {
-        String name = classPair.getExtension().getPairName();
+        String name = classPair.getExtension().getClassName();
         if (null!=classes.put(name, classPair)) {
-            throw new ModelException("Duplicate class "+classPair.getExtension().getPairName());
+            throw new ModelException("Duplicate class "+classPair.getExtension().getClassName());
         } else if (caseInsensitiveClassNames.contains(name.toUpperCase())) {
             throw new ModelException("Name duplicate under Windows: "+name);
         }

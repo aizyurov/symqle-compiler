@@ -34,3 +34,4 @@ public interface from_clause : Sql {
 
 public interface boolean_expression extends Scalar<Boolean> : Sql
 {}
+

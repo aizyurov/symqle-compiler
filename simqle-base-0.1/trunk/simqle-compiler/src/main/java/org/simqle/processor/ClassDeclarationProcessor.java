@@ -21,48 +21,12 @@ public class ClassDeclarationProcessor implements Processor {
         // extends/implements and mimics. Forward references are NOT resolved: they are put here only
         // formally. Will be resolved later: references to implementing interfaces when processing WITH statements;
         // references to other classes when processing MIMICS. "extends" does not need resolutions
-        for (SyntaxTree block: tree.find("SimqleDeclarationBlock")) {
-            final List<SyntaxTree> simqleClassDeclarations =
-                    block.find("SimqleDeclaration.SimqleClassDeclaration");
-            if (!simqleClassDeclarations.isEmpty()) {
-                final List<SyntaxTree> importDeclarations = block.find("ImportDeclaration");
-                // only one class declaration may be inside a block
-                final SyntaxTree simqleClassDeclaration = simqleClassDeclarations.get(0);
-                ClassDefinition baseClassDefinition = new BaseClassDefinition(simqleClassDeclaration);
-                try {
-                    addFields(simqleClassDeclaration.find("SimqleInterfaces.ImplementedInterface"), baseClassDefinition.getBody(), baseClassDefinition.getClassName(), model);
-                    ClassDefinition extensionClassDefinition = createExtensionClass(baseClassDefinition);
-                    final ClassPair classPair = new ClassPair(baseClassDefinition, extensionClassDefinition);
-                    classPair.addPublishedImports(Utils.bodies(importDeclarations));
-                    classPair.addInternalImports(Utils.bodies(simqleClassDeclaration.find("ImportDeclaration")));
-                    final Set<Type> allInterfaces = new HashSet<Type>();
-                    final Set<Type> interfacesToInvestigate = new HashSet<Type>(baseClassDefinition.getImplementedInterfaces());
-                    while (!interfacesToInvestigate.isEmpty()) {
-                        final Type currentIntf = interfacesToInvestigate.iterator().next();
-                        allInterfaces.add(currentIntf);
-                        interfacesToInvestigate.remove(currentIntf);
-                        final InterfaceDefinition currentIntfDef = model.getInterface(currentIntf.getNameChain().get(0).getName());
-                        if (currentIntfDef!=null) {
-                            final Set<Type> newInterfaces = new HashSet<Type>(currentIntfDef.getExtended());
-                            newInterfaces.removeAll(allInterfaces);
-                            interfacesToInvestigate.addAll(newInterfaces);
-                        }
-                    }
-                    for (Type intf :  allInterfaces) {
-                        if ("Scalar".equals(intf.getNameChain().get(0).getName())) {
-                            classPair.addInternalImports(Collections.singletonList("import java.sql.SQLException;"));
-                        }
-
-                    }
-                    final List<Type> virtualAncestors = Utils.convertChildren(simqleClassDeclaration, "Mimics.ClassOrInterfaceType", Type.class);
-                    for (Type t: virtualAncestors) {
-                        // no associated production, so ruleName==null
-                        classPair.addMimics(t, null);
-                    }
-                    model.addClass(classPair);
-                } catch (ModelException e) {
-                    throw new GrammarException(e.getMessage(), block);
-                }
+        for (SyntaxTree classDeclarationNode: tree.find("SimqleDeclarationBlock.SimqleDeclaration.NormalClassDeclaration")) {
+            ClassDefinition baseClassDefinition = new BaseClassDefinition(classDeclarationNode);
+            try {
+                model.addClass(new ClassPair(baseClassDefinition, baseClassDefinition));
+            } catch (ModelException e) {
+                throw new GrammarException(e.getMessage(), classDeclarationNode);
             }
         }
     }
@@ -89,7 +53,7 @@ public class ClassDeclarationProcessor implements Processor {
             builder.append(">");
             typeParametersString = builder.toString();
         }
-        final String fullExtensionName = baseClassDefinition.getPairName()+typeParametersString;
+        final String fullExtensionName = baseClassDefinition.getClassName()+typeParametersString;
         final String fullBaseName = baseClassDefinition.getClassName()+typeParametersString;
         final String source = String.format(EXTENSION_CLASS_FORMAT, modifiers, fullExtensionName, fullBaseName);
         return ClassDefinition.parse(source);

@@ -130,7 +130,7 @@ public class TestSimpleProduction extends TestCase {
         {
             final ClassDefinition def = classPair.getExtension();
 
-            assertEquals("CursorSpecification", def.getPairName());
+            assertEquals("CursorSpecification", def.getClassName());
             final Body body = def.getBody();
             // declared method and 2 interface methods are not overridden in extension class
             assertEquals(0, body.getMethods().size());

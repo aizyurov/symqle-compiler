@@ -11,6 +11,7 @@ import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -24,10 +25,11 @@ public class ClassDefinition {
     private final String accessModifier;
     private final Set<String> otherModifiers;
     private final List<Annotation> annotations;
+    private final Set<String> imports;
 
 
-    // the class pairName
-    private final String pairName;
+    // the class className
+    private final String className;
 
     private final List<TypeParameter> typeParameters;
 
@@ -41,7 +43,7 @@ public class ClassDefinition {
 
     public static ClassDefinition parse(String source) {
         try {
-            final SimpleNode simpleNode = Utils.createParser(source).SimqleClassDeclaration();
+            final SimpleNode simpleNode = Utils.createParser(source).NormalClassDeclaration();
             SyntaxTree syntaxTree = new SyntaxTree(simpleNode, source);
             return new ClassDefinition(syntaxTree);
         } catch (ParseException e) {
@@ -52,12 +54,12 @@ public class ClassDefinition {
     }
 
     public ClassDefinition(SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SimqleClassDeclaration");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "NormalClassDeclaration");
         final List<SyntaxTree> modifiers = node.find("ClassModifiers.ClassModifier");
         this.accessModifier = Utils.getAccessModifier(modifiers);
         this.otherModifiers = Utils.getNonAccessModifiers(modifiers);
         this.annotations = Utils.convertChildren(node, "ClassModifiers.Annotation", Annotation.class);
-        this.pairName = node.find("Identifier").get(0).getValue();
+        this.className = node.find("Identifier").get(0).getValue();
         this. typeParameters = Utils.convertChildren(node, "TypeParameters.TypeParameter", TypeParameter.class);
         final List<SyntaxTree> extendedTypes = node.find("Super.ClassOrInterfaceType");
         if (extendedTypes.isEmpty()) {
@@ -65,9 +67,10 @@ public class ClassDefinition {
         } else {
             this.extendedClass = new Type(extendedTypes.get(0));
         }
-        this.implementedInterfaces = Utils.convertChildren(node, "SimqleInterfaces.ImplementedInterface.ClassOrInterfaceType", Type.class);
+        this.implementedInterfaces = Utils.convertChildren(node, "Interfaces.ImplementedInterface.ClassOrInterfaceType", Type.class);
 //        this.mimics = Utils.convertChildren(node, "Mimics.ClassOrInterfaceType", Type.class);
         this.body = new Body(node.find("ClassBody").get(0));
+        imports = new HashSet<String>(Utils.bodies(node.getParent().find("Import")));
 
     }
 
@@ -83,8 +86,8 @@ public class ClassDefinition {
         return new ArrayList<Annotation>(annotations);
     }
 
-    public final String getPairName() {
-        return pairName;
+    public final String getClassName() {
+        return className;
     }
 
     public List<TypeParameter> getTypeParameters() {
@@ -101,10 +104,6 @@ public class ClassDefinition {
 
     public Body getBody() {
         return body;
-    }
-
-    public String getClassName() {
-        return getPairName();
     }
 
     public void addImplementedInterface(final Type interfaceType) {

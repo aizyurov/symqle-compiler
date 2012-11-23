@@ -23,6 +23,14 @@ import java.util.Set;
  */
 public class TestClassParsing extends TestCase {
 
+    public void testJustClass() throws Exception {
+        Model model = new Model();
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/model/SimpleClass.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "ClassTest.sdl");
+        Processor processor = new ClassDeclarationProcessor();
+        processor.process(node, model);
+    }
+
     public void testCorrectSdl() throws Exception {
         Model model = new Model();
         {
@@ -42,7 +50,7 @@ public class TestClassParsing extends TestCase {
         {
             final ClassDefinition def = classDefinitionList.get(0).getBase();
 
-            assertEquals("SelectStatement", def.getPairName());
+            assertEquals("SelectStatement", def.getClassName());
             assertEquals("public", def.getAccessModifier());
             assertEquals(0, def.getOtherModifiers().size());
             final List<Annotation> annotations = def.getAnnotations();
@@ -72,7 +80,7 @@ public class TestClassParsing extends TestCase {
         {
             final ClassDefinition def = classDefinitionList.get(0).getExtension();
 
-            assertEquals("SelectStatement", def.getPairName());
+            assertEquals("SelectStatement", def.getClassName());
             assertEquals("public", def.getAccessModifier());
             assertEquals(0, def.getOtherModifiers().size());
             final List<Annotation> annotations = def.getAnnotations();
