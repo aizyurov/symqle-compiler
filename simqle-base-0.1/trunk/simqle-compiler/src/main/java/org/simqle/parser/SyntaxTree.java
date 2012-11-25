@@ -1,5 +1,8 @@
 package org.simqle.parser;
 
+import org.simqle.model.F;
+import org.simqle.model.Function;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -117,6 +120,15 @@ public class SyntaxTree {
         return find(nameList);
     }
 
+    public <T, Ex extends Exception> List<T> find(String path, F<SyntaxTree, T, Ex> transformer) throws Ex {
+        List<SyntaxTree> nodes = find(path);
+        List<T> result = new ArrayList<T>(nodes.size());
+        for (SyntaxTree node: nodes) {
+            result.add(transformer.apply(node));
+        }
+        return result;
+    }
+
     private List<SyntaxTree> find(List<String> nameList) {
         if (nameList.isEmpty()) {
             return Collections.singletonList(this);
@@ -136,4 +148,21 @@ public class SyntaxTree {
     public String getFileName() {
         return fileName;
     }
+
+    public final static F<SyntaxTree, String, RuntimeException> VALUE =
+            new F<SyntaxTree, String, RuntimeException>() {
+                @Override
+                public String apply(SyntaxTree syntaxTree) throws RuntimeException {
+                    return syntaxTree.getValue();
+                }
+            };
+
+    public final static F<SyntaxTree, String, RuntimeException> BODY =
+            new F<SyntaxTree, String, RuntimeException>() {
+                @Override
+                public String apply(SyntaxTree syntaxTree) throws RuntimeException {
+                    return syntaxTree.getBody();
+                }
+            };
+
 }

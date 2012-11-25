@@ -22,9 +22,7 @@ import static org.simqle.util.Utils.convertChildren;
  */
 public class FormalParameter {
 
-    private final String image;
-
-    private final Type type;
+    private final Type rawType;
 
     private final String name;
 
@@ -34,39 +32,32 @@ public class FormalParameter {
     
 
     public FormalParameter(SyntaxTree node) throws GrammarException {
-        final Type rawType = convertChildren(node, "Type", Type.class).get(0);
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "FormalParameter", "FormalParameterWithEllipsis");
+        rawType = convertChildren(node, "Type", Type.class).get(0);
         if (node.getType().equals("FormalParameter")) {
-            type = rawType;
             ellipsis = false;
         } else  {
             // must be FormalParameterWithEllipsis due to asserttion above
-            type = rawType.arrayOf();
             ellipsis = true;
         }
-        image = node.getImage();
         name = node.find("VariableDeclaratorId.Identifier").get(0).getValue();
         modifiers = Utils.bodies(node.find("VariableModifiers.VariableModifier"));
     }
 
     public FormalParameter(Type type, String name) {
-        this(type, name, Collections.<String>emptyList());
+        this(type, name, Collections.<String>emptyList(), false);
     }
 
-    public FormalParameter(final Type type, final String name, final List<String> modifiers) {
-        this.type = type;
+    public FormalParameter(final Type type, final String name, final List<String> modifiers, boolean ellipsis) {
+        this.rawType = type;
         this.name = name;
         this.modifiers = new ArrayList<String>(modifiers);
-        this.image = (modifiers.isEmpty() ? "" : Utils.concat(modifiers, " ")+" ")+type.getImage()+" "+name;
-        this.ellipsis = false;
+        this.ellipsis = ellipsis;
     }
 
-    public String getImage() {
-        return image;
-    }
 
     public Type getType() {
-        return type;
+        return ellipsis ? rawType.arrayOf() : rawType;
     }
 
     public String getName() {
@@ -75,7 +66,9 @@ public class FormalParameter {
 
     @Override
     public String toString() {
-        return getImage();
+        return Utils.format(modifiers, "", " ", " ") + rawType.toString() +
+                ( ellipsis ? "..." : "" ) +
+                " " + name;
     }
 
     public List<String> getModifiers() {
@@ -84,5 +77,49 @@ public class FormalParameter {
 
     public boolean isEllipsis() {
         return ellipsis;
+    }
+
+    public FormalParameter substituteParameters(TypeParameters typeParameters, TypeArguments typeArguments) throws ModelException {
+        return new FormalParameter(rawType.substituteParameters(typeParameters, typeArguments),
+                name,
+                modifiers,
+                ellipsis
+                );
+    }
+
+    public String erasure() {
+        return getType().erasure(); 
+    }
+
+    public static F<SyntaxTree, FormalParameter, GrammarException> CONSTRUCT =
+            new F<SyntaxTree, FormalParameter, GrammarException>() {
+                @Override
+                public FormalParameter apply(SyntaxTree syntaxTree) throws GrammarException {
+                    return new FormalParameter(syntaxTree);
+                }
+            };
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FormalParameter that = (FormalParameter) o;
+
+        if (ellipsis != that.ellipsis) return false;
+        if (!modifiers.equals(that.modifiers)) return false;
+        if (!name.equals(that.name)) return false;
+        if (!rawType.equals(that.rawType)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = rawType.hashCode();
+        result = 31 * result + name.hashCode();
+        result = 31 * result + modifiers.hashCode();
+        result = 31 * result + (ellipsis ? 1 : 0);
+        return result;
     }
 }

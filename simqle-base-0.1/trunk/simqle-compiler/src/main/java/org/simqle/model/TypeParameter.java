@@ -6,6 +6,7 @@ package org.simqle.model;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
+import org.simqle.util.Utils;
 
 import java.util.List;
 import static org.simqle.util.Utils.*;
@@ -18,26 +19,15 @@ import static org.simqle.util.Utils.*;
 public class TypeParameter {
     private final String name;
     private final List<Type> typeBound;
-    private final String image;
 
     public TypeParameter(SyntaxTree node) throws GrammarException{
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "TypeParameter");
         name = node.find("Identifier").get(0).getValue();
         typeBound = convertChildren(node, "TypeBound.ClassOrInterfaceType", Type.class);
-        image = node.getImage();
-
-    }
-
-    public String getImage() {
-        return image;
     }
 
     public String getName() {
         return name;
-    }
-
-    public List<Type> getTypeBound() {
-        return typeBound;
     }
 
     @Override
@@ -61,8 +51,16 @@ public class TypeParameter {
     }
 
     public String toString() {
-        return image;
+        return name + Utils.format(typeBound, "extends ", "& ", "");
     }
+
+    public static final F<SyntaxTree, TypeParameter, GrammarException> CONSTRUCT =
+            new F<SyntaxTree, TypeParameter, GrammarException>() {
+                @Override
+                public TypeParameter apply(SyntaxTree syntaxTree) throws GrammarException {
+                    return new TypeParameter(syntaxTree);
+                }
+            };
 }
 
 

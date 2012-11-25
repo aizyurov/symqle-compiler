@@ -45,6 +45,10 @@ public class TypeArgument {
         this.reference = reference;
     }
 
+    public Type asType() {
+        return boundType.equals("super") ? new Type("Object") : reference;
+    }
+
     public Type getReference() {
         return reference;
     }
@@ -64,7 +68,7 @@ public class TypeArgument {
     }
 
     public String getImage() {
-        return boundType == null ? reference.getImage() : "? "+boundType + " " + reference.getImage();
+        return boundType == null ? reference.toString() : "? "+boundType + " " + reference.toString();
     }
 
     @Override
@@ -88,4 +92,17 @@ public class TypeArgument {
         result = 31 * result + (reference != null ? reference.hashCode() : 0);
         return result;
     }
+
+    public final static F<SyntaxTree, TypeArgument, GrammarException> CONSTRUCT =
+            new F<SyntaxTree, TypeArgument, GrammarException>() {
+                @Override
+                public TypeArgument apply(SyntaxTree syntaxTree) throws GrammarException {
+                    return new TypeArgument(syntaxTree);
+                }
+            };
+
+    public TypeArgument substituteParameters(TypeParameters typeParameters, TypeArguments typeArguments) throws ModelException {
+        return new TypeArgument(isWildCardArgument, boundType, reference.substituteParameters(typeParameters, typeArguments));        
+    }
+
 }

@@ -3,7 +3,7 @@
 */
 package org.simqle.generator;
 
-import org.simqle.model.ClassPair;
+import org.simqle.model.ClassDefinition;
 import org.simqle.model.Model;
 
 import java.io.IOException;
@@ -28,8 +28,8 @@ public class ClassGenerator extends AbstractFreeMarkerGenerator {
     @Override
     protected void scanModel(Model model, GeneratorCallback callback)
             throws IOException {
-        for (ClassPair classPair : model.getAllClasses()) {
-           callback.generateFile(classPair.getExtension().getClassName()+".java",
+        for (ClassDefinition classPair : model.getAllClasses()) {
+           callback.generateFile(classPair.getName()+".java",
                    new ClassModel(classPair, getPackageName(), model));
         }
     }

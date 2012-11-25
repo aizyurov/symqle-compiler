@@ -84,7 +84,7 @@ public class Utils {
 
     public static final String LINE_BREAK = System.getProperty("line.separator", "\n");
 
-    public static String join(int indent, String... source) {
+    public static String indent(int indent, String... source) {
         StringBuilder builder = new StringBuilder();
         for (String s: source) {
             for (int i=0; i<indent && indent>=0; i++) {
@@ -127,22 +127,33 @@ public class Utils {
      * @param <T>
      * @return
      */
-    public static <T> String formatList(List<T> list, String prefix, 
+    public static <T> String formatList(Collection<T> list, String prefix,
                                  String separator, String suffix, Function<String, T> function) {
         if (list.isEmpty()) {
             return "";
         }
         StringBuilder builder = new StringBuilder();
         builder.append(prefix);
-        for (int i=0; i<list.size(); i++) {
-            T item = list.get(i);
-            if (i>0) {
+        boolean theFirst = true;
+        for (final T item: list) {
+            if (!theFirst) {
                 builder.append(separator);
             }
+            theFirst = false;
             builder.append(function.apply(item));
         }
         builder.append(suffix);
         return builder.toString();
+    }
+
+    public static <T> String format(Collection<T> list, String prefix,
+                                 String separator, String suffix) {
+        return formatList(list, prefix, separator, suffix, new Function<String, T>() {
+            @Override
+            public String apply(T t) {
+                return t.toString();
+            }
+        });
     }
 
     public static <Arg> List<String> convertToStringList(List<Arg> list, Function<String, Arg> function) {
@@ -209,28 +220,7 @@ public class Utils {
                         substitutions.get(name).getReference().getNameChain() ;
                 return chain;
         } else {
-            final List<TypeNameWithTypeArguments> result = new ArrayList<TypeNameWithTypeArguments>(source.size());
-            //  the source is a class name, may be with type arguments. Replase type parameter in type arguments only;
-            // if the type parameter appears as a class name, it is an error
-            for (TypeNameWithTypeArguments typeNameWithTypeArguments: source) {
-                final String typeName = typeNameWithTypeArguments.getName();
-                if (substitutions.containsKey(typeName)) {
-                    throw new IllegalArgumentException(typeName+" is a parameter and cannot appear in this context: "+
-                            substitutions.get(name).getReference().getImage());
-                } else {
-                    final List<TypeArgument> currentTypeArguments = typeNameWithTypeArguments.getTypeArguments();
-                    final List<TypeArgument> newTypeArguments = new ArrayList<TypeArgument>(currentTypeArguments.size());
-                    for (TypeArgument typeArgument: currentTypeArguments) {
-                        final Type reference = typeArgument.getReference();
-                        // make substitutions in this Type
-                        final Type newType = reference == null ? null : substituteTypeArguments(typeArguments, typeParameters, reference);
-                        TypeArgument newTypeArgument = new TypeArgument(typeArgument.isWildCardArgument(), typeArgument.getBoundType(), newType);
-                        newTypeArguments.add(newTypeArgument);
-                    }
-                    result.add(new TypeNameWithTypeArguments(name, newTypeArguments));
-                }
-            }
-            return result;
+            throw new IllegalStateException("Not implemented");
         }
     }
 

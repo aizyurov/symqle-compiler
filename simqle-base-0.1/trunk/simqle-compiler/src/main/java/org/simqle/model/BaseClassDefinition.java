@@ -17,7 +17,7 @@ public class BaseClassDefinition extends ClassDefinition {
     }
 
     public String getBaseClassName() {
-        return getClassName()+"$";
+        return getName()+"$";
     }
 
 }

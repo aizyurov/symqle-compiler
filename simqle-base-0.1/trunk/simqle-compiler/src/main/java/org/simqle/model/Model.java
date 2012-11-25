@@ -12,54 +12,74 @@ import java.util.*;
  */
 public class Model {
 
-    private final Map<String, InterfaceDefinition> interfaces = new LinkedHashMap<String, InterfaceDefinition>();
-    private final Map<String, ClassPair> classes = new LinkedHashMap<String, ClassPair>();
+
+    private final Map<String, ClassOrInterface> classMap = new LinkedHashMap<String, ClassOrInterface>();
     private final Map<String, FactoryMethodModel> factoryMethods = new HashMap<String, FactoryMethodModel>();
 
     private final Set<String> caseInsensitiveClassNames = new HashSet<String>();
 
     public void addInterface(InterfaceDefinition def) throws ModelException {
-        final String name = def.getName();
-        if (interfaces.containsKey(name)) {
+        addClassOrInterface(def.getName(), new ClassOrInterface(def));
+    }
+
+    private void addClassOrInterface(String name, ClassOrInterface classOrInterface) throws ModelException {
+        if (classMap.containsKey(name)) {
             throw new ModelException("Duplicate interface: "+name);
         } else if (caseInsensitiveClassNames.contains(name.toUpperCase())) {
             throw new ModelException("Name duplicate under Windows: "+name);
         }
-        interfaces.put(name, def);
         caseInsensitiveClassNames.add(name.toUpperCase());
+        classMap.put(name, classOrInterface);
     }
 
     public InterfaceDefinition getInterface(String name) {
-        return interfaces.get(name);
+        ClassOrInterface classOrInterface = getClassOrInterface(name);
+        if (classOrInterface.isInterface) {
+            return classOrInterface.interfaceDefinition;
+        } else {
+            throw new IllegalArgumentException(name + "is not interface");
+        }
+    }
+
+    private ClassOrInterface getClassOrInterface(String name) {
+        ClassOrInterface classOrInterface = classMap.get(name);
+        if (classOrInterface == null) {
+            throw new IllegalArgumentException(name + "not found");
+        }
+        return classOrInterface;
     }
 
     public List<InterfaceDefinition> getAllInterfaces() {
-        return new ArrayList<InterfaceDefinition>(interfaces.values());
-    }
-
-    public void addClass(ClassPair classPair) throws ModelException {
-        String name = classPair.getExtension().getClassName();
-        if (null!=classes.put(name, classPair)) {
-            throw new ModelException("Duplicate class "+classPair.getExtension().getClassName());
-        } else if (caseInsensitiveClassNames.contains(name.toUpperCase())) {
-            throw new ModelException("Name duplicate under Windows: "+name);
+        List<InterfaceDefinition> result = new LinkedList<InterfaceDefinition>();
+        for (ClassOrInterface candidate: classMap.values()) {
+            if (candidate.isInterface) {
+                result.add(candidate.interfaceDefinition);
+            }
         }
-        caseInsensitiveClassNames.add(name.toUpperCase());
+        return result;
     }
 
-    public ClassPair getClassPair(String name) {
-        return classes.get(name);
+    public void addClass(ClassDefinition def) throws ModelException {
+        addClassOrInterface(def.getName(), new ClassOrInterface(def));
     }
 
-    public ClassPair findClassPair(Type type) throws ModelException {
-        if (type.getNameChain().size()!=1) {
-            throw new ModelException("Class name should be a simple name, actually "+type.getImage());
+    public ClassDefinition getClassDef(String name) {
+        ClassOrInterface classOrInterface = getClassOrInterface(name);
+        if (!classOrInterface.isInterface) {
+            return classOrInterface.classDefinition;
+        } else {
+            throw new IllegalArgumentException(name + "is not class");
         }
-        return getClassPair(type.getNameChain().get(0).getName());
     }
 
-    public List<ClassPair> getAllClasses() {
-        return new ArrayList<ClassPair>(classes.values());
+    public List<ClassDefinition> getAllClasses() {
+        List<ClassDefinition> result = new LinkedList<ClassDefinition>();
+        for (ClassOrInterface candidate: classMap.values()) {
+            if (!candidate.isInterface) {
+                result.add(candidate.classDefinition);
+            }
+        }
+        return result;
     }
 
     public void addFactoryMethod(FactoryMethodModel factoryMethod) throws ModelException {
@@ -70,6 +90,37 @@ public class Model {
 
     public List<FactoryMethodModel> getAllFactoryMethods() {
         return new ArrayList<FactoryMethodModel>(factoryMethods.values());
+    }
+
+    private static class ClassOrInterface {
+        private final ClassDefinition classDefinition;
+        private final InterfaceDefinition interfaceDefinition;
+        private boolean isInterface;
+
+        private ClassOrInterface(InterfaceDefinition interfaceDefinition) {
+            this.interfaceDefinition = interfaceDefinition;
+            this.classDefinition = null;
+            this.isInterface = true;
+        }
+
+        private ClassOrInterface(ClassDefinition classDefinition) {
+            this.classDefinition = classDefinition;
+            this.interfaceDefinition = null;
+            this.isInterface = false;
+        }
+    }
+
+    public InterfaceDefinition getInterface(Type t) {
+        return getInterface(resolveName(t));
+    }
+
+    public ClassDefinition getClassDef(Type t) {
+        return getClassDef(resolveName(t));
+    }
+
+    private String resolveName(final Type t) {
+        List<TypeNameWithTypeArguments> nameChain = t.getNameChain();
+        return nameChain.get(nameChain.size()-1).getName();
     }
 
 }

@@ -1,13 +1,4 @@
-/* Copyright (c) 2006, Sun Microsystems, Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *     * Redistributions of source code must retain the above copyright notice,
- *       this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
+/* Copyright and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
  *     * Neither the name of the Sun Microsystems, Inc. nor the names of its
  *       contributors may be used to endorse or promote products derived from
@@ -1105,6 +1096,7 @@ IdentifierWithTypeArguments Identifier(arguments derived from the rule) {
 }
 Variable names declared in the production are available in the body (they are final variables in the context).
 */
+    ( ImportDeclaration() ) *
     [ Implicit() ] IdentifierWithTypeArguments() Identifier() Block()
 }
 
@@ -1262,10 +1254,13 @@ void IdentifierWithTypeArguments():
 }
 
 /* 4.5.1 */
-void TypeArguments():
+SimpleNode TypeArguments():
 {}
 {
    "<" TypeArgument() ( "," TypeArgument() )* ">"
+   {
+        return jjtThis;
+   }
 }
 
 /* 4.5.1 */
@@ -1284,7 +1279,7 @@ void WildcardBounds():
    WildcardBoundType() ReferenceType()
 }
 
-/* 4.5.1 */
+/* 4.5.1  - split into 2 non-terminals: Simqle compiler only handles non-terminals */
 void WildcardBoundType():
 {}
 {
@@ -1299,10 +1294,13 @@ void Identifier():
 }
 
 /* 8.1.2 */
-void TypeParameters():
+SimpleNode TypeParameters():
 {}
 {
    "<" TypeParameter() ( "," TypeParameter() )* ">"
+   {
+        return jjtThis;
+   }
 }
 
 /* 4.4 with minor changes: TypeVariable replaced for Identifier (which it is) */
@@ -1611,7 +1609,7 @@ void ExceptionType():
     Name()
 }
 
-/* 8.4.1 with a little change */
+/* 8.4.1 with a small change */
 void FormalParameterList():
 {}
 {

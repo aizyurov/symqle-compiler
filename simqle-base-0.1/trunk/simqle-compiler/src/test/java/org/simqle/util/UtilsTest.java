@@ -48,7 +48,7 @@ public class UtilsTest extends TestCase {
             e.printStackTrace();
             assertEquals("Internal error", e.getMessage());
         }
-    }
+    }                           
 
     public void testPrivateConstructor() throws Exception {
         SimqleParser parser = new SimqleParser(new FileReader("src/test-data/InterfaceTest.sdl"));

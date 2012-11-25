@@ -23,7 +23,7 @@ public class Director {
     private Processor[] processors = {
             new InterfaceDeclarationsProcessor(),
             new ClassDeclarationProcessor(),
-            new ProductionDeclarationProcessor(),
+//            new ProductionDeclarationProcessor(),
     };
 
     private final Generator[] generators;
@@ -31,8 +31,6 @@ public class Director {
     public Director(final Generator[] generators) {
         this.generators = generators;
     }
-
-    private final MimicsProcessor mimicsProcessor = new MimicsProcessor();
 
     public void doAll(final File[] sources, final File outputDirectory) throws IOException, GrammarException, ParseException, ModelException {
         List<SyntaxTree> parsedSources = new ArrayList<SyntaxTree>(sources.length);
@@ -54,7 +52,6 @@ public class Director {
                 processor. process(source, model);
             }
         }
-        mimicsProcessor.process(model);
         outputDirectory.mkdirs();
         for (Generator generator: generators) {
             generator.generate(model, outputDirectory);

@@ -30,34 +30,4 @@ public class InterfaceModel {
     public InterfaceDefinition getDefinition() {
         return definition;
     }
-
-    public String getName() {
-        return definition.getName();
-    }
-
-    public String getTypeParameters() {
-        final List<TypeParameter> parameters = definition.getTypeParameters();
-        return Utils.formatList(parameters, "<", ", ", ">", new Function<String, TypeParameter>() {
-                    public String apply(TypeParameter typeParameter) {
-                        return typeParameter.getImage();
-                    }
-                });
-    }
-
-    public List<String> getModifiers() {
-        List<String> modifiers = new ArrayList<String>();
-        modifiers.add(definition.getAccessModifier());
-        modifiers.addAll(definition.getOtherModifiers());
-        return modifiers;
-    }
-
-    public String getExtendsList() {
-        final List<Type> extended = definition.getExtended();
-        return  Utils.formatList(extended, "extends ", ", ", "", new Function<String, Type>() {
-                    public String apply(Type type) {
-                        return type.getImage();
-                    }
-                });
-    }
-
 }
