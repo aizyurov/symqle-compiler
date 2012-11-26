@@ -146,14 +146,23 @@ public class Utils {
         return builder.toString();
     }
 
-    public static <T> String format(Collection<T> list, String prefix,
-                                 String separator, String suffix) {
+    public static <T> String format(final Collection<T> list, final String prefix,
+                                 final String separator, final String suffix) {
         return formatList(list, prefix, separator, suffix, new Function<String, T>() {
             @Override
             public String apply(T t) {
                 return t.toString();
             }
         });
+    }
+
+    public static <T, R, Ex extends Exception> Collection<R>
+    map(final Collection<T> list, final F<T, R, Ex> function) throws Ex {
+        Collection<R> result = new LinkedList<R>();
+        for (final T element: list) {
+            result.add(function.apply(element));
+        }
+        return result;
     }
 
     public static <Arg> List<String> convertToStringList(List<Arg> list, Function<String, Arg> function) {

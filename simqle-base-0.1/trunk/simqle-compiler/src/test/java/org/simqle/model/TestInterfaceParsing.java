@@ -29,6 +29,10 @@ public class TestInterfaceParsing extends TestCase {
             System.out.println("================");
             System.out.println(def);
             System.out.println("================");
+            for (MethodDefinition method: def.getDeclaredMethods()) {
+                System.out.println(method.signature() + " = " + method);
+                System.out.println("--------");
+            }
         }
     }
 }

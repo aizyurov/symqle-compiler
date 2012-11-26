@@ -11,6 +11,7 @@ import org.simqle.util.Utils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.simqle.util.Utils.convertChildren;
 
@@ -87,8 +88,17 @@ public class FormalParameter {
                 );
     }
 
-    public String erasure() {
-        return getType().erasure(); 
+    public String erasure(final Set<String> typeParameterNames) {
+        return getType().erasure(typeParameterNames); 
+    }
+
+    public static F<FormalParameter, String, RuntimeException> f_erasure(final Set<String> typeParameterNames) {
+        return new F<FormalParameter, String, RuntimeException>() {
+            @Override
+            public String apply(FormalParameter formalParameter) throws RuntimeException {
+                return formalParameter.erasure(typeParameterNames);
+            }
+        };
     }
 
     public static F<SyntaxTree, FormalParameter, GrammarException> CONSTRUCT =

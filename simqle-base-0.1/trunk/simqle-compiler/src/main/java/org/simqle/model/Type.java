@@ -75,11 +75,12 @@ public class Type {
         return arrayDimensions;
     }
 
-    public String erasure() {
+    public String erasure(final Set<String> typeParameterNames) {
         return format(new Function<String, TypeNameWithTypeArguments>() {
             @Override
             public String apply(TypeNameWithTypeArguments typeNameWithTypeArguments) {
-                return typeNameWithTypeArguments.getName();
+                String name = typeNameWithTypeArguments.getName();
+                return typeParameterNames.contains(name) ? "Object" : name;
             }
         });
 

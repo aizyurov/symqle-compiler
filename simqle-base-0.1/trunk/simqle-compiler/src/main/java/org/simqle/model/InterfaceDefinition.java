@@ -6,6 +6,7 @@ package org.simqle.model;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
+import org.simqle.util.Utils;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -81,8 +82,7 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
 
     @Override
     protected String getExtendsImplements() {
-        // TODO implement
-        throw new RuntimeException("Not implemented");
+        return Utils.format(extended, "extends ", ", ", "");
     }
 
     public static F<SyntaxTree, InterfaceDefinition, GrammarException> CONSTRUCT =

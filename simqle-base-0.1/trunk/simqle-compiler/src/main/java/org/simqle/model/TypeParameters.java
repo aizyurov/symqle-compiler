@@ -3,7 +3,9 @@ package org.simqle.model;
 import org.simqle.util.Utils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -25,6 +27,15 @@ public class TypeParameters {
 
     public List<TypeParameter> list() {
         return typeParameters;
+    }
+
+    public Set<String> names() {
+        return new HashSet<String>(Utils.map(typeParameters, new F<TypeParameter, String, RuntimeException>() {
+            @Override
+            public String apply(TypeParameter typeParameter) {
+                return typeParameter.getName();
+            }
+        }));
     }
 
     public boolean isEmpty() {

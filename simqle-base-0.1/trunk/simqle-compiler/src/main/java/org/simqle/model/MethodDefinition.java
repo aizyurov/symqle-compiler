@@ -7,11 +7,7 @@ import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -127,10 +123,11 @@ public class MethodDefinition {
 
     public String signature() {
         // TODO
-        // replace type parameters of method with "Object"
-        // replace type parameters of owner with "Object"
-        // return name+formal parameters
-        throw new RuntimeException("Not implemented");
+        HashSet<String> typeParameterNames = new HashSet<String>(typeParameters.names());
+        typeParameterNames.addAll(owner.getTypeParameters().names());
+        Collection<String> formalParameterErasures =
+                Utils.map(formalParameters, FormalParameter.f_erasure(typeParameterNames));
+        return name+"("+Utils.format(formalParameterErasures, "", ",", "")+")";
     }
 
     public String getAccessModifier() {
@@ -144,6 +141,9 @@ public class MethodDefinition {
     public String declaration() {
         StringBuilder builder = new StringBuilder();
         builder.append(accessModifier);
+        if (!"".equals(accessModifier)) {
+            builder.append(" ");
+        }
         builder.append(Utils.format(new ArrayList<String>(otherModifiers), " ", " ", ""));
         if (!typeParameters.isEmpty()) {
             builder.append(" ");
@@ -153,7 +153,7 @@ public class MethodDefinition {
                 .append("(")
                 .append(Utils.format(formalParameters, "", ", ", ""))
                 .append(")")
-                .append(Utils.format(thrownExceptions, "throws ", ", ", ""));
+                .append(Utils.format(thrownExceptions, " throws ", ", ", ""));
         return builder.toString();
     }
 

@@ -1597,7 +1597,7 @@ void MethodBody():
 void Throws():
 {}
 {
-    "throws" ( ExceptionType() ) *
+    "throws" ExceptionType() ( "," ExceptionType() ) *
 }
 
 /* 8.4.6  -1st, we cannot distinguish ClassType and TypeVariable at syntax level. 2nd, exceptions cannot have types

@@ -105,4 +105,13 @@ public class TypeArgument {
         return new TypeArgument(isWildCardArgument, boundType, reference.substituteParameters(typeParameters, typeArguments));        
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        if (isWildCardArgument) {
+            builder.append("? ").append(boundType).append(" ");
+        }
+        builder.append(reference);
+        return builder.toString();
+    }
 }
