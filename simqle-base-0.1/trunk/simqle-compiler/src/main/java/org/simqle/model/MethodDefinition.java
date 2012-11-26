@@ -4,11 +4,14 @@ import org.simqle.parser.ParseException;
 import org.simqle.parser.SimpleNode;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
+import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Created by IntelliJ IDEA.
@@ -21,13 +24,35 @@ public class MethodDefinition {
     private final String comment;
     private final String accessModifier;
     private final Set<String> otherModifiers;
-    private final MethodDeclaration declaration;
+    private final TypeParameters typeParameters;
+    // null for void methods
+    private final Type resultType;
+
+    private final String name;
+    private final List<FormalParameter> formalParameters;
+
+    private final Set<Type> thrownExceptions;
     private final String body;
 
-    public static MethodDefinition parseAbstractMethod(String source) {
+    private final AbstractTypeDefinition owner;
+
+    private final boolean isPublic;
+
+    private final boolean isAbstract;
+
+    public boolean isPublic() {
+        return isPublic;
+    }
+
+    protected boolean isAbstract() {
+        return isAbstract;
+    }
+
+    public static MethodDefinition parseAbstract(final String source, final AbstractTypeDefinition owner) {
         try {
             final SimpleNode simpleNode = Utils.createParser(source).AbstractMethodDeclaration();
-            return new MethodDefinition(new SyntaxTree(simpleNode, source));
+            SyntaxTree syntaxTree = new SyntaxTree(simpleNode, source);
+            return new MethodDefinition(syntaxTree, owner);
         } catch (ParseException e) {
             throw new RuntimeException("Internal error", e);
         } catch (GrammarException e) {
@@ -36,44 +61,72 @@ public class MethodDefinition {
     }
 
 
-
-    public MethodDefinition(String comment, String accessModifier, Set<String> otherModifiers, MethodDeclaration declaration, String body) {
+    private MethodDefinition(final String comment,
+                             final String accessModifier,
+                             final Set<String> otherModifiers,
+                             final TypeParameters typeParameters,
+                             final Type resultType,
+                             final String name,
+                             final List<FormalParameter> formalParameters,
+                             final Set<Type> thrownExceptions,
+                             final String body,
+                             final AbstractTypeDefinition owner,
+                             final boolean aPublic,
+                             final boolean anAbstract) {
         this.comment = comment;
         this.accessModifier = accessModifier;
         this.otherModifiers = otherModifiers;
-        this.declaration = declaration;
+        this.typeParameters = typeParameters;
+        this.resultType = resultType;
+        this.name = name;
+        this.formalParameters = formalParameters;
+        this.thrownExceptions = thrownExceptions;
         this.body = body;
+        this.owner = owner;
+        isPublic = aPublic;
+        isAbstract = anAbstract;
     }
 
-    public MethodDefinition(SyntaxTree node) throws GrammarException {
-        this(node.getComments(),
-                Utils.getAccessModifier(findModifierNodes(node)),
-                Utils.getNonAccessModifiers(findModifierNodes(node)),
-                new MethodDeclaration(node),
-                node.find("MethodBody").get(0).getImage()
-            );
+    public MethodDefinition(SyntaxTree node, final AbstractTypeDefinition owner) throws GrammarException {
+        final String nodeType = node.getType();
+        Assert.assertOneOf(new GrammarException("Unexpected type: " + nodeType, node), nodeType, "MethodDeclaration", "AbstractMethodDeclaration");
+        this.comment = node.getComments();
+        List<SyntaxTree> modifierNodes = node.find("MethodModifiers.MethodModifier");
+        modifierNodes.addAll(node.find("AbstractMethodModifiers.AbstractMethodModifier"));
+        this.accessModifier = Utils.getAccessModifier(modifierNodes);
+        this.otherModifiers = Utils.getNonAccessModifiers(modifierNodes);
+        final List<SyntaxTree> bodies = node.find("MethodBody");
+        this.body = bodies.isEmpty() ? ";" : bodies.get(0).getImage();
+        typeParameters = node.find("TypeParameters", TypeParameters.CONSTRUCT).get(0);
+        final List<SyntaxTree> resultTypes = node.find("ResultType.Type");
+        if (resultTypes.isEmpty()) {
+            // void
+            resultType = Type.VOID;
+        } else {
+            resultType = new Type(resultTypes.get(0));
+        }
+
+        final List<SyntaxTree> nodes = node.find("MethodDeclarator.Identifier");
+        name = nodes.get(0).getValue();
+        formalParameters = node.find("MethodDeclarator.FormalParameterList.FormalParameter", FormalParameter.CONSTRUCT);
+        formalParameters.addAll
+                (node.find("MethodDeclarator.FormalParameterList.FormalParameterWithEllipsis", FormalParameter.CONSTRUCT));
+
+        final List<String> throwClauses = node.find("Throws", SyntaxTree.BODY);
+        // may be at most one by grammar
+        this.thrownExceptions = new TreeSet<Type>(node.find("Throws.ExceptionType", Type.CONSTRUCT));
+        this.owner = owner;
+        this.isAbstract = owner.makeMethodAbstract(otherModifiers);
+        this.isPublic = owner.makeMethodPublic(accessModifier);
+
     }
 
     public String getName() {
-        return declaration.getName();
+        return name;
     }
 
-    public String getSignature() {
-        return declaration.signature();
-    }
-
-    private static List<SyntaxTree> findModifierNodes(SyntaxTree node) {
-        List<SyntaxTree> modifierNodes = node.find("MethodModifiers.MethodModifier");
-        modifierNodes.addAll(node.find("AbstractMethodModifiers.AbstractMethodModifier"));
-        return modifierNodes;
-    }
-
-    public MethodDeclaration getDeclaration() {
-        return declaration;
-    }
-
-    public String getComment() {
-        return comment;
+    public String signature() {
+        throw new RuntimeException("Not implemented");
     }
 
     public String getAccessModifier() {
@@ -84,14 +137,110 @@ public class MethodDefinition {
         return otherModifiers;
     }
 
-    public String toString() {
+    public String declaration() {
         StringBuilder builder = new StringBuilder();
-        builder.append(comment);
         builder.append(accessModifier);
-        builder.append(Utils.format(new ArrayList(otherModifiers), " ", " ", ""));
-        builder.append(declaration);
-        builder.append(body);
+        builder.append(Utils.format(new ArrayList<String>(otherModifiers), " ", " ", ""));
+        if (!typeParameters.isEmpty()) {
+            builder.append(" ");
+        }
+        builder.append(resultType).append(" ");
+        builder.append(name)
+                .append("(")
+                .append(Utils.format(formalParameters, "", ", ", ""))
+                .append(")")
+                .append(Utils.format(thrownExceptions, "throws ", ", ", ""));
         return builder.toString();
+    }
+
+    public String toString() {
+        return comment + declaration() + body;
+    }
+
+    public MethodDefinition override(final AbstractTypeDefinition targetOwner) throws ModelException {
+        final Type type = targetOwner.getAncestorTypeByName(owner.getName());
+        TypeParameters typeParameters1 = targetOwner.getTypeParameters();
+        TypeArguments typeArguments = type.getTypeArguments();
+        final List<FormalParameter> newFormalParameters = new ArrayList<FormalParameter>(formalParameters.size());
+        for (FormalParameter formalParameter: formalParameters) {
+            newFormalParameters.add(formalParameter.substituteParameters(typeParameters1, typeArguments));
+        }
+        final Type newResultType = resultType.substituteParameters(typeParameters1, typeArguments);
+        final Set<Type> newThrownExceptions = new TreeSet<Type>();
+        for (Type exceptionType: thrownExceptions) {
+            newThrownExceptions.add(exceptionType.substituteParameters(typeParameters1, typeArguments));
+        }
+        final Set<String> newModifiers = new HashSet<String>(otherModifiers);
+        newModifiers.add("transient");
+        newModifiers.addAll(targetOwner.addImplicitMethodModifiers(this));
+        String newAccessModifier = targetOwner.implicitMethodAccessModifier(this);
+        return new MethodDefinition(
+                comment,
+                newAccessModifier,
+                newModifiers,
+                typeParameters1,
+                newResultType,
+                name,
+                newFormalParameters,
+                newThrownExceptions,
+                ";",
+                targetOwner,
+                targetOwner.makeMethodPublic(newAccessModifier),
+                targetOwner.makeMethodAbstract(newModifiers));
+    }
+
+    /**
+     * A method matches another method, if they have the same
+     * return type, name, formal parameters, owner and thrown exceptions.
+     * Type parameters may be different, this is taken into account:
+     * e.g if the return type is the first type parameter for both, is it OK etc.
+     * @param other the method to compare with
+     * @return
+     */
+    public boolean matches(MethodDefinition other) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    public void implement(final String newAccessModifier, final String newBody) throws ModelException {
+        final Set<String> newModifiers = new HashSet<String>(otherModifiers);
+        newModifiers.remove("abstract");
+        newModifiers.remove("transient");
+        owner.addMethod(
+        new MethodDefinition(
+                comment,
+                newAccessModifier,
+                newModifiers,
+                typeParameters,
+                resultType,
+                name,
+                formalParameters,
+                thrownExceptions,
+                newBody,
+                owner,
+                owner.makeMethodPublic(newAccessModifier),
+                false)
+        );
+    }
+
+    public void declareAbstract(final String newAccessModifier) throws ModelException {
+        final Set<String> newModifiers = new HashSet<String>(otherModifiers);
+        newModifiers.add("abstract");
+        newModifiers.remove("transient");
+        owner.addMethod(
+            new MethodDefinition(
+                    comment,
+                    newAccessModifier,
+                    newModifiers,
+                    typeParameters,
+                    resultType,
+                    name,
+                    formalParameters,
+                    thrownExceptions,
+                    ";",
+                    owner,
+                    owner.makeMethodPublic(newAccessModifier),
+                    true)
+        );
     }
 
 }

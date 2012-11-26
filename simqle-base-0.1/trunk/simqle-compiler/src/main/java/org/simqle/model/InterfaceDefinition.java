@@ -6,106 +6,83 @@ package org.simqle.model;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
-import org.simqle.util.Utils;
 
-import java.util.*;
-
-import static org.simqle.util.Utils.convertChildren;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <br/>13.11.2011
  *
  * @author Alexander Izyurov
  */
-public class InterfaceDefinition {
-    private final Set<String> importLines;
-    private final String name;
-    private final String accessModifier;
-    private final Set<String> otherModifiers;
-    private final TypeParameters typeParameters;
+public class InterfaceDefinition extends AbstractTypeDefinition {
     private final List<Type> extended;
-    private final Body body;
-
-    // presentation part
-    private final String comment;
 
     public InterfaceDefinition(SyntaxTree node) throws GrammarException {
+        super(node);
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SimqleInterfaceDeclaration");
 
-        this.importLines = new TreeSet<String>(node.getParent().getParent().find("ImportDeclaration", SyntaxTree.BODY));
-        final List<SyntaxTree> modifierNodes = node.find("InterfaceModifiers.InterfaceModifier");
-        this.accessModifier = Utils.getAccessModifier(modifierNodes);
-        this.otherModifiers = Utils.getNonAccessModifiers(modifierNodes);
-        this.name = node.find("Identifier").get(0).getValue();
-        this.typeParameters = node.find("TypeParameters", TypeParameters.CONSTRUCT).get(0);
         this.extended = node.find("ExtendsInterfaces.ClassOrInterfaceType", Type.CONSTRUCT);
-        boolean isSql = false;
-        boolean isQuery = false;
-        TypeParameter queryParameter = null;
-        // exactly one body guaranteed by syntax
-        body = Utils.convertChildren(node, "InterfaceBody", Body.class).get(0);
-        comment = node.getComments();
-        // everything is constructed; apply archetype (by syntax the loopis
+        // everything is constructed; apply archetype (by syntax the loo pis
         // executed 0 or 1 times
         for (SyntaxTree archetypeNode: node.find("Archetype")) {
-            Archetype.create(archetypeNode).apply(this);
+            try {
+                Archetype.create(archetypeNode).apply(this);
+            } catch (ModelException e) {
+                throw new GrammarException(e.getMessage(), archetypeNode);
+            }
         }
     }
 
-    public String getName() {
-        return name;
-    }
 
-    public TypeParameters getTypeParameters() {
-        return typeParameters;
-    }
-
-    public List<Type> getExtended() {
-        return Collections.unmodifiableList(extended);
-    }
-
-    public Body getBody() {
-        return body;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    /**
-     * Returns all methods - declared and inherited
-     * @param model we need model to have access to declarations of inherited methods
-     * @return
-     */
+    @Override
     public Collection<MethodDefinition> getAllMethods(final Model model) throws ModelException {
         // Map of methods by signature
         Map<String, MethodDefinition> allMethods = collectAllMethods(model);
         return allMethods.values();
     }
 
+    @Override
+    protected Type getAncestorTypeByName(final String name) {
+        for (Type t: extended) {
+            if (name.equals(t.getSimpleName())) {
+                return t;
+            }
+        }
+        throw new IllegalArgumentException(getName() + " does not implement " + name);
+    }
+
     private Map<String, MethodDefinition> collectAllMethods(final Model model) throws ModelException {
-        Map<String, MethodDefinition> allMethods = new HashMap<String, MethodDefinition>(body.getMethods());
+        Map<String, MethodDefinition> allMethods = new HashMap<String, MethodDefinition>();
+        for (MethodDefinition method: getDeclaredMethods()) {
+            allMethods.put(method.signature(), method);
+        }
         for (Type type: extended) {
             InterfaceDefinition parent = model.getInterface(type);
             for (MethodDefinition parentMethod: parent.getAllMethods(model)) {
-                MethodDeclaration candidate =
-                        parentMethod.getDeclaration()
-                                .override(parent.getTypeParameters(), type.getTypeArguments());
+                MethodDefinition candidate = parentMethod.override(this);
                 MethodDefinition myMethod = allMethods.get(candidate.signature());
                 if (myMethod == null) {
-                    MethodDefinition overrideDefinition = new MethodDefinition(parentMethod.getComment(),
-                            "", Collections.<String>emptySet(), candidate, ";");
-                    allMethods.put(candidate.signature(), overrideDefinition);
+                    allMethods.put(candidate.signature(), candidate);
                 } else {
                     // check that methods are the same
-                    if (!myMethod.getDeclaration().equals(candidate)) {
-                        throw new ModelException("Name clash in " + getName()+":" +
-                                myMethod.getDeclaration() + " != " + candidate);
+                    if (!myMethod.matches(candidate)) {
+                        throw new ModelException("Name clash in " + getName()+"#" +
+                                myMethod.declaration() + " and " + candidate.declaration());
                     }
                 }
             }
         }
         return allMethods;
+    }
+
+    @Override
+    protected String getExtendsImplements() {
+        // TODO implement
+        throw new RuntimeException("Not implemented");
     }
 
     public static F<SyntaxTree, InterfaceDefinition, GrammarException> CONSTRUCT =
@@ -116,6 +93,27 @@ public class InterfaceDefinition {
                 }
             };
 
+    @Override
+    public String implicitMethodAccessModifier(final MethodDefinition methodDefinition) {
+        // just copy
+        return methodDefinition.getAccessModifier();
+    }
+
+    @Override
+    public Set<String> addImplicitMethodModifiers(final MethodDefinition methodDefinition) {
+        // just copy
+        return methodDefinition.getOtherModifiers();
+    }
+
+    @Override
+    public boolean makeMethodAbstract(final Set<String> modifiers) {
+        return true;
+    }
+
+    @Override
+    public boolean makeMethodPublic(final String explicitAccessModifier) {
+        return false;
+    }
 }
 
 

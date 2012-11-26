@@ -181,7 +181,7 @@ public class Utils {
     }
 
     public static String getAccessModifier(List<SyntaxTree> nodes) throws GrammarException {
-        String accessModifier = "";
+        String accessModifier = null;
         for (SyntaxTree node: nodes) {
             final String candidate = node.getValue();
             if (ACCESS_MODIFIERS.contains(candidate)) {

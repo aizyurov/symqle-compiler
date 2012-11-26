@@ -53,10 +53,10 @@ public abstract class Archetype {
 
         @Override
         public void apply(InterfaceDefinition interfaceDefinition) throws ModelException {
-            MethodDefinition methodDefinition = MethodDefinition.parseAbstractMethod(
+            MethodDefinition methodDefinition = MethodDefinition.parseAbstract(
                     String.format(SQL_METHOD_FORMAT,
-                            interfaceDefinition.getName()));
-            interfaceDefinition.getBody().addMethod(methodDefinition);
+                            interfaceDefinition.getName()), interfaceDefinition);
+            interfaceDefinition.addMethod(methodDefinition);
         }
     }
 
@@ -72,11 +72,11 @@ public abstract class Archetype {
 
         @Override
         public void apply(InterfaceDefinition interfaceDefinition) throws ModelException {
-            MethodDefinition methodDefinition = MethodDefinition.parseAbstractMethod(
+            MethodDefinition methodDefinition = MethodDefinition.parseAbstract(
                     String.format(QUERY_METHOD_FORMAT,
                             getTypeParameters().list().get(0),
-                            interfaceDefinition.getName()));
-            interfaceDefinition.getBody().addMethod(methodDefinition);
+                            interfaceDefinition.getName()), interfaceDefinition);
+            interfaceDefinition.addMethod(methodDefinition);
         }
     }
 

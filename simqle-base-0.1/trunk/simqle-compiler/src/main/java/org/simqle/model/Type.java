@@ -66,9 +66,8 @@ public class Type {
 
     public TypeArguments getTypeArguments() {
         final List<TypeArgument> typeArguments = new LinkedList<TypeArgument>();
-        for (TypeNameWithTypeArguments element: nameChain) {
+        TypeNameWithTypeArguments element = nameChain.get(nameChain.size()-1);
             typeArguments.addAll(element.getTypeArguments().getArguments());
-        }
         return new TypeArguments(typeArguments);
     }
 
@@ -149,6 +148,10 @@ public class Type {
             }
             return new Type(newNameChain, arrayDimensions);
         }
+    }
+
+    public String getSimpleName() {
+        return nameChain.get(nameChain.size()-1).getName();
     }
 
 

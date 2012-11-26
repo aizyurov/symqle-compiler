@@ -82,12 +82,6 @@ public class Model {
         return result;
     }
 
-    public void addFactoryMethod(FactoryMethodModel factoryMethod) throws ModelException {
-        if (null!=factoryMethods.put(factoryMethod.getName(), factoryMethod)) {
-            throw new ModelException("Duplicate rule "+factoryMethod.getName());
-        }
-    }
-
     public List<FactoryMethodModel> getAllFactoryMethods() {
         return new ArrayList<FactoryMethodModel>(factoryMethods.values());
     }

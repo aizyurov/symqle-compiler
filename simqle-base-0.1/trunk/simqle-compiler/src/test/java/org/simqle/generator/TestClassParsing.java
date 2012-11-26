@@ -4,15 +4,16 @@
 package org.simqle.generator;
 
 import junit.framework.TestCase;
-import org.simqle.model.*;
+import org.simqle.model.ClassDefinition;
+import org.simqle.model.Model;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
-import org.simqle.processor.*;
-import org.simqle.test.TestUtils;
+import org.simqle.processor.ClassDeclarationProcessor;
+import org.simqle.processor.GrammarException;
+import org.simqle.processor.InterfaceDeclarationsProcessor;
+import org.simqle.processor.Processor;
 
 import java.io.FileReader;
-import java.util.List;
-import java.util.Set;
 
 /**
  * <br/>15.11.2011
@@ -105,7 +106,7 @@ public class TestClassParsing extends TestCase {
         }
         final ClassDefinition justForFun = model.getClassDef("JustForFun");
         assertNotNull(justForFun);
-        assertEquals(1, justForFun.getBody().getMethods().size());
+        assertEquals(1, justForFun.getDeclaredMethods().size());
 
     }
 

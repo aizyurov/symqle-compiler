@@ -1,17 +1,6 @@
 package org.simqle.generator;
 
 import junit.framework.TestCase;
-import org.simqle.model.ClassDefinition;
-import org.simqle.model.MethodDeclaration;
-import org.simqle.model.Model;
-import org.simqle.model.Type;
-import org.simqle.parser.SimqleParser;
-import org.simqle.parser.SyntaxTree;
-import org.simqle.processor.ClassDeclarationProcessor;
-import org.simqle.processor.InterfaceDeclarationsProcessor;
-import org.simqle.processor.Processor;
-
-import java.io.FileReader;
 
 /**
  * Created by IntelliJ IDEA.
