@@ -1,8 +1,5 @@
 package org.simqle.model;
 
-import org.simqle.parser.SyntaxTree;
-import org.simqle.processor.GrammarException;
-import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
 import java.util.ArrayList;
@@ -19,11 +16,6 @@ import java.util.List;
 public class TypeArguments {
     private final List<TypeArgument> arguments;
 
-    public TypeArguments(final SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "TypeArguments");
-        this.arguments = node.find("TypeArgument", TypeArgument.CONSTRUCT);
-    }
-
     public TypeArguments(List<TypeArgument> arguments) {
         this.arguments = new ArrayList<TypeArgument>(arguments);
     }
@@ -31,14 +23,6 @@ public class TypeArguments {
     private TypeArguments() {
         this(Collections.<TypeArgument>emptyList());
     }
-
-    public static final F<SyntaxTree, TypeArguments, GrammarException> CONSTRUCT =
-            new F<SyntaxTree, TypeArguments, GrammarException>() {
-        @Override
-        public TypeArguments apply(SyntaxTree syntaxTree) throws GrammarException {
-            return new TypeArguments(syntaxTree);
-        }
-    };
 
     @Override
     public String toString() {

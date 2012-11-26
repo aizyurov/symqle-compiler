@@ -27,7 +27,7 @@ public abstract class Archetype {
 
     public static Archetype create(final SyntaxTree node) throws GrammarException {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "Archetype");
-        TypeParameters parameters = node.find("TypeParameters", TypeParameters.CONSTRUCT).get(0);
+        TypeParameters parameters = new TypeParameters(node.find("TypeParameters.TypeParameter", TypeParameter.CONSTRUCT));
         String name = node.find("Identifier", SyntaxTree.VALUE).get(0);
         try {
             if ("Sql".equals(name)) {

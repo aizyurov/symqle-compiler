@@ -7,12 +7,6 @@ import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static org.simqle.util.Utils.*;
-
 
 /**
  * <br/>13.11.2011
@@ -26,8 +20,8 @@ public class TypeNameWithTypeArguments {
 
     public TypeNameWithTypeArguments(SyntaxTree node)  throws GrammarException {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "IdentifierWithTypeArguments", "Identifier");
-        typeArguments = node.find("TypeArguments", TypeArguments.CONSTRUCT).get(0);
-        name = node.getType().equals("IDentifier") ?
+        typeArguments = new TypeArguments(node.find("TypeArguments.TypeArgument", TypeArgument.CONSTRUCT));
+        name = node.getType().equals("Identifier") ?
                 node.getValue() :
                 node.find("Identifier").get(0).getValue();
     }

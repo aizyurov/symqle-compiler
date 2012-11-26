@@ -1,8 +1,5 @@
 package org.simqle.model;
 
-import org.simqle.parser.SyntaxTree;
-import org.simqle.processor.GrammarException;
-import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
 import java.util.ArrayList;
@@ -18,9 +15,8 @@ import java.util.List;
 public class TypeParameters {
     private final List<TypeParameter> typeParameters;
 
-    public TypeParameters(SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "TypeParameter");
-        this.typeParameters = node.find("TypeParameter", TypeParameter.CONSTRUCT);
+    public TypeParameters(final List<TypeParameter> typeParameters) {
+        this.typeParameters = new ArrayList<TypeParameter>(typeParameters);
     }
 
     public String toString() {
@@ -38,14 +34,6 @@ public class TypeParameters {
     public int size() {
         return typeParameters.size();
     }
-
-    public static final F<SyntaxTree, TypeParameters, GrammarException> CONSTRUCT =
-            new F<SyntaxTree, TypeParameters, GrammarException>() {
-                @Override
-                public TypeParameters apply(SyntaxTree syntaxTree) throws GrammarException {
-                    return new TypeParameters(syntaxTree);
-                }
-            };
 
     public TypeArguments asTypeArguments() {
         List<TypeArgument> arguments = new ArrayList<TypeArgument>(typeParameters.size());

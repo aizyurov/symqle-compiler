@@ -1,0 +1,6 @@
+/**
+* A Javadoc for interface
+*/
+public interface Scalar<T> {
+    T value() throws SQLException;
+}

@@ -3,14 +3,17 @@
 */
 package org.simqle.model;
 
-import org.simqle.parser.ParseException;
-import org.simqle.parser.SimpleNode;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <br/>19.11.2011
@@ -24,18 +27,6 @@ public class ClassDefinition extends AbstractTypeDefinition {
 
     private final List<Type> implementedInterfaces;
 
-
-    public static ClassDefinition parse(String source) {
-        try {
-            final SimpleNode simpleNode = Utils.createParser(source).NormalClassDeclaration();
-            SyntaxTree syntaxTree = new SyntaxTree(simpleNode, source);
-            return new ClassDefinition(syntaxTree);
-        } catch (ParseException e) {
-            throw new RuntimeException("Internal error", e);
-        } catch (GrammarException e) {
-            throw new RuntimeException("Internal error", e);
-        }
-    }
 
     public ClassDefinition(SyntaxTree node) throws GrammarException {
         super(node);

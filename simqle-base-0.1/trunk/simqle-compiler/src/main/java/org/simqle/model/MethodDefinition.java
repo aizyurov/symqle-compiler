@@ -97,7 +97,7 @@ public class MethodDefinition {
         this.otherModifiers = Utils.getNonAccessModifiers(modifierNodes);
         final List<SyntaxTree> bodies = node.find("MethodBody");
         this.body = bodies.isEmpty() ? ";" : bodies.get(0).getImage();
-        typeParameters = node.find("TypeParameters", TypeParameters.CONSTRUCT).get(0);
+        typeParameters = new TypeParameters(node.find("TypeParameters.TypeParameter", TypeParameter.CONSTRUCT));
         final List<SyntaxTree> resultTypes = node.find("ResultType.Type");
         if (resultTypes.isEmpty()) {
             // void
@@ -114,7 +114,7 @@ public class MethodDefinition {
 
         final List<String> throwClauses = node.find("Throws", SyntaxTree.BODY);
         // may be at most one by grammar
-        this.thrownExceptions = new TreeSet<Type>(node.find("Throws.ExceptionType", Type.CONSTRUCT));
+        this.thrownExceptions = new HashSet<Type>(node.find("Throws.ExceptionType", Type.CONSTRUCT));
         this.owner = owner;
         this.isAbstract = owner.makeMethodAbstract(otherModifiers);
         this.isPublic = owner.makeMethodPublic(accessModifier);
@@ -126,6 +126,10 @@ public class MethodDefinition {
     }
 
     public String signature() {
+        // TODO
+        // replace type parameters of method with "Object"
+        // replace type parameters of owner with "Object"
+        // return name+formal parameters
         throw new RuntimeException("Not implemented");
     }
 
@@ -161,14 +165,18 @@ public class MethodDefinition {
         final Type type = targetOwner.getAncestorTypeByName(owner.getName());
         TypeParameters typeParameters1 = targetOwner.getTypeParameters();
         TypeArguments typeArguments = type.getTypeArguments();
+        return replaceParameters(targetOwner, typeParameters1, typeArguments);
+    }
+
+    private MethodDefinition replaceParameters(final AbstractTypeDefinition targetOwner, final TypeParameters typeParameters, final TypeArguments typeArguments) throws ModelException {
         final List<FormalParameter> newFormalParameters = new ArrayList<FormalParameter>(formalParameters.size());
         for (FormalParameter formalParameter: formalParameters) {
-            newFormalParameters.add(formalParameter.substituteParameters(typeParameters1, typeArguments));
+            newFormalParameters.add(formalParameter.substituteParameters(typeParameters, typeArguments));
         }
-        final Type newResultType = resultType.substituteParameters(typeParameters1, typeArguments);
+        final Type newResultType = resultType.substituteParameters(typeParameters, typeArguments);
         final Set<Type> newThrownExceptions = new TreeSet<Type>();
         for (Type exceptionType: thrownExceptions) {
-            newThrownExceptions.add(exceptionType.substituteParameters(typeParameters1, typeArguments));
+            newThrownExceptions.add(exceptionType.substituteParameters(typeParameters, typeArguments));
         }
         final Set<String> newModifiers = new HashSet<String>(otherModifiers);
         newModifiers.add("transient");
@@ -178,7 +186,7 @@ public class MethodDefinition {
                 comment,
                 newAccessModifier,
                 newModifiers,
-                typeParameters1,
+                typeParameters,
                 newResultType,
                 name,
                 newFormalParameters,

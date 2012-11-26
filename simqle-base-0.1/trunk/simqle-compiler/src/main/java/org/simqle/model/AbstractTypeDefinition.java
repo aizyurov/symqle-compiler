@@ -40,7 +40,7 @@ public abstract class AbstractTypeDefinition {
         this.accessModifier = Utils.getAccessModifier(modifierNodes);
         this.otherModifiers = Utils.getNonAccessModifiers(modifierNodes);
         this.name = node.find("Identifier").get(0).getValue();
-        this.typeParameters = node.find("TypeParameters", TypeParameters.CONSTRUCT).get(0);
+        this.typeParameters = new TypeParameters(node.find("TypeParameters.TypeParameter", TypeParameter.CONSTRUCT));
         // exactly one body guaranteed by syntax - either InterfaceBody or ClassBody
         final List<SyntaxTree> bodies = node.find("InterfaceBody");
         bodies.addAll(node.find("ClassBody"));
