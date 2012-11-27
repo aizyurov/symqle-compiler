@@ -1,0 +1,3 @@
+public interface Bad {
+    void z$create$Something(int i);
+}

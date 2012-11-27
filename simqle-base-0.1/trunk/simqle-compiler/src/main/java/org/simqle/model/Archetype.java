@@ -25,6 +25,14 @@ public abstract class Archetype {
 
     public abstract void apply(InterfaceDefinition interfaceDefinition) throws ModelException;
 
+    public static void verify(InterfaceDefinition interfaceDefinition) throws ModelException {
+        for (MethodDefinition def: interfaceDefinition.getDeclaredMethods()) {
+            if (def.getName().startsWith(ARCHETYPE_METHOD_PREFIX)) {
+                throw new ModelException("Prefix \""+ARCHETYPE_METHOD_PREFIX+"\" is reserved for generated methods");
+            }
+        }
+    }
+
     public static Archetype create(final SyntaxTree node) throws GrammarException {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "Archetype");
         TypeParameters parameters = new TypeParameters(node.find("TypeParameters.TypeParameter", TypeParameter.CONSTRUCT));
@@ -102,5 +110,7 @@ public abstract class Archetype {
             "*/",
             "Sql z$create$%s(%sSqlContext context);"
     );
+
+    private static final String ARCHETYPE_METHOD_PREFIX = "z$create$";
 
 }

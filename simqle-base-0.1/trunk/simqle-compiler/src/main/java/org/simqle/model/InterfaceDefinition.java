@@ -28,6 +28,11 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
         this.extended = node.find("ExtendsInterfaces.ClassOrInterfaceType", Type.CONSTRUCT);
         // everything is constructed; apply archetype (by syntax the loo pis
         // executed 0 or 1 times
+        try {
+            Archetype.verify(this);
+        } catch (ModelException e) {
+            throw new GrammarException(e.getMessage(), node);
+        }
         for (SyntaxTree archetypeNode: node.find("Archetype")) {
             try {
                 Archetype.create(archetypeNode).apply(this);

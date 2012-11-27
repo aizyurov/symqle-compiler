@@ -71,4 +71,18 @@ public class TestArchetypeTypeParam extends TestCase {
         }
     }
 
+    public void testIllegalMethodName() throws Exception {
+        String source = "src/test-data/model/ArchetypeIllegalMethodName.sdl";
+        Reader reader = new InputStreamReader(new FileInputStream(source));
+        SimqleParser parser = new SimqleParser(reader);
+        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        Model model = new Model();
+        try {
+            new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage(), e.getMessage().startsWith("Prefix \"z$create$\" is reserved for generated methods"));
+        }
+    }
+
 }
