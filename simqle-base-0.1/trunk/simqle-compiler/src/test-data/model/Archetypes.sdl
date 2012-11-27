@@ -17,5 +17,5 @@ public interface Child3 : Query<Boolean> {
 }
 
 // different types: Scalar<T> but Query<Boolean> - not very realistic case but should compile
-public interface Child4 extends Scalar<T> : Query<Boolean> {
+public interface Child4<T> extends Scalar<T> : Query<Boolean> {
 }
