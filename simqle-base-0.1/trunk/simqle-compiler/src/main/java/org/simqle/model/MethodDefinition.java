@@ -219,7 +219,7 @@ public class MethodDefinition {
      * @return
      */
     public boolean matches(MethodDefinition other) {
-        if (signature().equals(other.signature())) {
+        if (!signature().equals(other.signature())) {
             return false;
         }
         final TypeArguments typeArguments = typeParameters.asTypeArguments();

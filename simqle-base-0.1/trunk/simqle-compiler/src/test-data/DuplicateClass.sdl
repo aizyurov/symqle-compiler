@@ -1,9 +1,7 @@
 public interface select_statement<T>
 {}
 
-public class SelectStatement<T> implements select_statement<T> with sqlBuilder
-/* implementation import -- will NOT be propagated to classes, which mimic this */
-import java.util.LinkedList;
+public class SelectStatement<T> implements select_statement<T>
 {
     // TODO add scroll
     public List<T> list(final Database database)  throws SQLException {

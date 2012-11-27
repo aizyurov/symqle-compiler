@@ -1,2 +1,2 @@
-public class SelectStatement<T> implements select_statement<T> with SqlBuilder
+public class SelectStatement<T> implements select_statement<T>
 {}

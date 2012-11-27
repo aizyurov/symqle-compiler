@@ -2,7 +2,7 @@ public interface test_interface<T>
 {
 }
 
-public class TestClass<T> implements test_interface<T> with sqlBuilder
+public class TestClass<T> implements test_interface<T>
 {
     public void dump(OutputStream os) {
         // do nothing
