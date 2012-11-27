@@ -1,0 +1,21 @@
+/**
+* A Javadoc for interface
+*/
+public interface Scalar<T> {
+    T value() throws SQLException;
+    ValueExpression<T> param(T value);
+}
+
+public interface Child1<T> extends Scalar<T> : Sql {
+    Collection<T> myMethod(int i) throws NoSuchElementException, ArrayIndexOutOfBoundsException;
+}
+
+public interface Child2<T> : Query<T> {
+}
+
+public interface Child3 : Query<Boolean> {
+}
+
+// different types: Scalar<T> but Query<Boolean> - not very realistic case but should compile
+public interface Child4 extends Scalar<T> : Query<Boolean> {
+}

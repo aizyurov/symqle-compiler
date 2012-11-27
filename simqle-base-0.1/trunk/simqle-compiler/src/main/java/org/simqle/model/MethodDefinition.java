@@ -112,8 +112,8 @@ public class MethodDefinition {
         // may be at most one by grammar
         this.thrownExceptions = new HashSet<Type>(node.find("Throws.ExceptionType", Type.CONSTRUCT));
         this.owner = owner;
-        this.isAbstract = owner.makeMethodAbstract(otherModifiers);
-        this.isPublic = owner.makeMethodPublic(accessModifier);
+        this.isAbstract = owner.methodIsAbstract(otherModifiers);
+        this.isPublic = owner.methodIsPublic(accessModifier);
 
     }
 
@@ -144,7 +144,7 @@ public class MethodDefinition {
         if (!"".equals(accessModifier)) {
             builder.append(" ");
         }
-        builder.append(Utils.format(new ArrayList<String>(otherModifiers), " ", " ", ""));
+        builder.append(Utils.format(new ArrayList<String>(otherModifiers), "", " ", ""));
         if (!typeParameters.isEmpty()) {
             builder.append(" ");
         }
@@ -194,8 +194,8 @@ public class MethodDefinition {
                 newThrownExceptions,
                 ";",
                 targetOwner,
-                targetOwner.makeMethodPublic(newAccessModifier),
-                targetOwner.makeMethodAbstract(newModifiers));
+                targetOwner.methodIsPublic(newAccessModifier),
+                targetOwner.methodIsAbstract(newModifiers));
     }
 
     /**
@@ -208,6 +208,21 @@ public class MethodDefinition {
      */
     public boolean matches(MethodDefinition other) {
         throw new RuntimeException("Not implemented");
+    }
+
+    public String invoke(String objectName) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(objectName);
+        builder.append("(");
+        final Collection<String> parameterNames = Utils.map(formalParameters, new F<FormalParameter, String, RuntimeException>() {
+            @Override
+            public String apply(final FormalParameter formalParameter) {
+                return formalParameter.getName();
+            }
+        });
+        builder.append(Utils.format(parameterNames, "", ", ", ""));
+        builder.append(")");
+        return builder.toString();
     }
 
     public void implement(final String newAccessModifier, final String newBody) throws ModelException {
@@ -226,7 +241,7 @@ public class MethodDefinition {
                 thrownExceptions,
                 newBody,
                 owner,
-                owner.makeMethodPublic(newAccessModifier),
+                owner.methodIsPublic(newAccessModifier),
                 false)
         );
     }
@@ -247,7 +262,7 @@ public class MethodDefinition {
                     thrownExceptions,
                     ";",
                     owner,
-                    owner.makeMethodPublic(newAccessModifier),
+                    owner.methodIsPublic(newAccessModifier),
                     true)
         );
     }

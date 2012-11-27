@@ -74,14 +74,6 @@ public class Utils {
         return convertChildren(parent, path, new ReflectionFactory<T>(clazz));
     }
 
-    public static String getChildrenImage(SyntaxTree parent, String path) {
-        StringBuilder builder = new StringBuilder();
-        for (SyntaxTree child: parent.find(path)) {
-            builder.append(child.getImage());
-        }
-        return builder.toString();
-    }
-
     public static final String LINE_BREAK = System.getProperty("line.separator", "\n");
 
     public static String indent(int indent, String... source) {
@@ -93,21 +85,6 @@ public class Utils {
             builder.append(s).append(LINE_BREAK);
         }
         return builder.toString();
-    }
-
-    public static String concat(List<String> sources, String separator) {
-        StringBuilder builder = new StringBuilder();
-        for (String source: sources) {
-            if (builder.length()>0) {
-                builder.append(separator);
-            }
-            builder.append(source);
-        }
-        return builder.toString();
-    }
-
-    public static String concat(String separator, String... sources) {
-        return concat(Arrays.asList(sources), separator);
     }
 
     public static SimqleParser createParser(String source) {

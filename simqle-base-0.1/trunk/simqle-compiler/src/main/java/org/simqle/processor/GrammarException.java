@@ -19,7 +19,7 @@ public class GrammarException extends Exception {
     private static String appendPosition(String message, SyntaxTree node) {
         final StringBuilder builder = new StringBuilder();
         builder.append(message);
-                builder.append("[").append(node.getFileName()).append(":")
+                builder.append(" [").append(node.getFileName()).append(":")
                         .append(node.getLine()).append(":")
                         .append(node.getColumn()).append("]");
         return builder.toString();

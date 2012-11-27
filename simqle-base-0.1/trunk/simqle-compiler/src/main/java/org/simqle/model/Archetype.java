@@ -47,7 +47,7 @@ public abstract class Archetype {
         private SqlArchetype(TypeParameters typeParameters) throws ModelException {
             super(typeParameters);
             if (!typeParameters.isEmpty()) {
-                throw new ModelException("Sql archetype does not take type parameters, found: "+typeParameters);
+                throw new ModelException("Sql archetype does not take type parameters, found: "+typeParameters.size());
             }
         }
 
@@ -55,7 +55,7 @@ public abstract class Archetype {
         public void apply(InterfaceDefinition interfaceDefinition) throws ModelException {
             MethodDefinition methodDefinition = MethodDefinition.parseAbstract(
                     String.format(SQL_METHOD_FORMAT,
-                            interfaceDefinition.getName()), interfaceDefinition);
+                            interfaceDefinition.getName(), ""), interfaceDefinition);
             interfaceDefinition.addMethod(methodDefinition);
         }
     }
@@ -65,28 +65,33 @@ public abstract class Archetype {
         private QueryArchetype(TypeParameters typeParameters) throws ModelException {
             super(typeParameters);
             if (typeParameters.size()!=1) {
-                throw new ModelException("Query archetype requires 1 type parameter, found: "+typeParameters);
+                throw new ModelException("Query archetype requires 1 type parameter, found: "+typeParameters.size());
             }
 
         }
 
         @Override
         public void apply(InterfaceDefinition interfaceDefinition) throws ModelException {
+            final TypeParameters typeParameters = interfaceDefinition.getTypeParameters();
+            final TypeParameter myTypeArgument = getTypeParameters().list().get(0);
+            if (!typeParameters.list().contains(myTypeArgument)) {
+                throw new ModelException("Unknown type argument: "+ myTypeArgument);
+            }
             MethodDefinition methodDefinition = MethodDefinition.parseAbstract(
                     String.format(QUERY_METHOD_FORMAT,
-                            getTypeParameters().list().get(0),
-                            interfaceDefinition.getName()), interfaceDefinition);
+                            typeParameters,
+                            interfaceDefinition.getName(), ""), interfaceDefinition);
             interfaceDefinition.addMethod(methodDefinition);
         }
     }
 
     private final static String QUERY_METHOD_FORMAT = Utils.indent(4,
             "/**",
-            "* Creates a Query",
+            "* Creates a Query representing <code>this</code>",
             "* @param context the Sql construction context",
             "* @return query conforming to <code>this</code> syntax",
             "*/",
-            "Query<%s> z$create$%s(final SqlContext context);"
+            "Query<%s> z$create$%s(%sSqlContext context);"
             );
 
     private final static String SQL_METHOD_FORMAT = Utils.indent(8,
@@ -95,7 +100,7 @@ public abstract class Archetype {
             "* @param context the Sql construction context",
             "* @return sql conforming to <code>this</code> syntax",
             "*/",
-            "Sql z$create$%s(final SqlContext context);"
+            "Sql z$create$%s(%sSqlContext context);"
     );
 
 }

@@ -8,7 +8,6 @@ import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,24 +38,10 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
     }
 
 
+
     @Override
-    public Collection<MethodDefinition> getAllMethods(final Model model) throws ModelException {
+    protected final Map<String, MethodDefinition> getAllMethodsMap(final Model model) throws ModelException {
         // Map of methods by signature
-        Map<String, MethodDefinition> allMethods = collectAllMethods(model);
-        return allMethods.values();
-    }
-
-    @Override
-    protected Type getAncestorTypeByName(final String name) {
-        for (Type t: extended) {
-            if (name.equals(t.getSimpleName())) {
-                return t;
-            }
-        }
-        throw new IllegalArgumentException(getName() + " does not implement " + name);
-    }
-
-    private Map<String, MethodDefinition> collectAllMethods(final Model model) throws ModelException {
         Map<String, MethodDefinition> allMethods = new HashMap<String, MethodDefinition>();
         for (MethodDefinition method: getDeclaredMethods()) {
             allMethods.put(method.signature(), method);
@@ -81,6 +66,16 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
     }
 
     @Override
+    protected final Type getAncestorTypeByName(final String name) {
+        for (Type t: extended) {
+            if (name.equals(t.getSimpleName())) {
+                return t;
+            }
+        }
+        throw new IllegalArgumentException(getName() + " does not implement " + name);
+    }
+
+    @Override
     protected String getExtendsImplements() {
         return Utils.format(extended, "extends ", ", ", "");
     }
@@ -94,25 +89,25 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
             };
 
     @Override
-    public String implicitMethodAccessModifier(final MethodDefinition methodDefinition) {
+    public final String implicitMethodAccessModifier(final MethodDefinition methodDefinition) {
         // just copy
         return methodDefinition.getAccessModifier();
     }
 
     @Override
-    public Set<String> addImplicitMethodModifiers(final MethodDefinition methodDefinition) {
+    public final Set<String> addImplicitMethodModifiers(final MethodDefinition methodDefinition) {
         // just copy
         return methodDefinition.getOtherModifiers();
     }
 
     @Override
-    public boolean makeMethodAbstract(final Set<String> modifiers) {
+    public final boolean methodIsAbstract(final Set<String> modifiers) {
         return true;
     }
 
     @Override
-    public boolean makeMethodPublic(final String explicitAccessModifier) {
-        return false;
+    public final boolean methodIsPublic(final String explicitAccessModifier) {
+        return true;
     }
 }
 

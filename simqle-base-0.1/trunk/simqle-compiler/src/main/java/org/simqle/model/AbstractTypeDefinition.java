@@ -74,8 +74,8 @@ public abstract class AbstractTypeDefinition {
     public abstract String implicitMethodAccessModifier(MethodDefinition methodDefinition);
     public abstract Set<String> addImplicitMethodModifiers(MethodDefinition methodDefinition);
 
-    public abstract boolean makeMethodAbstract(Set<String> modifiers);
-    public abstract boolean makeMethodPublic(String explicitAccessModifier);
+    public abstract boolean methodIsAbstract(Set<String> modifiers);
+    public abstract boolean methodIsPublic(String explicitAccessModifier);
 
 
 
@@ -97,11 +97,23 @@ public abstract class AbstractTypeDefinition {
         return methods.values();
     }
 
-    public abstract Collection<MethodDefinition> getAllMethods(Model model) throws ModelException;
+    public final Collection<MethodDefinition> getAllMethods(Model model) throws ModelException {
+        return getAllMethodsMap(model).values();
+    }
+
+    public final MethodDefinition getMethodBySignature(String signature, Model model) throws ModelException {
+        return getAllMethodsMap(model).get(signature);
+    }
+
+    protected abstract Map<String, MethodDefinition> getAllMethodsMap(Model model) throws ModelException;
 
     protected abstract String getExtendsImplements();
 
     protected abstract Type getAncestorTypeByName(String name);
+
+    public final MethodDefinition getDeclaredMethodBySignature(String signature) {
+        return methods.get(signature);
+    }
 
     public final String toString() {
         StringBuilder builder = new StringBuilder();

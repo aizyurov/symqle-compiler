@@ -8,7 +8,6 @@ import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +36,7 @@ public class ClassDefinition extends AbstractTypeDefinition {
         } else {
             this.extendedClass = new Type(extendedTypes.get(0));
         }
-        this.implementedInterfaces = Utils.convertChildren(node, "Interfaces.ClassOrInterfaceType", Type.class);
+        this.implementedInterfaces = node.find("Interfaces.ClassOrInterfaceType", Type.CONSTRUCT);
     }
 
     public void addImplementedInterface(final Type interfaceType) {
@@ -52,7 +51,7 @@ public class ClassDefinition extends AbstractTypeDefinition {
     }
 
     @Override
-    public Collection<MethodDefinition> getAllMethods(Model model) throws ModelException {
+    public Map<String, MethodDefinition> getAllMethodsMap(Model model) throws ModelException {
         final Map<String, MethodDefinition> methodMap = new HashMap<String, MethodDefinition>();
         for (MethodDefinition method: getDeclaredMethods()) {
             methodMap.put(method.signature(), method);
@@ -79,7 +78,7 @@ public class ClassDefinition extends AbstractTypeDefinition {
                 }
             }
         }
-        return methodMap.values();
+        return methodMap;
     }
 
     @Override
@@ -112,12 +111,12 @@ public class ClassDefinition extends AbstractTypeDefinition {
     }
 
     @Override
-    public boolean makeMethodAbstract(final Set<String> modifiers) {
+    public boolean methodIsAbstract(final Set<String> modifiers) {
         return modifiers.contains("abstract");
     }
 
     @Override
-    public boolean makeMethodPublic(final String explicitAccessModifier) {
+    public boolean methodIsPublic(final String explicitAccessModifier) {
         return explicitAccessModifier.equals("public");
     }
 }

@@ -3,21 +3,28 @@
 */
 public interface Scalar<T> {
     T value() throws SQLException;
-    ValueExpression<T> param(T value) throws NullPointerException;
+    ValueExpression<T> param(T value);
 }
 
 public interface Child1<T> extends Scalar<T> {
-
+    Collection<T> myMethod(int i) throws NoSuchElementException, ArrayIndexOutOfBoundsException;
 }
 
 public interface Child2 extends Scalar<Boolean> {
 
 }
 
-public interface Child3<T> extends Scalar<? super T> {
+public interface Child3<T> extends Scalar<List<T>> {
 
 }
 
-public interface Child4<T> extends Scalar<? extends T> {
+public interface Child4<T> extends Scalar<List<? extends T>> {
 
 }
+
+public interface Child5<T> extends Scalar<List<? super T>> {
+
+}
+
+
+
