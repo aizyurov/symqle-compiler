@@ -1,7 +1,0 @@
-/**
-* A Javadoc for interface
-*/
-public interface Scalar<T> {
-    T value() throws SQLException;
-    ValueExpression<? super T> param(T value) throws NullPointerException, StackOverflow;
-}

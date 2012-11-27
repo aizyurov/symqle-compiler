@@ -41,6 +41,10 @@ public class Model {
         }
     }
 
+    public AbstractTypeDefinition getAbstractType(String name) {
+        return getClassOrInterface(name).getAbstract();
+    }
+
     private ClassOrInterface getClassOrInterface(String name) {
         ClassOrInterface classOrInterface = classMap.get(name);
         if (classOrInterface == null) {
@@ -101,6 +105,10 @@ public class Model {
             this.classDefinition = classDefinition;
             this.interfaceDefinition = null;
             this.isInterface = false;
+        }
+
+        private AbstractTypeDefinition getAbstract() {
+            return isInterface ? interfaceDefinition : classDefinition;
         }
     }
 

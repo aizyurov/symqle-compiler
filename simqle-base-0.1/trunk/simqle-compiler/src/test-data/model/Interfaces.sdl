@@ -1,0 +1,23 @@
+/**
+* A Javadoc for interface
+*/
+public interface Scalar<T> {
+    T value() throws SQLException;
+    ValueExpression<T> param(T value) throws NullPointerException;
+}
+
+public interface Child1<T> extends Scalar<T> {
+
+}
+
+public interface Child2 extends Scalar<Boolean> {
+
+}
+
+public interface Child3<T> extends Scalar<? super T> {
+
+}
+
+public interface Child4<T> extends Scalar<? extends T> {
+
+}

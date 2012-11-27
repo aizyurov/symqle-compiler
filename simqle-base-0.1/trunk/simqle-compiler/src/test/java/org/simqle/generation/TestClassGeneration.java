@@ -39,7 +39,7 @@ public class TestClassGeneration extends TestCase {
 
     public void testSelectStatement() throws Exception {
         Director director = new Director(new Generator[]{new ClassGenerator()});
-        director.doAll(new File[]{new File("src/test-data/interface-generation/SelectStatement.sdl"), new File("src/test-data/interface-generation/Scalar.sdl")},
+        director.doAll(new File[]{new File("src/test-data/interface-generation/SelectStatement.sdl"), new File("src/test-data/interface-generation/Interfaces.sdl")},
                 new File("target/test-generated-sources-4"));
 
     }

@@ -71,12 +71,12 @@ public class MethodDefinition {
                              final boolean anAbstract) {
         this.comment = comment;
         this.accessModifier = accessModifier;
-        this.otherModifiers = otherModifiers;
+        this.otherModifiers = new TreeSet<String>(otherModifiers);
         this.typeParameters = typeParameters;
         this.resultType = resultType;
         this.name = name;
-        this.formalParameters = formalParameters;
-        this.thrownExceptions = thrownExceptions;
+        this.formalParameters = new ArrayList<FormalParameter>(formalParameters);
+        this.thrownExceptions = new HashSet<Type>(thrownExceptions);
         this.body = body;
         this.owner = owner;
         isPublic = aPublic;
@@ -161,9 +161,10 @@ public class MethodDefinition {
         return comment + declaration() + body;
     }
 
-    public MethodDefinition override(final AbstractTypeDefinition targetOwner) throws ModelException {
+    public MethodDefinition override(final AbstractTypeDefinition targetOwner, final Model model) throws ModelException {
         final Type type = targetOwner.getAncestorTypeByName(owner.getName());
-        TypeParameters typeParameters1 = targetOwner.getTypeParameters();
+        final AbstractTypeDefinition abstractType = model.getAbstractType(type.getSimpleName());
+        TypeParameters typeParameters1 = abstractType.getTypeParameters();
         TypeArguments typeArguments = type.getTypeArguments();
         return replaceParameters(targetOwner, typeParameters1, typeArguments);
     }
@@ -174,7 +175,7 @@ public class MethodDefinition {
             newFormalParameters.add(formalParameter.substituteParameters(typeParameters, typeArguments));
         }
         final Type newResultType = resultType.substituteParameters(typeParameters, typeArguments);
-        final Set<Type> newThrownExceptions = new TreeSet<Type>();
+        final Set<Type> newThrownExceptions = new HashSet<Type>();
         for (Type exceptionType: thrownExceptions) {
             newThrownExceptions.add(exceptionType.substituteParameters(typeParameters, typeArguments));
         }

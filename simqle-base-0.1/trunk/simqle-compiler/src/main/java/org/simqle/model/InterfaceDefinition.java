@@ -64,7 +64,7 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
         for (Type type: extended) {
             InterfaceDefinition parent = model.getInterface(type);
             for (MethodDefinition parentMethod: parent.getAllMethods(model)) {
-                MethodDefinition candidate = parentMethod.override(this);
+                MethodDefinition candidate = parentMethod.override(this, model);
                 MethodDefinition myMethod = allMethods.get(candidate.signature());
                 if (myMethod == null) {
                     allMethods.put(candidate.signature(), candidate);

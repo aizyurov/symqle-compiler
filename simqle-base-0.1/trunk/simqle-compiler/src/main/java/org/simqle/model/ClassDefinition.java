@@ -63,7 +63,7 @@ public class ClassDefinition extends AbstractTypeDefinition {
                 if (!"private".equals(method.getAccessModifier())) {
                     String signature = method.signature();
                     MethodDefinition myMethod = methodMap.get(signature);
-                    final MethodDefinition candidate = method.override(this);
+                    final MethodDefinition candidate = method.override(this, model);
                     if (myMethod == null) {
                         // add fake method if possible: we do not care about body
                         methodMap.put(signature, candidate);

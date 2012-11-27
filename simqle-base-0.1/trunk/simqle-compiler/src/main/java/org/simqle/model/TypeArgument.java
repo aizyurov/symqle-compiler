@@ -46,7 +46,7 @@ public class TypeArgument {
     }
 
     public Type asType() {
-        return boundType.equals("super") ? new Type("Object") : reference;
+        return "super".equals(boundType) ? new Type("Object") : reference;
     }
 
     public Type getReference() {

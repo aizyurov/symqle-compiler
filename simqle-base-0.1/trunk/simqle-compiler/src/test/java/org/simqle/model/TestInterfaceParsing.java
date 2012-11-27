@@ -19,17 +19,16 @@ import java.io.Reader;
 public class TestInterfaceParsing extends TestCase {
 
     public void testScalar() throws Exception {
-        String source = "src/test-data/model/Scalar.sdl";
+        String source = "src/test-data/model/Interfaces.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SimqleParser parser = new SimqleParser(reader);
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
         Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         for (InterfaceDefinition def: model.getAllInterfaces()) {
-            System.out.println("================");
             System.out.println(def);
             System.out.println("================");
-            for (MethodDefinition method: def.getDeclaredMethods()) {
+            for (MethodDefinition method: def.getAllMethods(model)) {
                 System.out.println(method.signature() + " = " + method);
                 System.out.println("--------");
             }
