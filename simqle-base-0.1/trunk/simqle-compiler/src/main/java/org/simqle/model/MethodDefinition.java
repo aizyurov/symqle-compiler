@@ -43,7 +43,7 @@ public class MethodDefinition {
     protected boolean isAbstract() {
         return isAbstract;
     }
-
+    
     public static MethodDefinition parseAbstract(final String source, final AbstractTypeDefinition owner) {
         try {
             final SimpleNode simpleNode = Utils.createParser(source).AbstractMethodDeclaration();
@@ -56,7 +56,18 @@ public class MethodDefinition {
         }
     }
 
-
+    public static MethodDefinition parse(final String source, final AbstractTypeDefinition owner) {
+        try {
+            final SimpleNode simpleNode = Utils.createParser(source).MethodDeclaration();
+            SyntaxTree syntaxTree = new SyntaxTree(simpleNode, source);
+            return new MethodDefinition(syntaxTree, owner);
+        } catch (ParseException e) {
+            throw new RuntimeException("Internal error", e);
+        } catch (GrammarException e) {
+            throw new RuntimeException("Internal error", e);
+        }
+    }
+    
     private MethodDefinition(final String comment,
                              final String accessModifier,
                              final Set<String> otherModifiers,
@@ -144,7 +155,8 @@ public class MethodDefinition {
         if (!"".equals(accessModifier)) {
             builder.append(" ");
         }
-        builder.append(Utils.format(new ArrayList<String>(otherModifiers), "", " ", ""));
+        builder.append(Utils.format(new ArrayList<String>(otherModifiers), "", " ", " "));
+        builder.append(typeParameters);
         if (!typeParameters.isEmpty()) {
             builder.append(" ");
         }
@@ -187,7 +199,7 @@ public class MethodDefinition {
                 comment,
                 newAccessModifier,
                 newModifiers,
-                typeParameters,
+                this.typeParameters,
                 newResultType,
                 name,
                 newFormalParameters,
@@ -207,7 +219,21 @@ public class MethodDefinition {
      * @return
      */
     public boolean matches(MethodDefinition other) {
-        throw new RuntimeException("Not implemented");
+        if (signature().equals(other.signature())) {
+            return false;
+        }
+        final TypeArguments typeArguments = typeParameters.asTypeArguments();
+        final TypeParameters typeParameters = other.typeParameters;
+        try {
+            final MethodDefinition adjusted = other.replaceParameters(owner, typeParameters, typeArguments);
+            return adjusted.resultType.equals(resultType)
+                    && adjusted.formalParameters.equals(formalParameters)
+                    && adjusted.thrownExceptions.equals(thrownExceptions);
+        } catch (ModelException e) {
+            // parameter count is different somewhere
+            return false;
+        }
+
     }
 
     public String invoke(String objectName) {

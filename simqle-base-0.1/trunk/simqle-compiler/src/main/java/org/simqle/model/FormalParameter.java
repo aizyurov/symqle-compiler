@@ -13,8 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import static org.simqle.util.Utils.convertChildren;
-
 
 /**
  * <br/>13.11.2011
@@ -34,7 +32,7 @@ public class FormalParameter {
 
     public FormalParameter(SyntaxTree node) throws GrammarException {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "FormalParameter", "FormalParameterWithEllipsis");
-        rawType = convertChildren(node, "Type", Type.class).get(0);
+        rawType = node.find("Type", Type.CONSTRUCT).get(0);
         if (node.getType().equals("FormalParameter")) {
             ellipsis = false;
         } else  {

@@ -10,8 +10,6 @@ import org.simqle.util.Assert;
 import java.util.Collections;
 import java.util.List;
 
-import static org.simqle.util.Utils.*;
-
 /**
  * <br/>13.11.2011
  *
@@ -25,7 +23,7 @@ public class TypeArgument {
 
     public TypeArgument(SyntaxTree node)  throws GrammarException {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "TypeArgument");
-        final List<Type> references = convertChildren(node, "ReferenceType", Type.class);
+        final List<Type> references = node.find("ReferenceType", Type.CONSTRUCT);
         if (!references.isEmpty()) {
             isWildCardArgument = false;
             boundType = null;
@@ -34,7 +32,7 @@ public class TypeArgument {
             isWildCardArgument = true;
             final List<SyntaxTree> boundTypes = node.find("WildcardBounds.WildcardBoundType");
             boundType = boundTypes.isEmpty() ? null : boundTypes.get(0).getValue();
-            List<Type> boundReferences = convertChildren(node, "WildcardBounds.ReferenceType", Type.class);
+            List<Type> boundReferences = node.find("WildcardBounds.ReferenceType", Type.CONSTRUCT);
             reference = boundReferences.isEmpty() ? null : boundReferences.get(0);
         }
     }

@@ -1,3 +1,7 @@
+public interface Scalar<T> {
+    T getValue();
+}
+
 public interface expression<T> extends Scalar<T>
 {
     String getValue();

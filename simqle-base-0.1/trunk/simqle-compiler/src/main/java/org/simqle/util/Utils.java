@@ -3,16 +3,21 @@
 */
 package org.simqle.util;
 
-import org.simqle.model.*;
+import org.simqle.model.F;
+import org.simqle.model.Function;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 
 import java.io.Reader;
 import java.io.StringReader;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * <br/>13.11.2011
@@ -21,57 +26,12 @@ import java.util.*;
  */
 public class Utils {
 
-    Utils() {
-        throw new RuntimeException("No instances: utility class");
+    private Utils() {
     }
 
-    public static Type substituteTypeArguments(final List<TypeArgument> typeArgumentsActual, final List<TypeParameter> typeParameters, final Type paramType) throws ModelException {
-        return paramType == null ? null :
-                new Type(substituteTypeArguments(paramType.getNameChain(), typeParameters, typeArgumentsActual), paramType.getArrayDimensions());
-    }
-
-    public static interface Factory<T> {
-        T create(SyntaxTree node)  throws GrammarException;
-    }
-
-    private static class ReflectionFactory<T>  implements Factory<T> {
-        private final Constructor<T> constructor;
-
-        private ReflectionFactory(Class<T> clazz) {
-            try {
-                constructor = clazz.getConstructor(SyntaxTree.class);
-            } catch (NoSuchMethodException e) {
-                throw new RuntimeException("Internal error: no appropriate constructor in "+clazz.getName(), e);
-            }
-        }
-
-        @Override
-        public T create(final SyntaxTree node) throws GrammarException {
-            try {
-                return constructor.newInstance(node);
-            } catch (InvocationTargetException e) {
-                final Throwable cause = e.getCause();
-                if (cause instanceof GrammarException) {
-                    throw (GrammarException) cause;
-                } else {
-                    throw new RuntimeException("Internal error", e);
-                }
-            } catch (Exception e) {
-                throw new RuntimeException("Internal error", e);
-            }
-        }
-    }
-
-    public static <T> List<T> convertChildren(SyntaxTree parent, String path, Factory<T> factory)  throws GrammarException {
-        List<T> children = new ArrayList<T>();
-        for (SyntaxTree child: parent.find(path)) {
-            children.add(factory.create(child));
-        }
-        return children;
-    }
-
-    public static <T> List<T> convertChildren(SyntaxTree parent, String path, Class<T> clazz) throws GrammarException {
-        return convertChildren(parent, path, new ReflectionFactory<T>(clazz));
+    // to make Cobertura happy
+    static {
+        new Utils();
     }
 
     public static final String LINE_BREAK = System.getProperty("line.separator", "\n");
@@ -184,30 +144,6 @@ public class Utils {
         final Set<String> stringList = new HashSet<String>(values(nodes));
         stringList.removeAll(ACCESS_MODIFIERS);
         return stringList;
-    }
-
-    private static List<TypeNameWithTypeArguments> substituteTypeArguments(List<TypeNameWithTypeArguments> source, List<TypeParameter> typeParameters, List<TypeArgument> typeArguments) throws ModelException {
-        final Map<String, TypeArgument> substitutions = new HashMap<String, TypeArgument>(typeParameters.size());
-        if (typeParameters.size()!=typeArguments.size()) {
-            throw new ModelException("Required "+typeParameters.size()+" parameters but found "+typeArguments.size());
-        }
-        for (int i=0; i<typeParameters.size(); i++) {
-            substitutions.put(typeParameters.get(i).getName(), typeArguments.get(i));
-        }
-        // type arguments are substituted with wildcards; type names itself are substituted with reference type only
-        // it is not exactly correct for "super" bounds; we also do not check for correct bounds here - leaving it to Java compiler
-        final String name = source.get(0).getName();
-        // if the source is just a type perameter name, substitute it for its value (mutatis mutandis)
-        if (source.size()==1 && substitutions.containsKey(name)) {
-                // if bound is "super", substitute for "Object" else for reference (valid for not-bound and "extends")
-                List<TypeNameWithTypeArguments> chain =
-                        "super".equals(substitutions.get(name).getBoundType()) || substitutions.get(name).getReference()==null ?
-                        Collections.singletonList(new TypeNameWithTypeArguments("Object")) :
-                        substitutions.get(name).getReference().getNameChain() ;
-                return chain;
-        } else {
-            throw new IllegalStateException("Not implemented");
-        }
     }
 
     private static List<String> ACCESS_MODIFIERS = Arrays.asList("public", "protected", "private");

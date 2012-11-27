@@ -3,9 +3,10 @@
 */
 package org.simqle.processor;
 
-import org.simqle.model.*;
+import org.simqle.model.InterfaceDefinition;
+import org.simqle.model.Model;
+import org.simqle.model.ModelException;
 import org.simqle.parser.SyntaxTree;
-import org.simqle.util.Utils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,7 +28,7 @@ public class InterfaceDeclarationsProcessor implements Processor {
                 model.addInterface(definition);
                 nodeByName.put(definition.getName(), node);
             } catch (ModelException e) {
-                throw new GrammarException(e.getMessage(), node);
+                throw new GrammarException(e, node);
             }
         }
 
@@ -36,7 +37,7 @@ public class InterfaceDeclarationsProcessor implements Processor {
             try {
                 def.getAllMethods(model);
             } catch (ModelException e) {
-                throw new GrammarException(e.getMessage(), nodeByName.get(def.getName()));
+                throw new GrammarException(e, nodeByName.get(def.getName()));
             }
         }
     }

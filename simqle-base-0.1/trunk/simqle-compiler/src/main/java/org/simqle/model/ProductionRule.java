@@ -3,7 +3,6 @@ package org.simqle.model;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
-import org.simqle.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,19 +21,19 @@ public class ProductionRule {
     public ProductionRule(SyntaxTree node) throws GrammarException {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "ProductionRule");
         final SyntaxTree productionDeclaration = node.getParent().getParent();
-        Type returnType = Utils.convertChildren(productionDeclaration, "ClassOrInterfaceType", Type.class).get(0);
+        Type returnType = productionDeclaration.find("ClassOrInterfaceType", Type.CONSTRUCT).get(0);
         returnedInterfaceName = returnType.getNameChain().get(0).getName();
 
         ruleElements = new ArrayList<RuleElement>();
         for (SyntaxTree element: node.find("ProductionElement")) {
-            final List<TypeNameWithTypeArguments> classOrInterfaceTypeNodes = Utils.convertChildren(element, "IdentifierWithTypeArguments", TypeNameWithTypeArguments.class);
+            final List<TypeNameWithTypeArguments> classOrInterfaceTypeNodes = element.find("IdentifierWithTypeArguments", TypeNameWithTypeArguments.CONSTRUCT);
             // mandatory and unique
             final String name = element.find("Identifier").get(0).getValue();
             if (classOrInterfaceTypeNodes.isEmpty()) {
                 try {
                     ruleElements.add(new RuleElement(name));
                 } catch (ModelException e) {
-                    throw new GrammarException(e.getMessage(), node);
+                    throw new GrammarException(e, node);
                 }
             } else {
                 ruleElements.add(new RuleElement(new Type(classOrInterfaceTypeNodes, 0), name));

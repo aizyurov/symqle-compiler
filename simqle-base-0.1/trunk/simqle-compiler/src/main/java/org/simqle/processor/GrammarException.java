@@ -24,5 +24,10 @@ public class GrammarException extends Exception {
                         .append(node.getColumn()).append("]");
         return builder.toString();
     }
+
+    public GrammarException(final Throwable cause, final SyntaxTree node) {
+        super(appendPosition(cause.getMessage(), node), cause);
+    }
+
     
 }

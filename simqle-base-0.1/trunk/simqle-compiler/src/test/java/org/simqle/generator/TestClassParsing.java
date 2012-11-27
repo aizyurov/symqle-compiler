@@ -26,8 +26,8 @@ public class TestClassParsing extends TestCase {
         Model model = new Model();
         SimqleParser parser = new SimqleParser(new FileReader("src/test-data/model/SimpleClass.sdl"));
         SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "ClassTest.sdl");
-        Processor processor = new ClassDeclarationProcessor();
-        processor.process(node, model);
+        new InterfaceDeclarationsProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(node, model);
     }
 
     public void testCorrectSdl() throws Exception {

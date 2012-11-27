@@ -46,7 +46,7 @@ public abstract class Archetype {
                 throw new GrammarException("Unknown archetype: " + name, node);
             }
         } catch (ModelException e) {
-            throw new GrammarException(e.getMessage(), node);
+            throw new GrammarException(e, node);
         }
     }
 
@@ -80,14 +80,9 @@ public abstract class Archetype {
 
         @Override
         public void apply(InterfaceDefinition interfaceDefinition) throws ModelException {
-            final TypeParameters typeParameters = interfaceDefinition.getTypeParameters();
-            final TypeParameter myTypeArgument = getTypeParameters().list().get(0);
-            if (!typeParameters.list().contains(myTypeArgument)) {
-                throw new ModelException("Unknown type argument: "+ myTypeArgument);
-            }
             MethodDefinition methodDefinition = MethodDefinition.parseAbstract(
                     String.format(QUERY_METHOD_FORMAT,
-                            typeParameters,
+                            getTypeParameters(),
                             interfaceDefinition.getName(), ""), interfaceDefinition);
             interfaceDefinition.addMethod(methodDefinition);
         }
@@ -99,7 +94,7 @@ public abstract class Archetype {
             "* @param context the Sql construction context",
             "* @return query conforming to <code>this</code> syntax",
             "*/",
-            "Query<%s> z$create$%s(%sSqlContext context);"
+            "Query%s z$create$%s(%sSqlContext context);"
             );
 
     private final static String SQL_METHOD_FORMAT = Utils.indent(8,

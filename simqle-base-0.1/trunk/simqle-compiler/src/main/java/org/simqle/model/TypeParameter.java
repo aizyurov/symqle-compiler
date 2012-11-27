@@ -9,7 +9,6 @@ import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
 import java.util.List;
-import static org.simqle.util.Utils.*;
 
 /**
  * <br/>13.11.2011
@@ -23,7 +22,7 @@ public class TypeParameter {
     public TypeParameter(SyntaxTree node) throws GrammarException{
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "TypeParameter");
         name = node.find("Identifier").get(0).getValue();
-        typeBound = convertChildren(node, "TypeBound.ClassOrInterfaceType", Type.class);
+        typeBound = node.find("TypeBound.ClassOrInterfaceType", Type.CONSTRUCT);
     }
 
     public String getName() {

@@ -32,7 +32,7 @@ public class Model {
         classMap.put(name, classOrInterface);
     }
 
-    public InterfaceDefinition getInterface(String name) {
+    public InterfaceDefinition getInterface(String name) throws ModelException {
         ClassOrInterface classOrInterface = getClassOrInterface(name);
         if (classOrInterface.isInterface) {
             return classOrInterface.interfaceDefinition;
@@ -41,14 +41,14 @@ public class Model {
         }
     }
 
-    public AbstractTypeDefinition getAbstractType(String name) {
+    public AbstractTypeDefinition getAbstractType(String name) throws ModelException {
         return getClassOrInterface(name).getAbstract();
     }
 
-    private ClassOrInterface getClassOrInterface(String name) {
+    private ClassOrInterface getClassOrInterface(String name) throws ModelException {
         ClassOrInterface classOrInterface = classMap.get(name);
         if (classOrInterface == null) {
-            throw new IllegalArgumentException(name + "not found");
+            throw new ModelException("Unknown class/interface: " + name);
         }
         return classOrInterface;
     }
@@ -67,7 +67,7 @@ public class Model {
         addClassOrInterface(def.getName(), new ClassOrInterface(def));
     }
 
-    public ClassDefinition getClassDef(String name) {
+    public ClassDefinition getClassDef(String name) throws ModelException {
         ClassOrInterface classOrInterface = getClassOrInterface(name);
         if (!classOrInterface.isInterface) {
             return classOrInterface.classDefinition;
@@ -112,11 +112,11 @@ public class Model {
         }
     }
 
-    public InterfaceDefinition getInterface(Type t) {
+    public InterfaceDefinition getInterface(Type t) throws ModelException {
         return getInterface(resolveName(t));
     }
 
-    public ClassDefinition getClassDef(Type t) {
+    public ClassDefinition getClassDef(Type t) throws ModelException {
         return getClassDef(resolveName(t));
     }
 

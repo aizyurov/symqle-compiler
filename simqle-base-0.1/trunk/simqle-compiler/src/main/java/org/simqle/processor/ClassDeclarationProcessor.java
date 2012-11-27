@@ -27,7 +27,7 @@ public class ClassDeclarationProcessor implements Processor {
                 model.addClass(definition);
                 nodeByName.put(definition.getName(), classDeclarationNode);
             } catch (ModelException e) {
-                throw new GrammarException(e.getMessage(), classDeclarationNode);
+                throw new GrammarException(e, classDeclarationNode);
             }
         }
 
@@ -35,7 +35,7 @@ public class ClassDeclarationProcessor implements Processor {
             try {
                 addAbstractMethods(classDefinition, model);
             } catch (ModelException e) {
-                throw new GrammarException(e.getMessage(), nodeByName.get(classDefinition.getName()));
+                throw new GrammarException(e, nodeByName.get(classDefinition.getName()));
             }
         }
     }

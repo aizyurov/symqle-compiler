@@ -3,6 +3,8 @@
 */
 package org.simqle.model;
 
+import org.simqle.parser.ParseException;
+import org.simqle.parser.SimpleNode;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
@@ -25,6 +27,18 @@ public class ClassDefinition extends AbstractTypeDefinition {
     private final Type extendedClass;
 
     private final List<Type> implementedInterfaces;
+
+    private static ClassDefinition parse(final String source) {
+        try {
+            final SimpleNode simpleNode = Utils.createParser(source).ClassDeclaration();
+            SyntaxTree syntaxTree = new SyntaxTree(simpleNode, source);
+            return new ClassDefinition(syntaxTree);
+        } catch (ParseException e) {
+            throw new RuntimeException("Internal error", e);
+        } catch (GrammarException e) {
+            throw new RuntimeException("Internal error", e);
+        }
+    }
 
 
     public ClassDefinition(SyntaxTree node) throws GrammarException {
@@ -56,34 +70,18 @@ public class ClassDefinition extends AbstractTypeDefinition {
         for (MethodDefinition method: getDeclaredMethods()) {
             methodMap.put(method.signature(), method);
         }
-        if (extendedClass!=null) {
-            ClassDefinition parent = model.getClassDef(extendedClass);
-            for (MethodDefinition method: parent.getAllMethods(model)) {
-                if (!"private".equals(method.getAccessModifier())) {
-                    String signature = method.signature();
-                    MethodDefinition myMethod = methodMap.get(signature);
-                    final MethodDefinition candidate = method.override(this, model);
-                    if (myMethod == null) {
-                        // add fake method if possible: we do not care about body
-                        methodMap.put(signature, candidate);
-                    } else {
-                        // make sure it is Ok to override
-                        if (!myMethod.matches(candidate)) {
-                            throw new ModelException("Name clash in " + getName() + "#"+myMethod.declaration() + " and " + candidate.declaration());
-                        } else {
-                            // do not add: it isoverridden.
-                            // leaving decrease of access check to Java compiler
-                        }
-                    }
-                }
-            }
+        if (extendedClass !=null) {
+            addInheritedMethodsToMap(model, methodMap, extendedClass);
+        }
+        for (Type parentType: implementedInterfaces) {
+            addInheritedMethodsToMap(model, methodMap, parentType);
         }
         return methodMap;
     }
 
     @Override
     protected Type getAncestorTypeByName(final String name) {
-        if (name.equals(extendedClass.getSimpleName())) {
+        if (extendedClass!=null && name.equals(extendedClass.getSimpleName())) {
             return extendedClass;
         }
         for (Type t: implementedInterfaces) {

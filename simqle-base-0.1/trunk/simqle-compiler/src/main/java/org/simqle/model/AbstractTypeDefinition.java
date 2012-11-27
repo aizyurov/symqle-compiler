@@ -60,7 +60,7 @@ public abstract class AbstractTypeDefinition {
                     try {
                         addMethod(methodDefinition);
                     } catch (ModelException e) {
-                        throw new GrammarException(e.getMessage(), child);
+                        throw new GrammarException(e, child);
                     }
                 }
             } else {
@@ -144,6 +144,28 @@ public abstract class AbstractTypeDefinition {
         return builder.toString();
     }
 
+    protected void addInheritedMethodsToMap(final Model model, final Map<String, MethodDefinition> methodMap, final Type parentType) throws ModelException {
+        AbstractTypeDefinition parent = model.getAbstractType(parentType.getSimpleName());
+        for (MethodDefinition method: parent.getAllMethods(model)) {
+            if (!"private".equals(method.getAccessModifier())) {
+                final MethodDefinition candidate = method.override(this, model);
+                String signature = candidate.signature();
+                MethodDefinition myMethod = methodMap.get(signature);
+                if (myMethod == null) {
+                    // add fake method if possible: we do not care about body
+                    methodMap.put(signature, candidate);
+                } else {
+                    // make sure it is Ok to override
+                    if (!myMethod.matches(candidate)) {
+                        throw new ModelException("Name clash in " + getName() + "#"+myMethod.declaration() + " and " + candidate.declaration());
+                    } else {
+                        // do not add: it isoverridden.
+                        // leaving decrease of access check to Java compiler
+                    }
+                }
+            }
+        }
+    }
 }
 
 

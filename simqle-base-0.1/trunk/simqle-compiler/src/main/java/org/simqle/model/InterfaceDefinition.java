@@ -31,13 +31,14 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
         try {
             Archetype.verify(this);
         } catch (ModelException e) {
-            throw new GrammarException(e.getMessage(), node);
+            throw new GrammarException(e, node);
         }
         for (SyntaxTree archetypeNode: node.find("Archetype")) {
             try {
                 Archetype.create(archetypeNode).apply(this);
             } catch (ModelException e) {
-                throw new GrammarException(e.getMessage(), archetypeNode);
+                e.printStackTrace();
+                throw new GrammarException(e, archetypeNode);
             }
         }
     }
@@ -52,20 +53,7 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
             allMethods.put(method.signature(), method);
         }
         for (Type type: extended) {
-            InterfaceDefinition parent = model.getInterface(type);
-            for (MethodDefinition parentMethod: parent.getAllMethods(model)) {
-                MethodDefinition candidate = parentMethod.override(this, model);
-                MethodDefinition myMethod = allMethods.get(candidate.signature());
-                if (myMethod == null) {
-                    allMethods.put(candidate.signature(), candidate);
-                } else {
-                    // check that methods are the same
-                    if (!myMethod.matches(candidate)) {
-                        throw new ModelException("Name clash in " + getName()+"#" +
-                                myMethod.declaration() + " and " + candidate.declaration());
-                    }
-                }
-            }
+            addInheritedMethodsToMap(model, allMethods, type);
         }
         return allMethods;
     }

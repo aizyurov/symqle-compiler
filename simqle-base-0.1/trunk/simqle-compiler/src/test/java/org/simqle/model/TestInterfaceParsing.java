@@ -4,10 +4,12 @@ import junit.framework.TestCase;
 import org.simqle.parser.ParseException;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
+import org.simqle.processor.GrammarException;
 import org.simqle.processor.InterfaceDeclarationsProcessor;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
@@ -209,6 +211,58 @@ public class TestInterfaceParsing extends TestCase {
             assertEquals("transient ValueExpression<List<? super T>> param(List<? super T> value);", paramMethod.toString().trim());
             assertTrue(paramMethod.isPublic());
             assertTrue(paramMethod.isAbstract());
+        }
+    }
+
+    public void testExplicitValueMethod() throws Exception {
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/ExplicitValueMethodDeclaration.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "ExplicitValueMethodDeclaration.sdl");
+        final Model model = new Model();
+        try {
+            new InterfaceDeclarationsProcessor().process(node, model);
+            model.getInterface("expression").getAllMethods(model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            // expected
+            assertTrue(e.getMessage(), e.getMessage().startsWith("Name clash"));
+        }
+    }
+
+    public void testExplicitCreateMethod() throws Exception {
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/ExplicitCreateMethodDeclaration.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "ExplicitCreateMethodDeclaration.sdl");
+        final Model model = new Model();
+        try {
+            new InterfaceDeclarationsProcessor().process(node, model);
+            model.getInterface("expression").getAllMethods(model);
+            fail("ModelException expected");
+        } catch (GrammarException e) {
+            // expected
+            assertTrue(e.getMessage(), e.getMessage().startsWith("Prefix \"z$create$\" is reserved for generated methods"));
+        }
+    }
+
+    public void testDuplicateInterface() throws Exception {
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/DuplicateInterface.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "DuplicateInterface.sdl");
+        final Model model = new Model();
+        try {
+            new InterfaceDeclarationsProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage().startsWith("Duplicate interface: test_interface"));
+        }
+    }
+
+    public void testDuplicateMethodInInterface() throws Exception {
+        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/InterfaceMethodOverloading.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "InterfaceMethodOverloading.sdl");
+        final Model model = new Model();
+        try {
+            new InterfaceDeclarationsProcessor().process(node, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage(), e.getMessage().startsWith("Name clash"));
         }
     }
 
