@@ -5,6 +5,7 @@ package org.simqle.processor;
 
 import org.simqle.model.*;
 import org.simqle.parser.SyntaxTree;
+import org.simqle.util.Utils;
 
 import java.util.List;
 import java.util.Set;
@@ -53,7 +54,7 @@ public class ProductionDeclarationProcessor implements Processor {
                         // must implement
                         final String delegationCall;
                         if (Archetype.isArchetypeMethod(method)) {
-                            delegationCall = delegateArchetypeMethod(method, productionRule.getFormalParameters());
+                            delegationCall = delegateArchetypeMethod(model, method, productionRule.getFormalParameters());
                         } else {
                             delegationCall = delegateToLeftmostArg(model, productionRule, method);
 
@@ -89,7 +90,21 @@ public class ProductionDeclarationProcessor implements Processor {
         }
     }
 
-    private String delegateArchetypeMethod(final MethodDefinition method, final List<FormalParameter> formalParameters) {
-        throw new RuntimeException("Not implemented");
+    private String delegateArchetypeMethod(final Model model, final MethodDefinition method, final List<FormalParameter> formalParameters) throws ModelException {
+        StringBuilder builder = new StringBuilder();
+        builder.append(" {"+ Utils.LINE_BREAK);
+        // either new CompositeSql or new CommpositeQuery<T>
+        builder.append("            return new Composite").
+            append(method.getResultType())
+                .append("(")
+                .append(Utils.format(formalParameters, "", ", ", "", new F<FormalParameter, String, ModelException>() {
+                    @Override
+                    public String apply(FormalParameter formalParameter) throws ModelException {
+                       return  model.getInterface(formalParameter.getType()).getArchetypeMethod().invoke(formalParameter.getName());
+                    }
+                }))
+                .append(");");
+                builder.append(Utils.LINE_BREAK).append("        }").append(Utils.LINE_BREAK);
+        return builder.toString();
     }
 }

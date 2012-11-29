@@ -62,8 +62,8 @@ public class Utils {
         });
     }
 
-    public static <T> String format(final Collection<T> list, final String prefix,
-                                 final String separator, final String suffix, final F<T, String, RuntimeException> f) {
+    public static <T, Ex extends Exception> String format(final Collection<T> list, final String prefix,
+                                 final String separator, final String suffix, final F<T, String, Ex> f) throws Ex {
         if (list.isEmpty()) {
             return "";
         }

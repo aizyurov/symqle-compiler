@@ -25,7 +25,7 @@ public abstract class Archetype {
         return typeParameters;
     }
 
-    public abstract void apply(InterfaceDefinition interfaceDefinition) throws ModelException;
+    public abstract MethodDefinition createArchetypeMethod(InterfaceDefinition interfaceDefinition) throws ModelException;
 
     public static void verify(InterfaceDefinition interfaceDefinition) throws ModelException {
         for (MethodDefinition def: interfaceDefinition.getDeclaredMethods()) {
@@ -65,13 +65,12 @@ public abstract class Archetype {
             }
         }
 
-        @Override
-        public void apply(InterfaceDefinition interfaceDefinition) throws ModelException {
-            MethodDefinition methodDefinition = MethodDefinition.parseAbstract(
+        public MethodDefinition createArchetypeMethod(final InterfaceDefinition interfaceDefinition) throws ModelException {
+            return MethodDefinition.parseAbstract(
                     String.format(SQL_METHOD_FORMAT,
                             interfaceDefinition.getName(), ""), interfaceDefinition);
-            interfaceDefinition.addMethod(methodDefinition);
         }
+
     }
 
     private static class QueryArchetype extends Archetype {
@@ -84,14 +83,14 @@ public abstract class Archetype {
 
         }
 
-        @Override
-        public void apply(InterfaceDefinition interfaceDefinition) throws ModelException {
-            MethodDefinition methodDefinition = MethodDefinition.parseAbstract(
+        public MethodDefinition createArchetypeMethod(final InterfaceDefinition interfaceDefinition) throws ModelException {
+            return MethodDefinition.parseAbstract(
                     String.format(QUERY_METHOD_FORMAT,
                             getTypeParameters(),
                             interfaceDefinition.getName(), ""), interfaceDefinition);
-            interfaceDefinition.addMethod(methodDefinition);
         }
+
+
     }
 
     private final static String QUERY_METHOD_FORMAT = Utils.indent(4,
@@ -115,10 +114,12 @@ public abstract class Archetype {
     private static final String ARCHETYPE_METHOD_PREFIX = "z$create$";
 
     public static final Archetype NONE = new Archetype(new TypeParameters(Collections.<TypeParameter>emptyList())) {
+
         @Override
-        public void apply(final InterfaceDefinition interfaceDefinition) throws ModelException {
-            // do nothing
+        public MethodDefinition createArchetypeMethod(InterfaceDefinition interfaceDefinition) throws ModelException {
+            return null;
         }
+
     };
 
 }

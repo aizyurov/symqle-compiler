@@ -20,7 +20,7 @@ import java.util.Set;
  */
 public class InterfaceDefinition extends AbstractTypeDefinition {
     private final List<Type> extended;
-    private final Archetype archetype;
+    private final MethodDefinition archetypeMethod;
 
     public InterfaceDefinition(SyntaxTree node) throws GrammarException {
         super(node);
@@ -36,15 +36,21 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
         }
         List<SyntaxTree> archetypeNodes = node.find("Archetype");
         try {
-            archetype = archetypeNodes.isEmpty() ? Archetype.NONE : Archetype.create(archetypeNodes.get(0));
-            archetype.apply(this);
+            final Archetype archetype = archetypeNodes.isEmpty() ? Archetype.NONE : Archetype.create(archetypeNodes.get(0));
+            archetypeMethod = archetype.createArchetypeMethod(this);
+            this.addMethod(archetypeMethod);
         } catch (ModelException e) {
             e.printStackTrace();
             throw new GrammarException(e, node);
         }
     }
 
-
+    public MethodDefinition getArchetypeMethod() throws ModelException {
+        if (archetypeMethod==null) {
+            throw new ModelException("Interface "+getName()+" does not have archetype");
+        }
+        return archetypeMethod;
+    }
 
     @Override
     protected final Map<String, MethodDefinition> getAllMethodsMap(final Model model) throws ModelException {
