@@ -18,6 +18,17 @@ public class Model {
 
     private final Set<String> caseInsensitiveClassNames = new HashSet<String>();
 
+    private final List<MethodDefinition> implicitSimqleMethods = new ArrayList<MethodDefinition>();
+    private final List<MethodDefinition> explicitSimqleMethods = new ArrayList<MethodDefinition>();
+
+    public void addImplicitMethod(MethodDefinition method) {
+        implicitSimqleMethods.add(method);
+    }
+
+    public void addExplicitMethod(MethodDefinition method) {
+        explicitSimqleMethods.add(method);
+    }
+
     public void addInterface(InterfaceDefinition def) throws ModelException {
         addClassOrInterface(def.getName(), new ClassOrInterface(def));
     }

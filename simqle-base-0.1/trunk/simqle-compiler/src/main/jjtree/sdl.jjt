@@ -1059,7 +1059,7 @@ void ProductionDeclaration():
 void ProductionChoice():
 {}
 {
-    ProductionRule() [ "::" ProductionImplementation() ]
+    ProductionRule()  "::" ProductionImplementation()
 }
 
 void ProductionRule():
@@ -1073,8 +1073,8 @@ void ProductionElement():
 {}
 {
 // identifier without type is an element of SqlTerminal enumeration
-// otherwise it is a formal argument; IndentifierWithTypeArgument refers to a known interface
-   Identifier()  [ ":" IdentifierWithTypeArguments() ]
+// otherwise it is a formal argument; ClassOrInterfaceType refers to a known interface
+   Identifier()  [ ":" ClassOrInterfaceType() ]
 }
 
 void ProductionImplementation():
@@ -1097,13 +1097,7 @@ IdentifierWithTypeArguments Identifier(arguments derived from the rule) {
 Variable names declared in the production are available in the body (they are final variables in the context).
 */
     ( ImportDeclaration() ) *
-    [ Implicit() ] IdentifierWithTypeArguments() Identifier() Block()
-}
-
-void Implicit():
-{}
-{
-    "implicit"
+    ( "implicit" | ClassOrInterfaceType() ) Identifier() ClassBody()
 }
 
 /*****************************************

@@ -29,21 +29,35 @@ public abstract class AbstractTypeDefinition {
     private final String comment;
 
     protected AbstractTypeDefinition(SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SimqleInterfaceDeclaration", "NormalClassDeclaration");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SimqleInterfaceDeclaration", "NormalClassDeclaration", "ProductionChoice");
 
         this.importLines = new TreeSet<String>(node.getParent().getParent().find("ImportDeclaration", SyntaxTree.BODY));
-        // modifiers ma be of interface or class; one of collections is empty
+        // modifiers may be of interface or class; one of collections is empty
+        // for ProductionChoice both are empty
         final List<SyntaxTree> modifierNodes = node.find("InterfaceModifiers.InterfaceModifier");
         modifierNodes.addAll(node.find("ClassModifiers.ClassModifier"));
         this.annotations = node.find("ClassModifiers.Annotation", SyntaxTree.BODY);
         this.annotations.addAll(node.find("InterfaceModifiers.Annotation", SyntaxTree.BODY));
         this.accessModifier = Utils.getAccessModifier(modifierNodes);
         this.otherModifiers = Utils.getNonAccessModifiers(modifierNodes);
-        this.name = node.find("Identifier").get(0).getValue();
-        this.typeParameters = new TypeParameters(node.find("TypeParameters.TypeParameter", TypeParameter.CONSTRUCT));
+        final List<String> names = node.find("Identifier", SyntaxTree.VALUE);
+        // for ProductionImplementation class name is generated from method name
+        names.addAll(node.find("ProductionImplementation.Identifier", new F<SyntaxTree, String, RuntimeException>() {
+            @Override
+            public String apply(final SyntaxTree syntaxTree) {
+                return "$$"+syntaxTree.getValue();
+            }
+        }));
+        this.name = names.get(0);
+
+        final List<TypeParameter> typeParams = node.find("TypeParameters.TypeParameter", TypeParameter.CONSTRUCT);
+        // one level up for ProductionChoice
+        typeParams.addAll(node.find("^.TypeParameters.TypeParameter", TypeParameter.CONSTRUCT));
+        this.typeParameters = new TypeParameters(typeParams);
         // exactly one body guaranteed by syntax - either InterfaceBody or ClassBody
         final List<SyntaxTree> bodies = node.find("InterfaceBody");
         bodies.addAll(node.find("ClassBody"));
+        bodies.addAll(node.find("ProductionImplementation.ClassBody"));
         final SyntaxTree bodyNode = bodies.get(0);
         final List<SyntaxTree> members = bodyNode.find("InterfaceMemberDeclaration");
         members.addAll(bodyNode.find("ClassBodyDeclaration"));
@@ -115,7 +129,11 @@ public abstract class AbstractTypeDefinition {
         return methods.get(signature);
     }
 
-    public final String toString() {
+    public String toString() {
+        return declarationString() + bodyString();
+    }
+
+    protected final String declarationString() {
         StringBuilder builder = new StringBuilder();
         builder.append(Utils.format(new ArrayList<String>(importLines), "", Utils.LINE_BREAK, ""));
         builder.append(comment);
@@ -128,6 +146,11 @@ public abstract class AbstractTypeDefinition {
         builder.append(typeParameters);
         builder.append(" ");
         builder.append(getExtendsImplements());
+        return builder.toString();
+    }
+
+    protected final String bodyString() {
+        final StringBuilder builder = new StringBuilder();
         builder.append(" {").append(Utils.LINE_BREAK);
         // we are not expecting inner classes (which should go after methods by convention
         // so we are putting everything but methods before methods

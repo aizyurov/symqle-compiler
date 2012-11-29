@@ -236,6 +236,10 @@ public class MethodDefinition {
 
     }
 
+    public Type getResultType() {
+        return resultType;
+    }
+
     public String invoke(String objectName) {
         StringBuilder builder = new StringBuilder();
         builder.append(objectName);

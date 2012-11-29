@@ -52,20 +52,18 @@ public class Utils {
         return new SimqleParser(reader);
     }
 
-    /**
-     * Formats the list as follows:
-     * prefix, separator-separated items converted with function, suffix.
-     * If the list is empty, returns empty stirng (no prefix and suffix)!
-     * @param list
-     * @param prefix
-     * @param separator
-     * @param suffix
-     * @param function
-     * @param <T>
-     * @return
-     */
-    public static <T> String formatList(Collection<T> list, String prefix,
-                                 String separator, String suffix, Function<String, T> function) {
+    public static <T> String format(final Collection<T> list, final String prefix,
+                                 final String separator, final String suffix) {
+        return format(list, prefix, separator, suffix, new F<T, String, RuntimeException>() {
+            @Override
+            public String apply(T t) {
+                return t.toString();
+            }
+        });
+    }
+
+    public static <T> String format(final Collection<T> list, final String prefix,
+                                 final String separator, final String suffix, final F<T, String, RuntimeException> f) {
         if (list.isEmpty()) {
             return "";
         }
@@ -77,20 +75,10 @@ public class Utils {
                 builder.append(separator);
             }
             theFirst = false;
-            builder.append(function.apply(item));
+            builder.append(f.apply(item));
         }
         builder.append(suffix);
         return builder.toString();
-    }
-
-    public static <T> String format(final Collection<T> list, final String prefix,
-                                 final String separator, final String suffix) {
-        return formatList(list, prefix, separator, suffix, new Function<String, T>() {
-            @Override
-            public String apply(T t) {
-                return t.toString();
-            }
-        });
     }
 
     public static <T, R, Ex extends Exception> Collection<R>

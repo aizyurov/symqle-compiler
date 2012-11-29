@@ -5,6 +5,8 @@ import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
+import java.util.Collections;
+
 /**
  * Created by IntelliJ IDEA.
  * User: aizyurov
@@ -48,6 +50,10 @@ public abstract class Archetype {
         } catch (ModelException e) {
             throw new GrammarException(e, node);
         }
+    }
+
+    public static boolean isArchetypeMethod(MethodDefinition method) {
+        return method.getName().startsWith(ARCHETYPE_METHOD_PREFIX);
     }
 
     private static class SqlArchetype extends Archetype {
@@ -107,5 +113,12 @@ public abstract class Archetype {
     );
 
     private static final String ARCHETYPE_METHOD_PREFIX = "z$create$";
+
+    public static final Archetype NONE = new Archetype(new TypeParameters(Collections.<TypeParameter>emptyList())) {
+        @Override
+        public void apply(final InterfaceDefinition interfaceDefinition) throws ModelException {
+            // do nothing
+        }
+    };
 
 }

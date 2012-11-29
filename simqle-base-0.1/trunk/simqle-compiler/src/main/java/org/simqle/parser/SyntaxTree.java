@@ -1,7 +1,6 @@
 package org.simqle.parser;
 
 import org.simqle.model.F;
-import org.simqle.model.Function;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -136,9 +135,13 @@ public class SyntaxTree {
             final List<SyntaxTree> result = new ArrayList<SyntaxTree>();
             final String firstName = nameList.get(0);
             final List<String> otherNames = nameList.subList(1, nameList.size());
-            for (SyntaxTree child: getChildren()) {
-                if (child.getType().equals(firstName)) {
-                    result.addAll(child.find(otherNames));
+            if (firstName.equals("^")) {
+                return getParent().find(otherNames);
+            } else {
+                for (SyntaxTree child: getChildren()) {
+                    if (child.getType().equals(firstName)) {
+                        result.addAll(child.find(otherNames));
+                    }
                 }
             }
             return result;

@@ -20,6 +20,7 @@ import java.util.Set;
  */
 public class InterfaceDefinition extends AbstractTypeDefinition {
     private final List<Type> extended;
+    private final Archetype archetype;
 
     public InterfaceDefinition(SyntaxTree node) throws GrammarException {
         super(node);
@@ -33,13 +34,13 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
         } catch (ModelException e) {
             throw new GrammarException(e, node);
         }
-        for (SyntaxTree archetypeNode: node.find("Archetype")) {
-            try {
-                Archetype.create(archetypeNode).apply(this);
-            } catch (ModelException e) {
-                e.printStackTrace();
-                throw new GrammarException(e, archetypeNode);
-            }
+        List<SyntaxTree> archetypeNodes = node.find("Archetype");
+        try {
+            archetype = archetypeNodes.isEmpty() ? Archetype.NONE : Archetype.create(archetypeNodes.get(0));
+            archetype.apply(this);
+        } catch (ModelException e) {
+            e.printStackTrace();
+            throw new GrammarException(e, node);
         }
     }
 

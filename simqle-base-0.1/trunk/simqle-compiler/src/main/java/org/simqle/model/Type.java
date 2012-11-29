@@ -76,7 +76,7 @@ public class Type {
     }
 
     public String erasure(final Set<String> typeParameterNames) {
-        return format(new Function<String, TypeNameWithTypeArguments>() {
+        return format(new F<TypeNameWithTypeArguments, String, RuntimeException>() {
             @Override
             public String apply(TypeNameWithTypeArguments typeNameWithTypeArguments) {
                 String name = typeNameWithTypeArguments.getName();
@@ -86,9 +86,9 @@ public class Type {
 
     }
 
-    private String format(Function<String, TypeNameWithTypeArguments> typeFormatter) {
+    private String format(F<TypeNameWithTypeArguments, String, RuntimeException> typeFormatter) {
         StringBuilder builder = new StringBuilder();
-        builder.append(Utils.formatList(nameChain, "", ".", "", typeFormatter));
+        builder.append(Utils.format(nameChain, "", ".", "", typeFormatter));
         for (int i=0; i<arrayDimensions; i++) {
             builder.append("[]");
         }
@@ -96,7 +96,7 @@ public class Type {
     }
 
     public String toString() {
-        return format(new Function<String, TypeNameWithTypeArguments>() {
+        return format(new F<TypeNameWithTypeArguments, String, RuntimeException>() {
             @Override
             public String apply(TypeNameWithTypeArguments typeNameWithTypeArguments) {
                 return typeNameWithTypeArguments.toString();

@@ -3,6 +3,7 @@ package org.simqle.model;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
+import org.simqle.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,44 +17,77 @@ import java.util.List;
  */
 public class ProductionRule {
     private final List<RuleElement> ruleElements;
-    private final String returnedInterfaceName;
+    private final List<FormalParameter> formalParameters = new ArrayList<FormalParameter>();
+    private final TypeParameters typeParameters;
+    private final Type targetType;
+    private final Type returnType;
+    // this is the name of associated method
+    private final String name;
+    private final boolean implicit;
 
     public ProductionRule(SyntaxTree node) throws GrammarException {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "ProductionRule");
-        final SyntaxTree productionDeclaration = node.getParent().getParent();
-        Type returnType = productionDeclaration.find("ClassOrInterfaceType", Type.CONSTRUCT).get(0);
-        returnedInterfaceName = returnType.getNameChain().get(0).getName();
-
-        ruleElements = new ArrayList<RuleElement>();
-        for (SyntaxTree element: node.find("ProductionElement")) {
-            final List<TypeNameWithTypeArguments> classOrInterfaceTypeNodes = element.find("IdentifierWithTypeArguments", TypeNameWithTypeArguments.CONSTRUCT);
-            // mandatory and unique
-            final String name = element.find("Identifier").get(0).getValue();
-            if (classOrInterfaceTypeNodes.isEmpty()) {
-                try {
-                    ruleElements.add(new RuleElement(name));
-                } catch (ModelException e) {
-                    throw new GrammarException(e, node);
+        targetType = node.find("^.^.ClassOrInterfaceType", Type.CONSTRUCT).get(0);
+        final List<Type> returnTypes = node.find("^.ProductionImplementation.ClassOrInterfaceType", Type.CONSTRUCT);
+        // at most one type by syntax; no type if implicit (in this case it is targetType)
+        returnType = returnTypes.isEmpty() ? targetType : returnTypes.get(0);
+        implicit = returnTypes.isEmpty();
+        ruleElements = node.find("ProductionElement", new F<SyntaxTree, RuleElement, GrammarException>() {
+            @Override
+            public RuleElement apply(final SyntaxTree syntaxTree) throws GrammarException {
+                final List<Type> types = syntaxTree.find("ClassOrInterfaceType", Type.CONSTRUCT);
+                // mandatory and unique
+                final String name = syntaxTree.find("Identifier").get(0).getValue();
+                if (types.isEmpty()) {
+                    try {
+                        return new RuleElement(name);
+                    } catch (ModelException e) {
+                        throw new GrammarException(e, syntaxTree);
+                    }
+                } else {
+                    final Type type = types.get(0);
+                    formalParameters.add(new FormalParameter(type, name));
+                    return new RuleElement(type, name);
                 }
-            } else {
-                ruleElements.add(new RuleElement(new Type(classOrInterfaceTypeNodes, 0), name));
             }
-        }
-    }
-
-    public String getName() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(returnedInterfaceName)
-                .append("_IS");
-        for (RuleElement element: ruleElements) {
-            builder.append("_");
-            builder.append(element.isConst ? element.name : element.type.getNameChain().get(0).getName());
-        }
-        return builder.toString();
+        });
+        typeParameters = new TypeParameters(node.find("^.^.TypeParameters.TypeParameter", TypeParameter.CONSTRUCT));
+        name = node.find("^.ProductionImplementation.Identifier", SyntaxTree.VALUE).get(0);
     }
 
     public List<RuleElement> getElements() {
         return new ArrayList<RuleElement>(ruleElements);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String toString() {
+        return typeParameters + (typeParameters.isEmpty() ? "" : " " ) + targetType + " ::= " + Utils.format(ruleElements, "", " ", "");
+    }
+
+    public String asAbstractMethodDeclaration() {
+        return "abstract "+ typeParameters + (typeParameters.isEmpty() ? "" : " " ) + targetType + " " + name
+                + "(" + Utils.format(formalParameters, "", ", ", "") +")";
+    }
+
+    public String asMethodDeclaration() {
+        return typeParameters + (typeParameters.isEmpty() ? "" : " " ) + targetType + " " + name
+                + "(" + Utils.format(formalParameters, "", ", ", "", new F<FormalParameter, String, RuntimeException>() {
+            @Override
+            public String apply(final FormalParameter formalParameter) {
+                return "final "+formalParameter.toString();
+            }
+        }) +")";
+    }
+
+    public boolean isImplicit() {
+        return implicit;
+    }
+
+    public List<FormalParameter> getFormalParameters() {
+        return new ArrayList<FormalParameter>(formalParameters);
     }
 
     public static class RuleElement {
@@ -88,6 +122,12 @@ public class ProductionRule {
         public String getName() {
             return name;
         }
+
+        public String toString() {
+            return isConst() ? name : name+":"+type;
+        }
+
+
     }
 
 }

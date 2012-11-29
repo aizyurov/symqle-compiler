@@ -28,7 +28,7 @@ public class ClassDefinition extends AbstractTypeDefinition {
 
     private final List<Type> implementedInterfaces;
 
-    private static ClassDefinition parse(final String source) {
+    public static ClassDefinition parse(final String source) {
         try {
             final SimpleNode simpleNode = Utils.createParser(source).ClassDeclaration();
             SyntaxTree syntaxTree = new SyntaxTree(simpleNode, source);
