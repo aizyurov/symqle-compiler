@@ -34,8 +34,8 @@ public class ProductionsTest extends TestCase {
         System.out.println(simqleGeneric);
 
         // make sure that classes are compilable
-        Utils.createParser(simqle.toString()).NormalClassDeclaration();
-        Utils.createParser(simqleGeneric.toString()).NormalClassDeclaration();
+        Utils.createParser(simqle.toString()).SimqleDeclarationBlock();;
+        Utils.createParser(simqleGeneric.toString()).SimqleDeclarationBlock();
 
         //
         assertEquals(3, simqle.getDeclaredMethods().size());
@@ -46,13 +46,13 @@ public class ProductionsTest extends TestCase {
         }
         {
             final MethodDefinition method = simqle.getDeclaredMethodBySignature("asSelectStatement(zCursorSpecification)");
-            assertEquals("public abstract <T> zSelectStatement<T> asSelectStatement(zCursorSpecification<T> cspec);",
-                    method.toString());
+            assertEquals("public abstract <T> zSelectStatement<T> asSelectStatement(zCursorSpecification<T> cspec)",
+                    method.declaration());
         }
         {
             final MethodDefinition method = simqle.getDeclaredMethodBySignature("forReadOnly(zCursorSpecification)");
-            assertEquals("public abstract <T> SelectStatement<T> forReadOnly(zCursorSpecification<T> cspec);",
-                    method.toString());
+            assertEquals("public abstract <T> SelectStatement<T> forReadOnly(zCursorSpecification<T> cspec)",
+                    method.declaration());
         }
     }
 }

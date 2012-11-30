@@ -99,6 +99,10 @@ public abstract class AbstractTypeDefinition {
         }
     }
 
+    public void addImportLines(Collection<String> addedImports) {
+        this.importLines.addAll(addedImports);
+    }
+
     public String getName() {
         return name;
     }
@@ -130,17 +134,21 @@ public abstract class AbstractTypeDefinition {
     }
 
     public String toString() {
-        return declarationString() +
-                (" {") + Utils.LINE_BREAK +
-                bodyStringWithoutBraces() +
-                Utils.LINE_BREAK +"}";
+        final StringBuilder builder = new StringBuilder();
+        builder.append(Utils.format(importLines, "", Utils.LINE_BREAK, Utils.LINE_BREAK + Utils.LINE_BREAK))
+                .append(comment)
+                .append(declarationString())
+                .append(" {")
+                .append(Utils.LINE_BREAK)
+                .append(bodyStringWithoutBraces())
+                .append(Utils.LINE_BREAK)
+                .append("}");
+        return builder.toString();
 
     }
 
     protected final String declarationString() {
         StringBuilder builder = new StringBuilder();
-        builder.append(Utils.format(new ArrayList<String>(importLines), "", Utils.LINE_BREAK, ""));
-        builder.append(comment);
         List<String> modifiers = new ArrayList<String>();
         modifiers.add(accessModifier);
         modifiers.addAll(otherModifiers);

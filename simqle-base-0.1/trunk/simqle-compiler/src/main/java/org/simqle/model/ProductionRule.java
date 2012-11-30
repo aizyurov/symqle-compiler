@@ -39,20 +39,32 @@ public class ProductionRule {
                 // mandatory and unique
                 final String name = syntaxTree.find("Identifier").get(0).getValue();
                 if (types.isEmpty()) {
-                    try {
-                        return new RuleElement(name);
-                    } catch (ModelException e) {
-                        throw new GrammarException(e, syntaxTree);
-                    }
+                    return new ConstantElement(name);
                 } else {
                     final Type type = types.get(0);
                     formalParameters.add(new FormalParameter(type, name));
-                    return new RuleElement(type, name);
+                    return new VariableElement(type, name);
                 }
             }
         });
         typeParameters = new TypeParameters(node.find("^.^.TypeParameters.TypeParameter", TypeParameter.CONSTRUCT));
         name = node.find("^.ProductionImplementation.Identifier", SyntaxTree.VALUE).get(0);
+    }
+
+    public String generatedComment() {
+        return
+            "    /**" + Utils.LINE_BREAK +
+            "    * {@code " + toString() +"}" + Utils.LINE_BREAK +
+            Utils.format(formalParameters, "", Utils.LINE_BREAK, Utils.LINE_BREAK,
+                new F<FormalParameter, String, RuntimeException>() {
+                    @Override
+                    public String apply(final FormalParameter ruleElement) {
+                        return "    * @param "+ruleElement.getName() +" see rule above";
+                    }
+                }) +
+                    "    * @return "+ returnType.getSimpleName() + " constructed according to the rule" + Utils.LINE_BREAK +
+                    "    */"  + Utils.LINE_BREAK;
+
     }
 
     public List<RuleElement> getElements() {
@@ -90,49 +102,42 @@ public class ProductionRule {
         return new ArrayList<FormalParameter>(formalParameters);
     }
 
-    public static class RuleElement {
-        private final Type type;
-        private final boolean isConst;
+    public interface RuleElement {
+        public String asMethodArgument(final Model model) throws ModelException;
+    }
+
+    private static class ConstantElement implements RuleElement {
         private final String name;
 
-        private RuleElement(final Type type, final String name) {
-            this.type = type;
+        private ConstantElement(final String name) {
             this.name = name;
-            this.isConst = false;
-        }
-
-        private RuleElement(final String constant) throws ModelException {
-            if (Constants.isConstant(constant)) {
-                this.type = null;
-                this.name = constant;
-                this.isConst = true;
-            } else {
-                throw new ModelException(constant+" is not a constant non-terminal");
-            }
-        }
-
-        public Type getType() {
-            return type;
-        }
-
-        public boolean isConst() {
-            return isConst;
-        }
-
-        public String getName() {
-            return name;
         }
 
         public String toString() {
-            return isConst() ? name : name+":"+type;
+            return name;
+        }
+
+        @Override
+        public String asMethodArgument(final Model model) throws ModelException {
+            return name;
+        }
+    }
+
+    private static class VariableElement implements RuleElement {
+        private final Type type;
+        private final String name;
+
+        private VariableElement(final Type type, final String name) {
+            this.type = type;
+            this.name = name;
+        }
+
+        public String toString() {
+            return name+":"+type;
         }
 
         public String asMethodArgument(final Model model) throws ModelException {
-            if (this.type==null) {
-                return name;
-            } else {
-                return model.getInterface(type).getArchetypeMethod().invoke(name);
-            }
+            return model.getInterface(type).getArchetypeMethod().invoke(name);
         }
 
     }

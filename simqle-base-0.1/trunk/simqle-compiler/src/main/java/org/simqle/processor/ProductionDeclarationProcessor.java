@@ -4,6 +4,8 @@
 package org.simqle.processor;
 
 import org.simqle.model.*;
+import org.simqle.parser.ParseException;
+import org.simqle.parser.SimpleNode;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.util.Utils;
 
@@ -17,15 +19,23 @@ import java.util.Set;
  * @author Alexander Izyurov
  */
 public class ProductionDeclarationProcessor implements Processor {
+
+    private final static String SIMQLE_SOURCE = "public abstract class Simqle {" + Utils.LINE_BREAK +
+            "    public static Simqle get() { " + Utils.LINE_BREAK +
+            "        return new SimqleGeneric(); " + Utils.LINE_BREAK +
+            "    }" + Utils.LINE_BREAK +
+            "}";
+
+    private final static String SIMQLE_GENERIC_SOURCE = "import org.simqle.*;" + Utils.LINE_BREAK +
+            "import static org.simqle.SqlTerm.*;" + Utils.LINE_BREAK +
+            "public class SimqleGeneric extends Simqle {}";
+
     @Override
     public void process(final SyntaxTree tree, final Model model) throws GrammarException {
-        final ClassDefinition simqle = ClassDefinition.parse(
-                "public abstract class Simqle {" + Utils.LINE_BREAK +
-                "    public static Simqle get() { " + Utils.LINE_BREAK +
-                "        return new SimqleGeneric(); " + Utils.LINE_BREAK +
-                "    }" + Utils.LINE_BREAK +
-                "}");
-        final ClassDefinition simqleGeneric = ClassDefinition.parse("public class SimqleGeneric extends Simqle {}");
+        final ClassDefinition simqle = createSimqleClass(SIMQLE_SOURCE);
+
+
+        final ClassDefinition simqleGeneric = createSimqleClass(SIMQLE_GENERIC_SOURCE);
 
         try {
             model.addClass(simqle);
@@ -37,10 +47,18 @@ public class ProductionDeclarationProcessor implements Processor {
         for (SyntaxTree production: tree.find("SimqleDeclarationBlock.SimqleDeclaration.ProductionDeclaration.ProductionChoice.ProductionRule")) {
                 // create the ProductionRule
             ProductionRule productionRule = new ProductionRule(production);
-                // create an anonymous class
-            AnonymousClass anonymousClass = new AnonymousClass(production);
+                // add imports
+            final List<String> declarationImports = production.find("^.^.^.^.ImportDeclaration", SyntaxTree.BODY);
+                // these go to both
+            simqle.addImportLines(declarationImports);
+            simqleGeneric.addImportLines(declarationImports);
+            final List<String> implementationImports = production.find("^.ProductionImplementation.ImportDeclaration", SyntaxTree.BODY);
+                // implementation only
+            simqleGeneric.addImportLines(implementationImports);
                 // create abstract method for Simqle class. Register method as explicit or implicit.
-            String abstractMethodDeclaration = "public "+productionRule.asAbstractMethodDeclaration()+";";
+            String abstractMethodDeclaration =
+                    productionRule.generatedComment() +
+                    "    public "+productionRule.asAbstractMethodDeclaration()+";";
             final MethodDefinition methodDefinition = MethodDefinition.parseAbstract(abstractMethodDeclaration, simqle);
             try {
                 simqle.addMethod(methodDefinition);
@@ -52,8 +70,10 @@ public class ProductionDeclarationProcessor implements Processor {
             } catch (ModelException e) {
                 throw new GrammarException(e, production);
             }
+            // create implementing method in SimqleGeneric via anonymous class
             try {
-// create implementing method for SimqleGeneric class (uses the anonymous class and the rule)
+                final AnonymousClass anonymousClass = new AnonymousClass(production);
+                // create implementing method for SimqleGeneric class (uses the anonymous class and the rule)
                 // first implement all non-implemented methods in the class
                 final Collection<MethodDefinition> anonymousClassAllMethods = anonymousClass.getAllMethods(model);
                 for (MethodDefinition method: anonymousClassAllMethods) {
@@ -93,6 +113,21 @@ public class ProductionDeclarationProcessor implements Processor {
             }
         }
 
+    }
+
+    private ClassDefinition createSimqleClass(String source) throws GrammarException {
+        final SimpleNode node;
+        try {
+            node = Utils.createParser(
+                    source
+            ).SimqleUnit();
+        } catch (ParseException e) {
+            throw new RuntimeException("Internal error", e);
+        }
+        SyntaxTree root = new SyntaxTree(node, "source code");
+
+        final SyntaxTree simqleTree = root.find("SimqleDeclarationBlock.SimqleDeclaration.NormalClassDeclaration").get(0);
+        return new ClassDefinition(simqleTree);
     }
 
     private String delegateToLeftmostArg(final Model model, final ProductionRule productionRule, final MethodDefinition method) throws ModelException {
