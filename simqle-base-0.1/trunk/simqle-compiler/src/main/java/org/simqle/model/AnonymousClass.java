@@ -2,8 +2,11 @@ package org.simqle.model;
 
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
+import org.simqle.util.Utils;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,17 +27,32 @@ public class AnonymousClass extends AbstractTypeDefinition {
     public AnonymousClass(final SyntaxTree node) throws GrammarException {
         super(node);
 
-        extended = node.find("MethodDeclaration.ResultType", Type.CONSTRUCT).get(0);
+        final Type defaultExtended = node.find("^.^.ClassOrInterfaceType", Type.CONSTRUCT).get(0);
+        final List<Type> overridingExtended = node.find("^.ProductionImplementation.ClassOrInterfaceType", Type.CONSTRUCT);
+
+        extended = overridingExtended.isEmpty() ? defaultExtended : overridingExtended.get(0);
+    }
+
+
+
+    @Override
+    protected String getTypeKeyword() {
+        return "class";
     }
 
     @Override
     public String implicitMethodAccessModifier(final MethodDefinition methodDefinition) {
-        return methodDefinition.getAccessModifier();
+        return "public";
     }
 
     @Override
     public Set<String> addImplicitMethodModifiers(final MethodDefinition methodDefinition) {
-        return methodDefinition.getOtherModifiers();
+        // add abstract if absent
+        final HashSet<String> newModifiers = new HashSet<String>(methodDefinition.getOtherModifiers());
+        if (methodDefinition.isAbstract()) {
+            newModifiers.add("abstract");
+        }
+        return newModifiers;
     }
 
     @Override
@@ -47,8 +65,10 @@ public class AnonymousClass extends AbstractTypeDefinition {
         return "public".equals(explicitAccessModifier);
     }
 
-    public String instanceCreationString() {
-        return "new " + extended + "()" + bodyString();
+    public String instanceBodyAsString() {
+        return (" {") + Utils.LINE_BREAK +
+                bodyStringWithoutBraces() +
+                Utils.LINE_BREAK +"        }";
     }
 
     @Override

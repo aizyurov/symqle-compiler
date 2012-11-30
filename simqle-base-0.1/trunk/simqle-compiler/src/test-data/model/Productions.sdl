@@ -1,0 +1,17 @@
+public interface zSelectStatement<T> : Query<T> {}
+
+public class SelectStatement<T> implements zSelectStatement<T>
+{}
+
+
+interface zCursorSpecification<T> : Query<T> {}
+
+<T> zSelectStatement<T> ::= cspec:zCursorSpecification<T>
+    :: implicit asSelectStatement {}
+
+| cspec:zCursorSpecification<T>  FOR READ ONLY
+    :: SelectStatement<T> forReadOnly {}
+
+| cspec:zCursorSpecification<T> FOR UPDATE
+    :: SelectStatement<T> forUpdate {}
+;

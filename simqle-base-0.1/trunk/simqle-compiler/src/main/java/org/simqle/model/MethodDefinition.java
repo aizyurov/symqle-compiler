@@ -243,6 +243,8 @@ public class MethodDefinition {
     public String invoke(String objectName) {
         StringBuilder builder = new StringBuilder();
         builder.append(objectName);
+        builder.append(".");
+        builder.append(getName());
         builder.append("(");
         final Collection<String> parameterNames = Utils.map(formalParameters, new F<FormalParameter, String, RuntimeException>() {
             @Override
@@ -255,7 +257,19 @@ public class MethodDefinition {
         return builder.toString();
     }
 
-    public void implement(final String newAccessModifier, final String newBody) throws ModelException {
+    public void implement(final String newAccessModifier, final String newBody)  throws ModelException {
+        implement(newAccessModifier, newBody, false);
+    }
+
+    public void implement(final String newAccessModifier, final String newBody, boolean makeParametersFinal) throws ModelException {
+        final Collection<FormalParameter> newFormalParameters = makeParametersFinal ?
+                Utils.map(formalParameters, new F<FormalParameter, FormalParameter, RuntimeException>() {
+                    @Override
+                    public FormalParameter apply(final FormalParameter formalParameter) {
+                        return formalParameter.makeFinal(true);
+                    }
+                }) :
+                formalParameters;
         final Set<String> newModifiers = new HashSet<String>(otherModifiers);
         newModifiers.remove("abstract");
         newModifiers.remove("transient");
@@ -267,7 +281,7 @@ public class MethodDefinition {
                 typeParameters,
                 resultType,
                 name,
-                formalParameters,
+                new ArrayList<FormalParameter>(newFormalParameters),
                 thrownExceptions,
                 newBody,
                 owner,

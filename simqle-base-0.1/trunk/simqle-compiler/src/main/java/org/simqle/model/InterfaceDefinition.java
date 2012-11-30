@@ -38,11 +38,18 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
         try {
             final Archetype archetype = archetypeNodes.isEmpty() ? Archetype.NONE : Archetype.create(archetypeNodes.get(0));
             archetypeMethod = archetype.createArchetypeMethod(this);
-            this.addMethod(archetypeMethod);
+            if (archetypeMethod != null) {
+                this.addMethod(archetypeMethod);
+            }
         } catch (ModelException e) {
             e.printStackTrace();
             throw new GrammarException(e, node);
         }
+    }
+
+    @Override
+    protected String getTypeKeyword() {
+        return "interface";
     }
 
     public MethodDefinition getArchetypeMethod() throws ModelException {

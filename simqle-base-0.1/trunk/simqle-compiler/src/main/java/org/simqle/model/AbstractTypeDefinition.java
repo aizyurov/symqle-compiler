@@ -29,9 +29,9 @@ public abstract class AbstractTypeDefinition {
     private final String comment;
 
     protected AbstractTypeDefinition(SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SimqleInterfaceDeclaration", "NormalClassDeclaration", "ProductionChoice");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SimqleInterfaceDeclaration", "NormalClassDeclaration", "ProductionRule");
 
-        this.importLines = new TreeSet<String>(node.getParent().getParent().find("ImportDeclaration", SyntaxTree.BODY));
+        this.importLines = new TreeSet<String>(node.find("^.^.ImportDeclaration", SyntaxTree.BODY));
         // modifiers may be of interface or class; one of collections is empty
         // for ProductionChoice both are empty
         final List<SyntaxTree> modifierNodes = node.find("InterfaceModifiers.InterfaceModifier");
@@ -42,7 +42,7 @@ public abstract class AbstractTypeDefinition {
         this.otherModifiers = Utils.getNonAccessModifiers(modifierNodes);
         final List<String> names = node.find("Identifier", SyntaxTree.VALUE);
         // for ProductionImplementation class name is generated from method name
-        names.addAll(node.find("ProductionImplementation.Identifier", new F<SyntaxTree, String, RuntimeException>() {
+        names.addAll(node.find("^.ProductionImplementation.Identifier", new F<SyntaxTree, String, RuntimeException>() {
             @Override
             public String apply(final SyntaxTree syntaxTree) {
                 return "$$"+syntaxTree.getValue();
@@ -51,13 +51,13 @@ public abstract class AbstractTypeDefinition {
         this.name = names.get(0);
 
         final List<TypeParameter> typeParams = node.find("TypeParameters.TypeParameter", TypeParameter.CONSTRUCT);
-        // one level up for ProductionChoice
+        // one level up for ProductionRule
         typeParams.addAll(node.find("^.TypeParameters.TypeParameter", TypeParameter.CONSTRUCT));
         this.typeParameters = new TypeParameters(typeParams);
         // exactly one body guaranteed by syntax - either InterfaceBody or ClassBody
         final List<SyntaxTree> bodies = node.find("InterfaceBody");
         bodies.addAll(node.find("ClassBody"));
-        bodies.addAll(node.find("ProductionImplementation.ClassBody"));
+        bodies.addAll(node.find("^.ProductionImplementation.ClassBody"));
         final SyntaxTree bodyNode = bodies.get(0);
         final List<SyntaxTree> members = bodyNode.find("InterfaceMemberDeclaration");
         members.addAll(bodyNode.find("ClassBodyDeclaration"));
@@ -130,7 +130,11 @@ public abstract class AbstractTypeDefinition {
     }
 
     public String toString() {
-        return declarationString() + bodyString();
+        return declarationString() +
+                (" {") + Utils.LINE_BREAK +
+                bodyStringWithoutBraces() +
+                Utils.LINE_BREAK +"}";
+
     }
 
     protected final String declarationString() {
@@ -142,6 +146,7 @@ public abstract class AbstractTypeDefinition {
         modifiers.addAll(otherModifiers);
         builder.append(Utils.format(modifiers, "", " ", " "));
         builder.append(Utils.format(annotations, "", " ", " "));
+        builder.append(getTypeKeyword()).append(" ");
         builder.append(name);
         builder.append(typeParameters);
         builder.append(" ");
@@ -149,23 +154,22 @@ public abstract class AbstractTypeDefinition {
         return builder.toString();
     }
 
-    protected final String bodyString() {
+    protected abstract String getTypeKeyword();
+
+    protected final String bodyStringWithoutBraces() {
         final StringBuilder builder = new StringBuilder();
-        builder.append(" {").append(Utils.LINE_BREAK);
         // we are not expecting inner classes (which should go after methods by convention
         // so we are putting everything but methods before methods
         for (String otherDeclaration: otherDeclarations) {
             builder.append(otherDeclaration).append(Utils.LINE_BREAK);
         }
-        builder.append("}").append(Utils.LINE_BREAK);
         for (MethodDefinition method: methods.values()) {
             builder.append(method);
             builder.append(Utils.LINE_BREAK);
         }
-        builder.append("}");
-        builder.append(Utils.LINE_BREAK);
         return builder.toString();
     }
+
 
     protected void addInheritedMethodsToMap(final Model model, final Map<String, MethodDefinition> methodMap, final Type parentType) throws ModelException {
         AbstractTypeDefinition parent = model.getAbstractType(parentType.getSimpleName());

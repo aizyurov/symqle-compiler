@@ -68,7 +68,7 @@ public class ProductionRule {
     }
 
     public String asAbstractMethodDeclaration() {
-        return "abstract "+ typeParameters + (typeParameters.isEmpty() ? "" : " " ) + targetType + " " + name
+        return "abstract "+ typeParameters + (typeParameters.isEmpty() ? "" : " " ) + returnType + " " + name
                 + "(" + Utils.format(formalParameters, "", ", ", "") +")";
     }
 
@@ -127,6 +127,13 @@ public class ProductionRule {
             return isConst() ? name : name+":"+type;
         }
 
+        public String asMethodArgument(final Model model) throws ModelException {
+            if (this.type==null) {
+                return name;
+            } else {
+                return model.getInterface(type).getArchetypeMethod().invoke(name);
+            }
+        }
 
     }
 

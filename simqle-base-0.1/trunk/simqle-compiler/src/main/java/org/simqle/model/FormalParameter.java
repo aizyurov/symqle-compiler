@@ -54,6 +54,18 @@ public class FormalParameter {
         this.ellipsis = ellipsis;
     }
 
+    public FormalParameter makeFinal(boolean addFinal) {
+        final ArrayList<String> newModifiers = new ArrayList<String>(modifiers);
+        if (addFinal) {
+            if (! newModifiers.contains("final")) {
+                newModifiers.add(0, "final");
+            }
+        } else {
+            newModifiers.remove("final");
+        }
+        return new FormalParameter(rawType, name, newModifiers, ellipsis);
+    }
+
 
     public Type getType() {
         return ellipsis ? rawType.arrayOf() : rawType;
@@ -115,7 +127,7 @@ public class FormalParameter {
         FormalParameter that = (FormalParameter) o;
 
         if (ellipsis != that.ellipsis) return false;
-        if (!modifiers.equals(that.modifiers)) return false;
+//        if (!modifiers.equals(that.modifiers)) return false;
         if (!name.equals(that.name)) return false;
         if (!rawType.equals(that.rawType)) return false;
 
@@ -126,7 +138,7 @@ public class FormalParameter {
     public int hashCode() {
         int result = rawType.hashCode();
         result = 31 * result + name.hashCode();
-        result = 31 * result + modifiers.hashCode();
+//        result = 31 * result + modifiers.hashCode();
         result = 31 * result + (ellipsis ? 1 : 0);
         return result;
     }

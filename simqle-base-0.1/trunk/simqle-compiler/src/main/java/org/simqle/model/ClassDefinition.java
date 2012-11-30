@@ -30,7 +30,7 @@ public class ClassDefinition extends AbstractTypeDefinition {
 
     public static ClassDefinition parse(final String source) {
         try {
-            final SimpleNode simpleNode = Utils.createParser(source).ClassDeclaration();
+            final SimpleNode simpleNode = Utils.createParser(source).NormalClassDeclaration();
             SyntaxTree syntaxTree = new SyntaxTree(simpleNode, source);
             return new ClassDefinition(syntaxTree);
         } catch (ParseException e) {
@@ -40,6 +40,10 @@ public class ClassDefinition extends AbstractTypeDefinition {
         }
     }
 
+    @Override
+    protected String getTypeKeyword() {
+        return "class";
+    }
 
     public ClassDefinition(SyntaxTree node) throws GrammarException {
         super(node);

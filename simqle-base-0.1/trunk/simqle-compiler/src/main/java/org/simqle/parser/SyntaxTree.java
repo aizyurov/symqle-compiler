@@ -136,7 +136,7 @@ public class SyntaxTree {
             final String firstName = nameList.get(0);
             final List<String> otherNames = nameList.subList(1, nameList.size());
             if (firstName.equals("^")) {
-                return getParent().find(otherNames);
+                return getParent() == null ? Collections.<SyntaxTree>emptyList() : getParent().find(otherNames);
             } else {
                 for (SyntaxTree child: getChildren()) {
                     if (child.getType().equals(firstName)) {

@@ -1169,9 +1169,6 @@ SimpleNode ClassDeclaration():
      NormalClassDeclaration()
    |
      EnumDeclaration()
-    {
-        return jjtThis;
-    }
 }
 
 /* 8.1 */
