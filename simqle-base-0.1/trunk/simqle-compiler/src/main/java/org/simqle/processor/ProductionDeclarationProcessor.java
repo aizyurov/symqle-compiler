@@ -158,13 +158,4 @@ public class ProductionDeclarationProcessor implements Processor {
                 .append(")");
         return builder.toString();
     }
-
-/**
- * new F<FormalParameter, String, ModelException>() {
-                    @Override
-                    public String apply(FormalParameter formalParameter) throws ModelException {
-                       return  model.getInterface(formalParameter.getType()).getArchetypeMethod().invoke(formalParameter.getName());
-                    }
-                }))
-  */
 }

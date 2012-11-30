@@ -7,7 +7,6 @@ import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -62,7 +61,7 @@ public class TypeArgument {
     public TypeArgument(String simpleType) {
         isWildCardArgument = false;
         boundType = null;
-        reference = new Type(Collections.singletonList(new TypeNameWithTypeArguments(simpleType)), 0);
+        reference = new Type(new TypeNameWithTypeArguments(simpleType), 0);
     }
 
     public String getImage() {

@@ -132,8 +132,7 @@ public class Model {
     }
 
     private String resolveName(final Type t) {
-        List<TypeNameWithTypeArguments> nameChain = t.getNameChain();
-        return nameChain.get(nameChain.size()-1).getName();
+        return t.getSimpleName();
     }
 
 }

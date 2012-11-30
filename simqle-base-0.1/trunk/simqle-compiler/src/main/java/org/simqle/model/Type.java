@@ -6,9 +6,12 @@ package org.simqle.model;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
-import org.simqle.util.Utils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <br/>13.11.2011
@@ -17,9 +20,9 @@ import java.util.*;
  */
 public class Type {
 
-    public final static Type VOID = new Type(Collections.singletonList(new TypeNameWithTypeArguments("void")),0);
+    public final static Type VOID = new Type(new TypeNameWithTypeArguments("void"),0);
 
-    private final List<TypeNameWithTypeArguments> nameChain;
+    private final TypeNameWithTypeArguments nameChain;
     private final int arrayDimensions;
 
     public Type(SyntaxTree node) throws GrammarException {
@@ -28,31 +31,43 @@ public class Type {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), start.getType(), "ClassOrInterfaceType", "ReferenceType", "PrimitiveType", "ExceptionType");
         
         if (start.getType().equals("ClassOrInterfaceType")) {
-            nameChain = start.find("IdentifierWithTypeArguments", TypeNameWithTypeArguments.CONSTRUCT);
+            final List<TypeNameWithTypeArguments> chain = start.find("IdentifierWithTypeArguments", TypeNameWithTypeArguments.CONSTRUCT);
+            if (chain.size()>1) {
+                throw new GrammarException("Simqle supports only simple type names", start);
+            }
+            nameChain = chain.get(0);
         arrayDimensions = 0;
         } else if (start.getType().equals("ReferenceType")) {
             final SyntaxTree firstChild = start.getChildren().get(0);
             if (firstChild.getType().equals("PrimitiveType")) {
-                nameChain = Collections.singletonList(new TypeNameWithTypeArguments(firstChild.getValue()));
+                nameChain = new TypeNameWithTypeArguments(firstChild.getValue());
             } else /* ClassOrInterfaceType*/{
-                nameChain = start.find("ClassOrInterfaceType.IdentifierWithTypeArguments", TypeNameWithTypeArguments.CONSTRUCT);
+                final List<TypeNameWithTypeArguments> chain = start.find("ClassOrInterfaceType.IdentifierWithTypeArguments", TypeNameWithTypeArguments.CONSTRUCT);
+                if (chain.size()>1) {
+                    throw new GrammarException("Simqle supports only simple type names", start);
+                }
+                nameChain = chain.get(0);
             }
             arrayDimensions = start.find("ArrayOf").size();
         } else if (start.getType().equals("ExceptionType")) {
-            nameChain = start.find("Name.Identifier", TypeNameWithTypeArguments.CONSTRUCT);
+            final List<TypeNameWithTypeArguments> chain = start.find("Name.Identifier", TypeNameWithTypeArguments.CONSTRUCT);
+            if (chain.size()>1) {
+                throw new GrammarException("Simqle supports only simple type names", start);
+            }
+            nameChain = chain.get(0);
             arrayDimensions = 0;
         } else { /* PrimitiveType */
-            nameChain = Collections.singletonList(new TypeNameWithTypeArguments(start.getValue()));
+            nameChain = new TypeNameWithTypeArguments(start.getValue());
             arrayDimensions = 0;
         }
     }
 
     public Type(String name) {
-        this(Collections.singletonList(new TypeNameWithTypeArguments(name)), 0);
+        this(new TypeNameWithTypeArguments(name), 0);
     }
 
-    public Type(List<TypeNameWithTypeArguments> nameChain, int arrayDimensions) {
-        this.nameChain = new ArrayList<TypeNameWithTypeArguments>(nameChain);
+    public Type(TypeNameWithTypeArguments nameChain, int arrayDimensions) {
+        this.nameChain = nameChain;
         this.arrayDimensions = arrayDimensions;
     }
 
@@ -60,14 +75,13 @@ public class Type {
         return new Type(nameChain, arrayDimensions+1);
     }
 
-    public List<TypeNameWithTypeArguments> getNameChain() {
+    public TypeNameWithTypeArguments getNameChain() {
         return nameChain;
     }
 
     public TypeArguments getTypeArguments() {
         final List<TypeArgument> typeArguments = new LinkedList<TypeArgument>();
-        TypeNameWithTypeArguments element = nameChain.get(nameChain.size()-1);
-            typeArguments.addAll(element.getTypeArguments().getArguments());
+        typeArguments.addAll(nameChain.getTypeArguments().getArguments());
         return new TypeArguments(typeArguments);
     }
 
@@ -88,7 +102,7 @@ public class Type {
 
     private String format(F<TypeNameWithTypeArguments, String, RuntimeException> typeFormatter) {
         StringBuilder builder = new StringBuilder();
-        builder.append(Utils.format(nameChain, "", ".", "", typeFormatter));
+        builder.append(typeFormatter.apply(nameChain));
         for (int i=0; i<arrayDimensions; i++) {
             builder.append("[]");
         }
@@ -133,26 +147,23 @@ public class Type {
             TypeArgument argument = arguments.get(i);
             substitutions.put(parameters.get(i).getName(), argument);
         }
-        String myName = nameChain.get(0).getName();
-        if (nameChain.size()==1 && substitutions.containsKey(myName)) {
+        String myName = nameChain.getName();
+        if (substitutions.containsKey(myName)) {
             // I am a parameter; replace me
             return substitutions.get(myName).asType();
         } else {
-            List<TypeNameWithTypeArguments> newNameChain = new ArrayList<TypeNameWithTypeArguments>(nameChain.size());
-            for (TypeNameWithTypeArguments typeWithArgs : nameChain) {
-                // name cannot be a parameter (except the if branch above)
+            // name cannot be a parameter (except the if branch above)
                 // so it is just copied
                 // arguments may contain parameters, so replace recursively
-                String name = typeWithArgs.getName();
-                TypeArguments newTypeArguments = typeWithArgs.getTypeArguments().substituteParameters(typeParameters, typeArguments);
-                newNameChain.add(new TypeNameWithTypeArguments(name, newTypeArguments));
-            }
+                String name = nameChain.getName();
+                TypeArguments newTypeArguments = nameChain.getTypeArguments().substituteParameters(typeParameters, typeArguments);
+            final TypeNameWithTypeArguments newNameChain = new TypeNameWithTypeArguments(name, newTypeArguments);
             return new Type(newNameChain, arrayDimensions);
         }
     }
 
     public String getSimpleName() {
-        return nameChain.get(nameChain.size()-1).getName();
+        return nameChain.getName();
     }
 
 
