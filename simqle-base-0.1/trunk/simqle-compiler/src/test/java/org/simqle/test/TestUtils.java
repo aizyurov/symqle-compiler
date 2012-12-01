@@ -1,6 +1,7 @@
 package org.simqle.test;
 
 import java.io.*;
+import java.util.regex.Pattern;
 
 /**
  * Created by IntelliJ IDEA.
@@ -18,6 +19,13 @@ public class TestUtils {
         return source.replaceAll("\\s+", " ").trim();
     }
 
+    public static String pureCode(String source) {
+        final String s1 = multilineComment.matcher(source).replaceAll("");
+        final String s2 = singleLineComment.matcher(s1).replaceAll("");
+        return whiteSpace.matcher(s2).replaceAll(" ").trim();
+
+    }
+
     public static String readTextFile(File file) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(file));
         final CharArrayWriter charArrayWriter = new CharArrayWriter();
@@ -29,4 +37,8 @@ public class TestUtils {
         writer.close();
         return charArrayWriter.toString();
     }
+
+    private final static Pattern multilineComment = Pattern.compile("/\\*.*?\\*/", Pattern.DOTALL | Pattern.MULTILINE);
+    private final static Pattern singleLineComment = Pattern.compile("//.*?");
+    private final static Pattern whiteSpace = Pattern.compile("\\s+");
 }

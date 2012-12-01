@@ -98,16 +98,15 @@ public class ProductionDeclarationProcessor implements Processor {
                         bodyBuilder.append("            }/*delegation*/");
                         method.implement("public", bodyBuilder.toString(), true);
                     }
-                    // dow we can add the implementation of the method to SimqleGeneric
-                    final MethodDefinition methodToImplement = simqleGeneric.getMethodBySignature(methodDefinition.signature(), model);
-                    methodToImplement.implement("public",
-                            " { " +  Utils.LINE_BREAK +
-                                    "        return new "+methodToImplement.getResultType()+"()" +
-                            anonymousClass.instanceBodyAsString() + ";/*anonymous*/"+ Utils.LINE_BREAK +
-                            "    }/*rule method*/"+Utils.LINE_BREAK,
-                            true);
-
                 }
+                // dow we can add the implementation of the method to SimqleGeneric
+                final MethodDefinition methodToImplement = simqleGeneric.getMethodBySignature(methodDefinition.signature(), model);
+                methodToImplement.implement("public",
+                        " { " +  Utils.LINE_BREAK +
+                                "        return new "+methodToImplement.getResultType()+"()" +
+                        anonymousClass.instanceBodyAsString() + ";/*anonymous*/"+ Utils.LINE_BREAK +
+                        "    }/*rule method*/"+Utils.LINE_BREAK,
+                        true);
             } catch (ModelException e) {
                 throw new GrammarException(e, production);
             }
@@ -136,7 +135,7 @@ public class ProductionDeclarationProcessor implements Processor {
         if (!formalParameters.isEmpty()) {
             final FormalParameter formalParameter = formalParameters.get(0);
             final InterfaceDefinition anInterface = model.getInterface(formalParameter.getType());
-            final MethodDefinition delegate = anInterface.getDeclaredMethodBySignature(method.signature());
+            final MethodDefinition delegate = anInterface.getMethodBySignature(method.signature(), model);
             return delegate.invoke(formalParameter.getName());
         } else {
             throw new ModelException("Cannot implement " + method.getName());

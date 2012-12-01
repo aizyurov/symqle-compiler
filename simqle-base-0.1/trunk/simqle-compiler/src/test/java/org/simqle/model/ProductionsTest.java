@@ -6,6 +6,7 @@ import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.ClassDeclarationProcessor;
 import org.simqle.processor.InterfaceDeclarationsProcessor;
 import org.simqle.processor.ProductionDeclarationProcessor;
+import org.simqle.test.TestUtils;
 import org.simqle.util.Utils;
 
 import java.io.FileInputStream;
@@ -57,7 +58,7 @@ public class ProductionsTest extends TestCase {
     }
 
     public void testProductionWithOverride() throws Exception {
-        String source = "src/test-data/model/ProductionWithOVerride.sdl";
+        String source = "src/test-data/model/ProductionWithOverride.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SimqleParser parser = new SimqleParser(reader);
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
@@ -88,6 +89,39 @@ public class ProductionsTest extends TestCase {
             final MethodDefinition method = simqleGeneric.getDeclaredMethodBySignature("forReadOnly(zCursorSpecification)");
             assertEquals("public <T> SelectStatement<T> forReadOnly(final zCursorSpecification<T> cspec)",
                     method.declaration());
+        }
+    }
+
+    public void testProductionWithScalar() throws Exception {
+        String source = "src/test-data/model/ProductionWithScalar.sdl";
+        Reader reader = new InputStreamReader(new FileInputStream(source));
+        SimqleParser parser = new SimqleParser(reader);
+        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        final Model model = new Model();
+        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+        new ClassDeclarationProcessor().process(syntaxTree, model);
+        new ProductionDeclarationProcessor().process(syntaxTree, model);
+
+        final ClassDefinition simqle = model.getClassDef("Simqle");
+        final ClassDefinition simqleGeneric = model.getClassDef("SimqleGeneric");
+
+        Utils.createParser(simqle.toString()).SimqleDeclarationBlock();
+        Utils.createParser(simqleGeneric.toString()).SimqleDeclarationBlock();
+
+        {
+            final MethodDefinition method = simqleGeneric.getDeclaredMethodBySignature("asValue(zValueExpressionPrimary)");
+            assertEquals(TestUtils.pureCode(
+                    "    public <T> zValueExpression<T> asValue(final zValueExpressionPrimary<T> e) { \n" +
+                    "        return new zValueExpression<T>() {\n" +
+                            "    public T value(final Element element) throws SQLException {\n" +
+                            "        return e.value(element);\n" +
+                            "    }\n" +
+                    "           public Sql z$create$zValueExpression(final SqlContext context) {\n" +
+                    "               return new CompositeSql(e.z$create$zValueExpressionPrimary(context));\n" +
+                    "           }\n" +
+                    "       };\n" +
+                    "   }"),
+                    TestUtils.pureCode(method.toString()));
         }
     }
 

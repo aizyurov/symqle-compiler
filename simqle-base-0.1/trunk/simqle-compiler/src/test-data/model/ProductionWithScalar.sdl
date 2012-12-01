@@ -1,0 +1,23 @@
+import java.sql.SQLException;
+import org.simqle.Element;
+public interface Scalar<T>
+{
+    T value(final Element element) throws SQLException;
+}
+
+public interface zValueExpression<T> extends Scalar<T> : Sql
+{}
+
+public class Value<T> implements zValueExpression<T>
+{}
+
+<T> zValueExpression<T> ::=
+		e:zValueExpressionPrimary<T>
+		:: implicit asValue
+		{}
+;
+
+
+public interface zValueExpressionPrimary<T> extends Scalar<T> : Sql
+{}
+
