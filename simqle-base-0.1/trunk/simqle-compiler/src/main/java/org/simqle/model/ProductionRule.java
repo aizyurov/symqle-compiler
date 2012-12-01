@@ -47,8 +47,15 @@ public class ProductionRule {
                 }
             }
         });
+        // check that implicit conversion has a single parameter
+        if (implicit && formalParameters.size()!=1) {
+            throw new GrammarException("Implicit conversion must have one parameter, found: "
+                    +formalParameters.toString(), node);
+        }
         typeParameters = new TypeParameters(node.find("^.^.TypeParameters.TypeParameter", TypeParameter.CONSTRUCT));
-        name = node.find("^.ProductionImplementation.Identifier", SyntaxTree.VALUE).get(0);
+        name =  implicit ?
+                "z$"+targetType.getSimpleName()+"$from$"+formalParameters.get(0).getType().getSimpleName() :
+                node.find("^.ProductionImplementation.Identifier", SyntaxTree.VALUE).get(0);
     }
 
     public String generatedComment() {

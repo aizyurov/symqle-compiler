@@ -10,7 +10,7 @@ import java.util.List;
 <T> zSelectStatement<T> ::= cspec:zCursorSpecification<T>
     ::
     import java.util.LinkedList;
-    implicit asSelectStatement {
+    implicit {
             public Query<T> z$create$zSelectStatement(final SqlContext context) {
                 throw new RuntimeException("Not implemented");
             }

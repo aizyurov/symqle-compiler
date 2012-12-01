@@ -1097,7 +1097,7 @@ IdentifierWithTypeArguments Identifier(arguments derived from the rule) {
 Variable names declared in the production are available in the body (they are final variables in the context).
 */
     ( ImportDeclaration() ) *
-    ( "implicit" | ClassOrInterfaceType() ) Identifier() ClassBody()
+    ( "implicit" | ClassOrInterfaceType() Identifier() ) ClassBody()
 }
 
 /*****************************************

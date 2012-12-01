@@ -25,6 +25,8 @@ public abstract class AbstractTypeDefinition {
     private final List<String> otherDeclarations = new ArrayList<String>();
     private final List<String> annotations;
 
+    private static int anonymousClassCounter = 0;
+
     // presentation part
     private final String comment;
 
@@ -48,7 +50,7 @@ public abstract class AbstractTypeDefinition {
                 return "$$"+syntaxTree.getValue();
             }
         }));
-        this.name = names.get(0);
+        this.name = names.isEmpty() ? ("anonymous$"+ anonymousClassCounter++ ) : names.get(0);
 
         final List<TypeParameter> typeParams = node.find("TypeParameters.TypeParameter", TypeParameter.CONSTRUCT);
         // one level up for ProductionRule

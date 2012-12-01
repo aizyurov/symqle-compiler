@@ -46,8 +46,8 @@ public class ProductionsTest extends TestCase {
             assertEquals("public", method.getAccessModifier());
         }
         {
-            final MethodDefinition method = simqle.getDeclaredMethodBySignature("asSelectStatement(zCursorSpecification)");
-            assertEquals("public abstract <T> zSelectStatement<T> asSelectStatement(zCursorSpecification<T> cspec)",
+            final MethodDefinition method = simqle.getDeclaredMethodBySignature("z$zSelectStatement$from$zCursorSpecification(zCursorSpecification)");
+            assertEquals("public abstract <T> zSelectStatement<T> z$zSelectStatement$from$zCursorSpecification(zCursorSpecification<T> cspec)",
                     method.declaration());
         }
         {
@@ -80,8 +80,8 @@ public class ProductionsTest extends TestCase {
             assertEquals("public", method.getAccessModifier());
         }
         {
-            final MethodDefinition method = simqleGeneric.getDeclaredMethodBySignature("asSelectStatement(zCursorSpecification)");
-            assertEquals("public <T> zSelectStatement<T> asSelectStatement(final zCursorSpecification<T> cspec)",
+            final MethodDefinition method = simqleGeneric.getDeclaredMethodBySignature("z$zSelectStatement$from$zCursorSpecification(zCursorSpecification)");
+            assertEquals("public <T> zSelectStatement<T> z$zSelectStatement$from$zCursorSpecification(final zCursorSpecification<T> cspec)",
                     method.declaration());
             assertTrue(method.toString(), method.toString().contains("throw new RuntimeException(\"Not implemented\");"));
         }
@@ -109,9 +109,9 @@ public class ProductionsTest extends TestCase {
         Utils.createParser(simqleGeneric.toString()).SimqleDeclarationBlock();
 
         {
-            final MethodDefinition method = simqleGeneric.getDeclaredMethodBySignature("asValue(zValueExpressionPrimary)");
+            final MethodDefinition method = simqleGeneric.getDeclaredMethodBySignature("z$zValueExpression$from$zValueExpressionPrimary(zValueExpressionPrimary)");
             assertEquals(TestUtils.pureCode(
-                    "    public <T> zValueExpression<T> asValue(final zValueExpressionPrimary<T> e) { \n" +
+                    "    public <T> zValueExpression<T> z$zValueExpression$from$zValueExpressionPrimary(final zValueExpressionPrimary<T> e) { \n" +
                     "        return new zValueExpression<T>() {\n" +
                             "    public T value(final Element element) throws SQLException {\n" +
                             "        return e.value(element);\n" +
