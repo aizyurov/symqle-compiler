@@ -81,6 +81,9 @@ public class MethodDefinition {
                              final boolean aPublic,
                              final boolean anAbstract) {
         this.comment = comment;
+        if (!Utils.ACCESS_MODIFIERS.contains(accessModifier) && !"".equals(accessModifier)) {
+            throw new IllegalArgumentException();
+        }
         this.accessModifier = accessModifier;
         this.otherModifiers = new TreeSet<String>(otherModifiers);
         this.typeParameters = typeParameters;
@@ -101,6 +104,9 @@ public class MethodDefinition {
         List<SyntaxTree> modifierNodes = node.find("MethodModifiers.MethodModifier");
         modifierNodes.addAll(node.find("AbstractMethodModifiers.AbstractMethodModifier"));
         this.accessModifier = Utils.getAccessModifier(modifierNodes);
+        if (!Utils.ACCESS_MODIFIERS.contains(accessModifier) && !"".equals(accessModifier)) {
+            throw new IllegalArgumentException();
+        }
         this.otherModifiers = Utils.getNonAccessModifiers(modifierNodes);
         final List<SyntaxTree> bodies = node.find("MethodBody");
         this.body = bodies.isEmpty() ? ";" : bodies.get(0).getImage();
@@ -150,6 +156,12 @@ public class MethodDefinition {
     }
 
     public String declaration() {
+        Set<String> sortedExceptions = new TreeSet<String>(Utils.map(thrownExceptions, new F<Type, String, RuntimeException>() {
+            @Override
+            public String apply(Type type) {
+                return type.toString();  //To change body of implemented methods use File | Settings | File Templates.
+            }
+        }));
         StringBuilder builder = new StringBuilder();
         builder.append(accessModifier);
         if (!"".equals(accessModifier)) {
@@ -165,7 +177,7 @@ public class MethodDefinition {
                 .append("(")
                 .append(Utils.format(formalParameters, "", ", ", ""))
                 .append(")")
-                .append(Utils.format(thrownExceptions, " throws ", ", ", ""));
+                .append(Utils.format(sortedExceptions, " throws ", ", ", ""));
         return builder.toString();
     }
 

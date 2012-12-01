@@ -72,8 +72,8 @@ public class TestInterfaceParsing extends TestCase {
             myMethod = child.getDeclaredMethodBySignature("myMethod(int)");
             assertEquals("", myMethod.getAccessModifier());
             assertEquals(0, myMethod.getOtherModifiers().size());
-            assertEquals("Collection<T> myMethod(int i) throws NoSuchElementException, ArrayIndexOutOfBoundsException", myMethod.declaration());
-            assertEquals("Collection<T> myMethod(int i) throws NoSuchElementException, ArrayIndexOutOfBoundsException;", myMethod.toString().trim());
+            assertEquals("Collection<T> myMethod(int i) throws ArrayIndexOutOfBoundsException, NoSuchElementException", myMethod.declaration());
+            assertEquals("Collection<T> myMethod(int i) throws ArrayIndexOutOfBoundsException, NoSuchElementException;", myMethod.toString().trim());
             assertTrue(myMethod.isPublic());
             assertTrue(myMethod.isAbstract());
         }

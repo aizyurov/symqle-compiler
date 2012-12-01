@@ -18,7 +18,7 @@ import java.io.Reader;
 public class ProductionsTest extends TestCase {
 
     public void testBasicProduction() throws Exception {
-        String source = "src/test-data/model/Productions.sdl";
+        String source = "src/test-data/model/BasicProduction.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SimqleParser parser = new SimqleParser(reader);
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
@@ -55,4 +55,40 @@ public class ProductionsTest extends TestCase {
                     method.declaration());
         }
     }
+
+    public void testProductionWithOverride() throws Exception {
+        String source = "src/test-data/model/ProductionWithOVerride.sdl";
+        Reader reader = new InputStreamReader(new FileInputStream(source));
+        SimqleParser parser = new SimqleParser(reader);
+        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        final Model model = new Model();
+        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+        new ClassDeclarationProcessor().process(syntaxTree, model);
+        new ProductionDeclarationProcessor().process(syntaxTree, model);
+
+        final ClassDefinition simqleGeneric = model.getClassDef("SimqleGeneric");
+        System.out.println(simqleGeneric);
+
+        Utils.createParser(simqleGeneric.toString()).SimqleDeclarationBlock();
+
+        //
+        assertEquals(3, simqleGeneric.getDeclaredMethods().size());
+        assertEquals(3, simqleGeneric.getAllMethods(model).size());
+        for (MethodDefinition method: simqleGeneric.getDeclaredMethods()) {
+            assertFalse(method.getOtherModifiers().toString(), method.getOtherModifiers().contains("abstract"));
+            assertEquals("public", method.getAccessModifier());
+        }
+        {
+            final MethodDefinition method = simqleGeneric.getDeclaredMethodBySignature("asSelectStatement(zCursorSpecification)");
+            assertEquals("public <T> zSelectStatement<T> asSelectStatement(final zCursorSpecification<T> cspec)",
+                    method.declaration());
+            assertTrue(method.toString(), method.toString().contains("throw new RuntimeException(\"Not implemented\");"));
+        }
+        {
+            final MethodDefinition method = simqleGeneric.getDeclaredMethodBySignature("forReadOnly(zCursorSpecification)");
+            assertEquals("public <T> SelectStatement<T> forReadOnly(final zCursorSpecification<T> cspec)",
+                    method.declaration());
+        }
+    }
+
 }

@@ -134,7 +134,7 @@ public class Utils {
         return stringList;
     }
 
-    private static List<String> ACCESS_MODIFIERS = Arrays.asList("public", "protected", "private");
+    public static List<String> ACCESS_MODIFIERS = Arrays.asList("public", "protected", "private");
 
 
 
