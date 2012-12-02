@@ -40,7 +40,11 @@ public class ProductionRule {
                 // mandatory and unique
                 final String name = syntaxTree.find("Identifier").get(0).getValue();
                 if (types.isEmpty()) {
-                    return new ConstantElement(name);
+                    try {
+                        return new ConstantElement(name);
+                    } catch (ModelException e) {
+                        throw new GrammarException(e, syntaxTree);
+                    }
                 } else {
                     final Type type = types.get(0);
                     formalParameters.add(new FormalParameter(type, name));
@@ -117,8 +121,11 @@ public class ProductionRule {
     private static class ConstantElement implements RuleElement {
         private final String name;
 
-        private ConstantElement(final String name) {
+        private ConstantElement(final String name) throws ModelException {
             this.name = name;
+            if (!Constants.isConstant(name)) {
+                throw new ModelException(name + " is not SqlTerm; is type missing?");
+            }
         }
 
         public String toString() {
