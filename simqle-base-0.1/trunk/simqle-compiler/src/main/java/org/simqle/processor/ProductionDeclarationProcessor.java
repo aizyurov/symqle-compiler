@@ -136,7 +136,7 @@ public class ProductionDeclarationProcessor implements Processor {
             final FormalParameter formalParameter = formalParameters.get(0);
             final InterfaceDefinition anInterface = model.getInterface(formalParameter.getType());
             final MethodDefinition delegate = anInterface.getMethodBySignature(method.signature(), model);
-            return delegate.invoke(formalParameter.getName());
+            return delegate.delegationInvocation(formalParameter.getName());
         } else {
             throw new ModelException("Cannot implement " + method.getName());
         }

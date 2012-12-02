@@ -111,7 +111,8 @@ public class ProductionsTest extends TestCase {
         {
             final MethodDefinition method = simqleGeneric.getDeclaredMethodBySignature("z$zValueExpression$from$zValueExpressionPrimary(zValueExpressionPrimary)");
             assertEquals(TestUtils.pureCode(
-                    "    public <T> zValueExpression<T> z$zValueExpression$from$zValueExpressionPrimary(final zValueExpressionPrimary<T> e) { \n" +
+                    "    public <T> zValueExpression<T>" +
+                    "    z$zValueExpression$from$zValueExpressionPrimary(final zValueExpressionPrimary<T> e) { \n" +
                     "        return new zValueExpression<T>() {\n" +
                             "    public T value(final Element element) throws SQLException {\n" +
                             "        return e.value(element);\n" +

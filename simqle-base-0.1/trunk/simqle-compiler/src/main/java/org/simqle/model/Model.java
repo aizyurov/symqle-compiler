@@ -29,6 +29,10 @@ public class Model {
         explicitSimqleMethods.add(method);
     }
 
+    public List<MethodDefinition> getImplicitSimqleMethods() {
+        return implicitSimqleMethods;
+    }
+
     public void addInterface(InterfaceDefinition def) throws ModelException {
         addClassOrInterface(def.getName(), new ClassOrInterface(def));
     }

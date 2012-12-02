@@ -43,7 +43,11 @@ public class MethodDefinition {
     protected boolean isAbstract() {
         return isAbstract;
     }
-    
+
+    public List<FormalParameter> getFormalParameters() {
+        return formalParameters;
+    }
+
     public static MethodDefinition parseAbstract(final String source, final AbstractTypeDefinition owner) {
         try {
             final SimpleNode simpleNode = Utils.createParser(source).AbstractMethodDeclaration();
@@ -252,19 +256,24 @@ public class MethodDefinition {
         return resultType;
     }
 
-    public String invoke(String objectName) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(objectName);
-        builder.append(".");
-        builder.append(getName());
-        builder.append("(");
+    public String delegationInvocation(String objectName) {
         final Collection<String> parameterNames = Utils.map(formalParameters, new F<FormalParameter, String, RuntimeException>() {
             @Override
             public String apply(final FormalParameter formalParameter) {
                 return formalParameter.getName();
             }
         });
-        builder.append(Utils.format(parameterNames, "", ", ", ""));
+        return invoke(objectName, parameterNames);
+        
+    }
+
+    public String invoke(String objectName, Collection<String> arguments) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(objectName);
+        builder.append(".");
+        builder.append(getName());
+        builder.append("(");
+        builder.append(Utils.format(arguments, "", ", ", ""));
         builder.append(")");
         return builder.toString();
     }
@@ -320,6 +329,26 @@ public class MethodDefinition {
                     owner,
                     owner.methodIsPublic(newAccessModifier),
                     true)
+        );
+    }
+
+    public void pullUpAbstractMethod(final ClassDefinition newOwner) throws ModelException {
+        final Set<String> newModifiers = new HashSet<String>(otherModifiers);
+        newModifiers.add("abstract");
+        newOwner.addMethod(
+                new MethodDefinition(
+                        comment,
+                        accessModifier,
+                        newModifiers,
+                        typeParameters,
+                        resultType,
+                        name,
+                        formalParameters,
+                        thrownExceptions,
+                        ";",
+                        newOwner,
+                        isPublic,
+                        true)
         );
     }
 

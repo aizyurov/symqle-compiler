@@ -6,6 +6,7 @@ import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -144,7 +145,7 @@ public class ProductionRule {
         }
 
         public String asMethodArgument(final Model model) throws ModelException {
-            return model.getInterface(type).getArchetypeMethod().invoke(name);
+            return model.getInterface(type).getArchetypeMethod().delegationInvocation(name);
         }
 
     }
