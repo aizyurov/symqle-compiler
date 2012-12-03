@@ -41,4 +41,19 @@ public class InheritanceTest extends TestCase {
                 "            }"), TestUtils.pureCode(delegatedMethod.toString()));
 
     }
+
+    public void testChain() throws Exception {
+        String source = "src/test-data/model/ChainInheritance.sdl";
+        Reader reader = new InputStreamReader(new FileInputStream(source));
+        SimqleParser parser = new SimqleParser(reader);
+        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        final Model model = new Model();
+        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+        new ClassDeclarationProcessor().process(syntaxTree, model);
+        new ProductionDeclarationProcessor().process(syntaxTree, model);
+        new SimqleMethodProcessor().process(syntaxTree, model);
+        new InheritanceProcessor().process(model);
+        ClassDefinition queryExpr = model.getClassDef("QueryExpression");
+        System.out.println(queryExpr);
+    }
 }
