@@ -166,6 +166,23 @@ public class Type {
         return nameChain.getName();
     }
 
+    public void addInferredTypeArguments(final Type actualType, final Map<String, Type> parameterMapping) throws ModelException {
+        String name = this.getSimpleName();
+        if (parameterMapping.containsKey(name)) {
+            Type oldMapping = parameterMapping.put(name, actualType);
+            if (oldMapping!=null && !oldMapping.equals(actualType)) {
+                throw new ModelException("Cannot infer"+name);
+            }
+        } else {
+            // it is a class/interface; leave check of assignability to Java
+            // assume types are compatible (e.g. formal Collection and actual List)
+            if (this.getTypeArguments().getArguments().size() != actualType.getTypeArguments().getArguments().size()) {
+                throw new ModelException("formal parameter type arguments differ from actual parameter type arguments");
+            }
+            
+        }
+    }
+
 
 
     public static final F<SyntaxTree, Type, GrammarException> CONSTRUCT =

@@ -2,10 +2,7 @@ package org.simqle.model;
 
 import org.simqle.util.Utils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -52,5 +49,13 @@ public class TypeParameters {
             arguments.add(new TypeArgument(false, null, new Type(typeParameter.getName())));
         }
         return new TypeArguments(arguments);
+    }
+
+    public TypeArguments inferTypeArguments(final FormalParameter formalParameter, final Type actualArgType) {
+        final Map<String, Type> parameterMapping = new HashMap<String, Type>();
+        for (String name: names()) {
+            parameterMapping.put(name, null);
+        }
+        formalParameter.getType().addInferredTypeArguments(actualArgType, parameterMapping);
     }
 }
