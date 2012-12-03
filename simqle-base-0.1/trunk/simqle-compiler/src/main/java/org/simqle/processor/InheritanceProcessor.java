@@ -37,12 +37,12 @@ public class InheritanceProcessor implements ModelProcessor {
                                final Map<String, Map<String, MethodDefinition>> implicitConversions,
                                final Model model) throws ModelException {
         // Names of all interfaces implemented by classDef
-        final Set<String> allInterfaceNames = new HashSet<String>();
+        final Set<Type> allInterfaces = new HashSet<Type>();
         // All interfaces reachable by N implicit conversions
-        final Set<String> nHopsReachable = new HashSet<String>();
+        final Set<Type> nHopsReachable = new HashSet<Type>();
         // All interfaces reachable by N+! implicit conversions
         // as map (interfaceName, last method in conversion chain)
-        final Map<String, MethodDefinition> nPlusOneHopsReachable = new HashMap<String, MethodDefinition>();
+        final Map<Type, MethodDefinition> nPlusOneHopsReachable = new HashMap<Type, MethodDefinition>();
         // holds current number of hops for the two Sets above
         int nHops = 0;
         // cycle invariant:
@@ -53,30 +53,42 @@ public class InheritanceProcessor implements ModelProcessor {
         //
         // initialize the variables:
         for (Type interfaceType: classDef.getImplementedInterfaces()) {
-            allInterfaceNames.add(interfaceType.getSimpleName());
-            nHopsReachable.add(interfaceType.getSimpleName());
+            allInterfaces.add(interfaceType);
+            nHopsReachable.add(interfaceType);
         }
         // invariant is true
         while (!nHopsReachable.isEmpty()) {
-            for (String argName: nHopsReachable) {
-                Map<String, MethodDefinition> conversionsByArg = implicitConversions.get(argName);
+            for (Type argType: nHopsReachable) {
+                Map<String, MethodDefinition> conversionsByArg = implicitConversions.get(argType.getSimpleName());
                 if (conversionsByArg==null) {
                     continue;
                 }
                 for (Map.Entry<String, MethodDefinition> entry: conversionsByArg.entrySet()) {
                     final String resName = entry.getKey();
                     MethodDefinition methodDef = entry.getValue();
-                    if (!allInterfaceNames.contains(resName)) {
+                    final TypeParameters methodTypeParams = methodDef.getTypeParameters();
+                    // the single argument of the method can contain only these parameter names
+                    // as type arguments
+                    // we cannot support implicit rules like BooleanExpression ::= ValueExpression<Boolean>
+                    // any ValueExpression<T> must be convertable or none, not a specific type
+                    // then we match type arguments of the arg to type arguments of argType:
+                    // it is required that they contain type parameters as type arguments only
+                    //
+
+                    final TypeArguments argTypeArgs = methodDef.getFormalParameters().get(0).getType().getNameChain().getTypeArguments();
+                    final TypeArguments replacement = argTypeArgs.derive(methodTypeParams, argType.getTypeArguments());
+                    final Type resType = methodDef.getResultType().substituteParameters(methodTypeParams, replacement);
+                    if (!allInterfaces.contains(resType)) {
                         // this a new one reachable in N+! hops; not reachable in N or less hops
-                        if (nPlusOneHopsReachable.containsKey(resName)) {
+                        if (nPlusOneHopsReachable.containsKey(resType)) {
                             System.err.println("WARN: multiple ways to reach " +
                                     resName + " from " + classDef.getName() +
                                     " last step is " +
-                                    nPlusOneHopsReachable.get(resName).getName() +
+                                    nPlusOneHopsReachable.get(resType).getName() +
                                     " or "+ methodDef.getName());
                             // do not replace: first conversion wins
                         } else {
-                            nPlusOneHopsReachable.put(resName, methodDef);
+                            nPlusOneHopsReachable.put(resType, methodDef);
                         }
                     }
                 }
@@ -84,24 +96,11 @@ public class InheritanceProcessor implements ModelProcessor {
             // now nPlusOneHopsReachable contains all possible interfaces to implement with methods to use
             // for last step conversion
             // add interfaces to classDef and implement everything it must implement
-            for (Map.Entry<String, MethodDefinition> entry: nPlusOneHopsReachable.entrySet()) {
-                final String resName = entry.getKey();
+            for (Map.Entry<Type, MethodDefinition> entry: nPlusOneHopsReachable.entrySet()) {
+                final Type resType = entry.getKey();
                 MethodDefinition methodDef = entry.getValue();
-                // no thorough check for implicit conversions.
-                // we expect either to target interface have no type parameters,
-                // or the same number of type parameters as implementing class
-                int numTypeParameters = model.getInterface(resName).getTypeParameters().size();
-                final Type typeToImplement;
-                if (numTypeParameters==0) {
-                    typeToImplement = new Type(resName);
-                } else if (numTypeParameters==classDef.getTypeParameters().size()) {
-                    typeToImplement = new Type(new TypeNameWithTypeArguments(resName,
-                            classDef.getTypeParameters().asTypeArguments()), 0);
-                } else {
-                    throw new ModelException("Not supported implicit conversion "+methodDef);
-                }
-                classDef.addImplementedInterface(typeToImplement);
-                allInterfaceNames.add(resName);
+                classDef.addImplementedInterface(resType);
+                allInterfaces.add(resType);
                 // now it is implemented but its methods may be not
                 for (MethodDefinition methodToImplement: classDef.getAllMethods(model)) {
                     if (methodToImplement.getOtherModifiers().contains("transient")) {

@@ -48,6 +48,10 @@ public class MethodDefinition {
         return formalParameters;
     }
 
+    public TypeParameters getTypeParameters() {
+        return typeParameters;
+    }
+
     public static MethodDefinition parseAbstract(final String source, final AbstractTypeDefinition owner) {
         try {
             final SimpleNode simpleNode = Utils.createParser(source).AbstractMethodDeclaration();
@@ -194,7 +198,12 @@ public class MethodDefinition {
         final AbstractTypeDefinition abstractType = model.getAbstractType(type.getSimpleName());
         TypeParameters typeParameters1 = abstractType.getTypeParameters();
         TypeArguments typeArguments = type.getTypeArguments();
-        return replaceParameters(targetOwner, typeParameters1, typeArguments);
+        try {
+            return replaceParameters(targetOwner, typeParameters1, typeArguments);
+        } catch (ModelException e) {
+            System.out.println(this + "\n overriding for "+targetOwner);
+            throw e;
+        }
     }
 
     private MethodDefinition replaceParameters(final AbstractTypeDefinition targetOwner, final TypeParameters typeParameters, final TypeArguments typeArguments) throws ModelException {

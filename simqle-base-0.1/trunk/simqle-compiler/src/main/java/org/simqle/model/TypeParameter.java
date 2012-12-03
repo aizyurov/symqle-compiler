@@ -50,7 +50,7 @@ public class TypeParameter {
     }
 
     public String toString() {
-        return name + Utils.format(typeBound, "extends ", "& ", "");
+        return name + Utils.format(typeBound, " extends ", "& ", "");
     }
 
     public static final F<SyntaxTree, TypeParameter, GrammarException> CONSTRUCT =

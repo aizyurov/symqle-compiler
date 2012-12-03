@@ -4,7 +4,11 @@ import org.simqle.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -60,4 +64,41 @@ public class TypeArguments {
     public int hashCode() {
         return arguments.hashCode();
     }
+
+    /**
+     * creates a new TypeArguments from {@code this}.
+     * The result has the same size as @{code params}.
+     * If a parameter is used in {@code this}, its counterpart in
+     * result is matching value in actualArguments.
+     * Unused parameters match to themselves.
+     * @param params type parameters
+     * @param actualArguments must be the sames size sa {@code this}
+     * @return
+     */
+    public TypeArguments derive(final TypeParameters params, final TypeArguments actualArguments) throws ModelException {
+        final Map<String, TypeArgument> paramMapping = new HashMap<String, TypeArgument>();
+        final Set<String> paramNames = params.names();
+        // TODO recurse into generic types; for now handling one level only
+        for (int i=0; i<arguments.size(); i++) {
+            final String name = arguments.get(i).getReference().getSimpleName();
+            if (paramNames.contains(name)) {
+                final TypeArgument replacement = actualArguments.arguments.get(i);
+                final TypeArgument oldReplacement = paramMapping.put(name, replacement);
+                if (oldReplacement!=null && !oldReplacement.equals(replacement)) {
+                    throw new ModelException(name + " matches to different types: "+replacement + " and "+oldReplacement);
+                }
+            }
+        }
+        final List<TypeArgument> newArguments = new LinkedList<TypeArgument>();
+        for (TypeParameter param: params.list()) {
+            final String name = param.getName();
+            if (paramMapping.containsKey(name)) {
+                newArguments.add(paramMapping.get(name));
+            } else {
+                newArguments.add(new TypeArgument(name));
+            }
+        }
+        return new TypeArguments(newArguments);
+    }
+
 }

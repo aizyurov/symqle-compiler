@@ -59,7 +59,13 @@ public class ProductionDeclarationProcessor implements Processor {
             String abstractMethodDeclaration =
                     productionRule.generatedComment() +
                     "    public "+productionRule.asAbstractMethodDeclaration()+";";
-            final MethodDefinition methodDefinition = MethodDefinition.parseAbstract(abstractMethodDeclaration, simqle);
+            final MethodDefinition methodDefinition;
+            try {
+                methodDefinition = MethodDefinition.parseAbstract(abstractMethodDeclaration, simqle);
+            } catch (RuntimeException e) {
+                System.out.println(abstractMethodDeclaration);
+                throw e;
+            }
             try {
                 simqle.addMethod(methodDefinition);
                 if (productionRule.isImplicit()) {

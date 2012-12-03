@@ -55,5 +55,57 @@ public class InheritanceTest extends TestCase {
         new InheritanceProcessor().process(model);
         ClassDefinition queryExpr = model.getClassDef("QueryExpression");
         System.out.println(queryExpr);
+        final MethodDefinition asCursorSpec = queryExpr.getDeclaredMethodBySignature("z$create$zCursorSpecification(SqlContext)");
+        assertEquals(TestUtils.pureCode(
+                "public Query<T> z$create$zCursorSpecification(final SqlContext context) {\n" +
+                        "                return Simqle.get()\n" +
+                        "                    .z$zCursorSpecification$from$zQueryExpression(this)\n" +
+                        "                    .z$create$zCursorSpecification(context);\n" +
+                        "            }"
+        ), TestUtils.pureCode(asCursorSpec.toString()));
+        final MethodDefinition asSelectStatement = queryExpr.getDeclaredMethodBySignature("z$create$zSelectStatement(SqlContext)");
+        assertEquals(TestUtils.pureCode(
+                "public Query<T> z$create$zSelectStatement(final SqlContext context) {\n" +
+                        "                return Simqle.get()\n" +
+                        "                    .z$zSelectStatement$from$zCursorSpecification(this)\n" +
+                        "                    .z$create$zSelectStatement(context);\n" +
+                        "            }"),
+                TestUtils.pureCode(asSelectStatement.toString()));
+    }
+
+    public void testCyclic() throws Exception {
+        String source = "src/test-data/model/CyclicInheritance.sdl";
+        Reader reader = new InputStreamReader(new FileInputStream(source));
+        SimqleParser parser = new SimqleParser(reader);
+        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        final Model model = new Model();
+        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+        new ClassDeclarationProcessor().process(syntaxTree, model);
+        new ProductionDeclarationProcessor().process(syntaxTree, model);
+        new SimqleMethodProcessor().process(syntaxTree, model);
+        new InheritanceProcessor().process(model);
+        for (ClassDefinition classDef: model.getAllClasses()) {
+            System.out.println(classDef);
+            System.out.println("==============");
+        }
+
+    }
+
+    public void testGenerics() throws Exception {
+        String source = "src/test-data/model/GenericsInImplicits.sdl";
+        Reader reader = new InputStreamReader(new FileInputStream(source));
+        SimqleParser parser = new SimqleParser(reader);
+        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        final Model model = new Model();
+        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+        new ClassDeclarationProcessor().process(syntaxTree, model);
+        new ProductionDeclarationProcessor().process(syntaxTree, model);
+        new SimqleMethodProcessor().process(syntaxTree, model);
+        new InheritanceProcessor().process(model);
+        for (ClassDefinition classDef: model.getAllClasses()) {
+            System.out.println(classDef);
+            System.out.println("==============");
+        }
+
     }
 }

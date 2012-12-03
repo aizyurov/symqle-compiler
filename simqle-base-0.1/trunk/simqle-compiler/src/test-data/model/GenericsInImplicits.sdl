@@ -1,0 +1,42 @@
+public interface Scalar<T>
+{
+    T value(final Element element) throws SQLException;
+}
+
+
+public interface zValueExpression<T> extends Scalar<T> : Sql
+{}
+
+public class Value<R> implements zValueExpression<R>
+{}
+
+<S> zValueExpression<S> ::=
+		e:zValueExpressionPrimary<S>
+		:: implicit {}
+;
+
+<T extends Number> zValueExpression<Number> ::=
+    l:zValueExpressionPrimary<T> PLUS r:zValueExpressionPrimary<T> :: public Value<Number> plus {}
+;
+
+
+public interface zBooleanValueExpression extends Scalar<Boolean> : Sql
+{}
+
+public class BooleanValueExpression implements zBooleanValueExpression
+{}
+
+
+zValueExpression<Boolean> ::= bve: zBooleanValueExpression
+	    :: implicit {}
+;
+
+
+public interface zValueExpressionPrimary<U> extends Scalar<U> : Sql
+{}
+
+public class ValueExpressionPrimary<V> implements zValueExpressionPrimary<V>
+{}
+
+
+
