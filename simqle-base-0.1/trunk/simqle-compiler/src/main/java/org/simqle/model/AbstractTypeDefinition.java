@@ -109,6 +109,10 @@ public abstract class AbstractTypeDefinition {
         return name;
     }
 
+    protected final void makeAbstract() {
+        otherModifiers.add("abstract");
+    }
+
     public TypeParameters getTypeParameters() {
         return typeParameters;
     }

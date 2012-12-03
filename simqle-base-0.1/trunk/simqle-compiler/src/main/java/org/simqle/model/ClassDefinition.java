@@ -45,6 +45,17 @@ public class ClassDefinition extends AbstractTypeDefinition {
         return Collections.unmodifiableList(implementedInterfaces);
     }
 
+    public void makeAbstractIfNeeded(Model model) throws ModelException {
+        for (MethodDefinition method: getAllMethods(model)) {
+            if (method.getOtherModifiers().contains("abstract") ||
+                    method.getOtherModifiers().contains("transient")) {
+                makeAbstract();
+
+                return;
+            }
+        }
+    }
+
     public ClassDefinition(SyntaxTree node) throws GrammarException {
         super(node);
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "NormalClassDeclaration");

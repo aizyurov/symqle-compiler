@@ -27,6 +27,7 @@ public class InheritanceProcessor implements ModelProcessor {
                 makeImplicitConversionsMap(model);
         for (ClassDefinition classDef: model.getAllClasses()) {
             addInterfaces(classDef, implicitConversions, model);
+            classDef.makeAbstractIfNeeded(model);
         }
     }
 
@@ -58,7 +59,11 @@ public class InheritanceProcessor implements ModelProcessor {
         // invariant is true
         while (!nHopsReachable.isEmpty()) {
             for (String argName: nHopsReachable) {
-                for (Map.Entry<String, MethodDefinition> entry: implicitConversions.get(argName).entrySet()) {
+                Map<String, MethodDefinition> conversionsByArg = implicitConversions.get(argName);
+                if (conversionsByArg==null) {
+                    continue;
+                }
+                for (Map.Entry<String, MethodDefinition> entry: conversionsByArg.entrySet()) {
                     final String resName = entry.getKey();
                     MethodDefinition methodDef = entry.getValue();
                     if (!allInterfaceNames.contains(resName)) {
@@ -102,9 +107,12 @@ public class InheritanceProcessor implements ModelProcessor {
                     if (methodToImplement.getOtherModifiers().contains("transient")) {
                         methodToImplement.implement("public",
                                 " {" + Utils.LINE_BREAK +
+                                "                " +
                                 (methodToImplement.getResultType()==Type.VOID ? "" : "return ") +
-                                methodToImplement.invoke(methodDef.invoke("Simqle.get()", Collections.singletonList("this")),
-                                        Collections.<String>emptyList()),
+                                methodToImplement.delegationInvocation(
+                                        methodDef.invoke("Simqle.get()"+Utils.LINE_BREAK+"                    ",
+                                                Collections.singletonList("this"))+Utils.LINE_BREAK+"                    ") +
+                                ";" + Utils.LINE_BREAK+"            "+"}"+Utils.LINE_BREAK,
                                 true);
                     }
                 }
@@ -138,6 +146,7 @@ public class InheritanceProcessor implements ModelProcessor {
         }
         return conversionsMap;
     }
+
 
 
 

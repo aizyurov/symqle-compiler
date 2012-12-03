@@ -1,0 +1,23 @@
+public interface zSelectStatement<T> : Query<T> {}
+
+public class SelectStatement<T> implements zSelectStatement<T>
+{}
+
+
+public interface zCursorSpecification<T> : Query<T> {}
+
+public class CursorSpecification<T> implements zCursorSpecification<T> 
+{}
+
+import java.util.List;
+<T> zSelectStatement<T> ::= cspec:zCursorSpecification<T>
+    ::
+    import java.util.LinkedList;
+    implicit {}
+
+| cspec:zCursorSpecification<T>  FOR READ ONLY
+    :: SelectStatement<T> forReadOnly {}
+
+| cspec:zCursorSpecification<T> FOR UPDATE
+    :: SelectStatement<T> forUpdate {}
+;
