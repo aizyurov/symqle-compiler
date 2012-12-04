@@ -1,6 +1,10 @@
 keep in model imports for explicit methods - need to create factory methods in abstract classes
-method modifiers for explicit methods (may be private! - check that it does not go to the model)
+method modifiers for explicit methods (may be private! - check that it does not go to the model
+    and does not go to Simqle!)
 implementation imports for explicit methods
 naming convention (sun-confoming):
     public interface SelectStatement
     public abstract class AbstractSelectStatement
+ClassDef:implementedInterfaces is Map<Type, int) : type -> priority
+    default priority is 0.
+Class enhancement: signature -> (MethodDefinition, priority). Lowest priority wins    
