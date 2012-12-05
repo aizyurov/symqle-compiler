@@ -136,6 +136,16 @@ public class Type {
         return result;
     }
 
+    public Type replaceParams(final Map<String, TypeArgument> mapping) {
+        final TypeArgument typeArgument = mapping.get(getSimpleName());
+        if (typeArgument != null) {
+            return typeArgument.asType();
+        } else {
+            // replace my type arguments
+            return new Type(new TypeNameWithTypeArguments(this.getSimpleName(), this.getTypeArguments().replaceParams(mapping)), this.arrayDimensions);
+        }
+    }
+
     public Type substituteParameters(TypeParameters typeParameters, TypeArguments typeArguments) throws ModelException {
         final List<TypeParameter> parameters = typeParameters.list();
         List<TypeArgument> arguments = typeArguments.getArguments();
@@ -166,20 +176,30 @@ public class Type {
         return nameChain.getName();
     }
 
-    public void addInferredTypeArguments(final Type actualType, final Map<String, Type> parameterMapping) throws ModelException {
-        String name = this.getSimpleName();
+    public void addInferredTypeArguments(final Type formalType, final Map<String, TypeArgument> parameterMapping) throws ModelException {
+        String name = formalType.getSimpleName();
         if (parameterMapping.containsKey(name)) {
-            Type oldMapping = parameterMapping.put(name, actualType);
-            if (oldMapping!=null && !oldMapping.equals(actualType)) {
+            TypeArgument oldMapping = parameterMapping.put(name, new TypeArgument(false, null, this));
+            if (oldMapping!=null && !oldMapping.equals(formalType)) {
                 throw new ModelException("Cannot infer"+name);
             }
         } else {
-            // it is a class/interface; leave check of assignability to Java
-            // assume types are compatible (e.g. formal Collection and actual List)
-            if (this.getTypeArguments().getArguments().size() != actualType.getTypeArguments().getArguments().size()) {
+            // we do not process inheritance: actual type should exactly match to formal type for
+            // Simqle to be able to infer type parameters
+            // if a formal type is Collection<T> and actual type is MyListOfLong implements Collection<Long>,
+            // Simqle will give up.
+            if (!this.getSimpleName().equals(formalType.getSimpleName())) {
+                throw new ModelException(
+                        "Cannot infer type arguments from: "+this+" <- " +formalType);
+            }
+            final List<TypeArgument> actualArguments = this.getTypeArguments().getArguments();
+            final List<TypeArgument> formalArguments = formalType.getTypeArguments().getArguments();
+            if (actualArguments.size() != formalArguments.size()) {
                 throw new ModelException("formal parameter type arguments differ from actual parameter type arguments");
             }
-            
+            for (int i=0; i<actualArguments.size(); i++) {
+                actualArguments.get(i).addInferredTypeArguments(formalArguments.get(i), parameterMapping);
+            }
         }
     }
 

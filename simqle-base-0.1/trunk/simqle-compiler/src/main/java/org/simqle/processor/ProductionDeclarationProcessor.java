@@ -11,6 +11,7 @@ import org.simqle.util.Utils;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -141,7 +142,16 @@ public class ProductionDeclarationProcessor implements Processor {
         if (!formalParameters.isEmpty()) {
             final FormalParameter formalParameter = formalParameters.get(0);
             final InterfaceDefinition anInterface = model.getInterface(formalParameter.getType());
-            final MethodDefinition delegate = anInterface.getMethodBySignature(method.signature(), model);
+            // amInterface may have type parameters; actual type is formalParameter.getType().
+            final Map<String,TypeArgument> mapping = anInterface.getTypeParameters().inferTypeArguments(anInterface.getType(), formalParameter.getType());
+            final MethodDefinition candidate = anInterface.getMethodBySignature(method.signature(), model);
+            if (candidate == null) {
+                throw new ModelException("Cannot implement by delegation "+method.declaration());
+            }
+            final MethodDefinition delegate = candidate.replaceParams(method.getOwner(), mapping);
+            if (!delegate.matches(method)) {
+                throw new ModelException("Cannot implement by delegation "+method.declaration());
+            }
             return delegate.delegationInvocation(formalParameter.getName());
         } else {
             throw new ModelException("Cannot implement " + method.getName());

@@ -67,17 +67,13 @@ public class InheritanceProcessor implements ModelProcessor {
                     final String resName = entry.getKey();
                     MethodDefinition methodDef = entry.getValue();
                     final TypeParameters methodTypeParams = methodDef.getTypeParameters();
-                    // the single argument of the method can contain only these parameter names
-                    // as type arguments
-                    // we cannot support implicit rules like BooleanExpression ::= ValueExpression<Boolean>
-                    // any ValueExpression<T> must be convertable or none, not a specific type
-                    // then we match type arguments of the arg to type arguments of argType:
-                    // it is required that they contain type parameters as type arguments only
-                    //
+                    if (methodDef.getName().equals("z$zValueExpression$from$zValueExpressionPrimary")) {
+                        System.out.println("Got here");
+                    }
+                    final Map<String, TypeArgument> paramMapping =
+                            methodTypeParams.inferTypeArguments(methodDef.getFormalParameters().get(0).getType(), argType);
 
-                    final TypeArguments argTypeArgs = methodDef.getFormalParameters().get(0).getType().getNameChain().getTypeArguments();
-                    final TypeArguments replacement = argTypeArgs.derive(methodTypeParams, argType.getTypeArguments());
-                    final Type resType = methodDef.getResultType().substituteParameters(methodTypeParams, replacement);
+                    final Type resType = methodDef.getResultType().replaceParams(paramMapping);
                     if (!allInterfaces.contains(resType)) {
                         // this a new one reachable in N+! hops; not reachable in N or less hops
                         if (nPlusOneHopsReachable.containsKey(resType)) {

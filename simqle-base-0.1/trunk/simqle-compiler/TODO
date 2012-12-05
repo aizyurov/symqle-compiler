@@ -7,4 +7,10 @@ naming convention (sun-confoming):
     public abstract class AbstractSelectStatement
 ClassDef:implementedInterfaces is Map<Type, int) : type -> priority
     default priority is 0.
-Class enhancement: signature -> (MethodDefinition, priority). Lowest priority wins    
+Class enhancement: signature -> (MethodDefinition, priority). Lowest priority wins. If such a conflict exists,
+    need explicit cast to proper interface
+
+SelectList: convert() and augment(), like:
+    public <Arg, Res> AbstractSelectList<Res> convert(SelectList<Arg> rv, Function<Arg,Res> f);
+    public <T, U> AbstractSelectList<T> augment(SelectList<T> sl, SelectSublist<U> augm, Function2<T, U, T> f);
+Return type may be AbstractRowValue - will see.

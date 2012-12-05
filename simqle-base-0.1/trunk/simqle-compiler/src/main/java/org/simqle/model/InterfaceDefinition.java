@@ -47,6 +47,10 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
         }
     }
 
+    public Type getType() {
+        return new Type(new TypeNameWithTypeArguments(getName(), getTypeParameters().asTypeArguments()), 0);
+    }
+
     @Override
     protected String getTypeKeyword() {
         return "interface";

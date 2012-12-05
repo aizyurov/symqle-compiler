@@ -51,11 +51,28 @@ public class TypeParameters {
         return new TypeArguments(arguments);
     }
 
-    public TypeArguments inferTypeArguments(final FormalParameter formalParameter, final Type actualArgType) {
-        final Map<String, Type> parameterMapping = new HashMap<String, Type>();
+    /**
+     * Creates a map of (type parameter name, type argument).
+     * Infers the type arguments from formal parameter and actual argument type.
+     * For Simqle, one formal parameter - argument pair suffices, although in general case
+     * we could infer from multiple pairs.
+     * @param formalType
+     * @param actualArgType
+     * @return
+     * @throws ModelException
+     */
+    public Map<String, TypeArgument> inferTypeArguments(final Type formalType, final Type actualArgType) throws ModelException {
+        final Map<String, TypeArgument> parameterMapping = new HashMap<String, TypeArgument>();
         for (String name: names()) {
             parameterMapping.put(name, null);
         }
-        formalParameter.getType().addInferredTypeArguments(actualArgType, parameterMapping);
+        actualArgType.addInferredTypeArguments(formalType, parameterMapping);
+        // parameters which remain unmatches, map to themselves
+        for (String name: parameterMapping.keySet()) {
+            if (parameterMapping.get(name) == null) {
+                parameterMapping.put(name, new TypeArgument(name));
+            }
+        }
+        return  parameterMapping;
     }
 }

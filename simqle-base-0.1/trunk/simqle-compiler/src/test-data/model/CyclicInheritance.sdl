@@ -16,7 +16,11 @@ public class Value<T> implements zValueExpression<T>
 ;
 
 <T extends Number> zValueExpression<Number> ::=
-    l:zValueExpressionPrimary<T> PLUS r:zValueExpressionPrimary<T> :: public Value<Number> plus {}
+    l:zValueExpressionPrimary<T> PLUS r:zValueExpressionPrimary<T> :: public Value<Number> plus {
+        public Number value(final Element element) throws SQLException {
+            return Element.getBigDecimal();
+        }
+    }
 ;
 
 public interface zBooleanValueExpression extends Scalar<Boolean> : Sql

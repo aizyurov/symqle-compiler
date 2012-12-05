@@ -52,6 +52,10 @@ public class MethodDefinition {
         return typeParameters;
     }
 
+    public AbstractTypeDefinition getOwner() {
+        return owner;
+    }
+
     public static MethodDefinition parseAbstract(final String source, final AbstractTypeDefinition owner) {
         try {
             final SimpleNode simpleNode = Utils.createParser(source).AbstractMethodDeclaration();
@@ -204,6 +208,36 @@ public class MethodDefinition {
             System.out.println(this + "\n overriding for "+targetOwner);
             throw e;
         }
+    }
+
+    // does not change the owner (this is not correct!)
+    public MethodDefinition replaceParams(final AbstractTypeDefinition targetOwner, final Map<String,TypeArgument> mapping) {
+        final List<FormalParameter> newFormalParameters = new ArrayList<FormalParameter>(formalParameters.size());
+        for (FormalParameter formalParameter: formalParameters) {
+            newFormalParameters.add(new FormalParameter(formalParameter.getType().replaceParams(mapping), formalParameter.getName()));
+        }
+        final Type newResultType = resultType.replaceParams(mapping);
+        final Set<Type> newThrownExceptions = new HashSet<Type>();
+        for (Type exceptionType: thrownExceptions) {
+            newThrownExceptions.add(exceptionType.replaceParams(mapping));
+        }
+        final Set<String> newModifiers = new HashSet<String>(otherModifiers);
+        newModifiers.add("transient");
+        newModifiers.addAll(targetOwner.addImplicitMethodModifiers(this));
+        String newAccessModifier = targetOwner.implicitMethodAccessModifier(this);
+        return new MethodDefinition(
+                comment,
+                newAccessModifier,
+                newModifiers,
+                this.typeParameters,
+                newResultType,
+                name,
+                newFormalParameters,
+                newThrownExceptions,
+                ";",
+                targetOwner,
+                targetOwner.methodIsPublic(newAccessModifier),
+                targetOwner.methodIsAbstract(newModifiers));
     }
 
     private MethodDefinition replaceParameters(final AbstractTypeDefinition targetOwner, final TypeParameters typeParameters, final TypeArguments typeArguments) throws ModelException {
