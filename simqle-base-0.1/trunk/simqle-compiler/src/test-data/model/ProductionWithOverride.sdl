@@ -17,8 +17,8 @@ import java.util.List;
     }
 
 | cspec:zCursorSpecification<T>  FOR READ ONLY
-    :: SelectStatement<T> forReadOnly {}
+    :: public SelectStatement<T> forReadOnly {}
 
 | cspec:zCursorSpecification<T> FOR UPDATE
-    :: SelectStatement<T> forUpdate {}
+    :: public SelectStatement<T> forUpdate {}
 ;

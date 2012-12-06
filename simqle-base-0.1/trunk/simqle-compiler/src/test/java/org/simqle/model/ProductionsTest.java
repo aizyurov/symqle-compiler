@@ -43,11 +43,10 @@ public class ProductionsTest extends TestCase {
         assertEquals(3, simqle.getDeclaredMethods().size());
         for (MethodDefinition method: simqle.getDeclaredMethods()) {
             assertTrue(method.getOtherModifiers().toString(), method.getOtherModifiers().contains("abstract"));
-            assertEquals("public", method.getAccessModifier());
         }
         {
             final MethodDefinition method = simqle.getDeclaredMethodBySignature("z$zSelectStatement$from$zCursorSpecification(zCursorSpecification)");
-            assertEquals("public abstract <T> zSelectStatement<T> z$zSelectStatement$from$zCursorSpecification(zCursorSpecification<T> cspec)",
+            assertEquals("abstract <T> zSelectStatement<T> z$zSelectStatement$from$zCursorSpecification(zCursorSpecification<T> cspec)",
                     method.declaration());
         }
         {
@@ -77,11 +76,10 @@ public class ProductionsTest extends TestCase {
         assertEquals(3, simqleGeneric.getAllMethods(model).size());
         for (MethodDefinition method: simqleGeneric.getDeclaredMethods()) {
             assertFalse(method.getOtherModifiers().toString(), method.getOtherModifiers().contains("abstract"));
-            assertEquals("public", method.getAccessModifier());
         }
         {
             final MethodDefinition method = simqleGeneric.getDeclaredMethodBySignature("z$zSelectStatement$from$zCursorSpecification(zCursorSpecification)");
-            assertEquals("public <T> zSelectStatement<T> z$zSelectStatement$from$zCursorSpecification(final zCursorSpecification<T> cspec)",
+            assertEquals("<T> zSelectStatement<T> z$zSelectStatement$from$zCursorSpecification(final zCursorSpecification<T> cspec)",
                     method.declaration());
             assertTrue(method.toString(), method.toString().contains("throw new RuntimeException(\"Not implemented\");"));
         }
@@ -111,7 +109,7 @@ public class ProductionsTest extends TestCase {
         {
             final MethodDefinition method = simqleGeneric.getDeclaredMethodBySignature("z$zValueExpression$from$zValueExpressionPrimary(zValueExpressionPrimary)");
             assertEquals(TestUtils.pureCode(
-                    "    public <T> zValueExpression<T>" +
+                    "    <T> zValueExpression<T>" +
                     "    z$zValueExpression$from$zValueExpressionPrimary(final zValueExpressionPrimary<T> e) { \n" +
                     "        return new zValueExpression<T>() {\n" +
                             "    public T value(final Element element) throws SQLException {\n" +
