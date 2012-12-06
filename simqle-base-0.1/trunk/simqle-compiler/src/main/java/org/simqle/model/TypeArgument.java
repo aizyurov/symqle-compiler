@@ -100,11 +100,13 @@ public class TypeArgument {
             };
 
     public TypeArgument replaceParams(final Map<String, TypeArgument> mapping) {
-        return new TypeArgument(isWildCardArgument, boundType, reference.replaceParams(mapping));
+        return new TypeArgument(isWildCardArgument, boundType,
+                reference == null ? null : reference.replaceParams(mapping));
     }
 
     public TypeArgument substituteParameters(TypeParameters typeParameters, TypeArguments typeArguments) throws ModelException {
-        return new TypeArgument(isWildCardArgument, boundType, reference.substituteParameters(typeParameters, typeArguments));        
+        return new TypeArgument(isWildCardArgument, boundType,
+                reference == null ? null : reference.substituteParameters(typeParameters, typeArguments));
     }
 
     public void addInferredTypeArguments(final TypeArgument formalTypeArgument, final Map<String, TypeArgument> parameterMapping) throws ModelException {
@@ -137,7 +139,11 @@ public class TypeArgument {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         if (isWildCardArgument) {
-            builder.append("? ").append(boundType).append(" ");
+            if (boundType == null) {
+                return "?";
+            } else {
+                builder.append("? ").append(boundType).append(" ");
+            }
         }
         builder.append(reference);
         return builder.toString();

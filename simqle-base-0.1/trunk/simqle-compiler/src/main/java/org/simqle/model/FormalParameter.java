@@ -119,6 +119,14 @@ public class FormalParameter {
                 }
             };
 
+    public static F<FormalParameter, String, RuntimeException> NAME =
+            new F<FormalParameter, String, RuntimeException>() {
+                @Override
+                public String apply(final FormalParameter formalParameter) {
+                    return formalParameter.getName();
+                }
+            };
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

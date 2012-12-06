@@ -59,7 +59,7 @@ public class ProductionDeclarationProcessor implements Processor {
                 // create abstract method for Simqle class. Register method as explicit or implicit.
             String abstractMethodDeclaration =
                     productionRule.generatedComment() +
-                    "    public "+productionRule.asAbstractMethodDeclaration()+";";
+                    productionRule.asAbstractMethodDeclaration()+";";
             final MethodDefinition methodDefinition;
             try {
                 methodDefinition = MethodDefinition.parseAbstract(abstractMethodDeclaration, simqle);
@@ -108,7 +108,7 @@ public class ProductionDeclarationProcessor implements Processor {
                 }
                 // dow we can add the implementation of the method to SimqleGeneric
                 final MethodDefinition methodToImplement = simqleGeneric.getMethodBySignature(methodDefinition.signature(), model);
-                methodToImplement.implement("public",
+                methodToImplement.implement(methodDefinition.getAccessModifier(),
                         " { " +  Utils.LINE_BREAK +
                                 "        return new "+methodToImplement.getResultType()+"()" +
                         anonymousClass.instanceBodyAsString() + ";/*anonymous*/"+ Utils.LINE_BREAK +

@@ -1,5 +1,6 @@
-keep in model imports for explicit methods - need to create factory methods in abstract classes
-method modifiers for explicit methods (may be private! - check that it does not go to the model
+(done)keep in model imports for explicit methods - need to create factory methods in abstract classes
+create appropriate imports in abstract classes
+(done) method modifiers for explicit methods (may be private! - check that it does not go to the model
     and does not go to Simqle!)
 implementation imports for explicit methods
 naming convention (sun-confoming):

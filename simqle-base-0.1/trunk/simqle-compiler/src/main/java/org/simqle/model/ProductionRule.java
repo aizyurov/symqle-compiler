@@ -6,7 +6,6 @@ import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -25,6 +24,7 @@ public class ProductionRule {
     // this is the name of associated method
     private final String name;
     private final boolean implicit;
+    private final String accessModifier;
 
     public ProductionRule(SyntaxTree node) throws GrammarException {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "ProductionRule");
@@ -61,6 +61,8 @@ public class ProductionRule {
         name =  implicit ?
                 "z$"+targetType.getSimpleName()+"$from$"+formalParameters.get(0).getType().getSimpleName() :
                 node.find("^.ProductionImplementation.Identifier", SyntaxTree.VALUE).get(0);
+        // implicit methods are package scope; others may have any access modifier
+        accessModifier = implicit ? "" : Utils.getAccessModifier(node.find("^.ProductionImplementation.MethodModifiers.MethodModifier"));
     }
 
     public String generatedComment() {
@@ -92,7 +94,7 @@ public class ProductionRule {
     }
 
     public String asAbstractMethodDeclaration() {
-        return "abstract "+ typeParameters + (typeParameters.isEmpty() ? "" : " " ) + returnType + " " + name
+        return accessModifier+" "+"abstract "+ typeParameters + (typeParameters.isEmpty() ? "" : " " ) + returnType + " " + name
                 + "(" + Utils.format(formalParameters, "", ", ", "") +")";
     }
 

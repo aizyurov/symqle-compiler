@@ -33,6 +33,10 @@ public class Model {
         return implicitSimqleMethods;
     }
 
+    public List<MethodDefinition> getExplicitSimqleMethods() {
+        return explicitSimqleMethods;
+    }
+
     public void addInterface(InterfaceDefinition def) throws ModelException {
         addClassOrInterface(def.getName(), new ClassOrInterface(def));
     }
@@ -52,7 +56,7 @@ public class Model {
         if (classOrInterface.isInterface) {
             return classOrInterface.interfaceDefinition;
         } else {
-            throw new IllegalArgumentException(name + "is not interface");
+            throw new ModelException(name + "is not interface");
         }
     }
 

@@ -30,8 +30,14 @@ public class SimqleMethodProcessor implements Processor {
             MethodDefinition method = new MethodDefinition(methodNode, simqleGeneric);
             try {
                 simqleGeneric.addMethod(method);
-                method.pullUpAbstractMethod(simqle);
-                model.addExplicitMethod(simqle.getDeclaredMethodBySignature(method.signature()));
+                // private methods are for SimqleGeneric only
+                // protected can be overridden in dialects
+                // only public and package scope go to Simqle
+                if (!method.getAccessModifier().equals("private") && !method.getAccessModifier().equals("protected"))
+                {
+                    method.pullUpAbstractMethod(simqle);
+                    model.addExplicitMethod(simqle.getDeclaredMethodBySignature(method.signature()));
+                }
             } catch (ModelException e) {
                 throw new GrammarException(e, methodNode);
             }
