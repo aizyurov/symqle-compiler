@@ -90,14 +90,6 @@ public class FormalParameter {
         return ellipsis;
     }
 
-    public FormalParameter substituteParameters(TypeParameters typeParameters, TypeArguments typeArguments) throws ModelException {
-        return new FormalParameter(rawType.substituteParameters(typeParameters, typeArguments),
-                name,
-                modifiers,
-                ellipsis
-                );
-    }
-
     public String erasure(final Set<String> typeParameterNames) {
         return getType().erasure(typeParameterNames); 
     }

@@ -62,7 +62,7 @@ public class TypeArgument {
     public TypeArgument(String simpleType) {
         isWildCardArgument = false;
         boundType = null;
-        reference = new Type(new TypeNameWithTypeArguments(simpleType), 0);
+        reference = new Type(simpleType);
     }
 
     public String getImage() {
@@ -102,11 +102,6 @@ public class TypeArgument {
     public TypeArgument replaceParams(final Map<String, TypeArgument> mapping) {
         return new TypeArgument(isWildCardArgument, boundType,
                 reference == null ? null : reference.replaceParams(mapping));
-    }
-
-    public TypeArgument substituteParameters(TypeParameters typeParameters, TypeArguments typeArguments) throws ModelException {
-        return new TypeArgument(isWildCardArgument, boundType,
-                reference == null ? null : reference.substituteParameters(typeParameters, typeArguments));
     }
 
     public void addInferredTypeArguments(final TypeArgument formalTypeArgument, final Map<String, TypeArgument> parameterMapping) throws ModelException {

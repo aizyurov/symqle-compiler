@@ -200,14 +200,8 @@ public class MethodDefinition {
     public MethodDefinition override(final AbstractTypeDefinition targetOwner, final Model model) throws ModelException {
         final Type type = targetOwner.getAncestorTypeByName(owner.getName());
         final AbstractTypeDefinition abstractType = model.getAbstractType(type.getSimpleName());
-        TypeParameters typeParameters1 = abstractType.getTypeParameters();
-        TypeArguments typeArguments = type.getTypeArguments();
-        try {
-            return replaceParameters(targetOwner, typeParameters1, typeArguments);
-        } catch (ModelException e) {
-            System.out.println(this + "\n overriding for "+targetOwner);
-            throw e;
-        }
+        final Map<String, TypeArgument> mapping = abstractType.getTypeParameters().inferTypeArguments(abstractType.getType(), type);
+        return replaceParams(targetOwner, mapping);
     }
 
     // does not change the owner (this is not correct!)
@@ -240,34 +234,34 @@ public class MethodDefinition {
                 targetOwner.methodIsAbstract(newModifiers));
     }
 
-    private MethodDefinition replaceParameters(final AbstractTypeDefinition targetOwner, final TypeParameters typeParameters, final TypeArguments typeArguments) throws ModelException {
-        final List<FormalParameter> newFormalParameters = new ArrayList<FormalParameter>(formalParameters.size());
-        for (FormalParameter formalParameter: formalParameters) {
-            newFormalParameters.add(formalParameter.substituteParameters(typeParameters, typeArguments));
-        }
-        final Type newResultType = resultType.substituteParameters(typeParameters, typeArguments);
-        final Set<Type> newThrownExceptions = new HashSet<Type>();
-        for (Type exceptionType: thrownExceptions) {
-            newThrownExceptions.add(exceptionType.substituteParameters(typeParameters, typeArguments));
-        }
-        final Set<String> newModifiers = new HashSet<String>(otherModifiers);
-        newModifiers.add("transient");
-        newModifiers.addAll(targetOwner.addImplicitMethodModifiers(this));
-        String newAccessModifier = targetOwner.implicitMethodAccessModifier(this);
-        return new MethodDefinition(
-                comment,
-                newAccessModifier,
-                newModifiers,
-                this.typeParameters,
-                newResultType,
-                name,
-                newFormalParameters,
-                newThrownExceptions,
-                ";",
-                targetOwner,
-                targetOwner.methodIsPublic(newAccessModifier),
-                targetOwner.methodIsAbstract(newModifiers));
-    }
+//    private MethodDefinition replaceParameters(final AbstractTypeDefinition targetOwner, final TypeParameters typeParameters, final TypeArguments typeArguments) throws ModelException {
+//        final List<FormalParameter> newFormalParameters = new ArrayList<FormalParameter>(formalParameters.size());
+//        for (FormalParameter formalParameter: formalParameters) {
+//            newFormalParameters.add(formalParameter.substituteParameters(typeParameters, typeArguments));
+//        }
+//        final Type newResultType = resultType.substituteParameters(typeParameters, typeArguments);
+//        final Set<Type> newThrownExceptions = new HashSet<Type>();
+//        for (Type exceptionType: thrownExceptions) {
+//            newThrownExceptions.add(exceptionType.substituteParameters(typeParameters, typeArguments));
+//        }
+//        final Set<String> newModifiers = new HashSet<String>(otherModifiers);
+//        newModifiers.add("transient");
+//        newModifiers.addAll(targetOwner.addImplicitMethodModifiers(this));
+//        String newAccessModifier = targetOwner.implicitMethodAccessModifier(this);
+//        return new MethodDefinition(
+//                comment,
+//                newAccessModifier,
+//                newModifiers,
+//                this.typeParameters,
+//                newResultType,
+//                name,
+//                newFormalParameters,
+//                newThrownExceptions,
+//                ";",
+//                targetOwner,
+//                targetOwner.methodIsPublic(newAccessModifier),
+//                targetOwner.methodIsAbstract(newModifiers));
+//    }
 
     /**
      * A method matches another method, if they have the same
@@ -281,18 +275,19 @@ public class MethodDefinition {
         if (!signature().equals(other.signature())) {
             return false;
         }
-        final TypeArguments typeArguments = typeParameters.asTypeArguments();
-        final TypeParameters typeParameters = other.typeParameters;
-        try {
-            final MethodDefinition adjusted = other.replaceParameters(owner, typeParameters, typeArguments);
+        final List<TypeParameter> myParamList = typeParameters.list();
+        final List<TypeParameter> otherParamList = other.typeParameters.list();
+        if (myParamList.size()!=otherParamList.size()) {
+            return false;
+        }
+        final Map<String, TypeArgument> mapping = new HashMap<String, TypeArgument>();
+        for (int i=0; i<myParamList.size(); i++) {
+            mapping.put(otherParamList.get(i).getName(), new TypeArgument(myParamList.get(i).getName()));
+        }
+        final MethodDefinition adjusted = other.replaceParams(owner, mapping);
             return adjusted.resultType.equals(resultType)
                     && adjusted.formalParameters.equals(formalParameters)
                     && adjusted.thrownExceptions.equals(thrownExceptions);
-        } catch (ModelException e) {
-            // parameter count is different somewhere
-            return false;
-        }
-
     }
 
     public Type getResultType() {

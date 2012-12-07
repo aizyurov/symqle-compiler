@@ -21,7 +21,7 @@ public class TypeArguments {
         this.arguments = new ArrayList<TypeArgument>(arguments);
     }
 
-    private TypeArguments() {
+    public TypeArguments() {
         this(Collections.<TypeArgument>emptyList());
     }
 
@@ -46,14 +46,6 @@ public class TypeArguments {
         }
         return new TypeArguments(result);
 
-    }
-
-    public TypeArguments substituteParameters(TypeParameters typeParameters, TypeArguments typeArguments) throws ModelException {
-        final List<TypeArgument> result = new ArrayList<TypeArgument>(arguments.size());
-        for (TypeArgument arg: arguments) {
-            result.add(arg.substituteParameters(typeParameters, typeArguments));
-        }
-        return new TypeArguments(result);
     }
 
     @Override

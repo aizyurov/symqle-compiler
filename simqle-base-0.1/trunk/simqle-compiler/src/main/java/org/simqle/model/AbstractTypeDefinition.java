@@ -93,6 +93,10 @@ public abstract class AbstractTypeDefinition {
     public abstract boolean methodIsAbstract(Set<String> modifiers);
     public abstract boolean methodIsPublic(String explicitAccessModifier);
 
+    public Type getType() {
+        return new Type(name, typeParameters.asTypeArguments(), 0);
+    }
+
 
 
     public void addMethod(MethodDefinition methodDefinition) throws ModelException {

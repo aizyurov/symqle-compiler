@@ -48,7 +48,7 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
     }
 
     public Type getType() {
-        return new Type(new TypeNameWithTypeArguments(getName(), getTypeParameters().asTypeArguments()), 0);
+        return new Type(getName(), getTypeParameters().asTypeArguments(), 0);
     }
 
     @Override
