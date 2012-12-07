@@ -4,6 +4,7 @@
 package org.simqle.processor;
 
 import org.simqle.generator.Generator;
+import org.simqle.generator.WriterGenerator;
 import org.simqle.model.Model;
 import org.simqle.model.ModelException;
 import org.simqle.parser.ParseException;
@@ -23,14 +24,17 @@ public class Director {
     private Processor[] processors = {
             new InterfaceDeclarationsProcessor(),
             new ClassDeclarationProcessor(),
-//            new ProductionDeclarationProcessor(),
+            new ProductionDeclarationProcessor(),
     };
 
-    private final Generator[] generators;
+    private ModelProcessor[] modelProcessors = {
+            new InheritanceProcessor(),
+            new ClassEnhancer()
+    };
 
-    public Director(final Generator[] generators) {
-        this.generators = generators;
-    }
+    private final Generator[] generators = {
+            new WriterGenerator("org.simqle.sql")
+    };
 
     public void doAll(final File[] sources, final File outputDirectory) throws IOException, GrammarException, ParseException, ModelException {
         List<SyntaxTree> parsedSources = new ArrayList<SyntaxTree>(sources.length);
@@ -51,6 +55,9 @@ public class Director {
             for (SyntaxTree source: parsedSources) {
                 processor. process(source, model);
             }
+        }
+        for (ModelProcessor modelProcessor: modelProcessors) {
+            modelProcessor.process(model);
         }
         outputDirectory.mkdirs();
         for (Generator generator: generators) {

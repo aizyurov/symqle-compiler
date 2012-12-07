@@ -13,7 +13,7 @@ import java.util.*;
 public class Model {
 
 
-    private final Map<String, ClassOrInterface> classMap = new LinkedHashMap<String, ClassOrInterface>();
+    private final Map<String, AbstractTypeDefinition> classMap = new LinkedHashMap<String, AbstractTypeDefinition>();
     private final Map<String, FactoryMethodModel> factoryMethods = new HashMap<String, FactoryMethodModel>();
 
     private final Set<String> caseInsensitiveClassNames = new HashSet<String>();
@@ -38,68 +38,67 @@ public class Model {
     }
 
     public void addInterface(InterfaceDefinition def) throws ModelException {
-        addClassOrInterface(def.getName(), new ClassOrInterface(def));
+        addClassOrInterface(def);
     }
 
-    private void addClassOrInterface(String name, ClassOrInterface classOrInterface) throws ModelException {
+    private void addClassOrInterface(AbstractTypeDefinition def) throws ModelException {
+        final String name = def.getName();
         if (classMap.containsKey(name)) {
             throw new ModelException("Duplicate interface: "+name);
         } else if (caseInsensitiveClassNames.contains(name.toUpperCase())) {
             throw new ModelException("Name duplicate under Windows: "+name);
         }
         caseInsensitiveClassNames.add(name.toUpperCase());
-        classMap.put(name, classOrInterface);
+        classMap.put(name, def);
     }
 
     public InterfaceDefinition getInterface(String name) throws ModelException {
-        ClassOrInterface classOrInterface = getClassOrInterface(name);
-        if (classOrInterface.isInterface) {
-            return classOrInterface.interfaceDefinition;
-        } else {
-            throw new ModelException(name + "is not interface");
+        try {
+            return (InterfaceDefinition) classMap.get(name);
+        } catch (ClassCastException e) {
+            throw new ModelException("Not interface: " + name);
         }
     }
 
     public AbstractTypeDefinition getAbstractType(String name) throws ModelException {
-        return getClassOrInterface(name).getAbstract();
-    }
-
-    private ClassOrInterface getClassOrInterface(String name) throws ModelException {
-        ClassOrInterface classOrInterface = classMap.get(name);
-        if (classOrInterface == null) {
-            throw new ModelException("Unknown class/interface: " + name);
+        final AbstractTypeDefinition def = classMap.get(name);
+        if (def == null) {
+            throw new ModelException("Type not found: "+name);
         }
-        return classOrInterface;
+        return def;
     }
 
     public List<InterfaceDefinition> getAllInterfaces() {
         List<InterfaceDefinition> result = new LinkedList<InterfaceDefinition>();
-        for (ClassOrInterface candidate: classMap.values()) {
-            if (candidate.isInterface) {
-                result.add(candidate.interfaceDefinition);
+        for (AbstractTypeDefinition candidate: classMap.values()) {
+            if (candidate instanceof InterfaceDefinition) {
+                result.add((InterfaceDefinition) candidate);
             }
         }
         return result;
     }
 
+    public Collection<AbstractTypeDefinition> getAllTypes() {
+        return classMap.values();
+    }
+
     public void addClass(ClassDefinition def) throws ModelException {
-        addClassOrInterface(def.getName(), new ClassOrInterface(def));
+        addClassOrInterface(def);
     }
 
     public ClassDefinition getClassDef(String name) throws ModelException {
-        ClassOrInterface classOrInterface = getClassOrInterface(name);
-        if (!classOrInterface.isInterface) {
-            return classOrInterface.classDefinition;
-        } else {
-            throw new IllegalArgumentException(name + "is not class");
+        try {
+            return (ClassDefinition) classMap.get(name);
+        } catch (ClassCastException e) {
+            throw new ModelException("Not interface: " + name);
         }
     }
 
     public List<ClassDefinition> getAllClasses() {
         List<ClassDefinition> result = new LinkedList<ClassDefinition>();
-        for (ClassOrInterface candidate: classMap.values()) {
-            if (!candidate.isInterface) {
-                result.add(candidate.classDefinition);
+        for (AbstractTypeDefinition candidate: classMap.values()) {
+            if (candidate instanceof ClassDefinition) {
+                result.add((ClassDefinition) candidate);
             }
         }
         return result;
