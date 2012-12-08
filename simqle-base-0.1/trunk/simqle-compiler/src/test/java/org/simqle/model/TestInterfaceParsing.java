@@ -250,7 +250,7 @@ public class TestInterfaceParsing extends TestCase {
             new InterfaceDeclarationsProcessor().process(node, model);
             fail("GrammarException expected");
         } catch (GrammarException e) {
-            assertTrue(e.getMessage().startsWith("Duplicate interface: test_interface"));
+            assertTrue(e.getMessage(), e.getMessage().startsWith("Duplicate class name: test_interface"));
         }
     }
 

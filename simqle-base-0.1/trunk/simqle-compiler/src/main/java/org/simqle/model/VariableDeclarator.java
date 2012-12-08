@@ -22,7 +22,7 @@ public class VariableDeclarator {
     public VariableDeclarator(SyntaxTree node) throws GrammarException {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "VariableDeclarator");
         name = node.find("VariableDeclaratorId").get(0).getValue();
-        final List<String> initializers = Utils.bodies(node.find("VariableInitializer"));
+        final List<String> initializers = node.find("VariableInitializer", SyntaxTree.BODY);
         this.initializer = initializers.isEmpty() ? "" : " = " +initializers.get(0);
     }
 

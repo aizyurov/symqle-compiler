@@ -21,28 +21,17 @@ import java.util.Set;
  */
 public class ProductionDeclarationProcessor implements Processor {
 
-    private final static String SIMQLE_SOURCE = "public abstract class Simqle {" + Utils.LINE_BREAK +
-            "    public static Simqle get() { " + Utils.LINE_BREAK +
-            "        return new SimqleGeneric(); " + Utils.LINE_BREAK +
-            "    }" + Utils.LINE_BREAK +
-            "}";
-
-    private final static String SIMQLE_GENERIC_SOURCE = "import org.simqle.*;" + Utils.LINE_BREAK +
-            "import static org.simqle.SqlTerm.*;" + Utils.LINE_BREAK +
-            "public class SimqleGeneric extends Simqle {}";
 
     @Override
     public void process(final SyntaxTree tree, final Model model) throws GrammarException {
-        final ClassDefinition simqle = createSimqleClass(SIMQLE_SOURCE);
 
-
-        final ClassDefinition simqleGeneric = createSimqleClass(SIMQLE_GENERIC_SOURCE);
-
+        final ClassDefinition simqle;
+        final ClassDefinition simqleGeneric;
         try {
-            model.addClass(simqle);
-            model.addClass(simqleGeneric);
+            simqle = model.getClassDef("Simqle");
+            simqleGeneric = model.getClassDef("SimqleGeneric");
         } catch (ModelException e) {
-            throw new RuntimeException("Internal error", e);
+            throw new IllegalStateException("Internal error", e);
         }
 
         for (SyntaxTree production: tree.find("SimqleDeclarationBlock.SimqleDeclaration.ProductionDeclaration.ProductionChoice.ProductionRule")) {
@@ -121,20 +110,6 @@ public class ProductionDeclarationProcessor implements Processor {
 
     }
 
-    private ClassDefinition createSimqleClass(String source) throws GrammarException {
-        final SimpleNode node;
-        try {
-            node = Utils.createParser(
-                    source
-            ).SimqleUnit();
-        } catch (ParseException e) {
-            throw new RuntimeException("Internal error", e);
-        }
-        SyntaxTree root = new SyntaxTree(node, "source code");
-
-        final SyntaxTree simqleTree = root.find("SimqleDeclarationBlock.SimqleDeclaration.NormalClassDeclaration").get(0);
-        return new ClassDefinition(simqleTree);
-    }
 
     private String delegateToLeftmostArg(final Model model, final ProductionRule productionRule, final MethodDefinition method) throws ModelException {
         // delegate to leftmost argument

@@ -3,6 +3,12 @@
 */
 package org.simqle.model;
 
+import org.simqle.parser.ParseException;
+import org.simqle.parser.SimpleNode;
+import org.simqle.parser.SyntaxTree;
+import org.simqle.processor.GrammarException;
+import org.simqle.util.Utils;
+
 import java.util.*;
 
 /**
@@ -12,6 +18,14 @@ import java.util.*;
  */
 public class Model {
 
+    public Model() {
+        try {
+            addClass(createSimqleClass(SIMQLE_SOURCE));
+            addClass(createSimqleClass(SIMQLE_GENERIC_SOURCE));
+        } catch (ModelException e) {
+            throw new RuntimeException("Internal error", e);
+        }
+    }
 
     private final Map<String, AbstractTypeDefinition> classMap = new LinkedHashMap<String, AbstractTypeDefinition>();
     private final Map<String, FactoryMethodModel> factoryMethods = new HashMap<String, FactoryMethodModel>();
@@ -44,7 +58,7 @@ public class Model {
     private void addClassOrInterface(AbstractTypeDefinition def) throws ModelException {
         final String name = def.getName();
         if (classMap.containsKey(name)) {
-            throw new ModelException("Duplicate interface: "+name);
+            throw new ModelException("Duplicate class name: "+name);
         } else if (caseInsensitiveClassNames.contains(name.toUpperCase())) {
             throw new ModelException("Name duplicate under Windows: "+name);
         }
@@ -131,15 +145,40 @@ public class Model {
     }
 
     public InterfaceDefinition getInterface(Type t) throws ModelException {
-        return getInterface(resolveName(t));
+        return getInterface(t.getSimpleName());
     }
 
     public ClassDefinition getClassDef(Type t) throws ModelException {
-        return getClassDef(resolveName(t));
+        return getClassDef(t.getSimpleName());
     }
 
-    private String resolveName(final Type t) {
-        return t.getSimpleName();
+    private final static String SIMQLE_SOURCE = "public abstract class Simqle {" + Utils.LINE_BREAK +
+            "    public static Simqle get() { " + Utils.LINE_BREAK +
+            "        return new SimqleGeneric(); " + Utils.LINE_BREAK +
+            "    }" + Utils.LINE_BREAK +
+            "}";
+
+    private final static String SIMQLE_GENERIC_SOURCE = "import org.simqle.*;" + Utils.LINE_BREAK +
+            "import static org.simqle.SqlTerm.*;" + Utils.LINE_BREAK +
+            "public class SimqleGeneric extends Simqle {}";
+
+    private static ClassDefinition createSimqleClass(String source) {
+        final SimpleNode node;
+        try {
+            node = Utils.createParser(
+                    source
+            ).SimqleUnit();
+        } catch (ParseException e) {
+            throw new RuntimeException("Internal error", e);
+        }
+        SyntaxTree root = new SyntaxTree(node, "source code");
+
+        final SyntaxTree simqleTree = root.find("SimqleDeclarationBlock.SimqleDeclaration.NormalClassDeclaration").get(0);
+        try {
+            return new ClassDefinition(simqleTree);
+        } catch (GrammarException e) {
+            throw new RuntimeException("Internal error", e);
+        }
     }
 
 }

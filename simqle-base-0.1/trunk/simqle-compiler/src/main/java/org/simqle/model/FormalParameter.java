@@ -40,7 +40,7 @@ public class FormalParameter {
             ellipsis = true;
         }
         name = node.find("VariableDeclaratorId.Identifier").get(0).getValue();
-        modifiers = Utils.bodies(node.find("VariableModifiers.VariableModifier"));
+        modifiers = node.find("VariableModifiers.VariableModifier", SyntaxTree.BODY);
     }
 
     public FormalParameter(Type type, String name) {

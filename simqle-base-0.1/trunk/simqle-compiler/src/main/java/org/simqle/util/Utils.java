@@ -4,7 +4,6 @@
 package org.simqle.util;
 
 import org.simqle.model.F;
-import org.simqle.model.Function;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
@@ -90,30 +89,6 @@ public class Utils {
         return result;
     }
 
-    public static <Arg> List<String> convertToStringList(List<Arg> list, Function<String, Arg> function) {
-        final List<String> result = new ArrayList<String>(list.size());
-        for (Arg arg: list) {
-            result.add(function.apply(arg));            
-        }
-        return result;
-    }
-
-    public static List<String> values(List<SyntaxTree> nodes) {
-        return convertToStringList(nodes, new Function<String, SyntaxTree>() {
-            public String apply(SyntaxTree syntaxTree) {
-                return syntaxTree.getValue();
-            }
-        });
-    }
-
-    public static List<String> bodies(List<SyntaxTree> nodes) {
-        return convertToStringList(nodes, new Function<String, SyntaxTree>() {
-            public String apply(SyntaxTree syntaxTree) {
-                return syntaxTree.getBody();
-            }
-        });
-    }
-
     public static String getAccessModifier(List<SyntaxTree> nodes) throws GrammarException {
         String accessModifier = "";
         for (SyntaxTree node: nodes) {
@@ -129,7 +104,7 @@ public class Utils {
     }
 
     public static Set<String> getNonAccessModifiers(List<SyntaxTree> nodes) {
-        final Set<String> stringList = new HashSet<String>(values(nodes));
+        final Set<String> stringList = new HashSet<String>(map(nodes, SyntaxTree.VALUE));
         stringList.removeAll(ACCESS_MODIFIERS);
         return stringList;
     }
