@@ -145,7 +145,7 @@ public class ProductionDeclarationProcessor implements Processor {
     private String delegateArchetypeMethod(final Model model, final ProductionRule productionRule, final MethodDefinition method) throws ModelException {
         StringBuilder builder = new StringBuilder();
         // find leftmost element, which is FormalParameter
-        if (!productionRule.getElements().get(0).isConstant() && method.getResultType().getSimpleName().equals("Sql")) {
+        if (!productionRule.getElements().get(0).isConstant() || method.getResultType().getSimpleName().equals("Sql")) {
             if (productionRule.getElements().size() == 1) {
                 // optimization: do not create extra objects
                 builder.append(" {").append(Utils.LINE_BREAK);

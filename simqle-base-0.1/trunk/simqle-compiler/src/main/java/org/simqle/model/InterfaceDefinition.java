@@ -8,10 +8,7 @@ import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * <br/>13.11.2011
@@ -51,6 +48,17 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
     @Override
     protected String getTypeKeyword() {
         return "interface";
+    }
+
+    @Override
+    protected Set<AbstractTypeDefinition> getAllAncestors(Model model) throws ModelException {
+        final Set<AbstractTypeDefinition> ancestors = new HashSet<AbstractTypeDefinition>();
+        for (Type type: extended) {
+            final AbstractTypeDefinition ancestor = model.getAbstractType(type.getSimpleName());
+            ancestors.add(ancestor);
+            ancestors.addAll(ancestor.getAllAncestors(model));
+        }
+        return ancestors;
     }
 
     public MethodDefinition getArchetypeMethod() throws ModelException {

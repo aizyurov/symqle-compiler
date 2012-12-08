@@ -41,6 +41,22 @@ public class ClassDefinition extends AbstractTypeDefinition {
         return "class";
     }
 
+    @Override
+    protected Set<AbstractTypeDefinition> getAllAncestors(Model model) throws ModelException {
+        final Set<AbstractTypeDefinition> ancestors = new HashSet<AbstractTypeDefinition>();
+        if (extendedClass != null) {
+            final AbstractTypeDefinition ancestor = model.getAbstractType(extendedClass.getSimpleName());
+            ancestors.add(ancestor);
+            ancestors.addAll(ancestor.getAllAncestors(model));
+        }
+        for (Type type: implementedInterfaces) {
+            final AbstractTypeDefinition ancestor = model.getAbstractType(type.getSimpleName());
+            ancestors.add(ancestor);
+            ancestors.addAll(ancestor.getAllAncestors(model));
+        }
+        return ancestors;
+    }
+
     public List<Type> getImplementedInterfaces() {
         return Collections.unmodifiableList(implementedInterfaces);
     }
@@ -133,24 +149,10 @@ public class ClassDefinition extends AbstractTypeDefinition {
         return explicitAccessModifier.equals("public");
     }
 
-    public void ensureRequiredImports(final Model model) {
-        for (Type type: implementedInterfaces) {
-            ensureSameImports(type, model);
+    public void ensureRequiredImports(final Model model) throws ModelException {
+        for (AbstractTypeDefinition ancestor: getAllAncestors(model)) {
+            addImportLines(ancestor.getImportLines());
         }
-        if (extendedClass != null) {
-            ensureSameImports(extendedClass, model);
-        }
-    }
-
-    private void ensureSameImports(final Type type, final Model model) {
-        if (model.hasType(type)) {
-            try {
-                addImportLines(model.getAbstractType(type.getSimpleName()).getImportLines());
-            } catch (ModelException e) {
-                throw new RuntimeException("Internal error", e);
-            }
-        }
-
     }
 
 }

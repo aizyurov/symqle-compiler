@@ -214,6 +214,8 @@ public abstract class AbstractTypeDefinition {
             }
         }
     }
+
+    protected abstract Set<AbstractTypeDefinition> getAllAncestors(Model model) throws ModelException;
 }
 
 

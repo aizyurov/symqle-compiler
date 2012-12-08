@@ -1,5 +1,5 @@
 (done)keep in model imports for explicit methods - need to create factory methods in abstract classes
-create appropriate imports in abstract classes
+(done) create appropriate imports in abstract classes
 (done) method modifiers for explicit methods (may be private! - check that it does not go to the model
     and does not go to Simqle!)
 implementation imports for explicit methods
@@ -13,5 +13,11 @@ Class enhancement: signature -> (MethodDefinition, priority). Lowest priority wi
 
 SelectList: convert() and augment(), like:
     public <Arg, Res> AbstractSelectList<Res> convert(SelectList<Arg> rv, Function<Arg,Res> f);
-    public <T, U> AbstractSelectList<T> augment(SelectList<T> sl, SelectSublist<U> augm, Function2<T, U, T> f);
+    public <T, U, V> AbstractSelectList<V> combine(SelectList<T> sl, SelectList<U> augm, Function2<T, U, V> f);
 Return type may be AbstractRowValue - will see.
+    RowMap with standard functions <RowValue<?>, RowMap> and <RowMap, RowValue<?>, RowMap> will do the work for
+    Mapper.
+    Pair: <T,U> Function2<T, U, Pair<T,U>> make() - combine(SelectList<U> other, Pair.make());
+
+allow standalone implicits:
+     :: <T> QueryBase<T> implicit (SelectList<T> sl) {}

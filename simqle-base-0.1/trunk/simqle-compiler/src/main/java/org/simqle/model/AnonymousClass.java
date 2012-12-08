@@ -41,6 +41,15 @@ public class AnonymousClass extends AbstractTypeDefinition {
     }
 
     @Override
+    protected Set<AbstractTypeDefinition> getAllAncestors(Model model) throws ModelException {
+        final Set<AbstractTypeDefinition> ancestors = new HashSet<AbstractTypeDefinition>();
+        final AbstractTypeDefinition ancestor = model.getAbstractType(extended.getSimpleName());
+        ancestors.add(ancestor);
+        ancestors.addAll(ancestor.getAllAncestors(model));
+        return ancestors;
+    }
+
+    @Override
     public String implicitMethodAccessModifier(final MethodDefinition methodDefinition) {
         return "public";
     }
