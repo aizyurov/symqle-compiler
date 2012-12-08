@@ -132,4 +132,25 @@ public class ClassDefinition extends AbstractTypeDefinition {
     public boolean methodIsPublic(final String explicitAccessModifier) {
         return explicitAccessModifier.equals("public");
     }
+
+    public void ensureRequiredImports(final Model model) {
+        for (Type type: implementedInterfaces) {
+            ensureSameImports(type, model);
+        }
+        if (extendedClass != null) {
+            ensureSameImports(extendedClass, model);
+        }
+    }
+
+    private void ensureSameImports(final Type type, final Model model) {
+        if (model.hasType(type)) {
+            try {
+                addImportLines(model.getAbstractType(type.getSimpleName()).getImportLines());
+            } catch (ModelException e) {
+                throw new RuntimeException("Internal error", e);
+            }
+        }
+
+    }
+
 }

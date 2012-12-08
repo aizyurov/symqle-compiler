@@ -5,7 +5,9 @@ import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -26,6 +28,8 @@ public abstract class Archetype {
     }
 
     public abstract MethodDefinition createArchetypeMethod(InterfaceDefinition interfaceDefinition) throws ModelException;
+    public abstract List<String> getRequiredImports();
+
 
     public static void verify(InterfaceDefinition interfaceDefinition) throws ModelException {
         for (MethodDefinition def: interfaceDefinition.getDeclaredMethods()) {
@@ -71,6 +75,11 @@ public abstract class Archetype {
                             interfaceDefinition.getName(), ""), interfaceDefinition);
         }
 
+        @Override
+        public List<String> getRequiredImports() {
+            return Arrays.asList("import org.simqle.SqlContext;", "import org.simqle.Sql;");
+        }
+
     }
 
     private static class QueryArchetype extends Archetype {
@@ -90,7 +99,10 @@ public abstract class Archetype {
                             interfaceDefinition.getName(), ""), interfaceDefinition);
         }
 
-
+        @Override
+        public List<String> getRequiredImports() {
+            return Arrays.asList("import org.simqle.SqlContext;", "import org.simqle.Query;");
+        }
     }
 
     private final static String QUERY_METHOD_FORMAT = Utils.indent(12,
@@ -120,6 +132,10 @@ public abstract class Archetype {
             return null;
         }
 
+        @Override
+        public List<String> getRequiredImports() {
+            return Collections.emptyList();
+        }
     };
 
 }

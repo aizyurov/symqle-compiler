@@ -33,14 +33,14 @@ public class Model {
     private final Set<String> caseInsensitiveClassNames = new HashSet<String>();
 
     private final List<MethodDefinition> implicitSimqleMethods = new ArrayList<MethodDefinition>();
-    private final List<MethodDefinition> explicitSimqleMethods = new ArrayList<MethodDefinition>();
+    private final Map<MethodDefinition, Set<String>> explicitSimqleMethods = new LinkedHashMap<MethodDefinition, Set<String>>();
 
     public void addImplicitMethod(MethodDefinition method) {
         implicitSimqleMethods.add(method);
     }
 
-    public void addExplicitMethod(MethodDefinition method) {
-        explicitSimqleMethods.add(method);
+    public void addExplicitMethod(MethodDefinition method, Collection<String> requiredImports) {
+        explicitSimqleMethods.put(method, new HashSet<String>(requiredImports));
     }
 
     public List<MethodDefinition> getImplicitSimqleMethods() {
@@ -48,7 +48,11 @@ public class Model {
     }
 
     public List<MethodDefinition> getExplicitSimqleMethods() {
-        return explicitSimqleMethods;
+        return new ArrayList<MethodDefinition>(explicitSimqleMethods.keySet());
+    }
+
+    public Set<String> getImportsForExplicitMethod(MethodDefinition def) {
+        return Collections.unmodifiableSet(explicitSimqleMethods.get(def));
     }
 
     public void addInterface(InterfaceDefinition def) throws ModelException {
@@ -68,7 +72,7 @@ public class Model {
 
     public InterfaceDefinition getInterface(String name) throws ModelException {
         try {
-            return (InterfaceDefinition) classMap.get(name);
+            return (InterfaceDefinition) getAbstractType(name);
         } catch (ClassCastException e) {
             throw new ModelException("Not interface: " + name);
         }
@@ -102,7 +106,7 @@ public class Model {
 
     public ClassDefinition getClassDef(String name) throws ModelException {
         try {
-            return (ClassDefinition) classMap.get(name);
+            return (ClassDefinition) getAbstractType(name);
         } catch (ClassCastException e) {
             throw new ModelException("Not interface: " + name);
         }
@@ -142,6 +146,10 @@ public class Model {
         private AbstractTypeDefinition getAbstract() {
             return isInterface ? interfaceDefinition : classDefinition;
         }
+    }
+
+    public boolean hasType(Type t) {
+        return classMap.containsKey(t.getSimpleName());        
     }
 
     public InterfaceDefinition getInterface(Type t) throws ModelException {

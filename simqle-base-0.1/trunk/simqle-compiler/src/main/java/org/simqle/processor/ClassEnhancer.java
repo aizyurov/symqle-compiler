@@ -39,6 +39,8 @@ public class ClassEnhancer implements ModelProcessor {
                     generatedMethods.put(signature, methodTemplate);
                 }
             }
+            classDef.addImportLines(model.getImportsForExplicitMethod(method));
+            classDef.ensureRequiredImports(model);
         }
         // generate real methods
         for (Map.Entry<String, MethodTemplate> entry: generatedMethods.entrySet()) {
@@ -52,7 +54,9 @@ public class ClassEnhancer implements ModelProcessor {
                 }
 
                 ((MethodDefinition) myAbstractMethod).implement(myAbstractMethod.getAccessModifier(), " {" + Utils.LINE_BREAK +
-                        "        return Simqle.get()." +
+                        "        " +
+                        (myAbstractMethod.getResultType().equals(Type.VOID) ? "" : "return ")+
+                        "Simqle.get()." +
                         myAbstractMethod.getName() +
                         "(" +
                         Utils.format(parameters, "", ", ", "") +
@@ -63,6 +67,10 @@ public class ClassEnhancer implements ModelProcessor {
     }
 
     private MethodTemplate tryAddMethod(final ClassDefinition classDef, final MethodDefinition method, final Model model) {
+        String accessModifier = method.getAccessModifier();
+        if (accessModifier.equals("private") || accessModifier.equals("protected")) {
+            return null;
+        }
         final List<FormalParameter> formalParameters = method.getFormalParameters();
         if (formalParameters.isEmpty()) {
             return null;
@@ -122,7 +130,7 @@ public class ClassEnhancer implements ModelProcessor {
         final List<FormalParameter> simqleFormalParameters = simqleMethod.getFormalParameters();
         for (int i=1; i< simqleFormalParameters.size(); i++) {
             final FormalParameter simqleFormalParameter = simqleFormalParameters.get(i);
-            myFormalParameters.add(new FormalParameter(simqleFormalParameter.getType().replaceParams(mapping), simqleFormalParameter.getName()));
+            myFormalParameters.add(simqleFormalParameter.replaceParams(mapping));
         }
         Set<String> myModifiers = new HashSet<String>(simqleMethod.getOtherModifiers());
         myModifiers.add("abstract");
@@ -137,11 +145,12 @@ public class ClassEnhancer implements ModelProcessor {
                 .append(simqleMethod.getName())
                 .append("(")
                 .append(Utils.format(myFormalParameters, "", ", ", ""))
-                .append(");");
+                .append(")")
+                .append(Utils.format(simqleMethod.getThrownExceptions(), " throws ", ", ", ""))
+                .append(";");
         final String body = builder.toString();
-        return MethodDefinition.parseAbstract(body, classDef);
+        return MethodDefinition.parse(body, classDef);
     }
-
 
 
 }

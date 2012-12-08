@@ -1,0 +1,26 @@
+import java.sql.SQLException;
+import org.simqle.Element;
+public interface Scalar<T>
+{
+    T value(final Element element) throws SQLException;
+}
+
+public interface SelectStatement<T> : Query<T>
+{}
+
+public class AbstractSelectStatement<T> implements SelectStatement<T>
+{}
+
+<T> SelectStatement<T> ::=
+    cspec:CursorSpecification<T> :: implicit {}
+|
+    cspec:CursorSpecification<T>  FOR READ ONLY
+        :: public AbstractCursorSpecification<T> forReadOnly {}
+|
+    cspec:zCursorSpecification<T> FOR UPDATE
+        :: public AbstractCursorSpecification<T> forUpdate {}
+;
+
+public interface CursorSpecification<T> : Query<T> {}
+
+public class AbstractCursorSpecification<T> implements CursorSpecification<T> {}

@@ -25,6 +25,7 @@ public class Director {
             new InterfaceDeclarationsProcessor(),
             new ClassDeclarationProcessor(),
             new ProductionDeclarationProcessor(),
+            new SimqleMethodProcessor()
     };
 
     private ModelProcessor[] modelProcessors = {

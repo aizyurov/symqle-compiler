@@ -188,6 +188,9 @@ public abstract class AbstractTypeDefinition {
         return builder.toString();
     }
 
+    public Set<String> getImportLines() {
+        return Collections.unmodifiableSet(importLines);
+    }
 
     protected void addInheritedMethodsToMap(final Model model, final Map<String, MethodDefinition> methodMap, final Type parentType) throws ModelException {
         AbstractTypeDefinition parent = model.getAbstractType(parentType.getSimpleName());

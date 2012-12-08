@@ -1,15 +1,18 @@
 package org.simqle.model;
 
 import junit.framework.TestCase;
+import org.simqle.parser.ParseException;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.ClassDeclarationProcessor;
+import org.simqle.processor.GrammarException;
 import org.simqle.processor.InterfaceDeclarationsProcessor;
 import org.simqle.processor.ProductionDeclarationProcessor;
 import org.simqle.test.TestUtils;
 import org.simqle.util.Utils;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
@@ -20,9 +23,7 @@ public class ProductionsTest extends TestCase {
 
     public void testBasicProduction() throws Exception {
         String source = "src/test-data/model/BasicProduction.sdl";
-        Reader reader = new InputStreamReader(new FileInputStream(source));
-        SimqleParser parser = new SimqleParser(reader);
-        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        final SyntaxTree syntaxTree = readSyntaxTree(source);
         final Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
@@ -58,9 +59,7 @@ public class ProductionsTest extends TestCase {
 
     public void testProductionWithOverride() throws Exception {
         String source = "src/test-data/model/ProductionWithOverride.sdl";
-        Reader reader = new InputStreamReader(new FileInputStream(source));
-        SimqleParser parser = new SimqleParser(reader);
-        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        final SyntaxTree syntaxTree = readSyntaxTree(source);
         final Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
@@ -92,9 +91,7 @@ public class ProductionsTest extends TestCase {
 
     public void testProductionWithScalar() throws Exception {
         String source = "src/test-data/model/ProductionWithScalar.sdl";
-        Reader reader = new InputStreamReader(new FileInputStream(source));
-        SimqleParser parser = new SimqleParser(reader);
-        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        final SyntaxTree syntaxTree = readSyntaxTree(source);
         final Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
@@ -122,6 +119,27 @@ public class ProductionsTest extends TestCase {
                     "   }"),
                     TestUtils.pureCode(method.toString()));
         }
+    }
+
+    private SyntaxTree readSyntaxTree(String source) throws FileNotFoundException, ParseException {
+        Reader reader = new InputStreamReader(new FileInputStream(source));
+        SimqleParser parser = new SimqleParser(reader);
+        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        return syntaxTree;
+    }
+
+    public void testNpeProblem() throws Exception {
+        SyntaxTree syntaxTree = readSyntaxTree("src/test-data/model/UnknownInterfaceInProduction.sdl");
+        Model model = new Model();
+        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+        new ClassDeclarationProcessor().process(syntaxTree, model);
+        try {
+            new ProductionDeclarationProcessor().process(syntaxTree, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage(), e.getMessage().startsWith("Type not found:"));
+        }
+
     }
 
 }

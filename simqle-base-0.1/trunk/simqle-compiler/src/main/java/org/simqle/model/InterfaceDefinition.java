@@ -41,6 +41,7 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
             if (archetypeMethod != null) {
                 this.addMethod(archetypeMethod);
             }
+            this.addImportLines(archetype.getRequiredImports());
         } catch (ModelException e) {
             e.printStackTrace();
             throw new GrammarException(e, node);

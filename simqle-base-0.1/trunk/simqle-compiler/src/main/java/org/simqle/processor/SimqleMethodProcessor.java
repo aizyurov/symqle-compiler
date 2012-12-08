@@ -6,6 +6,8 @@ import org.simqle.model.Model;
 import org.simqle.model.ModelException;
 import org.simqle.parser.SyntaxTree;
 
+import java.util.List;
+
 /**
  * Created by IntelliJ IDEA.
  * User: aizyurov
@@ -28,6 +30,7 @@ public class SimqleMethodProcessor implements Processor {
 
         for (SyntaxTree methodNode: tree.find("SimqleDeclarationBlock.SimqleDeclaration.MethodDeclaration")) {
             MethodDefinition method = new MethodDefinition(methodNode, simqleGeneric);
+            List<String> declarationImports = methodNode.find("^.^.ImportDeclaration", SyntaxTree.BODY);
             try {
                 simqleGeneric.addMethod(method);
                 // private methods are for SimqleGeneric only
@@ -36,12 +39,12 @@ public class SimqleMethodProcessor implements Processor {
                 if (!method.getAccessModifier().equals("private") && !method.getAccessModifier().equals("protected"))
                 {
                     method.pullUpAbstractMethod(simqle);
-                    model.addExplicitMethod(simqle.getDeclaredMethodBySignature(method.signature()));
+                    model.addExplicitMethod(simqle.getDeclaredMethodBySignature(method.signature()), declarationImports);
                 }
             } catch (ModelException e) {
                 throw new GrammarException(e, methodNode);
             }
-            simqle.addImportLines(methodNode.find("^.^.ImportDeclaration", SyntaxTree.BODY));
+            simqle.addImportLines(declarationImports);
         }
     }
 }

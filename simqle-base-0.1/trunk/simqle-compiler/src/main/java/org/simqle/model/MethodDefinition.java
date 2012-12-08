@@ -208,7 +208,7 @@ public class MethodDefinition {
     public MethodDefinition replaceParams(final AbstractTypeDefinition targetOwner, final Map<String,TypeArgument> mapping) {
         final List<FormalParameter> newFormalParameters = new ArrayList<FormalParameter>(formalParameters.size());
         for (FormalParameter formalParameter: formalParameters) {
-            newFormalParameters.add(new FormalParameter(formalParameter.getType().replaceParams(mapping), formalParameter.getName()));
+            newFormalParameters.add(formalParameter.replaceParams(mapping));
         }
         final Type newResultType = resultType.replaceParams(mapping);
         final Set<Type> newThrownExceptions = new HashSet<Type>();
@@ -286,8 +286,17 @@ public class MethodDefinition {
         }
         final MethodDefinition adjusted = other.replaceParams(owner, mapping);
             return adjusted.resultType.equals(resultType)
-                    && adjusted.formalParameters.equals(formalParameters)
+                    && types(adjusted.formalParameters).equals(types(formalParameters))
                     && adjusted.thrownExceptions.equals(thrownExceptions);
+    }
+
+    private Collection<Type> types(List<FormalParameter> formalParameters) {
+        return Utils.map(formalParameters, new F<FormalParameter, Type, RuntimeException>() {
+            @Override
+            public Type apply(FormalParameter formalParameter) {
+                return formalParameter.getType();
+            }
+        });
     }
 
     public Type getResultType() {
@@ -390,4 +399,7 @@ public class MethodDefinition {
         );
     }
 
+    public Set<Type> getThrownExceptions() {
+        return thrownExceptions;
+    }
 }

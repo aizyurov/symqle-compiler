@@ -3,10 +3,7 @@
 */
 package org.simqle.processor;
 
-import org.simqle.model.ClassDefinition;
-import org.simqle.model.MethodDefinition;
-import org.simqle.model.Model;
-import org.simqle.model.ModelException;
+import org.simqle.model.*;
 import org.simqle.parser.SyntaxTree;
 
 import java.util.HashMap;
@@ -48,6 +45,5 @@ public class ClassDeclarationProcessor implements Processor {
             }
         }
     }
-
 
 }

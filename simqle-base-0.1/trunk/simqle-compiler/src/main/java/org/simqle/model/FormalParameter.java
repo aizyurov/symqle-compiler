@@ -8,10 +8,7 @@ import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -70,6 +67,8 @@ public class FormalParameter {
     public Type getType() {
         return ellipsis ? rawType.arrayOf() : rawType;
     }
+
+
 
     public String getName() {
         return name;
@@ -141,5 +140,9 @@ public class FormalParameter {
 //        result = 31 * result + modifiers.hashCode();
         result = 31 * result + (ellipsis ? 1 : 0);
         return result;
+    }
+
+    public FormalParameter replaceParams(final Map<String, TypeArgument> mapping) {
+        return new FormalParameter(rawType.replaceParams(mapping), name, modifiers, ellipsis);
     }
 }

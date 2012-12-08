@@ -37,6 +37,13 @@ public class ProductionDeclarationProcessor implements Processor {
         for (SyntaxTree production: tree.find("SimqleDeclarationBlock.SimqleDeclaration.ProductionDeclaration.ProductionChoice.ProductionRule")) {
                 // create the ProductionRule
             ProductionRule productionRule = new ProductionRule(production);
+            for (FormalParameter formalParameter: productionRule.getFormalParameters()) {
+                try {
+                    model.getInterface(formalParameter.getType());
+                } catch (ModelException e) {
+                    throw new GrammarException(e, production);
+                }
+            }
                 // add imports
             final List<String> declarationImports = production.find("^.^.^.^.ImportDeclaration", SyntaxTree.BODY);
                 // these go to both
@@ -51,7 +58,7 @@ public class ProductionDeclarationProcessor implements Processor {
                     productionRule.asAbstractMethodDeclaration()+";";
             final MethodDefinition methodDefinition;
             try {
-                methodDefinition = MethodDefinition.parseAbstract(abstractMethodDeclaration, simqle);
+                methodDefinition = MethodDefinition.parse(abstractMethodDeclaration, simqle);
             } catch (RuntimeException e) {
                 System.out.println(abstractMethodDeclaration);
                 throw e;
@@ -61,7 +68,7 @@ public class ProductionDeclarationProcessor implements Processor {
                 if (productionRule.isImplicit()) {
                     model.addImplicitMethod(methodDefinition);
                 } else {
-                    model.addExplicitMethod(methodDefinition);
+                    model.addExplicitMethod(methodDefinition, declarationImports);
                 }
             } catch (ModelException e) {
                 throw new GrammarException(e, production);

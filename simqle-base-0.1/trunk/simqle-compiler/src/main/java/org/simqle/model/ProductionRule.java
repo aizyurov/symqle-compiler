@@ -48,6 +48,7 @@ public class ProductionRule {
                 } else {
                     final Type type = types.get(0);
                     formalParameters.add(new FormalParameter(type, name));
+                    // make sure it is known Simqle interface
                     return new VariableElement(type, name);
                 }
             }
@@ -154,7 +155,11 @@ public class ProductionRule {
         }
 
         public String asMethodArgument(final Model model) throws ModelException {
-            return model.getInterface(type).getArchetypeMethod().delegationInvocation(name);
+            try {
+                return model.getInterface(type).getArchetypeMethod().delegationInvocation(name);
+            } catch (NullPointerException e) {
+                throw e;
+            }
         }
 
     }
