@@ -101,6 +101,7 @@ public class ProductionsTest extends TestCase {
         final ClassDefinition simqleGeneric = model.getClassDef("SimqleGeneric");
 
         Utils.createParser(simqle.toString()).SimqleDeclarationBlock();
+        System.out.println(simqleGeneric.toString());
         Utils.createParser(simqleGeneric.toString()).SimqleDeclarationBlock();
 
         {
@@ -113,7 +114,7 @@ public class ProductionsTest extends TestCase {
                             "        return e.value(element);\n" +
                             "    }\n" +
                     "           public Sql z$create$zValueExpression(final SqlContext context) {\n" +
-                    "               return new CompositeSql(e.z$create$zValueExpressionPrimary(context));\n" +
+                    "               return e.z$create$zValueExpressionPrimary(context);\n" +
                     "           }\n" +
                     "       };\n" +
                     "   }"),
@@ -128,7 +129,7 @@ public class ProductionsTest extends TestCase {
         return syntaxTree;
     }
 
-    public void testNpeProblem() throws Exception {
+    public void testInterfaceMisspelling() throws Exception {
         SyntaxTree syntaxTree = readSyntaxTree("src/test-data/model/UnknownInterfaceInProduction.sdl");
         Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
@@ -140,6 +141,32 @@ public class ProductionsTest extends TestCase {
             assertTrue(e.getMessage(), e.getMessage().startsWith("Type not found:"));
         }
 
+    }
+
+    public void testParentheses() throws Exception {
+        SyntaxTree syntaxTree = readSyntaxTree("src/test-data/model/Parentheses.sdl");
+        Model model = new Model();
+        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+        new ProductionDeclarationProcessor().process(syntaxTree, model);
+        ClassDefinition simqleGeneric = model.getClassDef("SimqleGeneric");
+        MethodDefinition method = simqleGeneric.getDeclaredMethodBySignature("z$Subquery$from$SelectList(SelectList)");
+        assertEquals(TestUtils.pureCode(
+                "<T> Subquery<T> z$Subquery$from$SelectList(final SelectList<T> sl) { \n" +
+                        "        return new Subquery<T>() {\n" +
+                        "            /**\n" +
+                        "            * Creates a Query representing <code>this</code>\n" +
+                        "            * @param context the Sql construction context\n" +
+                        "            * @return query conforming to <code>this</code> syntax\n" +
+                        "            */\n" +
+                        "            public Query<T> z$create$Subquery(final SqlContext context) {\n" +
+                        "                final Query<T> __query = sl.z$create$SelectList(context);\n" +
+                        "                return new ComplexQuery<T>(__query, LEFT_PAREN, __query, RIGHT_PAREN);\n" +
+                        "            }/*delegation*/\n" +
+                        "\n" +
+                        "        };/*anonymous*/\n" +
+                        "    }/*rule method*/\n" +
+                        ""
+        ), TestUtils.pureCode(method.toString()));
     }
 
 }

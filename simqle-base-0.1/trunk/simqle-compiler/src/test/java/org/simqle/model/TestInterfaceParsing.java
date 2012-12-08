@@ -6,6 +6,7 @@ import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 import org.simqle.processor.InterfaceDeclarationsProcessor;
+import org.simqle.processor.InterfaceValidator;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -221,8 +222,8 @@ public class TestInterfaceParsing extends TestCase {
         try {
             new InterfaceDeclarationsProcessor().process(node, model);
             model.getInterface("expression").getAllMethods(model);
-            fail("GrammarException expected");
-        } catch (GrammarException e) {
+            fail("ModelException expected");
+        } catch (ModelException e) {
             // expected
             assertTrue(e.getMessage(), e.getMessage().startsWith("Name clash"));
         }
@@ -260,7 +261,8 @@ public class TestInterfaceParsing extends TestCase {
         final Model model = new Model();
         try {
             new InterfaceDeclarationsProcessor().process(node, model);
-            fail("GrammarException expected");
+            new InterfaceValidator().process(node, model);
+            fail("ModelException expected");
         } catch (GrammarException e) {
             assertTrue(e.getMessage(), e.getMessage().startsWith("Name clash"));
         }

@@ -91,15 +91,7 @@ public class ProductionDeclarationProcessor implements Processor {
                             delegationCall = delegateToLeftmostArg(model, productionRule, method);
 
                         }
-                        StringBuilder bodyBuilder = new StringBuilder();
-                        bodyBuilder.append(" {").append(Utils.LINE_BREAK);
-                        bodyBuilder.append("                ");
-                        if (!method.getResultType().equals(Type.VOID)) {
-                            bodyBuilder.append("return ");
-                        }
-                        bodyBuilder.append(delegationCall).append(";").append(Utils.LINE_BREAK);
-                        bodyBuilder.append("            }/*delegation*/");
-                        method.implement("public", bodyBuilder.toString(), true);
+                        method.implement("public", delegationCall, true);
                     }
                 }
                 // dow we can add the implementation of the method to SimqleGeneric
@@ -119,6 +111,7 @@ public class ProductionDeclarationProcessor implements Processor {
 
 
     private String delegateToLeftmostArg(final Model model, final ProductionRule productionRule, final MethodDefinition method) throws ModelException {
+
         // delegate to leftmost argument
         final List<FormalParameter> formalParameters = productionRule.getFormalParameters();
         if (!formalParameters.isEmpty()) {
@@ -134,7 +127,16 @@ public class ProductionDeclarationProcessor implements Processor {
             if (!delegate.matches(method)) {
                 throw new ModelException("Cannot implement by delegation "+method.declaration());
             }
-            return delegate.delegationInvocation(formalParameter.getName());
+            ;
+            final StringBuilder bodyBuilder = new StringBuilder();
+            bodyBuilder.append(" {").append(Utils.LINE_BREAK);
+            bodyBuilder.append("                ");
+            if (!method.getResultType().equals(Type.VOID)) {
+                bodyBuilder.append("return ");
+            }
+            bodyBuilder.append(delegate.delegationInvocation(formalParameter.getName())).append(";").append(Utils.LINE_BREAK);
+            bodyBuilder.append("            }/*delegation*/");
+            return bodyBuilder.toString();
         } else {
             throw new ModelException("Cannot implement " + method.getName());
         }
@@ -142,17 +144,67 @@ public class ProductionDeclarationProcessor implements Processor {
 
     private String delegateArchetypeMethod(final Model model, final ProductionRule productionRule, final MethodDefinition method) throws ModelException {
         StringBuilder builder = new StringBuilder();
-        // either new CompositeSql or new CommpositeQuery<T>
-        builder.append("new Composite").
-            append(method.getResultType())
-                .append("(")
-                .append(Utils.format(productionRule.getElements(), "", ", ", "", new F<ProductionRule.RuleElement, String, ModelException>() {
-                    @Override
-                    public String apply(final ProductionRule.RuleElement ruleElement) throws ModelException {
-                        return ruleElement.asMethodArgument(model);
-                    }
-                }))
-                .append(")");
+        // find leftmost element, which is FormalParameter
+        if (!productionRule.getElements().get(0).isConstant() && method.getResultType().getSimpleName().equals("Sql")) {
+            if (productionRule.getElements().size() == 1) {
+                // optimization: do not create extra objects
+                builder.append(" {").append(Utils.LINE_BREAK);
+                builder.append("                ");
+                builder.append("return ");
+                builder.append(productionRule.getElements().get(0).asMethodArgument(model))
+                .append(";").append(Utils.LINE_BREAK);
+                builder.append("            }/*delegation*/");
+            } else {
+                // either new CompositeSql or new CompositeQuery<T>
+                builder.append(" {").append(Utils.LINE_BREAK);
+                builder.append("                ");
+                builder.append("return ");
+                builder.append("new Composite").
+                    append(method.getResultType())
+                        .append("(")
+                        .append(Utils.format(productionRule.getElements(), "", ", ", "", new F<ProductionRule.RuleElement, String, ModelException>() {
+                            @Override
+                            public String apply(final ProductionRule.RuleElement ruleElement) throws ModelException {
+                                return ruleElement.asMethodArgument(model);
+                            }
+                        }))
+                        .append(")").append(";").append(Utils.LINE_BREAK);
+                builder.append("            }/*delegation*/");
+            }
+        } else {
+            // scan elements until is not constant
+            final ProductionRule.RuleElement queryDelegate = findVariable(productionRule);
+            builder.append(" {").append(Utils.LINE_BREAK);
+            builder.append("                ")
+                    .append("final ")
+                    .append(method.getResultType())
+                    .append(" __query = ")
+                    .append(queryDelegate.asMethodArgument(model))
+                    .append(";").append(Utils.LINE_BREAK);
+            builder.append("                ");
+            builder.append("return ");
+            builder.append("new Complex").
+                append(method.getResultType())
+                    .append("(")
+                    .append("__query, ")
+                    .append(Utils.format(productionRule.getElements(), "", ", ", "", new F<ProductionRule.RuleElement, String, ModelException>() {
+                        @Override
+                        public String apply(final ProductionRule.RuleElement ruleElement) throws ModelException {
+                            return (ruleElement == queryDelegate) ? "__query" : ruleElement.asMethodArgument(model);
+                        }
+                    }))
+                    .append(")").append(";").append(Utils.LINE_BREAK);
+            builder.append("            }/*delegation*/");
+        }
         return builder.toString();
+    }
+
+    private static ProductionRule.RuleElement findVariable(final ProductionRule production) throws ModelException {
+        for (ProductionRule.RuleElement element:production.getElements()) {
+            if (!element.isConstant()) {
+                return element;
+            }
+        }
+        throw new ModelException("Cannot generate method");
     }
 }

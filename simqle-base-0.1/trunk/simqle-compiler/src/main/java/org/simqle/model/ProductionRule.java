@@ -118,11 +118,17 @@ public class ProductionRule {
     }
 
     public interface RuleElement {
-        public String asMethodArgument(final Model model) throws ModelException;
+        String asMethodArgument(final Model model) throws ModelException;
+        boolean isConstant();
     }
 
     private static class ConstantElement implements RuleElement {
         private final String name;
+
+        @Override
+        public boolean isConstant() {
+            return true;
+        }
 
         private ConstantElement(final String name) throws ModelException {
             this.name = name;
@@ -148,6 +154,11 @@ public class ProductionRule {
         private VariableElement(final Type type, final String name) {
             this.type = type;
             this.name = name;
+        }
+
+        @Override
+        public boolean isConstant() {
+            return false;
         }
 
         public String toString() {

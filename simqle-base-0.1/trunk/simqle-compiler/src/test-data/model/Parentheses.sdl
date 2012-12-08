@@ -1,0 +1,6 @@
+public interface SelectList<T> : Query<T> {}
+
+public interface Subquery<T> : Query<T> {}
+
+<T> Subquery<T> ::= LEFT_PAREN sl:SelectList<T> RIGHT_PAREN :: implicit {}
+;

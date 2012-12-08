@@ -23,6 +23,7 @@ import java.util.List;
 public class Director {
     private Processor[] processors = {
             new InterfaceDeclarationsProcessor(),
+            new InterfaceValidator(),
             new ClassDeclarationProcessor(),
             new ProductionDeclarationProcessor(),
             new SimqleMethodProcessor()

@@ -32,14 +32,6 @@ public class InterfaceDeclarationsProcessor implements Processor {
             }
         }
 
-        // validate for no name clashes: getAllInterfaces will throw ModelException if any
-        for (InterfaceDefinition def: model.getAllInterfaces()) {
-            try {
-                def.getAllMethods(model);
-            } catch (ModelException e) {
-                throw new GrammarException(e, nodeByName.get(def.getName()));
-            }
-        }
     }
 
 }
