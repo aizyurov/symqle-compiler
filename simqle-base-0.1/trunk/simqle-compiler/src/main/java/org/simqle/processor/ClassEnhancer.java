@@ -120,7 +120,7 @@ public class ClassEnhancer implements ModelProcessor {
         final List<TypeParameter> myTypeParameterList = new ArrayList<TypeParameter>();
         // skip parameters, which are in mapping: they are inferred
         for (TypeParameter typeParameter: simqleMethod.getTypeParameters().list()) {
-            if (!mapping.containsKey(typeParameter.getName())) {
+            if (mapping.get(typeParameter.getName()) == null) {
                 // TODO new type parameter may hide class type parameter; rename if necessary
                 myTypeParameterList.add(typeParameter);
             }

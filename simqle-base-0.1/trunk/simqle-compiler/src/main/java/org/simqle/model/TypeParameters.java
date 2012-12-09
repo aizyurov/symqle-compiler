@@ -67,12 +67,6 @@ public class TypeParameters {
             parameterMapping.put(name, null);
         }
         actualArgType.addInferredTypeArguments(formalType, parameterMapping);
-        // parameters which remain unmatches, map to themselves
-        for (String name: parameterMapping.keySet()) {
-            if (parameterMapping.get(name) == null) {
-                parameterMapping.put(name, new TypeArgument(name));
-            }
-        }
         return  parameterMapping;
     }
 }

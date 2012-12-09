@@ -128,7 +128,11 @@ public class Type {
         final TypeArgument typeArgument = mapping.get(getSimpleName());
         if (typeArgument != null) {
             return typeArgument.asType();
+        } else if (mapping.containsKey(getSimpleName())) {
+            // my name is type parameter, but is is unresolved
+            return this;
         } else {
+            // no mapping, real type name - proceed with arguments
             // replace my type arguments
             return new Type(this.getSimpleName(), this.getTypeArguments().replaceParams(mapping), this.arrayDimensions);
         }

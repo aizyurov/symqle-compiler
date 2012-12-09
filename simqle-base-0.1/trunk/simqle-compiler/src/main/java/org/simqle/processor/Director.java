@@ -26,7 +26,8 @@ public class Director {
             new InterfaceValidator(),
             new ClassDeclarationProcessor(),
             new ProductionDeclarationProcessor(),
-            new SimqleMethodProcessor()
+            new SimqleMethodProcessor(),
+            new ImplicitDeclarationProcessor()
     };
 
     private ModelProcessor[] modelProcessors = {
