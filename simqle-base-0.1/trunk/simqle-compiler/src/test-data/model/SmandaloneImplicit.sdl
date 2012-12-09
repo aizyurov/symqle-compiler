@@ -1,0 +1,15 @@
+public interface QueryBase<T> : Query<T> {}
+
+public interface SelectList<T> : Query<T> {}
+
+<T> QueryBase<T> ::= SELECT sl:SelectList<T> fc:FromClause<T> ::
+                        protected QueryBase<T> selectFrom {}
+;
+
+public interface FromClause : Sql {} 
+
+public class ImplicitFromClause implements FromClause {}
+
+:: <T> QueryBase<T> implicit(SelectList<T> sl) {
+                        return selectFrom(sl, new ImplicitFromClause());
+                        }

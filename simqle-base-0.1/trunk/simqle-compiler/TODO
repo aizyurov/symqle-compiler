@@ -20,4 +20,4 @@ Return type may be AbstractRowValue - will see.
     Pair: <T,U> Function2<T, U, Pair<T,U>> make() - combine(SelectList<U> other, Pair.make());
 
 allow standalone implicits:
-     :: <T> QueryBase<T> implicit (SelectList<T> sl) {}
+     :: implicit <T> QueryBase<T> (SelectList<T> sl) {}

@@ -96,6 +96,9 @@ public class ProductionDeclarationProcessor implements Processor {
                 }
                 // dow we can add the implementation of the method to SimqleGeneric
                 final MethodDefinition methodToImplement = simqleGeneric.getMethodBySignature(methodDefinition.signature(), model);
+                if (methodToImplement == null) {
+                    System.out.println(methodToImplement);
+                }
                 methodToImplement.implement(methodDefinition.getAccessModifier(),
                         " { " +  Utils.LINE_BREAK +
                                 "        return new "+methodToImplement.getResultType()+"()" +
