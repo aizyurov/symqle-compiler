@@ -20,7 +20,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.simqle.generator.*;
 import org.simqle.processor.Director;
 
 import java.io.File;
@@ -76,12 +75,7 @@ public class MyMojo
         prepareDirectory(outputDirectory);
         prepareDirectory(testOutputDirectory);
 
-        final Director director = new Director(new Generator[]{
-                new InterfaceGenerator(),
-                new ClassGenerator(),
-                new FactoryGenerator(),
-                new GenericFactoryGenerator()
-        });
+        final Director director = new Director();
         try {
             director.doAll(sourceDirectory.listFiles(new FilenameFilter() {
                 @Override
