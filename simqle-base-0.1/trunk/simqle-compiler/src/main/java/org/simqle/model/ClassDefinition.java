@@ -22,7 +22,10 @@ public class ClassDefinition extends AbstractTypeDefinition {
     // null if does not extend nothing but Object
     private final Type extendedClass;
 
-    private final List<Type> implementedInterfaces;
+//    private final List<Type> implementedInterfaces;
+
+    private final Map<String, ImplementationInfo> implementedInterfaces;
+
 
     public static ClassDefinition parse(final String source) {
         try {
@@ -49,7 +52,7 @@ public class ClassDefinition extends AbstractTypeDefinition {
             ancestors.add(ancestor);
             ancestors.addAll(ancestor.getAllAncestors(model));
         }
-        for (Type type: implementedInterfaces) {
+        for (Type type: getImplementedInterfaces()) {
             final AbstractTypeDefinition ancestor = model.getAbstractType(type.getSimpleName());
             ancestors.add(ancestor);
             ancestors.addAll(ancestor.getAllAncestors(model));
@@ -57,9 +60,27 @@ public class ClassDefinition extends AbstractTypeDefinition {
         return ancestors;
     }
 
+    private final static F<ImplementationInfo, Type, RuntimeException> TYPE = new F<ImplementationInfo, Type, RuntimeException>() {
+        @Override
+        public Type apply(final ImplementationInfo implementationInfo) {
+            return implementationInfo.type;
+        }
+    };
+
+
     public List<Type> getImplementedInterfaces() {
-        return Collections.unmodifiableList(implementedInterfaces);
+        return new ArrayList<Type>(Utils.map(implementedInterfaces.values(), TYPE));
     }
+
+    public int getPriority(Type type) {
+        final ImplementationInfo implementationInfo = implementedInterfaces.get(type.getSimpleName());
+        if (implementationInfo == null) {
+            throw new IllegalArgumentException("Interface not found: " + type.getSimpleName());
+        } else {
+            return implementationInfo.priority;
+        }
+    }
+
 
     public void makeAbstractIfNeeded(Model model) throws ModelException {
         for (MethodDefinition method: getAllMethods(model)) {
@@ -81,18 +102,23 @@ public class ClassDefinition extends AbstractTypeDefinition {
         } else {
             this.extendedClass = new Type(extendedTypes.get(0));
         }
-        this.implementedInterfaces = node.find("Interfaces.ClassOrInterfaceType", Type.CONSTRUCT);
+        this.implementedInterfaces = new HashMap<String, ImplementationInfo>();
+        for (Type type: node.find("Interfaces.ClassOrInterfaceType", Type.CONSTRUCT)) {
+            implementedInterfaces.put(type.getSimpleName(), new ImplementationInfo(type, 0));
+        }
     }
 
-    public void addImplementedInterface(final Type interfaceType) {
+    public void addImplementedInterface(final Type interfaceType, int priority) throws ModelException {
         // TODO check for duplicates
-        implementedInterfaces.add(interfaceType);
+        if (null != implementedInterfaces.put(interfaceType.getSimpleName(), new ImplementationInfo(interfaceType, priority))) {
+            throw new ModelException("Duplicate implemented interface: " +  interfaceType.getSimpleName());
+        }
     }
 
     @Override
     protected String getExtendsImplements() {
         return (extendedClass == null ? "" :
-                "extends " + extendedClass.toString()) + Utils.format(implementedInterfaces, "implements ", ", ", "");
+                "extends " + extendedClass.toString()) + Utils.format(getImplementedInterfaces(), "implements ", ", ", "");
     }
 
     @Override
@@ -104,7 +130,7 @@ public class ClassDefinition extends AbstractTypeDefinition {
         if (extendedClass !=null) {
             addInheritedMethodsToMap(model, methodMap, extendedClass);
         }
-        for (Type parentType: implementedInterfaces) {
+        for (Type parentType: getImplementedInterfaces()) {
             addInheritedMethodsToMap(model, methodMap, parentType);
         }
         return methodMap;
@@ -115,7 +141,7 @@ public class ClassDefinition extends AbstractTypeDefinition {
         if (extendedClass!=null && name.equals(extendedClass.getSimpleName())) {
             return extendedClass;
         }
-        for (Type t: implementedInterfaces) {
+        for (Type t: getImplementedInterfaces()) {
             if (name.equals(t.getSimpleName())) {
                 return t;
             }
@@ -152,6 +178,17 @@ public class ClassDefinition extends AbstractTypeDefinition {
     public void ensureRequiredImports(final Model model) throws ModelException {
         for (AbstractTypeDefinition ancestor: getAllAncestors(model)) {
             addImportLines(ancestor.getImportLines());
+        }
+    }
+
+    private static class ImplementationInfo {
+        final Type type;
+        // the less, the more priority
+        final int priority;
+
+        private ImplementationInfo(final Type type, final int priority) {
+            this.type = type;
+            this.priority = priority;
         }
     }
 

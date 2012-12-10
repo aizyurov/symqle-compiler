@@ -92,10 +92,11 @@ public class InheritanceProcessor implements ModelProcessor {
             // now nPlusOneHopsReachable contains all possible interfaces to implement with methods to use
             // for last step conversion
             // add interfaces to classDef and implement everything it must implement
+            nHops += 1;
             for (Map.Entry<Type, MethodDefinition> entry: nPlusOneHopsReachable.entrySet()) {
                 final Type resType = entry.getKey();
                 MethodDefinition methodDef = entry.getValue();
-                classDef.addImplementedInterface(resType);
+                classDef.addImplementedInterface(resType, nHops);
                 allInterfaces.add(resType);
                 // now it is implemented but its methods may be not
                 for (MethodDefinition methodToImplement: classDef.getAllMethods(model)) {
@@ -113,7 +114,6 @@ public class InheritanceProcessor implements ModelProcessor {
                 }
             }
             // all interfaces added and method implemented: proceed to next number of hops
-            nHops += 1;
             nHopsReachable.clear();
             nHopsReachable.addAll(nPlusOneHopsReachable.keySet());
             nPlusOneHopsReachable.clear();

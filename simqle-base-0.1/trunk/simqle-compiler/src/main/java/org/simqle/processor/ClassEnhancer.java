@@ -30,11 +30,25 @@ public class ClassEnhancer implements ModelProcessor {
             if (methodTemplate != null) {
                 final String signature = methodTemplate.myAbstractMethod.signature();
                 if (generatedMethods.containsKey(signature)) {
-                    // TODO method conflict
-                    // for now keep the first one
-                    System.err.println("WARN: conflicting methods; keep: "+generatedMethods.get(signature).myAbstractMethod.declaration()+
-                    " throw away: "+methodTemplate.myAbstractMethod.declaration());
+                    final MethodTemplate existing = generatedMethods.get(signature);
+
+                    final MethodTemplate keep;
+                    final MethodTemplate throwAway;
+                    // less priority wins, if equal, first wins
+                    if (existing.priority <= methodTemplate.priority) {
+                        keep = existing;
+                        throwAway = methodTemplate;
+                    } else {
+                        keep = methodTemplate;
+                        throwAway = existing;
+                    }
+                    System.err.println("WARN: conflicting methods; keep: " +
+                            keep.myAbstractMethod.declaration() + " ["+keep.priority+"]" +
+                    " throw away: " +
+                            throwAway.myAbstractMethod.declaration() + " ["+throwAway.priority+"]" +
+                            " in "+ classDef.getName());
                     ambiguousMethods.add(signature);
+                    generatedMethods.put(signature, keep);
                 } else {
                     generatedMethods.put(signature, methodTemplate);
                 }
@@ -95,7 +109,7 @@ public class ClassEnhancer implements ModelProcessor {
                     && myType.getTypeArguments().getArguments().size() == 1)) {
                 // special case: both have a single parameter, which is wildcard in firstArg,
                 // so types match
-                return new MethodTemplate(createMyMethod(classDef, method, myType, mapping), myType);
+                return new MethodTemplate(createMyMethod(classDef, method, myType, mapping), myType, classDef.getPriority(myType));
 
             } else {
                 return null;
@@ -108,10 +122,12 @@ public class ClassEnhancer implements ModelProcessor {
     private static class MethodTemplate {
         private final MethodDefinition myAbstractMethod;
         private final Type myType;
+        private final int priority;
 
-        private MethodTemplate(final MethodDefinition myAbstractMethod, final Type myType) {
+        private MethodTemplate(final MethodDefinition myAbstractMethod, final Type myType, final int priority) {
             this.myAbstractMethod = myAbstractMethod;
             this.myType = myType;
+            this.priority = priority;
         }
     }
 
