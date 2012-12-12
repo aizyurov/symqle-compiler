@@ -118,7 +118,7 @@ public class ClassDefinition extends AbstractTypeDefinition {
     @Override
     protected String getExtendsImplements() {
         return (extendedClass == null ? "" :
-                "extends " + extendedClass.toString()) + Utils.format(getImplementedInterfaces(), "implements ", ", ", "");
+                "extends " + extendedClass.toString() + " ") + Utils.format(getImplementedInterfaces(), "implements ", ", ", "");
     }
 
     @Override

@@ -1,0 +1,20 @@
+public interface Scalar<T> {
+    T value() throws SQLException;
+}
+
+
+public interface Dependent {
+    Set<String> dependsOn();
+}
+
+public interface ValueExpression<T> extends Scalar<T>, Dependent : Sql {}
+
+public interface ComparisonPredicate extends Scalar<Boolean>, Dependent : Sql {}
+
+public class AbstractComparisonPredicate implements ComparisonPredicate {}
+
+<T> ComparisonPredicate ::=
+     p1:ValueExpression<T> EQ p2:ValueExpression<T>
+        :: public AbstractComparisonPredicate eq {}
+;
+

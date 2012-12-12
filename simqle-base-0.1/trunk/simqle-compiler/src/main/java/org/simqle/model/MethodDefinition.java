@@ -74,9 +74,9 @@ public class MethodDefinition {
             SyntaxTree syntaxTree = new SyntaxTree(simpleNode, source);
             return new MethodDefinition(syntaxTree, owner);
         } catch (ParseException e) {
-            throw new RuntimeException("Internal error", e);
+            throw new RuntimeException("Internal error in "+Utils.LINE_BREAK + source, e);
         } catch (GrammarException e) {
-            throw new RuntimeException("Internal error", e);
+            throw new RuntimeException("Internal error in "+Utils.LINE_BREAK + source, e);
         }
     }
     

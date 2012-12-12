@@ -1620,6 +1620,9 @@ void ExceptionType():
 void FormalParameterList():
 {}
 {
+    LOOKAHEAD ( VariableModifiers() Type() "..." )
+    FormalParameterWithEllipsis()
+|
     FormalParameter()
     ( LOOKAHEAD ( "," VariableModifiers() Type() VariableDeclaratorId() ("," | ")" ) ) "," FormalParameter() ) *
     [ "," FormalParameterWithEllipsis() ]

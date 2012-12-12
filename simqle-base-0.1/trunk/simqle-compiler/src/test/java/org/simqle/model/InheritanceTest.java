@@ -108,4 +108,19 @@ public class InheritanceTest extends TestCase {
         }
 
     }
+
+    public void testDependentInterface() throws Exception {
+        String source = "src/test-data/model/DependsPropagation.sdl";
+        Reader reader = new InputStreamReader(new FileInputStream(source));
+        SimqleParser parser = new SimqleParser(reader);
+        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        final Model model = new Model();
+        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+        new ClassDeclarationProcessor().process(syntaxTree, model);
+        for (ClassDefinition classDef: model.getAllClasses()) {
+            System.out.println(classDef);
+            System.out.println("==============");
+        }
+
+    }
 }
