@@ -2130,10 +2130,7 @@ void SynchronizedStatement():
 void TryStatement():
 {}
 {
-    LOOKAHEAD(3)
-  "try" Block() Catches() [ Finally() ]
-|
-  "try" Finally()
+  "try" Block() ( Catches() ) * [ Finally() ]
 }
 
 void Catches():
