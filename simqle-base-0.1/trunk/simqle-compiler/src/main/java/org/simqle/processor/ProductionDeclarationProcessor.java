@@ -4,8 +4,6 @@
 package org.simqle.processor;
 
 import org.simqle.model.*;
-import org.simqle.parser.ParseException;
-import org.simqle.parser.SimpleNode;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.util.Utils;
 
@@ -64,11 +62,13 @@ public class ProductionDeclarationProcessor implements Processor {
                 throw e;
             }
             try {
-                simqle.addMethod(methodDefinition);
-                if (productionRule.isImplicit()) {
-                    model.addImplicitMethod(methodDefinition);
-                } else {
-                    model.addExplicitMethod(methodDefinition, declarationImports);
+                if (!methodDefinition.getAccessModifier().equals("private")) {
+                    simqle.addMethod(methodDefinition);
+                    if (productionRule.isImplicit()) {
+                        model.addImplicitMethod(methodDefinition);
+                    } else {
+                        model.addExplicitMethod(methodDefinition, declarationImports);
+                    }
                 }
             } catch (ModelException e) {
                 throw new GrammarException(e, production);
@@ -95,9 +95,9 @@ public class ProductionDeclarationProcessor implements Processor {
                     }
                 }
                 // dow we can add the implementation of the method to SimqleGeneric
-                final MethodDefinition methodToImplement = simqleGeneric.getMethodBySignature(methodDefinition.signature(), model);
+                MethodDefinition methodToImplement = simqleGeneric.getMethodBySignature(methodDefinition.signature(), model);
                 if (methodToImplement == null) {
-                    System.out.println(methodToImplement);
+                    methodToImplement = methodDefinition.override(simqleGeneric, model);
                 }
                 methodToImplement.implement(methodDefinition.getAccessModifier(),
                         " { " +  Utils.LINE_BREAK +

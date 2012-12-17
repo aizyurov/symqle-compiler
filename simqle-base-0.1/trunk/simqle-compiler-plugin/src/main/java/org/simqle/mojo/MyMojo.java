@@ -61,7 +61,7 @@ public class MyMojo
     private File testOutputDirectory;
 
     /**
-     *  The directory where Simqle sourcd resides. All *.sql files from the directory
+     *  The directory where Simqle sources resides. All *.sdl files from the directory
      * are compiled
      *
      * @parameter expression="${sourceDirectory}" default-value="${basedir}/src/main/simqle"
@@ -72,6 +72,7 @@ public class MyMojo
     public void execute()
         throws MojoExecutionException, MojoFailureException
     {
+
         prepareDirectory(outputDirectory);
         prepareDirectory(testOutputDirectory);
 
