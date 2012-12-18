@@ -3,21 +3,54 @@
 (done) method modifiers for explicit methods (may be private! - check that it does not go to the model
     and does not go to Simqle!)
 implementation imports for explicit methods
-naming convention (sun-confoming):
+(done) naming convention (sun-confoming):
     public interface SelectStatement
     public abstract class AbstractSelectStatement
-ClassDef:implementedInterfaces is Map<Type, int) : type -> priority
+(done) ClassDef:implementedInterfaces is Map<Type, int) : type -> priority
     default priority is 0.
-Class enhancement: signature -> (MethodDefinition, priority). Lowest priority wins. If such a conflict exists,
+(done) Class enhancement: signature -> (MethodDefinition, priority). Lowest priority wins. If such a conflict exists,
     need explicit cast to proper interface
 
-SelectList: convert() and augment(), like:
+SelectList: convert() and combine(), like:
     public <Arg, Res> AbstractSelectList<Res> convert(SelectList<Arg> rv, Function<Arg,Res> f);
     public <T, U, V> AbstractSelectList<V> combine(SelectList<T> sl, SelectList<U> augm, Function2<T, U, V> f);
 Return type may be AbstractRowValue - will see.
     RowMap with standard functions <RowValue<?>, RowMap> and <RowMap, RowValue<?>, RowMap> will do the work for
     Mapper.
-    Pair: <T,U> Function2<T, U, Pair<T,U>> make() - combine(SelectList<U> other, Pair.make());
+(error)    Pair: <T,U> Function2<T, U, Pair<T,U>> make() - combine(SelectList<U> other, Pair.make());
 
-allow standalone implicits:
+(done) allow standalone implicits:
      :: implicit <T> QueryBase<T> (SelectList<T> sl) {}
+
+pairWith() and tripleWith() create RowValue ( a class implementing both RowValue and SelectList);
+combine() creates just AbstractSelectList, because we cannot compare with another result of combine()
+
+To think about: can we support union, except, intersect for pairs and triples?
+
+add(Number n) etc. Just convert the second argument to NumberParameter - fits ValueExpressionPrimary<?>
+
+chain of value() delegation is suxx. Change the logic to: if a method to implement is a getter,
+     create the property (private final variable), set it from the getter of the firs argument and return
+     the property created getter.
+     It will work for Scalar (which should have getGetter() instead of value()
+     and for Query (do not implement DataExtractor, have getExtractor()).
+     Seems that Scalar is superfluos: getGetter() in ValueExpression is enough
+     ( all interfaces convertable to ValueExpression will have this method)
+
+for eq(), ne() etc. we do not need special interface, just a method Predicant#predicand(T other)
+     (not AbstractPredicand! it is interface method -same principle as for scalars).
+
+all generated methods should be final: if we override list() in Column, id.where(id.isNotNull()).list()
+     is not changed - it is misleading.
+     Provide hooks to customize behavior. For example, Query may have getCollector() method:
+     interface Collector<T> { void collect<T t); List<T> done(); }. Standard SelectLists have
+      DefaultCollector (scalar, pair, triple). Mappers for objects with collections may provide
+      own collectors. Same for scroll: may provide Function<T, T>, which is applied before calling
+      Callback (or provide a separate Collector for scroll - may be better).
+
+Later: all imports put classes to the Model (using reflection) and mark them as external.
+    Omoonims are not allowed (OK for now).
+    java.lang classes are parsed the same way.
+    Pluses: (1) have Scalar and like outside of model (2) more strict type-checking.
+    Add package directive. Needed mostly for dialects.
+
