@@ -100,7 +100,7 @@ public class InheritanceProcessor implements ModelProcessor {
                 allInterfaces.add(resType);
                 // now it is implemented but its methods may be not
                 for (MethodDefinition methodToImplement: classDef.getAllMethods(model)) {
-                    if (methodToImplement.getOtherModifiers().contains("transient")) {
+                    if (methodToImplement.getOtherModifiers().contains("transient") && methodToImplement.getOtherModifiers().contains("abstract")) {
                         methodToImplement.implement("public",
                                 " {" + Utils.LINE_BREAK +
                                 "                " +
