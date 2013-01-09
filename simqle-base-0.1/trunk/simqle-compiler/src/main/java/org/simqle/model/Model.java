@@ -162,13 +162,19 @@ public class Model {
 
     private final static String SIMQLE_SOURCE = "public abstract class Simqle {" + Utils.LINE_BREAK +
             "    public static Simqle get() { " + Utils.LINE_BREAK +
-            "        return new SimqleGeneric(); " + Utils.LINE_BREAK +
+            "        return SimqleGeneric.get(); " + Utils.LINE_BREAK +
             "    }" + Utils.LINE_BREAK +
             "}";
 
     private final static String SIMQLE_GENERIC_SOURCE = "import org.simqle.*;" + Utils.LINE_BREAK +
             "import static org.simqle.SqlTerm.*;" + Utils.LINE_BREAK +
-            "public class SimqleGeneric extends Simqle {}";
+            "public class SimqleGeneric extends Simqle {" + Utils.LINE_BREAK +  Utils.LINE_BREAK +
+            "    private static final SimqleGeneric instance = new SimqleGeneric();"  + Utils.LINE_BREAK +
+            "    private SimqleGeneric() {}"  + Utils.LINE_BREAK +
+            "    public static SimqleGeneric get() {"  + Utils.LINE_BREAK +
+            "         return instance;"  + Utils.LINE_BREAK +
+            "    }"  + Utils.LINE_BREAK +
+            "}";
 
     private static ClassDefinition createSimqleClass(String source) {
         final SimpleNode node;

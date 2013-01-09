@@ -27,18 +27,13 @@ combine() creates just AbstractSelectList, because we cannot compare with anothe
 
 To think about: can we support union, except, intersect for pairs and triples?
 
-add(Number n) etc. Just convert the second argument to NumberParameter - fits ValueExpressionPrimary<?>
+(done) add(Number n) etc. Just convert the second argument to NumberParameter - fits ValueExpressionPrimary<?>
 
 chain of value() delegation is suxx. Change the logic to: if a method to implement is a getter,
      create the property (private final variable), set it from the getter of the firs argument and return
      the property created getter.
      It will work for Scalar (which should have getGetter() instead of value()
      and for Query (do not implement DataExtractor, have getExtractor()).
-     Seems that Scalar is superfluos: getGetter() in ValueExpression is enough
-     ( all interfaces convertable to ValueExpression will have this method)
-
-for eq(), ne() etc. we do not need special interface, just a method Predicant#predicand(T other)
-     (not AbstractPredicand! it is interface method -same principle as for scalars).
 
 all generated methods should be final: if we override list() in Column, id.where(id.isNotNull()).list()
      is not changed - it is misleading.

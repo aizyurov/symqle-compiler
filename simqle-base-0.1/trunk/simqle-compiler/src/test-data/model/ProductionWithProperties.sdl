@@ -1,0 +1,22 @@
+import java.sql.SQLException;
+import org.simqle.Element;
+public interface Scalar<T>
+{
+    T getElementMapper();
+}
+
+public interface ValueExpression<T> extends Scalar<T> : Sql
+{}
+
+public class Value<T> implements ValueExpression<T>
+{}
+
+<T> ValueExpression<T> ::=
+		e:ValueExpressionPrimary<T>
+		:: implicit {}
+;
+
+
+public interface ValueExpressionPrimary<T> extends Scalar<T> : Sql
+{}
+

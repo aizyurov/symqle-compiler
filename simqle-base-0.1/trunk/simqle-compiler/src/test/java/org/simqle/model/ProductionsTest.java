@@ -169,4 +169,21 @@ public class ProductionsTest extends TestCase {
         ), TestUtils.pureCode(method.toString()));
     }
 
+    public void testProductionWithPropertyGetter() throws Exception {
+        String source = "src/test-data/model/ProductionWithProperties.sdl";
+        final SyntaxTree syntaxTree = readSyntaxTree(source);
+        final Model model = new Model();
+        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+        new ClassDeclarationProcessor().process(syntaxTree, model);
+        new ProductionDeclarationProcessor().process(syntaxTree, model);
+
+        final ClassDefinition simqle = model.getClassDef("Simqle");
+        final ClassDefinition simqleGeneric = model.getClassDef("SimqleGeneric");
+
+        Utils.createParser(simqle.toString()).SimqleDeclarationBlock();
+        System.out.println(simqleGeneric.toString());
+        Utils.createParser(simqleGeneric.toString()).SimqleDeclarationBlock();
+
+    }
+
 }

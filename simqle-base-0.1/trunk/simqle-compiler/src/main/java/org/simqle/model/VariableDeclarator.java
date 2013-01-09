@@ -33,4 +33,15 @@ public class VariableDeclarator {
     public String getInitializer() {
         return initializer;
     }
+
+    public String toString() {
+        return name + initializer;
+    }
+
+    public static F<SyntaxTree, VariableDeclarator, GrammarException> CONSTRUCT = new F<SyntaxTree, VariableDeclarator, GrammarException>() {
+        @Override
+        public VariableDeclarator apply(SyntaxTree syntaxTree) throws GrammarException {
+            return new VariableDeclarator(syntaxTree);
+        }
+    };
 }

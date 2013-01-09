@@ -87,6 +87,11 @@ public abstract class AbstractTypeDefinition {
         comment = node.getComments();
     }
 
+    public void addFieldDeclaration(FieldDeclaration declaration) {
+        // no check for duplicate valiable names!
+        otherDeclarations.add(declaration.toString());
+    }
+
     public abstract String implicitMethodAccessModifier(MethodDefinition methodDefinition);
     public abstract Set<String> addImplicitMethodModifiers(MethodDefinition methodDefinition);
 

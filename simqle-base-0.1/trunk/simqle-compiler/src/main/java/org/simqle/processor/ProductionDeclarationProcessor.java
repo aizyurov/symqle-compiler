@@ -87,9 +87,20 @@ public class ProductionDeclarationProcessor implements Processor {
                         final String delegationCall;
                         if (Archetype.isArchetypeMethod(method)) {
                             delegationCall = delegateArchetypeMethod(model, productionRule, method);
+                        } else if (method.getName().startsWith("get")
+                                && method.getName().length() > 3
+                                && method.getFormalParameters().size()==0) {
+                            // "property getter"
+                            final String methodName = method.getName();
+                            String propertyName = methodName.substring(3,4).toLowerCase() +
+                                    methodName.substring(4, methodName.length());
+                            String fieldDeclarationSource = "private final " +
+                                    method.getResultType() + " " + propertyName + " = " +
+                                    callLeftmostArg(model, productionRule, method);
+                            delegationCall = propertyGetter(propertyName);
+                            anonymousClass.addFieldDeclaration(FieldDeclaration.parse(fieldDeclarationSource));
                         } else {
                             delegationCall = delegateToLeftmostArg(model, productionRule, method);
-
                         }
                         method.implement("public", delegationCall, true);
                     }
@@ -112,8 +123,29 @@ public class ProductionDeclarationProcessor implements Processor {
 
     }
 
+    private String propertyGetter(String propertyName) {
+        final StringBuilder bodyBuilder = new StringBuilder();
+        bodyBuilder.append(" {").append(Utils.LINE_BREAK);
+        bodyBuilder.append("                ");
+        bodyBuilder.append("return ").append(propertyName).append(";");
+        bodyBuilder.append("            }");
+        return bodyBuilder.toString();
+    }
 
     private String delegateToLeftmostArg(final Model model, final ProductionRule productionRule, final MethodDefinition method) throws ModelException {
+        final StringBuilder bodyBuilder = new StringBuilder();
+        bodyBuilder.append(" {").append(Utils.LINE_BREAK);
+        bodyBuilder.append("                ");
+        if (!method.getResultType().equals(Type.VOID)) {
+            bodyBuilder.append("return ");
+        }
+        bodyBuilder.append(callLeftmostArg(model, productionRule, method));
+        bodyBuilder.append(Utils.LINE_BREAK);
+        bodyBuilder.append("            }");
+        return bodyBuilder.toString();
+    }
+
+    private String callLeftmostArg(final Model model, final ProductionRule productionRule, final MethodDefinition method) throws ModelException {
 
         // delegate to leftmost argument
         final List<FormalParameter> formalParameters = productionRule.getFormalParameters();
@@ -132,13 +164,7 @@ public class ProductionDeclarationProcessor implements Processor {
             }
             ;
             final StringBuilder bodyBuilder = new StringBuilder();
-            bodyBuilder.append(" {").append(Utils.LINE_BREAK);
-            bodyBuilder.append("                ");
-            if (!method.getResultType().equals(Type.VOID)) {
-                bodyBuilder.append("return ");
-            }
             bodyBuilder.append(delegate.delegationInvocation(formalParameter.getName())).append(";").append(Utils.LINE_BREAK);
-            bodyBuilder.append("            }/*delegation*/");
             return bodyBuilder.toString();
         } else {
             throw new ModelException("Cannot implement " + method.getName());
