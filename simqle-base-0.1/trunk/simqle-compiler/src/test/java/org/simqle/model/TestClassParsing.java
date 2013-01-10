@@ -6,6 +6,7 @@ package org.simqle.model;
 import junit.framework.TestCase;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
+import org.simqle.processor.AbstractMethodsProcessor;
 import org.simqle.processor.ClassDeclarationProcessor;
 import org.simqle.processor.GrammarException;
 import org.simqle.processor.InterfaceDeclarationsProcessor;
@@ -26,6 +27,7 @@ public class TestClassParsing extends TestCase {
         SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "SimpleClass.sdl");
         new InterfaceDeclarationsProcessor().process(node, model);
         new ClassDeclarationProcessor().process(node, model);
+        new AbstractMethodsProcessor().process(model);
         final ClassDefinition selectStatement = model.getClassDef("SelectStatement");
         assertEquals(2, selectStatement.getAllMethods(model).size());
         assertEquals(2, selectStatement.getDeclaredMethods().size());
@@ -87,8 +89,9 @@ public class TestClassParsing extends TestCase {
             Processor processor = new ClassDeclarationProcessor();
         try {
             processor.process(node, model);
-            fail("GrammarException expected here");
-        } catch (GrammarException e) {
+            new AbstractMethodsProcessor().process(model);
+            fail("ModelException expected here");
+        } catch (ModelException e) {
             // expected
         }
     }
@@ -104,8 +107,9 @@ public class TestClassParsing extends TestCase {
             Processor processor = new ClassDeclarationProcessor();
         try {
             processor.process(node, model);
-            fail("GrammarException expected here");
-        } catch (GrammarException e) {
+            new AbstractMethodsProcessor().process(model);
+            fail("ModelException expected here");
+        } catch (ModelException e) {
             assertTrue(e.getMessage(), e.getMessage().startsWith("Name clash in TestClass"));
         }
     }
@@ -117,6 +121,7 @@ public class TestClassParsing extends TestCase {
             new InterfaceDeclarationsProcessor().process(node, model);
         try {
             new ClassDeclarationProcessor().process(node, model);
+            new AbstractMethodsProcessor().process(model);
             fail("GrammarException expected here");
         } catch (GrammarException e) {
             assertTrue(e.getMessage().startsWith("Duplicate method: dump"));

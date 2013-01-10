@@ -21,16 +21,24 @@ import java.util.List;
  * @author Alexander Izyurov
  */
 public class Director {
-    private Processor[] processors = {
+    private Processor[] step1processors = {
             new InterfaceDeclarationsProcessor(),
             new InterfaceValidator(),
             new ClassDeclarationProcessor(),
+    };
+
+    private ModelProcessor[] step1modelProcessors = {
+            new AbstractMethodsProcessor()
+    };
+
+    private Processor[] step2processors = {
             new ProductionDeclarationProcessor(),
             new SimqleMethodProcessor(),
             new ImplicitDeclarationProcessor()
     };
 
-    private ModelProcessor[] modelProcessors = {
+
+    private ModelProcessor[] step2modelProcessors = {
             new InheritanceProcessor(),
             new ClassEnhancer()
     };
@@ -54,12 +62,20 @@ public class Director {
             }
         }
         Model model = new Model();
-        for (Processor processor: processors) {
+        for (Processor processor: step1processors) {
             for (SyntaxTree source: parsedSources) {
                 processor. process(source, model);
             }
         }
-        for (ModelProcessor modelProcessor: modelProcessors) {
+        for (ModelProcessor modelProcessor: step1modelProcessors) {
+            modelProcessor.process(model);
+        }
+        for (Processor processor: step2processors) {
+            for (SyntaxTree source: parsedSources) {
+                processor. process(source, model);
+            }
+        }
+        for (ModelProcessor modelProcessor: step2modelProcessors) {
             modelProcessor.process(model);
         }
         outputDirectory.mkdirs();

@@ -25,7 +25,7 @@ The plain text version of this grammar is
 --li CLOSE cursor <close statement>
 --li Column definition <column definition>
 --li COMMIT WORK <commit statement>
---li CONNECT <connect statement>
+--li CONNECT <connect statement>                                      _val
 --li CREATE ASSERTION <assertion definition>
 --li CREATE CHARACTER SET <character set definition>
 --li CREATE COLLATION <collation definition>
@@ -4971,7 +4971,7 @@ NOTE 402 - This statement has no effect on any SQL-transactions subsequent to th
 If an SQL-transaction is currently active, then set the constraint mode for that SQL-transaction in
 the current SQL-session. If no SQL-transaction is currently active, then set the constraint mode for
 the next SQL-transaction in the current SQL-session for the SQL-agent.
-NOTE 404 – This statement has no effect on any SQL-transactions subsequent to this SQL-transaction.
+NOTE 404 ï¿½ This statement has no effect on any SQL-transactions subsequent to this SQL-transaction.
 --/p
 
 <set constraints mode statement> ::= SET CONSTRAINTS <constraint name list> { DEFERRED | IMMEDIATE }

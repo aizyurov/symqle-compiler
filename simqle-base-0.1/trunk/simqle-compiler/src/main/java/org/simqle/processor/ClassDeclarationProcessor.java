@@ -28,22 +28,6 @@ public class ClassDeclarationProcessor implements Processor {
             }
         }
 
-        for (ClassDefinition classDefinition: model.getAllClasses()) {
-            try {
-                addAbstractMethods(classDefinition, model);
-            } catch (ModelException e) {
-                throw new GrammarException(e, nodeByName.get(classDefinition.getName()));
-            }
-        }
-    }
-
-    private void addAbstractMethods(final ClassDefinition definition, final Model model) throws ModelException {
-
-        for (final MethodDefinition method: definition.getAllMethods(model)) {
-            if (method.getOtherModifiers().contains("transient") && method.getOtherModifiers().contains("abstract")) {
-                method.declareAbstract("public");
-            }
-        }
     }
 
 }
