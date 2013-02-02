@@ -175,11 +175,13 @@ public class Model {
             "public interface Dialect {" + Utils.LINE_BREAK +
             "}";
 
-    private final static String GENERIC_DIALECT_SOURCE = "import org.simqle.Sql;" + Utils.LINE_BREAK +
+    private final static String GENERIC_DIALECT_SOURCE =
+            "import org.simqle.Sql;" + Utils.LINE_BREAK +
+            "import org.simqle.CompositeSql;" + Utils.LINE_BREAK +
             "import static org.simqle.SqlTerm.*;" + Utils.LINE_BREAK +
             "public class GenericDialect implements Dialect {" + Utils.LINE_BREAK +  Utils.LINE_BREAK +
             "    private static final GenericDialect instance = new GenericDialect();"  + Utils.LINE_BREAK +
-            "    private GenericDialsec() {}"  + Utils.LINE_BREAK +
+            "    private GenericDialect() {}"  + Utils.LINE_BREAK +
             "    public static Dialect get() {"  + Utils.LINE_BREAK +
             "         return instance;"  + Utils.LINE_BREAK +
             "    }"  + Utils.LINE_BREAK +

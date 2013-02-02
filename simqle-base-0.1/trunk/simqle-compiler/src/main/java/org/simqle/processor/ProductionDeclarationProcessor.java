@@ -181,7 +181,7 @@ public class ProductionDeclarationProcessor implements Processor {
             builder.append("context.get(Dialect.class).").
                 append(rule.getName())
                     .append("(")
-                    .append(Utils.format(productionImpl.getElements(), "", ", ", "", new F<ProductionImplementation.RuleElement, String, ModelException>() {
+                    .append(Utils.format(productionImpl.getVariableElements(), "", ", ", "", new F<ProductionImplementation.RuleElement, String, ModelException>() {
                         @Override
                         public String apply(final ProductionImplementation.RuleElement ruleElement) throws ModelException {
                             return ruleElement.asMethodArgument(model);
@@ -205,13 +205,13 @@ public class ProductionDeclarationProcessor implements Processor {
                 append(method.getResultType())
                     .append("(")
                     .append("__rowMapper, ")
-                    .append("context.get(Simqle.class).")
+                    .append("context.get(Dialect.class).")
                     .append(rule.getName())
                     .append("(")
-                    .append(Utils.format(productionImpl.getElements(), "", ", ", "", new F<ProductionImplementation.RuleElement, String, ModelException>() {
+                    .append(Utils.format(productionImpl.getVariableElements(), "", ", ", "", new F<ProductionImplementation.RuleElement, String, ModelException>() {
                         @Override
                         public String apply(final ProductionImplementation.RuleElement ruleElement) throws ModelException {
-                            return (ruleElement == queryDelegate) ? "__query" : ruleElement.asMethodArgument(model);
+                            return (ruleElement == queryDelegate) ? "__rowMapper" : ruleElement.asMethodArgument(model);
                         }
                     }))
                     .append(")")

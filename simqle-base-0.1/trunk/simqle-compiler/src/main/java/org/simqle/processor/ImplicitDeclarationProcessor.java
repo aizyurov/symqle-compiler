@@ -15,7 +15,6 @@ public class ImplicitDeclarationProcessor implements Processor {
     @Override
     public void process(SyntaxTree tree, Model model) throws GrammarException {
         final ClassDefinition simqle;
-        final ClassDefinition simqleGeneric;
         try {
             simqle = model.getClassDef("Simqle");
         } catch (ModelException e) {

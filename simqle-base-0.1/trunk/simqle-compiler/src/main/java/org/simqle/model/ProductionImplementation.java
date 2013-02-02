@@ -86,6 +86,16 @@ public class ProductionImplementation {
         return new ArrayList<RuleElement>(ruleElements);
     }
 
+    public List<RuleElement> getVariableElements() {
+        final List<RuleElement> vars = new ArrayList<RuleElement>();
+        for (RuleElement element : getElements()) {
+            if (!element.isConstant()) {
+                vars.add(element);
+            }
+        }
+        return vars;
+    }
+
     public String getName() {
         return name;
     }

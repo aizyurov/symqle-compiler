@@ -156,7 +156,7 @@ public class ProductionsTest extends TestCase {
                         "            public Query<T> z$create$Subquery(final SqlContext context) {\n" +
                         "                final Query<T> __rowMapper = sl.z$create$SelectList(context); " +
                         "            return new ComplexQuery<T>(__rowMapper, " +
-                        "                context.get(Simqle.class).Subquery_is_LEFT_PAREN_SelectList_RIGHT_PAREN(LEFT_PAREN, __query, RIGHT_PAREN));" +
+                        "                context.get(Dialect.class).Subquery_is_LEFT_PAREN_SelectList_RIGHT_PAREN(__rowMapper));" +
                         "            }/*delegation*/\n" +
                         "\n" +
                         "        };/*anonymous*/\n" +
