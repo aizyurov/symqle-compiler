@@ -1062,7 +1062,7 @@ void ProductionDeclaration():
 void ProductionChoice():
 {}
 {
-    ProductionRule()  "::" ProductionImplementation()
+    ProductionRule()  [ "::" ProductionImplementation() ]
 }
 
 void ProductionRule():

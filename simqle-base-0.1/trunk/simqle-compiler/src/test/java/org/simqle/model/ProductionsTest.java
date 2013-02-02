@@ -32,27 +32,24 @@ public class ProductionsTest extends TestCase {
         final ClassDefinition simqle = model.getClassDef("Simqle");
         System.out.println(simqle);
         System.out.println("==========");
-        final ClassDefinition simqleGeneric = model.getClassDef("SimqleGeneric");
-        System.out.println(simqleGeneric);
 
         // make sure that classes are compilable
         Utils.createParser(simqle.toString()).SimqleDeclarationBlock();;
-        Utils.createParser(simqleGeneric.toString()).SimqleDeclarationBlock();
 
         //
         assertEquals(3, simqle.getDeclaredMethods().size());
         assertEquals(3, simqle.getDeclaredMethods().size());
         for (MethodDefinition method: simqle.getDeclaredMethods()) {
-            assertTrue(method.getOtherModifiers().toString(), method.getOtherModifiers().contains("abstract"));
+            assertFalse(method.getOtherModifiers().toString(), method.getOtherModifiers().contains("abstract"));
         }
         {
             final MethodDefinition method = simqle.getDeclaredMethodBySignature("z$zSelectStatement$from$zCursorSpecification(zCursorSpecification)");
-            assertEquals("abstract <T> zSelectStatement<T> z$zSelectStatement$from$zCursorSpecification(zCursorSpecification<T> cspec)",
+            assertEquals("<T> zSelectStatement<T> z$zSelectStatement$from$zCursorSpecification(final zCursorSpecification<T> cspec)",
                     method.declaration());
         }
         {
             final MethodDefinition method = simqle.getDeclaredMethodBySignature("forReadOnly(zCursorSpecification)");
-            assertEquals("public abstract <T> SelectStatement<T> forReadOnly(zCursorSpecification<T> cspec)",
+            assertEquals("public <T> SelectStatement<T> forReadOnly(final zCursorSpecification<T> cspec)",
                     method.declaration());
         }
     }
@@ -65,25 +62,25 @@ public class ProductionsTest extends TestCase {
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
 
-        final ClassDefinition simqleGeneric = model.getClassDef("SimqleGeneric");
-        System.out.println(simqleGeneric);
+        final ClassDefinition simqle = model.getClassDef("Simqle");
+        System.out.println(simqle);
 
-        Utils.createParser(simqleGeneric.toString()).SimqleDeclarationBlock();
+        Utils.createParser(simqle.toString()).SimqleDeclarationBlock();
 
         //
-        assertEquals(3, simqleGeneric.getDeclaredMethods().size());
-        assertEquals(3, simqleGeneric.getAllMethods(model).size());
-        for (MethodDefinition method: simqleGeneric.getDeclaredMethods()) {
+        assertEquals(3, simqle.getDeclaredMethods().size());
+        assertEquals(3, simqle.getAllMethods(model).size());
+        for (MethodDefinition method: simqle.getDeclaredMethods()) {
             assertFalse(method.getOtherModifiers().toString(), method.getOtherModifiers().contains("abstract"));
         }
         {
-            final MethodDefinition method = simqleGeneric.getDeclaredMethodBySignature("z$zSelectStatement$from$zCursorSpecification(zCursorSpecification)");
+            final MethodDefinition method = simqle.getDeclaredMethodBySignature("z$zSelectStatement$from$zCursorSpecification(zCursorSpecification)");
             assertEquals("<T> zSelectStatement<T> z$zSelectStatement$from$zCursorSpecification(final zCursorSpecification<T> cspec)",
                     method.declaration());
             assertTrue(method.toString(), method.toString().contains("throw new RuntimeException(\"Not implemented\");"));
         }
         {
-            final MethodDefinition method = simqleGeneric.getDeclaredMethodBySignature("forReadOnly(zCursorSpecification)");
+            final MethodDefinition method = simqle.getDeclaredMethodBySignature("forReadOnly(zCursorSpecification)");
             assertEquals("public <T> SelectStatement<T> forReadOnly(final zCursorSpecification<T> cspec)",
                     method.declaration());
         }
@@ -98,14 +95,12 @@ public class ProductionsTest extends TestCase {
         new ProductionDeclarationProcessor().process(syntaxTree, model);
 
         final ClassDefinition simqle = model.getClassDef("Simqle");
-        final ClassDefinition simqleGeneric = model.getClassDef("SimqleGeneric");
 
+        System.out.println(simqle.toString());
         Utils.createParser(simqle.toString()).SimqleDeclarationBlock();
-        System.out.println(simqleGeneric.toString());
-        Utils.createParser(simqleGeneric.toString()).SimqleDeclarationBlock();
 
         {
-            final MethodDefinition method = simqleGeneric.getDeclaredMethodBySignature("z$zValueExpression$from$zValueExpressionPrimary(zValueExpressionPrimary)");
+            final MethodDefinition method = simqle.getDeclaredMethodBySignature("z$zValueExpression$from$zValueExpressionPrimary(zValueExpressionPrimary)");
             assertEquals(TestUtils.pureCode(
                     "    <T> zValueExpression<T>" +
                     "    z$zValueExpression$from$zValueExpressionPrimary(final zValueExpressionPrimary<T> e) { \n" +
@@ -114,7 +109,7 @@ public class ProductionsTest extends TestCase {
                             "        return e.value(element);\n" +
                             "    }\n" +
                     "           public Sql z$create$zValueExpression(final SqlContext context) {\n" +
-                    "               return e.z$create$zValueExpressionPrimary(context);\n" +
+                    "               return context.get(Dialect.class).zValueExpression_is_zValueExpressionPrimary(e.z$create$zValueExpressionPrimary(context));\n" +
                     "           }\n" +
                     "       };\n" +
                     "   }"),
@@ -148,8 +143,8 @@ public class ProductionsTest extends TestCase {
         Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
-        ClassDefinition simqleGeneric = model.getClassDef("SimqleGeneric");
-        MethodDefinition method = simqleGeneric.getDeclaredMethodBySignature("z$Subquery$from$SelectList(SelectList)");
+        ClassDefinition simqle = model.getClassDef("Simqle");
+        MethodDefinition method = simqle.getDeclaredMethodBySignature("z$Subquery$from$SelectList(SelectList)");
         assertEquals(TestUtils.pureCode(
                 "<T> Subquery<T> z$Subquery$from$SelectList(final SelectList<T> sl) { \n" +
                         "        return new Subquery<T>() {\n" +
@@ -159,8 +154,9 @@ public class ProductionsTest extends TestCase {
                         "            * @return query conforming to <code>this</code> syntax\n" +
                         "            */\n" +
                         "            public Query<T> z$create$Subquery(final SqlContext context) {\n" +
-                        "                final Query<T> __query = sl.z$create$SelectList(context);\n" +
-                        "                return new ComplexQuery<T>(__query, LEFT_PAREN, __query, RIGHT_PAREN);\n" +
+                        "                final Query<T> __rowMapper = sl.z$create$SelectList(context); " +
+                        "            return new ComplexQuery<T>(__rowMapper, " +
+                        "                context.get(Simqle.class).Subquery_is_LEFT_PAREN_SelectList_RIGHT_PAREN(LEFT_PAREN, __query, RIGHT_PAREN));" +
                         "            }/*delegation*/\n" +
                         "\n" +
                         "        };/*anonymous*/\n" +
@@ -178,11 +174,8 @@ public class ProductionsTest extends TestCase {
         new ProductionDeclarationProcessor().process(syntaxTree, model);
 
         final ClassDefinition simqle = model.getClassDef("Simqle");
-        final ClassDefinition simqleGeneric = model.getClassDef("SimqleGeneric");
 
         Utils.createParser(simqle.toString()).SimqleDeclarationBlock();
-        System.out.println(simqleGeneric.toString());
-        Utils.createParser(simqleGeneric.toString()).SimqleDeclarationBlock();
 
     }
 

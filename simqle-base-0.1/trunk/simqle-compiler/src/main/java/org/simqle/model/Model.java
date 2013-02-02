@@ -21,7 +21,8 @@ public class Model {
     public Model() {
         try {
             addClass(createSimqleClass(SIMQLE_SOURCE));
-            addClass(createSimqleClass(SIMQLE_GENERIC_SOURCE));
+            addInterface(createSimqleInterface(DIALECT_SOURCE));
+            addClass(createSimqleClass(GENERIC_DIALECT_SOURCE));
         } catch (ModelException e) {
             throw new RuntimeException("Internal error", e);
         }
@@ -160,18 +161,26 @@ public class Model {
         return getClassDef(t.getSimpleName());
     }
 
-    private final static String SIMQLE_SOURCE = "public abstract class Simqle {" + Utils.LINE_BREAK +
-            "    public static Simqle get() { " + Utils.LINE_BREAK +
-            "        return SimqleGeneric.get(); " + Utils.LINE_BREAK +
-            "    }" + Utils.LINE_BREAK +
+    private final static String SIMQLE_SOURCE = "import org.simqle.*;" + Utils.LINE_BREAK +
+            "import static org.simqle.SqlTerm.*;" + Utils.LINE_BREAK +
+            "public final class Simqle {" + Utils.LINE_BREAK +  Utils.LINE_BREAK +
+            "    private static final Simqle instance = new Simqle();"  + Utils.LINE_BREAK +
+            "    private Simqle() {}"  + Utils.LINE_BREAK +
+            "    public static Simqle get() {"  + Utils.LINE_BREAK +
+            "         return instance;"  + Utils.LINE_BREAK +
+            "    }"  + Utils.LINE_BREAK +
             "}";
 
-    private final static String SIMQLE_GENERIC_SOURCE = "import org.simqle.*;" + Utils.LINE_BREAK +
+    private final static String DIALECT_SOURCE = "import org.simqle.Sql;" + Utils.LINE_BREAK +
+            "public interface Dialect {" + Utils.LINE_BREAK +
+            "}";
+
+    private final static String GENERIC_DIALECT_SOURCE = "import org.simqle.Sql;" + Utils.LINE_BREAK +
             "import static org.simqle.SqlTerm.*;" + Utils.LINE_BREAK +
-            "public class SimqleGeneric extends Simqle {" + Utils.LINE_BREAK +  Utils.LINE_BREAK +
-            "    private static final SimqleGeneric instance = new SimqleGeneric();"  + Utils.LINE_BREAK +
-            "    private SimqleGeneric() {}"  + Utils.LINE_BREAK +
-            "    public static SimqleGeneric get() {"  + Utils.LINE_BREAK +
+            "public class GenericDialect implements Dialect {" + Utils.LINE_BREAK +  Utils.LINE_BREAK +
+            "    private static final GenericDialect instance = new GenericDialect();"  + Utils.LINE_BREAK +
+            "    private GenericDialsec() {}"  + Utils.LINE_BREAK +
+            "    public static Dialect get() {"  + Utils.LINE_BREAK +
             "         return instance;"  + Utils.LINE_BREAK +
             "    }"  + Utils.LINE_BREAK +
             "}";
@@ -195,6 +204,24 @@ public class Model {
         }
     }
 
+    private static InterfaceDefinition createSimqleInterface(String source) {
+        final SimpleNode node;
+        try {
+            node = Utils.createParser(
+                    source
+            ).SimqleUnit();
+        } catch (ParseException e) {
+            throw new RuntimeException("Internal error", e);
+        }
+        SyntaxTree root = new SyntaxTree(node, "source code");
+
+        final SyntaxTree simqleTree = root.find("SimqleDeclarationBlock.SimqleDeclaration.SimqleInterfaceDeclaration").get(0);
+        try {
+            return new InterfaceDefinition(simqleTree);
+        } catch (GrammarException e) {
+            throw new RuntimeException("Internal error", e);
+        }
+    }
 }
 
 

@@ -31,7 +31,7 @@ public abstract class AbstractTypeDefinition {
     private final String comment;
 
     protected AbstractTypeDefinition(SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SimqleInterfaceDeclaration", "NormalClassDeclaration", "ProductionRule");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SimqleInterfaceDeclaration", "NormalClassDeclaration", "ProductionImplementation");
 
         this.importLines = new TreeSet<String>(node.find("^.^.ImportDeclaration", SyntaxTree.BODY));
         // modifiers may be of interface or class; one of collections is empty
@@ -106,7 +106,7 @@ public abstract class AbstractTypeDefinition {
 
     public void addMethod(MethodDefinition methodDefinition) throws ModelException {
         if (null != methods.put(methodDefinition.signature(), methodDefinition)) {
-            throw new ModelException("Duplicate method: "+methodDefinition.signature());
+            throw new ModelException("Duplicate method: "+methodDefinition.signature() + " in " + getName());
         }
     }
 

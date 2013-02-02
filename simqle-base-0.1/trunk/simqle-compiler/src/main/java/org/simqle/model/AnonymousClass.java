@@ -28,7 +28,7 @@ public class AnonymousClass extends AbstractTypeDefinition {
         super(node);
 
         final Type defaultExtended = node.find("^.^.ClassOrInterfaceType", Type.CONSTRUCT).get(0);
-        final List<Type> overridingExtended = node.find("^.ProductionImplementation.ClassOrInterfaceType", Type.CONSTRUCT);
+        final List<Type> overridingExtended = node.find("ClassOrInterfaceType", Type.CONSTRUCT);
 
         extended = overridingExtended.isEmpty() ? defaultExtended : overridingExtended.get(0);
     }

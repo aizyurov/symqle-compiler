@@ -18,7 +18,6 @@ public class ImplicitDeclarationProcessor implements Processor {
         final ClassDefinition simqleGeneric;
         try {
             simqle = model.getClassDef("Simqle");
-            simqleGeneric = model.getClassDef("SimqleGeneric");
         } catch (ModelException e) {
             throw new IllegalStateException(e);
         }
@@ -42,10 +41,9 @@ public class ImplicitDeclarationProcessor implements Processor {
                     .append(argument)
                     .append(")")
                     .append(methodBody);
-            MethodDefinition method = MethodDefinition.parse(builder.toString(), simqleGeneric);
+            MethodDefinition method = MethodDefinition.parse(builder.toString(), simqle);
             try {
-                simqleGeneric.addMethod(method);
-                method.pullUpAbstractMethod(simqle);
+                simqle.addMethod(method);
                 model.addImplicitMethod(method);
             } catch (ModelException e) {
                 throw new GrammarException(e, methodNode);

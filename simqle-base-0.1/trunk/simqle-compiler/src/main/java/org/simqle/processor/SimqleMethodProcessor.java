@@ -23,22 +23,19 @@ public class SimqleMethodProcessor implements Processor {
         final ClassDefinition simqleGeneric;
         try {
             simqle = model.getClassDef("Simqle");
-            simqleGeneric = model.getClassDef("SimqleGeneric");
         } catch (ModelException e) {
             throw new IllegalStateException(e);
         }
 
         for (SyntaxTree methodNode: tree.find("SimqleDeclarationBlock.SimqleDeclaration.MethodDeclaration")) {
-            MethodDefinition method = new MethodDefinition(methodNode, simqleGeneric);
+            MethodDefinition method = new MethodDefinition(methodNode, simqle);
             List<String> declarationImports = methodNode.find("^.^.ImportDeclaration", SyntaxTree.BODY);
             try {
-                simqleGeneric.addMethod(method);
-                // private methods are for SimqleGeneric only
-                // protected can be overridden in dialects
-                // only public and package scope go to Simqle
+                simqle.addMethod(method);
+                // private and protected methods are not ExplicitMethods
+                // protected make no sense because Simqle is final
                 if (!method.getAccessModifier().equals("private") && !method.getAccessModifier().equals("protected"))
                 {
-                    method.pullUpAbstractMethod(simqle);
                     model.addExplicitMethod(simqle.getDeclaredMethodBySignature(method.signature()), declarationImports);
                 }
             } catch (ModelException e) {

@@ -30,18 +30,13 @@ public class SimqleMethodProcessorTest extends TestCase {
         new ProductionDeclarationProcessor().process(syntaxTree, model);
         new SimqleMethodProcessor().process(syntaxTree, model);
         final ClassDefinition simqle = model.getClassDef("Simqle");
-        final ClassDefinition simqleGeneric = model.getClassDef("SimqleGeneric");
 
-        final MethodDefinition listDecl = simqle.getMethodBySignature("list(SelectStatement,Database)", model);
-        assertEquals("public abstract List<T> list(final SelectStatement statement, final Database database)", listDecl.declaration());
-        assertEquals("public abstract List<T> list(final SelectStatement statement, final Database database);", TestUtils.pureCode(listDecl.toString()));
-
-        final MethodDefinition list = simqleGeneric.getMethodBySignature("list(SelectStatement,Database)", model);
-        assertEquals("public List<T> list(final SelectStatement statement, final Database database)", list.declaration());
+        final MethodDefinition list = simqle.getMethodBySignature("list(SelectStatement,Database)", model);
         assertEquals(TestUtils.pureCode("public List<T> list(final SelectStatement statement, final Database database) {\n" +
                 "    final SqlContext context = new SqlContext();\n" +
                 "    return database.list(statement.z$create$SelectStatement(context));\n" +
                 "}"), TestUtils.pureCode(list.toString()));
+
     }
 
     public void testImplicitConversion() throws Exception {
@@ -51,7 +46,7 @@ public class SimqleMethodProcessorTest extends TestCase {
         new ClassDeclarationProcessor().process(tree, model);
         new ProductionDeclarationProcessor().process(tree, model);
         new ImplicitDeclarationProcessor().process(tree, model);
-        System.out.println(model.getClassDef("SimqleGeneric"));
+        System.out.println(model.getClassDef("Simqle"));
     }
 
     private SyntaxTree readSyntaxTree(String source) throws FileNotFoundException, ParseException {
