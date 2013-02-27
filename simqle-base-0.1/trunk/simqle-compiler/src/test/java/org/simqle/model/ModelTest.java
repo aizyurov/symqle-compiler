@@ -1,6 +1,7 @@
 package org.simqle.model;
 
 import junit.framework.TestCase;
+import org.simqle.util.ModelUtils;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ import java.util.List;
 public class ModelTest extends TestCase {
 
     public void testConstructor() throws Exception {
-        Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
         assertEquals(2, model.getAllClasses().size());
         assertEquals(1, model.getAllInterfaces().size());
         final ClassDefinition simqle = model.getClassDef("Simqle");

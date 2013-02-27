@@ -9,6 +9,7 @@ import org.simqle.processor.GrammarException;
 import org.simqle.processor.InterfaceDeclarationsProcessor;
 import org.simqle.processor.ProductionDeclarationProcessor;
 import org.simqle.test.TestUtils;
+import org.simqle.util.ModelUtils;
 import org.simqle.util.Utils;
 
 import java.io.FileInputStream;
@@ -22,9 +23,9 @@ import java.io.Reader;
 public class ProductionsTest extends TestCase {
 
     public void testBasicProduction() throws Exception {
+        final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/BasicProduction.sdl";
         final SyntaxTree syntaxTree = readSyntaxTree(source);
-        final Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
@@ -55,9 +56,9 @@ public class ProductionsTest extends TestCase {
     }
 
     public void testProductionWithOverride() throws Exception {
+        final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/ProductionWithOverride.sdl";
         final SyntaxTree syntaxTree = readSyntaxTree(source);
-        final Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
@@ -87,9 +88,9 @@ public class ProductionsTest extends TestCase {
     }
 
     public void testProductionWithScalar() throws Exception {
+        final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/ProductionWithScalar.sdl";
         final SyntaxTree syntaxTree = readSyntaxTree(source);
-        final Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
@@ -125,8 +126,8 @@ public class ProductionsTest extends TestCase {
     }
 
     public void testInterfaceMisspelling() throws Exception {
+        final Model model = ModelUtils.prepareModel();
         SyntaxTree syntaxTree = readSyntaxTree("src/test-data/model/UnknownInterfaceInProduction.sdl");
-        Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
         try {
@@ -139,8 +140,8 @@ public class ProductionsTest extends TestCase {
     }
 
     public void testParentheses() throws Exception {
+        final Model model = ModelUtils.prepareModel();
         SyntaxTree syntaxTree = readSyntaxTree("src/test-data/model/Parentheses.sdl");
-        Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
         ClassDefinition simqle = model.getClassDef("Simqle");
@@ -166,9 +167,9 @@ public class ProductionsTest extends TestCase {
     }
 
     public void testProductionWithPropertyGetter() throws Exception {
+        final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/ProductionWithProperties.sdl";
         final SyntaxTree syntaxTree = readSyntaxTree(source);
-        final Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);

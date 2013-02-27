@@ -1181,10 +1181,15 @@ SimpleNode ClassDeclaration():
 {
 }
 {
+   (
     LOOKAHEAD(ClassModifiers() "class")
      NormalClassDeclaration()
    |
      EnumDeclaration()
+   )
+    {
+        return jjtThis;
+    }
 }
 
 /* 8.1 */

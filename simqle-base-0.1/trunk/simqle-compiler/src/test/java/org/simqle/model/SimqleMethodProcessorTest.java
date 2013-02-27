@@ -6,6 +6,7 @@ import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.*;
 import org.simqle.test.TestUtils;
+import org.simqle.util.ModelUtils;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,9 +23,9 @@ import java.io.Reader;
 public class SimqleMethodProcessorTest extends TestCase {
 
     public void testList() throws Exception {
+        final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/SimqleMethod.sdl";
         final SyntaxTree syntaxTree = readSyntaxTree(source);
-        final Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
@@ -40,7 +41,7 @@ public class SimqleMethodProcessorTest extends TestCase {
     }
 
     public void testImplicitConversion() throws Exception {
-        Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
         SyntaxTree tree = readSyntaxTree("src/test-data/model/SmandaloneImplicit.sdl");
         new InterfaceDeclarationsProcessor().process(tree, model);
         new ClassDeclarationProcessor().process(tree, model);

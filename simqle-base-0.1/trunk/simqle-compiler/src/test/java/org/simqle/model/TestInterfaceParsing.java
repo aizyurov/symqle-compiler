@@ -7,6 +7,7 @@ import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 import org.simqle.processor.InterfaceDeclarationsProcessor;
 import org.simqle.processor.InterfaceValidator;
+import org.simqle.util.ModelUtils;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -62,7 +63,7 @@ public class TestInterfaceParsing extends TestCase {
 
     public void testChild1() throws Exception {
         final SyntaxTree syntaxTree = readSyntaxTree();
-        Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         final InterfaceDefinition child = model.getInterface("Child1");
         assertEquals("Child1", child.getName());
@@ -101,7 +102,7 @@ public class TestInterfaceParsing extends TestCase {
 
     public void testChild2() throws Exception {
         final SyntaxTree syntaxTree = readSyntaxTree();
-        Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         final InterfaceDefinition child = model.getInterface("Child2");
         assertEquals("Child2", child.getName());
@@ -130,7 +131,7 @@ public class TestInterfaceParsing extends TestCase {
 
     public void testChild3() throws Exception {
         final SyntaxTree syntaxTree = readSyntaxTree();
-        Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         final InterfaceDefinition child = model.getInterface("Child3");
         assertEquals("Child3", child.getName());
@@ -159,7 +160,7 @@ public class TestInterfaceParsing extends TestCase {
 
     public void testChild4() throws Exception {
         final SyntaxTree syntaxTree = readSyntaxTree();
-        Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         final InterfaceDefinition child = model.getInterface("Child4");
         assertEquals("Child4", child.getName());
@@ -188,7 +189,7 @@ public class TestInterfaceParsing extends TestCase {
 
     public void testChild5() throws Exception {
         final SyntaxTree syntaxTree = readSyntaxTree();
-        Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         final InterfaceDefinition child = model.getInterface("Child5");
         assertEquals("Child5", child.getName());
@@ -218,7 +219,7 @@ public class TestInterfaceParsing extends TestCase {
     public void testExplicitValueMethod() throws Exception {
         SimqleParser parser = new SimqleParser(new FileReader("src/test-data/ExplicitValueMethodDeclaration.sdl"));
         SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "ExplicitValueMethodDeclaration.sdl");
-        final Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
         try {
             new InterfaceDeclarationsProcessor().process(node, model);
             model.getInterface("expression").getAllMethods(model);
@@ -232,7 +233,7 @@ public class TestInterfaceParsing extends TestCase {
     public void testExplicitCreateMethod() throws Exception {
         SimqleParser parser = new SimqleParser(new FileReader("src/test-data/ExplicitCreateMethodDeclaration.sdl"));
         SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "ExplicitCreateMethodDeclaration.sdl");
-        final Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
         try {
             new InterfaceDeclarationsProcessor().process(node, model);
             model.getInterface("expression").getAllMethods(model);
@@ -246,7 +247,7 @@ public class TestInterfaceParsing extends TestCase {
     public void testDuplicateInterface() throws Exception {
         SimqleParser parser = new SimqleParser(new FileReader("src/test-data/DuplicateInterface.sdl"));
         SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "DuplicateInterface.sdl");
-        final Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
         try {
             new InterfaceDeclarationsProcessor().process(node, model);
             fail("GrammarException expected");
@@ -258,7 +259,7 @@ public class TestInterfaceParsing extends TestCase {
     public void testDuplicateMethodInInterface() throws Exception {
         SimqleParser parser = new SimqleParser(new FileReader("src/test-data/InterfaceMethodOverloading.sdl"));
         SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "InterfaceMethodOverloading.sdl");
-        final Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
         try {
             new InterfaceDeclarationsProcessor().process(node, model);
             new InterfaceValidator().process(node, model);

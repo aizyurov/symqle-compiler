@@ -43,7 +43,7 @@ public class ProductionDeclarationProcessor implements Processor {
                 dialect.addMethod(dialectMethod);
                 final MethodDefinition genericDialectMethod = dialectMethod.override(genericDialect, model);
                 genericDialectMethod.implement("public", " {" + Utils.LINE_BREAK +
-                        "        return " + productionRule.asConstructorInvocation() + Utils.LINE_BREAK +
+                        "        return concat(" + productionRule.asMethodArguments() + ");" + Utils.LINE_BREAK +
                         "    }", true
                 );
             } catch (ModelException e) {

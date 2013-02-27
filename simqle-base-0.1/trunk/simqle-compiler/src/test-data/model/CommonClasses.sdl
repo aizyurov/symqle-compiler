@@ -1,0 +1,44 @@
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import javax.sql.DataSource;
+import org.simqle.*;
+import org.simqle.Callback;
+import org.simqle.Pair;
+import org.simqle.Row;
+import org.simqle.jdbc.ResultSetRow;
+import org.simqle.jdbc.StatementParameters;
+import static org.simqle.SqlTerm.*;
+public final class Simqle  {
+    private static final Simqle instance = new Simqle();
+
+    private Simqle() {}
+
+    public static Simqle get() {
+         return instance;
+    }
+}
+
+
+import org.simqle.Sql;
+public interface Dialect  {
+}
+
+import org.simqle.CompositeSql;
+import org.simqle.Sql;
+import static org.simqle.SqlTerm.*;
+public class GenericDialect implements Dialect {
+
+    private static final GenericDialect instance = new GenericDialect();
+
+    private GenericDialect() {}
+
+    public static Dialect get() {
+         return instance;
+    }
+}

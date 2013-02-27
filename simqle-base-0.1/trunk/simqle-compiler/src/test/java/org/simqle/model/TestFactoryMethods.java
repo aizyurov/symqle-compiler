@@ -9,6 +9,7 @@ import org.simqle.processor.InheritanceProcessor;
 import org.simqle.processor.InterfaceDeclarationsProcessor;
 import org.simqle.processor.ProductionDeclarationProcessor;
 import org.simqle.processor.SimqleMethodProcessor;
+import org.simqle.util.ModelUtils;
 
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -20,11 +21,11 @@ import java.io.Reader;
 public class TestFactoryMethods extends TestCase {
 
     public void testSimple() throws Exception {
+        final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/SimpleFactoryMethod.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SimqleParser parser = new SimqleParser(reader);
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
-        final Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);

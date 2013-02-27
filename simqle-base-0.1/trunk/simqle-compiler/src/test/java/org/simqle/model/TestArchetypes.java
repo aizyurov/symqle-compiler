@@ -5,6 +5,7 @@ import org.simqle.parser.ParseException;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.InterfaceDeclarationsProcessor;
+import org.simqle.util.ModelUtils;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -25,7 +26,7 @@ public class TestArchetypes extends TestCase {
 
     public void testChild1() throws Exception {
         final SyntaxTree syntaxTree = readSyntaxTree();
-        Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         final InterfaceDefinition child = model.getInterface("Child1");
         assertEquals("Child1", child.getName());
@@ -70,7 +71,7 @@ public class TestArchetypes extends TestCase {
 
     public void testChild2() throws Exception {
         final SyntaxTree syntaxTree = readSyntaxTree();
-        Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         final InterfaceDefinition child = model.getInterface("Child2");
         assertEquals("Child2", child.getName());
@@ -88,7 +89,7 @@ public class TestArchetypes extends TestCase {
 
     public void testChild3() throws Exception {
         final SyntaxTree syntaxTree = readSyntaxTree();
-        Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         final InterfaceDefinition child = model.getInterface("Child3");
         assertEquals("Child3", child.getName());
@@ -106,7 +107,7 @@ public class TestArchetypes extends TestCase {
 
     public void testChild4() throws Exception {
         final SyntaxTree syntaxTree = readSyntaxTree();
-        Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         final InterfaceDefinition child = model.getInterface("Child4");
         System.out.println(child);

@@ -11,6 +11,7 @@ import org.simqle.processor.ClassDeclarationProcessor;
 import org.simqle.processor.GrammarException;
 import org.simqle.processor.InterfaceDeclarationsProcessor;
 import org.simqle.processor.Processor;
+import org.simqle.util.ModelUtils;
 
 import java.io.FileReader;
 
@@ -43,7 +44,7 @@ public class TestClassParsing extends TestCase {
     }
 
     public void testDuplicateClass() throws Exception {
-        Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
             SimqleParser parser = new SimqleParser(new FileReader("src/test-data/DuplicateClass.sdl"));
             SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "DuplicateClass.sdl");
         {
@@ -60,7 +61,7 @@ public class TestClassParsing extends TestCase {
     }
 
     public void testStandaloneClass() throws Exception {
-        Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
             SimqleParser parser = new SimqleParser(new FileReader("src/test-data/StandaloneClass.sdl"));
             SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "StandaloneClass.sdl");
         {
@@ -79,7 +80,7 @@ public class TestClassParsing extends TestCase {
 
 
     public void testUndefinedInterface() throws Exception {
-        Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
             SimqleParser parser = new SimqleParser(new FileReader("src/test-data/UndefinedInterface.sdl"));
             SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "UndefinedInterface.sdl");
         {
@@ -97,7 +98,7 @@ public class TestClassParsing extends TestCase {
     }
 
     public void testGeneratedMethodConflict() throws Exception {
-        Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
             SimqleParser parser = new SimqleParser(new FileReader("src/test-data/GeneratedMethodConflict.sdl"));
             SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "GeneratedMethodConflict.sdl");
         {
@@ -115,7 +116,7 @@ public class TestClassParsing extends TestCase {
     }
 
     public void testDuplicateMethod() throws Exception {
-        Model model = new Model();
+        final Model model = ModelUtils.prepareModel();
             SimqleParser parser = new SimqleParser(new FileReader("src/test-data/DuplicateMethod.sdl"));
             SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "DuplicateMEthod.sdl");
             new InterfaceDeclarationsProcessor().process(node, model);

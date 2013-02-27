@@ -27,14 +27,12 @@ public class ProductionRule {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "ProductionRule");
         StringBuilder nameBuilder = new StringBuilder();
         StringBuilder syntaxBuilder = new StringBuilder();
-        StringBuffer sqlCtrBuilder = new StringBuffer();
         elementNames = new ArrayList<String>();
         // exactly one
         Type targetType = node.find("^.^.ClassOrInterfaceType", Type.CONSTRUCT).get(0);
         final String targetTypeName = targetType.getSimpleName();
         syntaxBuilder.append(targetTypeName).append(" ::=");
         nameBuilder.append(targetType.getSimpleName()).append("_is");
-        sqlCtrBuilder.append("new CompositeSql(");
         final Type sqlType = new Type("Sql");
         // at most one type by syntax; no type if implicit (in this case it is targetType)
         for (SyntaxTree element: node.find("ProductionElement")) {
@@ -83,8 +81,8 @@ public class ProductionRule {
                 + "(" + Utils.format(formalParameters, "", ", ", "") +")";
     }
 
-    public String asConstructorInvocation() {
-        return "new CompositeSql(" + Utils.format(elementNames, "", ", ", "") +");";
+    public String asMethodArguments() {
+        return Utils.format(elementNames, "", ", ", "");
     }
 
     public List<FormalParameter> getFormalParameters() {

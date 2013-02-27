@@ -3,8 +3,13 @@ package org.simqle.model;
 import junit.framework.TestCase;
 import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
-import org.simqle.processor.*;
+import org.simqle.processor.ClassDeclarationProcessor;
+import org.simqle.processor.InheritanceProcessor;
+import org.simqle.processor.InterfaceDeclarationsProcessor;
+import org.simqle.processor.ProductionDeclarationProcessor;
+import org.simqle.processor.SimqleMethodProcessor;
 import org.simqle.test.TestUtils;
+import org.simqle.util.ModelUtils;
 
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -20,11 +25,11 @@ import java.io.Reader;
 public class InheritanceTest extends TestCase {
 
     public void testSimple() throws Exception {
+        final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/SimpleInheritance.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SimqleParser parser = new SimqleParser(reader);
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
-        final Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
@@ -43,11 +48,11 @@ public class InheritanceTest extends TestCase {
     }
 
     public void testChain() throws Exception {
+        final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/ChainInheritance.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SimqleParser parser = new SimqleParser(reader);
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
-        final Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
@@ -74,11 +79,11 @@ public class InheritanceTest extends TestCase {
     }
 
     public void testCyclic() throws Exception {
+        final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/CyclicInheritance.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SimqleParser parser = new SimqleParser(reader);
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
-        final Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
@@ -92,11 +97,11 @@ public class InheritanceTest extends TestCase {
     }
 
     public void testGenerics() throws Exception {
+        final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/GenericsInImplicits.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SimqleParser parser = new SimqleParser(reader);
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
-        final Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
@@ -110,11 +115,11 @@ public class InheritanceTest extends TestCase {
     }
 
     public void testDependentInterface() throws Exception {
+        final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/DependsPropagation.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SimqleParser parser = new SimqleParser(reader);
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
-        final Model model = new Model();
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
         for (ClassDefinition classDef: model.getAllClasses()) {

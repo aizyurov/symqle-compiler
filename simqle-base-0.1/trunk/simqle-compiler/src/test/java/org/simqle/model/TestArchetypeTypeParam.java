@@ -5,6 +5,7 @@ import org.simqle.parser.SimqleParser;
 import org.simqle.parser.SyntaxTree;
 import org.simqle.processor.GrammarException;
 import org.simqle.processor.InterfaceDeclarationsProcessor;
+import org.simqle.util.ModelUtils;
 
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -16,11 +17,11 @@ import java.io.Reader;
 public class TestArchetypeTypeParam extends TestCase {
 
     public void testNoQueryParam() throws Exception {
+        final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/ArchetypeNoQueryParam.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SimqleParser parser = new SimqleParser(reader);
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
-        Model model = new Model();
         try {
             new InterfaceDeclarationsProcessor().process(syntaxTree, model);
             fail("GrammarException expected");
@@ -30,11 +31,11 @@ public class TestArchetypeTypeParam extends TestCase {
     }
 
     public void testSqlParam() throws Exception {
+        final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/ArchetypeSqlParam.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SimqleParser parser = new SimqleParser(reader);
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
-        Model model = new Model();
         try {
             new InterfaceDeclarationsProcessor().process(syntaxTree, model);
             fail("GrammarException expected");
@@ -44,11 +45,11 @@ public class TestArchetypeTypeParam extends TestCase {
     }
 
     public void testIllegalMethodName() throws Exception {
+        final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/ArchetypeIllegalMethodName.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SimqleParser parser = new SimqleParser(reader);
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
-        Model model = new Model();
         try {
             new InterfaceDeclarationsProcessor().process(syntaxTree, model);
             fail("GrammarException expected");
