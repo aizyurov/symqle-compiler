@@ -5,13 +5,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.simqle</groupId>
-  <artifactId>simqle-base</artifactId>
-  <version>0.0</version>
+  <artifactId>simqle-tools</artifactId>
+  <version>0.1</version>
   <packaging>pom</packaging>
-  <name>simqle-compiler</name>
+  <name>simqle-tools</name>
 
   <modules>
-    <module>simqle-core</module>
     <module>simqle-compiler</module>
     <module>simqle-compiler-plugin</module>
   </modules>
