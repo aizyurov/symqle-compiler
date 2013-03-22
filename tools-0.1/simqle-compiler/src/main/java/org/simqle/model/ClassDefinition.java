@@ -85,7 +85,8 @@ public class ClassDefinition extends AbstractTypeDefinition {
     public void makeAbstractIfNeeded(Model model) throws ModelException {
         for (MethodDefinition method: getAllMethods(model)) {
             if (method.getOtherModifiers().contains("abstract") ||
-                    method.getOtherModifiers().contains("transient")) {
+                    ( method.getOtherModifiers().contains("transient") && method.isAbstract())) {
+                System.out.println(getName()+ " made abstract due to "+method);
                 makeAbstract();
 
                 return;
