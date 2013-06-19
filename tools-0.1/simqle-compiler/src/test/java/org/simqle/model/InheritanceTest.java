@@ -39,7 +39,7 @@ public class InheritanceTest extends TestCase {
 //        System.out.println(cursorSpec);
         MethodDefinition delegatedMethod = cursorSpec.getDeclaredMethodBySignature("z$create$zSelectStatement(SqlContext)");
         assertEquals(TestUtils.pureCode
-                ("public Query<T> z$create$zSelectStatement(final SqlContext context) {\n" +
+                ("public final Query<T> z$create$zSelectStatement(final SqlContext context) {\n" +
                 "                return Simqle.get()\n" +
                 "                    .z$zSelectStatement$from$zCursorSpecification(this)\n" +
                 "                    .z$create$zSelectStatement(context);\n" +
@@ -62,7 +62,7 @@ public class InheritanceTest extends TestCase {
         System.out.println(queryExpr);
         final MethodDefinition asCursorSpec = queryExpr.getDeclaredMethodBySignature("z$create$zCursorSpecification(SqlContext)");
         assertEquals(TestUtils.pureCode(
-                "public Query<T> z$create$zCursorSpecification(final SqlContext context) {\n" +
+                "public final Query<T> z$create$zCursorSpecification(final SqlContext context) {\n" +
                         "                return Simqle.get()\n" +
                         "                    .z$zCursorSpecification$from$zQueryExpression(this)\n" +
                         "                    .z$create$zCursorSpecification(context);\n" +
@@ -70,7 +70,7 @@ public class InheritanceTest extends TestCase {
         ), TestUtils.pureCode(asCursorSpec.toString()));
         final MethodDefinition asSelectStatement = queryExpr.getDeclaredMethodBySignature("z$create$zSelectStatement(SqlContext)");
         assertEquals(TestUtils.pureCode(
-                "public Query<T> z$create$zSelectStatement(final SqlContext context) {\n" +
+                "public final Query<T> z$create$zSelectStatement(final SqlContext context) {\n" +
                         "                return Simqle.get()\n" +
                         "                    .z$zSelectStatement$from$zCursorSpecification(this)\n" +
                         "                    .z$create$zSelectStatement(context);\n" +

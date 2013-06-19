@@ -326,10 +326,10 @@ public class MethodDefinition {
     }
 
     public void implement(final String newAccessModifier, final String newBody)  throws ModelException {
-        implement(newAccessModifier, newBody, false);
+        implement(newAccessModifier, newBody, false, true);
     }
 
-    public void implement(final String newAccessModifier, final String newBody, boolean makeParametersFinal) throws ModelException {
+    public void implement(final String newAccessModifier, final String newBody, boolean makeParametersFinal, boolean makeMethodFinal) throws ModelException {
         final Collection<FormalParameter> newFormalParameters = makeParametersFinal ?
                 Utils.map(formalParameters, new F<FormalParameter, FormalParameter, RuntimeException>() {
                     @Override
@@ -341,6 +341,9 @@ public class MethodDefinition {
         final Set<String> newModifiers = new HashSet<String>(otherModifiers);
         newModifiers.remove("abstract");
         newModifiers.remove("transient");
+        if (makeMethodFinal) {
+            newModifiers.add("final");
+        }
         owner.addMethod(
         new MethodDefinition(
                 comment,

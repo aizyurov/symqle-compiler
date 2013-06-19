@@ -109,7 +109,7 @@ public class InheritanceProcessor implements ModelProcessor {
                                         methodDef.invoke("Simqle.get()"+Utils.LINE_BREAK+"                    ",
                                                 Collections.singletonList("this"))+Utils.LINE_BREAK+"                    ") +
                                 ";" + Utils.LINE_BREAK+"            "+"}"+Utils.LINE_BREAK,
-                                true);
+                                true, true);
                     }
                 }
             }

@@ -44,7 +44,7 @@ public class ProductionDeclarationProcessor implements Processor {
                 final MethodDefinition genericDialectMethod = dialectMethod.override(genericDialect, model);
                 genericDialectMethod.implement("public", " {" + Utils.LINE_BREAK +
                         "        return concat(" + productionRule.asMethodArguments() + ");" + Utils.LINE_BREAK +
-                        "    }", true
+                        "    }", true, false
                 );
             } catch (ModelException e) {
                 throw new GrammarException(e, productionRuleNode);
@@ -104,7 +104,7 @@ public class ProductionDeclarationProcessor implements Processor {
                             } else {
                                 delegationCall = delegateToLeftmostArg(model, productionImpl, method);
                             }
-                            method.implement("public", delegationCall, true);
+                            method.implement("public", delegationCall, true, false);
                         }
                     }
                     methodToImplement.implement(methodToImplement.getAccessModifier(),
@@ -112,7 +112,7 @@ public class ProductionDeclarationProcessor implements Processor {
                                     "        return new "+methodToImplement.getResultType()+"()" +
                             anonymousClass.instanceBodyAsString() + ";/*anonymous*/"+ Utils.LINE_BREAK +
                             "    }/*rule method*/"+Utils.LINE_BREAK,
-                            true);
+                            true, false);
                 } catch (ModelException e) {
                     throw new GrammarException(e, productionImplNode);
                 }
