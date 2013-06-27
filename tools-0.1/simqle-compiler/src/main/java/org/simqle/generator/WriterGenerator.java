@@ -4,11 +4,7 @@ import org.simqle.model.AbstractTypeDefinition;
 import org.simqle.model.Model;
 import org.simqle.util.Utils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 
 /**
  * @author lvovich
@@ -31,12 +27,16 @@ public class WriterGenerator implements Generator {
         targetDir.mkdirs();
         for (AbstractTypeDefinition def: model.getAllTypes()) {
             final String fileName = def.getName() + ".java";
-            Writer out = new OutputStreamWriter(new FileOutputStream(new File(targetDir, fileName)));
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(targetDir, fileName))));
             try {
+                out.print("/* THIS CODE IS GENERATED FROM ");
+                out.print(def.getSourceFile().getName());
+                out.println(". ALL CHANGES WILL BE LOST */");
+                out.println();
                 out.write("package ");
                 out.write(packageName);
                 out.write(";");
-                out.write(Utils.LINE_BREAK);
+                out.println(Utils.LINE_BREAK);
                 out.write(def.toString());
             } finally {
                 out.close();

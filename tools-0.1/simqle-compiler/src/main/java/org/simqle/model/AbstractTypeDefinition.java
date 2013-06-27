@@ -8,6 +8,7 @@ import org.simqle.processor.GrammarException;
 import org.simqle.util.Assert;
 import org.simqle.util.Utils;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -24,6 +25,7 @@ public abstract class AbstractTypeDefinition {
     private final Map<String, MethodDefinition> methods = new TreeMap<String, MethodDefinition>();
     private final List<String> otherDeclarations = new ArrayList<String>();
     private final List<String> annotations;
+    private final String sourceFile;
 
     private static int anonymousClassCounter = 0;
 
@@ -85,6 +87,7 @@ public abstract class AbstractTypeDefinition {
             }
         }
         comment = node.getComments();
+        sourceFile = node.getFileName();
     }
 
     public void addFieldDeclaration(FieldDeclaration declaration) {
@@ -146,6 +149,10 @@ public abstract class AbstractTypeDefinition {
 
     public final MethodDefinition getDeclaredMethodBySignature(String signature) {
         return methods.get(signature);
+    }
+
+    public File getSourceFile() {
+        return new File(sourceFile);
     }
 
     public String toString() {
