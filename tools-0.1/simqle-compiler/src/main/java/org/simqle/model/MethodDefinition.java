@@ -405,4 +405,8 @@ public class MethodDefinition {
     public Set<Type> getThrownExceptions() {
         return thrownExceptions;
     }
+
+    public String getComment() {
+        return comment;
+    }
 }

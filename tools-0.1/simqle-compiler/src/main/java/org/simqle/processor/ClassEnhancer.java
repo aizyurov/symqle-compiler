@@ -3,6 +3,11 @@ package org.simqle.processor;
 import org.simqle.model.*;
 import org.simqle.util.Utils;
 
+import java.io.BufferedReader;
+import java.io.CharArrayWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -150,7 +155,25 @@ public class ClassEnhancer implements ModelProcessor {
         }
         Set<String> myModifiers = new HashSet<String>(simqleMethod.getOtherModifiers());
         myModifiers.add("abstract");
+        final BufferedReader reader = new BufferedReader(new StringReader(simqleMethod.getComment()));
+        final CharArrayWriter charArrayWriter = new CharArrayWriter();
+        final PrintWriter writer = new PrintWriter(charArrayWriter);
+        try {
+            for (String s = reader.readLine(); s != null; s = reader.readLine()) {
+                // expecting at most one class type parameter
+                if (!classDef.getTypeParameters().isEmpty() && s.contains("@param "+classDef.getTypeParameters().toString())) {
+                    continue;
+                }
+                writer.println(s.replace("@param "+simqleMethod.getFormalParameters().get(0).getName(), "{@code this}"));
+            }
+            writer.close();
+            reader.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Internal error", e);
+        }
+
         final StringBuilder builder = new StringBuilder();
+        builder.append(charArrayWriter.toString().replaceAll("\\s$", ""));
         builder.append(Utils.LINE_BREAK).append("    ");
         builder.append(simqleMethod.getAccessModifier())
                 .append(" ")
