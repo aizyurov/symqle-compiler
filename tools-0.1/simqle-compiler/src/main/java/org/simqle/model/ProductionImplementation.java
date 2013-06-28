@@ -25,6 +25,7 @@ public class ProductionImplementation {
     private final String name;
     private final boolean implicit;
     private final String accessModifier;
+    private final String comment;
 
     public ProductionImplementation(SyntaxTree node) throws GrammarException {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "ProductionImplementation");
@@ -64,6 +65,7 @@ public class ProductionImplementation {
                 node.find("Identifier", SyntaxTree.VALUE).get(0);
         // implicit methods are package scope; others may have any access modifier
         accessModifier = implicit ? "" : Utils.getAccessModifier(node.find("MethodModifiers.MethodModifier"));
+        comment = node.find("^.ProductionRule").get(0).getComments();
     }
 
     public String generatedComment() {
@@ -185,4 +187,7 @@ public class ProductionImplementation {
 
     }
 
+    public String getComment() {
+        return comment;
+    }
 }

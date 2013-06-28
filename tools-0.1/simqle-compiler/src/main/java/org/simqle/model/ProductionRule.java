@@ -77,7 +77,7 @@ public class ProductionRule {
     }
 
     public String asAbstractMethodDeclaration() {
-        return "Sql " + name
+        return generatedComment()+"Sql " + name
                 + "(" + Utils.format(formalParameters, "", ", ", "") +")";
     }
 

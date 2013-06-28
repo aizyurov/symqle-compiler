@@ -65,7 +65,7 @@ public class ProductionDeclarationProcessor implements Processor {
                     }
                 }
                 String abstractMethodDeclaration =
-                        productionImpl.generatedComment() +
+                        productionImpl.getComment() +
                         productionImpl.asAbstractMethodDeclaration()+";";
                 final MethodDefinition methodToImplement = MethodDefinition.parse(abstractMethodDeclaration, simqle);
                 if (productionImpl.isImplicit()) {
