@@ -26,8 +26,8 @@ boolean_expression ::= expr:expression_<Boolean> { return new boolean_expression
              expr.z$prepare$expression_(myContext);
         }
         @Override
-        public Sql z$create$boolean_expression(final SqlContext myContext) {
-            return new CompositeSql(expr.z$create$expression_(myContext));
+        public Sql z$sqlOfboolean_expression(final SqlContext myContext) {
+            return new CompositeSql(expr.z$sqlOfexpression_(myContext));
         }
     };
 }
@@ -45,8 +45,8 @@ BooleanExpression mimics Expression<Boolean>
              myBuilder.z$prepare$boolean_expression(myContext);
     }
     @Override
-    public Sql z$create$boolean_expression(final SqlContext myContext) {
-        return new CompositeSql(myBuilder.z$create$boolean_expression(myContext));
+    public Sql z$sqlOfboolean_expression(final SqlContext myContext) {
+        return new CompositeSql(myBuilder.z$sqlOfboolean_expression(myContext));
     }
 
     @Override

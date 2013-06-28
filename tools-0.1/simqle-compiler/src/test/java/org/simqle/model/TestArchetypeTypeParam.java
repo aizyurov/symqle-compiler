@@ -54,7 +54,7 @@ public class TestArchetypeTypeParam extends TestCase {
             new InterfaceDeclarationsProcessor().process(syntaxTree, model);
             fail("GrammarException expected");
         } catch (GrammarException e) {
-            assertTrue(e.getMessage(), e.getMessage().startsWith("Prefix \"z$create$\" is reserved for generated methods"));
+            assertTrue(e.getMessage(), e.getMessage().startsWith("Prefix \"z$sqlOf\" is reserved for generated methods"));
         }
     }
 

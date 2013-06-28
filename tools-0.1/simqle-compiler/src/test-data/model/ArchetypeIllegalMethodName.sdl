@@ -1,3 +1,3 @@
 public interface Bad {
-    void z$create$Something(int i);
+    void z$sqlOfSomething(int i);
 }

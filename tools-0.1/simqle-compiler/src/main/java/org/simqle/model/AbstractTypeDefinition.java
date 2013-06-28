@@ -192,9 +192,11 @@ public abstract class AbstractTypeDefinition {
         // so we are putting everything but methods before methods
         for (String otherDeclaration: otherDeclarations) {
             builder.append(otherDeclaration).append(Utils.LINE_BREAK);
+            builder.append(Utils.LINE_BREAK);
         }
         for (MethodDefinition method: methods.values()) {
             builder.append(method);
+            builder.append(Utils.LINE_BREAK);
             builder.append(Utils.LINE_BREAK);
         }
         return builder.toString();

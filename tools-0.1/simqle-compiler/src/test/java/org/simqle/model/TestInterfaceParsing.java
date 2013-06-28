@@ -240,7 +240,7 @@ public class TestInterfaceParsing extends TestCase {
             fail("ModelException expected");
         } catch (GrammarException e) {
             // expected
-            assertTrue(e.getMessage(), e.getMessage().startsWith("Prefix \"z$create$\" is reserved for generated methods"));
+            assertTrue(e.getMessage(), e.getMessage().startsWith("Prefix \"z$sqlOf\" is reserved for generated methods"));
         }
     }
 

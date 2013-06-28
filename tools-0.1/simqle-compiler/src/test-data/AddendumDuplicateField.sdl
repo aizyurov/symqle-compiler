@@ -24,8 +24,8 @@ public class BooleanExpression implements boolean_expression
              myBuilder.z$prepare$boolean_expression(myContext);
     }
     @Override
-    public Sql z$create$boolean_expression(final SqlContext myContext) {
-        return new CompositeSql(myBuilder.z$create$boolean_expression(myContext));
+    public Sql z$sqlOfboolean_expression(final SqlContext myContext) {
+        return new CompositeSql(myBuilder.z$sqlOfboolean_expression(myContext));
     }
 
     @Override
@@ -44,8 +44,8 @@ boolean_expression ::= expr:expression_<Boolean> { return new boolean_expression
              expr.z$prepare$expression(myContext);
         }
         @Override
-        public Sql z$create$boolean_expression(final SqlContext myContext) {
-            return new CompositeSql(expr.z$create$expression(myContext));
+        public Sql z$sqlOfboolean_expression(final SqlContext myContext) {
+            return new CompositeSql(expr.z$sqlOfexpression(myContext));
         }
     };
 }

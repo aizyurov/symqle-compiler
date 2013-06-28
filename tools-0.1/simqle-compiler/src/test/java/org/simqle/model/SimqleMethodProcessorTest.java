@@ -35,7 +35,7 @@ public class SimqleMethodProcessorTest extends TestCase {
         final MethodDefinition list = simqle.getMethodBySignature("list(SelectStatement,Database)", model);
         assertEquals(TestUtils.pureCode("public List<T> list(final SelectStatement statement, final Database database) {\n" +
                 "    final SqlContext context = new SqlContext();\n" +
-                "    return database.list(statement.z$create$SelectStatement(context));\n" +
+                "    return database.list(statement.z$sqlOfSelectStatement(context));\n" +
                 "}"), TestUtils.pureCode(list.toString()));
 
     }

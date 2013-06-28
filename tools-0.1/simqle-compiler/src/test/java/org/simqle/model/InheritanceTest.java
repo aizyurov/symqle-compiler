@@ -37,12 +37,12 @@ public class InheritanceTest extends TestCase {
         new InheritanceProcessor().process(model);
         final ClassDefinition cursorSpec = model.getClassDef("CursorSpecification");
 //        System.out.println(cursorSpec);
-        MethodDefinition delegatedMethod = cursorSpec.getDeclaredMethodBySignature("z$create$zSelectStatement(SqlContext)");
+        MethodDefinition delegatedMethod = cursorSpec.getDeclaredMethodBySignature("z$sqlOfzSelectStatement(SqlContext)");
         assertEquals(TestUtils.pureCode
-                ("public final Query<T> z$create$zSelectStatement(final SqlContext context) {\n" +
+                ("public final Query<T> z$sqlOfzSelectStatement(final SqlContext context) {\n" +
                 "                return Simqle.get()\n" +
                 "                    .z$zSelectStatement$from$zCursorSpecification(this)\n" +
-                "                    .z$create$zSelectStatement(context);\n" +
+                "                    .z$sqlOfzSelectStatement(context);\n" +
                 "            }"), TestUtils.pureCode(delegatedMethod.toString()));
 
     }
@@ -60,20 +60,20 @@ public class InheritanceTest extends TestCase {
         new InheritanceProcessor().process(model);
         ClassDefinition queryExpr = model.getClassDef("QueryExpression");
         System.out.println(queryExpr);
-        final MethodDefinition asCursorSpec = queryExpr.getDeclaredMethodBySignature("z$create$zCursorSpecification(SqlContext)");
+        final MethodDefinition asCursorSpec = queryExpr.getDeclaredMethodBySignature("z$sqlOfzCursorSpecification(SqlContext)");
         assertEquals(TestUtils.pureCode(
-                "public final Query<T> z$create$zCursorSpecification(final SqlContext context) {\n" +
+                "public final Query<T> z$sqlOfzCursorSpecification(final SqlContext context) {\n" +
                         "                return Simqle.get()\n" +
                         "                    .z$zCursorSpecification$from$zQueryExpression(this)\n" +
-                        "                    .z$create$zCursorSpecification(context);\n" +
+                        "                    .z$sqlOfzCursorSpecification(context);\n" +
                         "            }"
         ), TestUtils.pureCode(asCursorSpec.toString()));
-        final MethodDefinition asSelectStatement = queryExpr.getDeclaredMethodBySignature("z$create$zSelectStatement(SqlContext)");
+        final MethodDefinition asSelectStatement = queryExpr.getDeclaredMethodBySignature("z$sqlOfzSelectStatement(SqlContext)");
         assertEquals(TestUtils.pureCode(
-                "public final Query<T> z$create$zSelectStatement(final SqlContext context) {\n" +
+                "public final Query<T> z$sqlOfzSelectStatement(final SqlContext context) {\n" +
                         "                return Simqle.get()\n" +
                         "                    .z$zSelectStatement$from$zCursorSpecification(this)\n" +
-                        "                    .z$create$zSelectStatement(context);\n" +
+                        "                    .z$sqlOfzSelectStatement(context);\n" +
                         "            }"),
                 TestUtils.pureCode(asSelectStatement.toString()));
     }

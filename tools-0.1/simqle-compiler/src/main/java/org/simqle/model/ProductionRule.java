@@ -22,6 +22,7 @@ public class ProductionRule {
     private final String name;
     private final String syntax;
     private final List<String> elementNames;
+    private final String targetTypeName;
 
     public ProductionRule(SyntaxTree node) throws GrammarException {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "ProductionRule");
@@ -30,7 +31,7 @@ public class ProductionRule {
         elementNames = new ArrayList<String>();
         // exactly one
         Type targetType = node.find("^.^.ClassOrInterfaceType", Type.CONSTRUCT).get(0);
-        final String targetTypeName = targetType.getSimpleName();
+        targetTypeName = targetType.getSimpleName();
         syntaxBuilder.append(targetTypeName).append(" ::=");
         nameBuilder.append(targetType.getSimpleName()).append("_is");
         final Type sqlType = new Type("Sql");
@@ -40,8 +41,9 @@ public class ProductionRule {
             final Type type = typeList.isEmpty() ? null : typeList.get(0);
             final String name = element.find("Identifier").get(0).getValue();
             final String descriptiveName = type != null ? type.getSimpleName() : name;
+            final String syntaxElement = type != null ? name + ":" + descriptiveName : descriptiveName;
             nameBuilder.append("_").append(descriptiveName);
-            syntaxBuilder.append(" ").append(descriptiveName);
+            syntaxBuilder.append(" ").append(syntaxElement);
             if (type != null) {
                 formalParameters.add(
                         new FormalParameter(sqlType, name, Collections.singletonList("final"), false));

@@ -42,10 +42,10 @@ public class TestArchetypes extends TestCase {
             assertTrue(myMethod.isAbstract());
         }
         {
-            final MethodDefinition myMethod = child.getDeclaredMethodBySignature("z$create$Child1(SqlContext)");
+            final MethodDefinition myMethod = child.getDeclaredMethodBySignature("z$sqlOfChild1(SqlContext)");
             assertEquals("", myMethod.getAccessModifier());
             assertEquals(0, myMethod.getOtherModifiers().size());
-            assertEquals("Sql z$create$Child1(SqlContext context)", myMethod.declaration());
+            assertEquals("Sql z$sqlOfChild1(SqlContext context)", myMethod.declaration());
             assertTrue(myMethod.isPublic());
             assertTrue(myMethod.isAbstract());
         }
@@ -78,10 +78,10 @@ public class TestArchetypes extends TestCase {
         assertEquals(1, child.getDeclaredMethods().size());
         assertEquals(1, child.getAllMethods(model).size());
         {
-            final MethodDefinition myMethod = child.getDeclaredMethodBySignature("z$create$Child2(SqlContext)");
+            final MethodDefinition myMethod = child.getDeclaredMethodBySignature("z$sqlOfChild2(SqlContext)");
             assertEquals("", myMethod.getAccessModifier());
             assertEquals(0, myMethod.getOtherModifiers().size());
-            assertEquals("Query<T> z$create$Child2(SqlContext context)", myMethod.declaration());
+            assertEquals("Query<T> z$sqlOfChild2(SqlContext context)", myMethod.declaration());
             assertTrue(myMethod.isPublic());
             assertTrue(myMethod.isAbstract());
         }
@@ -96,10 +96,10 @@ public class TestArchetypes extends TestCase {
         assertEquals(1, child.getDeclaredMethods().size());
         assertEquals(1, child.getAllMethods(model).size());
         {
-            final MethodDefinition myMethod = child.getDeclaredMethodBySignature("z$create$Child3(SqlContext)");
+            final MethodDefinition myMethod = child.getDeclaredMethodBySignature("z$sqlOfChild3(SqlContext)");
             assertEquals("", myMethod.getAccessModifier());
             assertEquals(0, myMethod.getOtherModifiers().size());
-            assertEquals("Query<Boolean> z$create$Child3(SqlContext context)", myMethod.declaration());
+            assertEquals("Query<Boolean> z$sqlOfChild3(SqlContext context)", myMethod.declaration());
             assertTrue(myMethod.isPublic());
             assertTrue(myMethod.isAbstract());
         }
@@ -119,10 +119,10 @@ public class TestArchetypes extends TestCase {
         assertEquals(1, child.getDeclaredMethods().size());
         assertEquals(3, child.getAllMethods(model).size());
         {
-            final MethodDefinition myMethod = child.getDeclaredMethodBySignature("z$create$Child4(SqlContext)");
+            final MethodDefinition myMethod = child.getDeclaredMethodBySignature("z$sqlOfChild4(SqlContext)");
             assertEquals("", myMethod.getAccessModifier());
             assertEquals(0, myMethod.getOtherModifiers().size());
-            assertEquals("Query<Boolean> z$create$Child4(SqlContext context)", myMethod.declaration());
+            assertEquals("Query<Boolean> z$sqlOfChild4(SqlContext context)", myMethod.declaration());
             assertTrue(myMethod.isPublic());
             assertTrue(myMethod.isAbstract());
         }

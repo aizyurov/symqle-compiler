@@ -3,9 +3,9 @@ public interface select_list<T> : Query<T>
 
 <T,U> select_list<Pair<T,U>> ::= first:select_list<T> COMMA second:select_list<U> {
     return new select_list<Pair<T,U>>() {
-        public Query<Pair<T,U>> z$create$select_list(final SqlContext context) {
-            final Query<T> sql0 = arg0.z$create$select_list(context);
-            final Query<U> sql1 = arg1.z$create$select_list(context);
+        public Query<Pair<T,U>> z$sqlOfselect_list(final SqlContext context) {
+            final Query<T> sql0 = arg0.z$sqlOfselect_list(context);
+            final Query<U> sql1 = arg1.z$sqlOfselect_list(context);
             DataExtractor<Pair<T,U>> extractor = new DataExtractor<Pair<T, U>>() {
                 public Pair<T, U> extract(final Row row) throws SQLException {
                     final T first = sql0.extract(row);

@@ -11,7 +11,7 @@ import java.util.List;
     ::
     import java.util.LinkedList;
     implicit {
-            public Query<T> z$create$zSelectStatement(final SqlContext context) {
+            public Query<T> z$sqlOfzSelectStatement(final SqlContext context) {
                 throw new RuntimeException("Not implemented");
             }
     }

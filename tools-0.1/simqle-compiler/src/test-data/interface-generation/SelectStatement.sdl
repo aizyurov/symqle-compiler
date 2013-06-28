@@ -16,7 +16,7 @@ import java.sql.SQLException;
         context.set(ColumnNameProvider.class, new ColumnNameProvider());
         this.z$prepare$select_statement(context);
         final List<T> list = new LinkedList<T>();
-        final Query<T> query = this.z$create$select_statement(context);
+        final Query<T> query = this.z$sqlOfselect_statement(context);
         database.query(query, new IteratorCallback<Row>() {
             public int iterate(final Row row) throws SQLException {
                 list.add(query.extract(row));

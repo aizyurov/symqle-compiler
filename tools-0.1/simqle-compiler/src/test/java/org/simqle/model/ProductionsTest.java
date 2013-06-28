@@ -109,8 +109,8 @@ public class ProductionsTest extends TestCase {
                             "    public T value(final Element element) throws SQLException {\n" +
                             "        return e.value(element);\n" +
                             "    }\n" +
-                    "           public Sql z$create$zValueExpression(final SqlContext context) {\n" +
-                    "               return context.get(Dialect.class).zValueExpression_is_zValueExpressionPrimary(e.z$create$zValueExpressionPrimary(context));\n" +
+                    "           public Sql z$sqlOfzValueExpression(final SqlContext context) {\n" +
+                    "               return context.get(Dialect.class).zValueExpression_is_zValueExpressionPrimary(e.z$sqlOfzValueExpressionPrimary(context));\n" +
                     "           }\n" +
                     "       };\n" +
                     "   }"),
@@ -154,8 +154,8 @@ public class ProductionsTest extends TestCase {
                         "            * @param context the Sql construction context\n" +
                         "            * @return query conforming to <code>this</code> syntax\n" +
                         "            */\n" +
-                        "            public Query<T> z$create$Subquery(final SqlContext context) {\n" +
-                        "                final Query<T> __rowMapper = sl.z$create$SelectList(context); " +
+                        "            public Query<T> z$sqlOfSubquery(final SqlContext context) {\n" +
+                        "                final Query<T> __rowMapper = sl.z$sqlOfSelectList(context); " +
                         "            return new ComplexQuery<T>(__rowMapper, " +
                         "                context.get(Dialect.class).Subquery_is_LEFT_PAREN_SelectList_RIGHT_PAREN(__rowMapper));" +
                         "            }/*delegation*/\n" +

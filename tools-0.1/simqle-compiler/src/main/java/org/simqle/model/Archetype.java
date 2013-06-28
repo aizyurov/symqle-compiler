@@ -71,7 +71,7 @@ public abstract class Archetype {
 
         public MethodDefinition createArchetypeMethod(final InterfaceDefinition interfaceDefinition) throws ModelException {
             return MethodDefinition.parseAbstract(
-                    String.format(SQL_METHOD_FORMAT,
+                    String.format(SQL_METHOD_FORMAT, interfaceDefinition.getName(),
                             interfaceDefinition.getName(), ""), interfaceDefinition);
         }
 
@@ -94,7 +94,7 @@ public abstract class Archetype {
 
         public MethodDefinition createArchetypeMethod(final InterfaceDefinition interfaceDefinition) throws ModelException {
             return MethodDefinition.parseAbstract(
-                    String.format(QUERY_METHOD_FORMAT,
+                    String.format(QUERY_METHOD_FORMAT, interfaceDefinition.getName(),
                             getTypeParameters(),
                             interfaceDefinition.getName(), ""), interfaceDefinition);
         }
@@ -105,25 +105,26 @@ public abstract class Archetype {
         }
     }
 
+    private static final String ARCHETYPE_METHOD_PREFIX = "z$sqlOf";
+
+
     private final static String QUERY_METHOD_FORMAT = Utils.indent(12,
             "/**",
-            "* Creates a Query representing <code>this</code>",
+            "* Creates a Query representing %s",
             "* @param context the Sql construction context",
-            "* @return query conforming to <code>this</code> syntax",
+            "* @return constructed Query",
             "*/",
-            "Query%s z$create$%s(%sSqlContext context);"
+            "Query%s " + ARCHETYPE_METHOD_PREFIX + "%s(%sSqlContext context);"
             );
 
     private final static String SQL_METHOD_FORMAT = Utils.indent(12,
             "/**",
-            "* Creates an Sql representing <code>this</code>",
+            "* Creates an Sql representing %s",
             "* @param context the Sql construction context",
-            "* @return sql conforming to <code>this</code> syntax",
+            "* @return constructed Sql",
             "*/",
-            "Sql z$create$%s(%sSqlContext context);"
+            "Sql " + ARCHETYPE_METHOD_PREFIX + "%s(%sSqlContext context);"
     );
-
-    private static final String ARCHETYPE_METHOD_PREFIX = "z$create$";
 
     public static final Archetype NONE = new Archetype(new TypeParameters(Collections.<TypeParameter>emptyList())) {
 

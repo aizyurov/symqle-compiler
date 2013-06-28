@@ -13,7 +13,7 @@ public abstract class SelectStatement<T> implements select_statement<T>
         context.set(ColumnNameProvider.class, new ColumnNameProvider());
         this.z$prepare$select_statement(context);
         final List<T> list = new LinkedList<T>();
-        final Query<T> query = z$create$select_statement(context);
+        final Query<T> query = z$sqlOfselect_statement(context);
         database.query(query, new IteratorCallback<Row>() {
             public int iterate(final Row row) throws SQLException {
                 list.add(query.extract(row));
