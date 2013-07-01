@@ -12,8 +12,8 @@ package ${packageName};
 
 import java.sql.SQLException;
 
-import org.simqle.*;
-import static org.simqle.SqlTerminal.*;
+import org.symqle.simqle.*;
+import static org.symqle.simqle.SqlTerminal.*;
 
 
 /**

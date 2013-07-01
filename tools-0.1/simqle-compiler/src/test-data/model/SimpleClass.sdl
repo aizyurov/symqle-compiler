@@ -3,7 +3,7 @@ public interface zSelectStatement<T> : Query<T>
 
 /* declaration imports -- will be propagated to classes, which mimic this */
 import java.util.List;
-import org.simqle.core.Database;
+import org.symqle.simqle.core.Database;
 import java.sql.SQLException;
 @ThreadSafe
 public abstract class SelectStatement<T> implements zSelectStatement<T>

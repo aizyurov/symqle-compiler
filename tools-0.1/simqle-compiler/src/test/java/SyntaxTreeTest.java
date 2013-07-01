@@ -3,12 +3,11 @@
 */
 
 import junit.framework.TestCase;
-import org.simqle.parser.SimpleNode;
-import org.simqle.parser.SimqleParser;
+import org.symqle.parser.SimpleNode;
+import org.symqle.parser.SymqleParser;
 
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.List;
 
 /**
  * <br/>13.11.2011
@@ -17,9 +16,9 @@ import java.util.List;
  */
 public class SyntaxTreeTest extends TestCase {
 
-    public static SimqleParser createParser(String source) {
+    public static SymqleParser createParser(String source) {
         Reader reader = new StringReader(source);
-        return new SimqleParser(reader);
+        return new SymqleParser(reader);
     }
 
     public static final String LINE_BREAK = System.getProperty("line.separator", "\n");

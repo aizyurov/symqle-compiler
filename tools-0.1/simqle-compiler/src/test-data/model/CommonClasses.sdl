@@ -7,13 +7,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import javax.sql.DataSource;
-import org.simqle.*;
-import org.simqle.Callback;
-import org.simqle.Pair;
-import org.simqle.Row;
-import org.simqle.jdbc.ResultSetRow;
-import org.simqle.jdbc.StatementParameters;
-import static org.simqle.SqlTerm.*;
+import org.symqle.simqle.*;
+import org.symqle.simqle.Callback;
+import org.symqle.simqle.Pair;
+import org.symqle.simqle.Row;
+import org.symqle.simqle.jdbc.ResultSetRow;
+import org.symqle.simqle.jdbc.StatementParameters;
+import static org.symqle.simqle.SqlTerm.*;
 public final class Simqle  {
     private static final Simqle instance = new Simqle();
 
@@ -25,13 +25,13 @@ public final class Simqle  {
 }
 
 
-import org.simqle.Sql;
+import org.symqle.simqle.Sql;
 public interface Dialect  {
 }
 
-import org.simqle.CompositeSql;
-import org.simqle.Sql;
-import static org.simqle.SqlTerm.*;
+import org.symqle.simqle.CompositeSql;
+import org.symqle.simqle.Sql;
+import static org.symqle.simqle.SqlTerm.*;
 public class GenericDialect implements Dialect {
 
     private static final GenericDialect instance = new GenericDialect();

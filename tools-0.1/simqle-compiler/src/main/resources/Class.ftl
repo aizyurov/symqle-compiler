@@ -8,7 +8,7 @@ package ${packageName};
 
 <#list imports as import>${import}
 </#list>
-import org.simqle.*;
+import org.symqle.simqle.*;
 
 <#list classPair.base.otherModifiers as modifier>${modifier} </#list>class ${classPair.base.className}${classPair.base.typeParametersString} ${classPair.base.extendsStatement} ${classPair.base.implementsStatement} ${classPair.base.body}
 

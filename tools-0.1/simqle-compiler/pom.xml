@@ -2,16 +2,16 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <!--parent>
-    <groupId>org.simqle</groupId>
-    <artifactId>simqle-base</artifactId>
+    <groupId>org.symqle.symqle</groupId>
+    <artifactId>symqle-base</artifactId>
     <version>0.0</version>
     <relativePath>..</relativePath>
   </parent-->
-  <groupId>org.simqle</groupId>
+  <groupId>org.symqle</groupId>
   <version>0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <artifactId>simqle-compiler</artifactId>
-  <name>simqle-compiler</name>
+  <artifactId>symqle-compiler</artifactId>
+  <name>symqle-compiler</name>
   <url>http://maven.apache.org</url>
     <build>
        <plugins>
@@ -53,7 +53,7 @@
         <configuration>
           <instrumentation>
             <excludes>
-              <exclude>org/simqle/parser/*.class</exclude>
+              <exclude>org/symqle/parser/*.class</exclude>
             </excludes>
           </instrumentation>
         </configuration>

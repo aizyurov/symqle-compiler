@@ -1,0 +1,61 @@
+package org.symqle.model;
+
+import junit.framework.TestCase;
+import org.symqle.parser.SimqleParser;
+import org.symqle.parser.SyntaxTree;
+import org.symqle.processor.GrammarException;
+import org.symqle.processor.InterfaceDeclarationsProcessor;
+import org.symqle.util.ModelUtils;
+
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+
+/**
+ * @author lvovich
+ */
+public class TestArchetypeTypeParam extends TestCase {
+
+    public void testNoQueryParam() throws Exception {
+        final Model model = ModelUtils.prepareModel();
+        String source = "src/test-data/model/ArchetypeNoQueryParam.sdl";
+        Reader reader = new InputStreamReader(new FileInputStream(source));
+        SimqleParser parser = new SimqleParser(reader);
+        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        try {
+            new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage().startsWith("Query archetype requires 1 type parameter, found: 0"));
+        }
+    }
+
+    public void testSqlParam() throws Exception {
+        final Model model = ModelUtils.prepareModel();
+        String source = "src/test-data/model/ArchetypeSqlParam.sdl";
+        Reader reader = new InputStreamReader(new FileInputStream(source));
+        SimqleParser parser = new SimqleParser(reader);
+        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        try {
+            new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage().startsWith("Sql archetype does not take type parameters, found: 1"));
+        }
+    }
+
+    public void testIllegalMethodName() throws Exception {
+        final Model model = ModelUtils.prepareModel();
+        String source = "src/test-data/model/ArchetypeIllegalMethodName.sdl";
+        Reader reader = new InputStreamReader(new FileInputStream(source));
+        SimqleParser parser = new SimqleParser(reader);
+        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        try {
+            new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+            fail("GrammarException expected");
+        } catch (GrammarException e) {
+            assertTrue(e.getMessage(), e.getMessage().startsWith("Prefix \"z$sqlOf\" is reserved for generated methods"));
+        }
+    }
+
+}

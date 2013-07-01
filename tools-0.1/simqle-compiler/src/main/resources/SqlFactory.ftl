@@ -8,8 +8,8 @@ package ${packageName};
 <#list imports as import>${import}
 </#list>
 
-import org.simqle.*;
-import static org.simqle.SqlTerminal.*;
+import org.symqle.simqle.*;
+import static org.symqle.simqle.SqlTerminal.*;
 
 /**
 * This class defines methods, implementing Sql language productions.
