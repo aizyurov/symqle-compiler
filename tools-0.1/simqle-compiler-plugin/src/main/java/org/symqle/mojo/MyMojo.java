@@ -1,4 +1,4 @@
-package org.simqle.mojo;
+package org.symqle.mojo;
 
 /*
  * Copyright 2001-2005 The Apache Software Foundation.
@@ -20,7 +20,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.simqle.processor.Director;
+import org.symqle.processor.Director;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -64,7 +64,7 @@ public class MyMojo
      *  The directory where Simqle sources resides. All *.sdl files from the directory
      * are compiled
      *
-     * @parameter expression="${sourceDirectory}" default-value="${basedir}/src/main/simqle"
+     * @parameter expression="${sourceDirectory}" default-value="${basedir}/src/main/symqle"
      * @required
      */
     private File sourceDirectory;
