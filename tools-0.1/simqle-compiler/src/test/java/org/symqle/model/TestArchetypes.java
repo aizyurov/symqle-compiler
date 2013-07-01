@@ -2,7 +2,7 @@ package org.symqle.model;
 
 import junit.framework.TestCase;
 import org.symqle.parser.ParseException;
-import org.symqle.parser.SimqleParser;
+import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.InterfaceDeclarationsProcessor;
 import org.symqle.util.ModelUtils;
@@ -20,8 +20,8 @@ public class TestArchetypes extends TestCase {
     private SyntaxTree readSyntaxTree() throws FileNotFoundException, ParseException {
         String source = "src/test-data/model/Archetypes.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
-        SimqleParser parser = new SimqleParser(reader);
-        return new SyntaxTree(parser.SimqleUnit(), source);
+        SymqleParser parser = new SymqleParser(reader);
+        return new SyntaxTree(parser.SymqleUnit(), source);
     }
 
     public void testChild1() throws Exception {

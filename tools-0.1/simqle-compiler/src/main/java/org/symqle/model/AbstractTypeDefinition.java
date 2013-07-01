@@ -33,7 +33,7 @@ public abstract class AbstractTypeDefinition {
     private final String comment;
 
     protected AbstractTypeDefinition(SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SimqleInterfaceDeclaration", "NormalClassDeclaration", "ProductionImplementation");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SymqleInterfaceDeclaration", "NormalClassDeclaration", "ProductionImplementation");
 
         this.importLines = new TreeSet<String>(node.find("^.^.ImportDeclaration", SyntaxTree.BODY));
         // modifiers may be of interface or class; one of collections is empty
@@ -72,7 +72,7 @@ public abstract class AbstractTypeDefinition {
                     type.equals("MethodDeclaration")) {
                 MethodDefinition methodDefinition = new MethodDefinition(child, this);
                 if (methodDefinition.getOtherModifiers().contains("static")) {
-                    // static methods are not processed by Simqle
+                    // static methods are not processed by Symqle
                     otherDeclarations.add(child.getImage());
                 } else {
                     try {

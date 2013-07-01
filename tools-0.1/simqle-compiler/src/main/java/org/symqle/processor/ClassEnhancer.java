@@ -30,7 +30,7 @@ public class ClassEnhancer implements ModelProcessor {
     private void enhanceClass(final ClassDefinition classDef, final Model model) throws ModelException {
         Map<String, MethodTemplate> generatedMethods = new HashMap<String, MethodTemplate>();
         Set<String> ambiguousMethods = new HashSet<String>();
-        for (MethodDefinition method: model.getExplicitSimqleMethods()) {
+        for (MethodDefinition method: model.getExplicitSymqleMethods()) {
             final MethodTemplate methodTemplate = tryAddMethod(classDef, method, model);
             if (methodTemplate != null) {
                 final String signature = methodTemplate.myAbstractMethod.signature();
@@ -75,7 +75,7 @@ public class ClassEnhancer implements ModelProcessor {
                 ((MethodDefinition) myAbstractMethod).implement(myAbstractMethod.getAccessModifier(), " {" + Utils.LINE_BREAK +
                         "        " +
                         (myAbstractMethod.getResultType().equals(Type.VOID) ? "" : "return ")+
-                        "Simqle.get()." +
+                        "Symqle.get()." +
                         myAbstractMethod.getName() +
                         "(" +
                         Utils.format(parameters, "", ", ", "") +

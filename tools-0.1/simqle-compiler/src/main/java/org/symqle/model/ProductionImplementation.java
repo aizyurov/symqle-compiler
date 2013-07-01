@@ -49,7 +49,7 @@ public class ProductionImplementation {
                 } else {
                     final Type type = types.get(0);
                     formalParameters.add(new FormalParameter(type, name));
-                    // make sure it is known Simqle interface
+                    // make sure it is known Symqle interface
                     return new VariableElement(type, name);
                 }
             }

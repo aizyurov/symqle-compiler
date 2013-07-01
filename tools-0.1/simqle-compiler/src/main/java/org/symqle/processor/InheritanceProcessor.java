@@ -106,7 +106,7 @@ public class InheritanceProcessor implements ModelProcessor {
                                 "                " +
                                 (methodToImplement.getResultType()==Type.VOID ? "" : "return ") +
                                 methodToImplement.delegationInvocation(
-                                        methodDef.invoke("Simqle.get()"+Utils.LINE_BREAK+"                    ",
+                                        methodDef.invoke("Symqle.get()"+Utils.LINE_BREAK+"                    ",
                                                 Collections.singletonList("this"))+Utils.LINE_BREAK+"                    ") +
                                 ";" + Utils.LINE_BREAK+"            "+"}"+Utils.LINE_BREAK,
                                 true, true);
@@ -129,7 +129,7 @@ public class InheritanceProcessor implements ModelProcessor {
      */
     private final Map<String, Map<String, MethodDefinition>> makeImplicitConversionsMap(final Model model) {
         final Map<String, Map<String, MethodDefinition>> conversionsMap = new HashMap<String, Map<String, MethodDefinition>>();
-        for (MethodDefinition methodDef: model.getImplicitSimqleMethods()) {
+        for (MethodDefinition methodDef: model.getImplicitSymqleMethods()) {
             final String argName = methodDef.getFormalParameters().get(0).getType().getSimpleName();
             final String resName = methodDef.getResultType().getSimpleName();
             Map<String, MethodDefinition> conversionsFromArg = conversionsMap.get(argName);

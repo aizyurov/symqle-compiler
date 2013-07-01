@@ -16,12 +16,12 @@ public class ImplicitDeclarationProcessor implements Processor {
     public void process(SyntaxTree tree, Model model) throws GrammarException {
         final ClassDefinition simqle;
         try {
-            simqle = model.getClassDef("Simqle");
+            simqle = model.getClassDef("Symqle");
         } catch (ModelException e) {
             throw new IllegalStateException(e);
         }
 
-        for (SyntaxTree methodNode: tree.find("SimqleDeclarationBlock.SimqleDeclaration.ImplicitConversionDeclaration")) {
+        for (SyntaxTree methodNode: tree.find("SymqleDeclarationBlock.SymqleDeclaration.ImplicitConversionDeclaration")) {
             final Type targetType = methodNode.find("ClassOrInterfaceType", Type.CONSTRUCT).get(0);
             final TypeParameters typeParameters =
                     new TypeParameters(methodNode.find("TypeParameters.TypeParameter", TypeParameter.CONSTRUCT));

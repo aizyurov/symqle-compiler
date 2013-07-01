@@ -18,7 +18,7 @@ public class ModelTest extends TestCase {
         final Model model = ModelUtils.prepareModel();
         assertEquals(2, model.getAllClasses().size());
         assertEquals(1, model.getAllInterfaces().size());
-        final ClassDefinition simqle = model.getClassDef("Simqle");
+        final ClassDefinition simqle = model.getClassDef("Symqle");
         assertNotNull(simqle);
         final ClassDefinition genericDialect = model.getClassDef("GenericDialect");
         final InterfaceDefinition dialect = model.getInterface("Dialect");

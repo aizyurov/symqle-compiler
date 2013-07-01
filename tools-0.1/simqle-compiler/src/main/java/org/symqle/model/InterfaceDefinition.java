@@ -21,7 +21,7 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
 
     public InterfaceDefinition(SyntaxTree node) throws GrammarException {
         super(node);
-        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SimqleInterfaceDeclaration");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SymqleInterfaceDeclaration");
 
         this.extended = node.find("ExtendsInterfaces.ClassOrInterfaceType", Type.CONSTRUCT);
         // everything is constructed; apply archetype (by syntax the loo pis

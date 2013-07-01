@@ -2,7 +2,7 @@ package org.symqle.util;
 
 import org.symqle.model.Model;
 import org.symqle.parser.ParseException;
-import org.symqle.parser.SimqleParser;
+import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.ClassDeclarationProcessor;
 import org.symqle.processor.GrammarException;
@@ -22,8 +22,8 @@ public class ModelUtils {
         final Model model = new Model();
         String source = "src/test-data/model/CommonClasses.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
-        SimqleParser parser = new SimqleParser(reader);
-        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        SymqleParser parser = new SymqleParser(reader);
+        final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
         return model;

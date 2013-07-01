@@ -13,7 +13,7 @@ import java.util.Set;
 /**
  * Anonymous class is created for each ProductionImplementation and each
  * standalone MethodDeclaration
- * the methods (which belong to Simqle class) are always standard:
+ * the methods (which belong to Symqle class) are always standard:
  * return new ReturnType() {...} - this is the anonymous class.
  * The anonymous class always extends its ReturnType (class or interface).
  * Name is composed from methodName; actually it does not matter because

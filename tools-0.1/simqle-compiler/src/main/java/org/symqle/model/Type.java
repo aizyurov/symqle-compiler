@@ -33,7 +33,7 @@ public class Type {
         if (start.getType().equals("ClassOrInterfaceType")) {
             final List<SyntaxTree> chain = start.find("IdentifierWithTypeArguments");
             if (chain.size()>1) {
-                throw new GrammarException("Simqle supports only simple type names", start);
+                throw new GrammarException("Symqle supports only simple type names", start);
             }
             final SyntaxTree identifierWithTypeArgumentsNode = chain.get(0);
             name = identifierWithTypeArgumentsNode.find("Identifier", SyntaxTree.VALUE).get(0);
@@ -47,7 +47,7 @@ public class Type {
             } else /* ClassOrInterfaceType*/{
                 final List<SyntaxTree> chain = start.find("ClassOrInterfaceType.IdentifierWithTypeArguments");
                 if (chain.size()>1) {
-                    throw new GrammarException("Simqle supports only simple type names", start);
+                    throw new GrammarException("Symqle supports only simple type names", start);
                 }
                 final SyntaxTree identifierWithTypeArgumentsNode = chain.get(0);
                 name = identifierWithTypeArgumentsNode.find("Identifier", SyntaxTree.VALUE).get(0);
@@ -57,7 +57,7 @@ public class Type {
         } else if (start.getType().equals("ExceptionType")) {
             final List<SyntaxTree> chain = start.find("Name.Identifier");
             if (chain.size()>1) {
-                throw new GrammarException("Simqle supports only simple type names", start);
+                throw new GrammarException("Symqle supports only simple type names", start);
             }
             name = chain.get(0).getValue();
             typeArguments = new TypeArguments();
@@ -178,9 +178,9 @@ public class Type {
             }
         } else {
             // we do not process inheritance: actual type should exactly match to formal type for
-            // Simqle to be able to infer type parameters
+            // Symqle to be able to infer type parameters
             // if a formal type is Collection<T> and actual type is MyListOfLong implements Collection<Long>,
-            // Simqle will give up.
+            // Symqle will give up.
             if (!this.getSimpleName().equals(formalType.getSimpleName())) {
                 throw new ModelException(
                         "Cannot infer type arguments from: "+this+" <- " +formalType);

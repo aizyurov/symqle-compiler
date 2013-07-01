@@ -9,7 +9,7 @@ import org.symqle.parser.SyntaxTree;
  * Time: 16:52
  * To change this template use File | Settings | File Templates.
  */
-public class NoPublicConstructorSimqleDeclaration {
-    private NoPublicConstructorSimqleDeclaration(final SyntaxTree node) {
+public class NoPublicConstructorSymqleDeclaration {
+    private NoPublicConstructorSymqleDeclaration(final SyntaxTree node) {
     }
 }

@@ -17,27 +17,27 @@ public class Model {
 
     private final Set<String> caseInsensitiveClassNames = new HashSet<String>();
 
-    private final List<MethodDefinition> implicitSimqleMethods = new ArrayList<MethodDefinition>();
-    private final Map<MethodDefinition, Set<String>> explicitSimqleMethods = new LinkedHashMap<MethodDefinition, Set<String>>();
+    private final List<MethodDefinition> implicitSymqleMethods = new ArrayList<MethodDefinition>();
+    private final Map<MethodDefinition, Set<String>> explicitSymqleMethods = new LinkedHashMap<MethodDefinition, Set<String>>();
 
     public void addImplicitMethod(MethodDefinition method) {
-        implicitSimqleMethods.add(method);
+        implicitSymqleMethods.add(method);
     }
 
     public void addExplicitMethod(MethodDefinition method, Collection<String> requiredImports) {
-        explicitSimqleMethods.put(method, new HashSet<String>(requiredImports));
+        explicitSymqleMethods.put(method, new HashSet<String>(requiredImports));
     }
 
-    public List<MethodDefinition> getImplicitSimqleMethods() {
-        return implicitSimqleMethods;
+    public List<MethodDefinition> getImplicitSymqleMethods() {
+        return implicitSymqleMethods;
     }
 
-    public List<MethodDefinition> getExplicitSimqleMethods() {
-        return new ArrayList<MethodDefinition>(explicitSimqleMethods.keySet());
+    public List<MethodDefinition> getExplicitSymqleMethods() {
+        return new ArrayList<MethodDefinition>(explicitSymqleMethods.keySet());
     }
 
     public Set<String> getImportsForExplicitMethod(MethodDefinition def) {
-        return Collections.unmodifiableSet(explicitSimqleMethods.get(def));
+        return Collections.unmodifiableSet(explicitSymqleMethods.get(def));
     }
 
     public void addInterface(InterfaceDefinition def) throws ModelException {

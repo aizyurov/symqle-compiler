@@ -8,7 +8,7 @@ import org.symqle.processor.ClassEnhancer;
 import org.symqle.processor.InheritanceProcessor;
 import org.symqle.processor.InterfaceDeclarationsProcessor;
 import org.symqle.processor.ProductionDeclarationProcessor;
-import org.symqle.processor.SimqleMethodProcessor;
+import org.symqle.processor.SymqleMethodProcessor;
 import org.symqle.util.ModelUtils;
 
 import java.io.FileInputStream;
@@ -24,12 +24,12 @@ public class TestFactoryMethods extends TestCase {
         final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/SimpleFactoryMethod.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
-        SimqleParser parser = new SimqleParser(reader);
-        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        SymqleParser parser = new SymqleParser(reader);
+        final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
-        new SimqleMethodProcessor().process(syntaxTree, model);
+        new SymqleMethodProcessor().process(syntaxTree, model);
         new InheritanceProcessor().process(model);
         new ClassEnhancer().process(model);
         for (ClassDefinition classDef : model.getAllClasses()) {

@@ -2,7 +2,7 @@ package org.symqle.model;
 
 import junit.framework.TestCase;
 import org.symqle.parser.ParseException;
-import org.symqle.parser.SimqleParser;
+import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.ClassDeclarationProcessor;
 import org.symqle.processor.GrammarException;
@@ -30,12 +30,12 @@ public class ProductionsTest extends TestCase {
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
 
-        final ClassDefinition simqle = model.getClassDef("Simqle");
+        final ClassDefinition simqle = model.getClassDef("Symqle");
         System.out.println(simqle);
         System.out.println("==========");
 
         // make sure that classes are compilable
-        Utils.createParser(simqle.toString()).SimqleDeclarationBlock();;
+        Utils.createParser(simqle.toString()).SymqleDeclarationBlock();;
 
         //
         assertEquals(3, simqle.getDeclaredMethods().size());
@@ -63,10 +63,10 @@ public class ProductionsTest extends TestCase {
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
 
-        final ClassDefinition simqle = model.getClassDef("Simqle");
+        final ClassDefinition simqle = model.getClassDef("Symqle");
         System.out.println(simqle);
 
-        Utils.createParser(simqle.toString()).SimqleDeclarationBlock();
+        Utils.createParser(simqle.toString()).SymqleDeclarationBlock();
 
         //
         assertEquals(3, simqle.getDeclaredMethods().size());
@@ -95,10 +95,10 @@ public class ProductionsTest extends TestCase {
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
 
-        final ClassDefinition simqle = model.getClassDef("Simqle");
+        final ClassDefinition simqle = model.getClassDef("Symqle");
 
         System.out.println(simqle.toString());
-        Utils.createParser(simqle.toString()).SimqleDeclarationBlock();
+        Utils.createParser(simqle.toString()).SymqleDeclarationBlock();
 
         {
             final MethodDefinition method = simqle.getDeclaredMethodBySignature("z$zValueExpression$from$zValueExpressionPrimary(zValueExpressionPrimary)");
@@ -120,8 +120,8 @@ public class ProductionsTest extends TestCase {
 
     private SyntaxTree readSyntaxTree(String source) throws FileNotFoundException, ParseException {
         Reader reader = new InputStreamReader(new FileInputStream(source));
-        SimqleParser parser = new SimqleParser(reader);
-        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        SymqleParser parser = new SymqleParser(reader);
+        final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
         return syntaxTree;
     }
 
@@ -144,7 +144,7 @@ public class ProductionsTest extends TestCase {
         SyntaxTree syntaxTree = readSyntaxTree("src/test-data/model/Parentheses.sdl");
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
-        ClassDefinition simqle = model.getClassDef("Simqle");
+        ClassDefinition simqle = model.getClassDef("Symqle");
         MethodDefinition method = simqle.getDeclaredMethodBySignature("z$Subquery$from$SelectList(SelectList)");
         assertEquals(TestUtils.pureCode(
                 "<T> Subquery<T> z$Subquery$from$SelectList(final SelectList<T> sl) { \n" +
@@ -174,9 +174,9 @@ public class ProductionsTest extends TestCase {
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
 
-        final ClassDefinition simqle = model.getClassDef("Simqle");
+        final ClassDefinition simqle = model.getClassDef("Symqle");
 
-        Utils.createParser(simqle.toString()).SimqleDeclarationBlock();
+        Utils.createParser(simqle.toString()).SymqleDeclarationBlock();
 
     }
 

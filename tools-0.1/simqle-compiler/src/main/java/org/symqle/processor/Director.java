@@ -33,7 +33,7 @@ public class Director {
 
     private Processor[] step2processors = {
             new ProductionDeclarationProcessor(),
-            new SimqleMethodProcessor(),
+            new SymqleMethodProcessor(),
             new ImplicitDeclarationProcessor()
     };
 

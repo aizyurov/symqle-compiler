@@ -2,7 +2,7 @@ package org.symqle.model;
 
 import junit.framework.TestCase;
 import org.symqle.parser.ParseException;
-import org.symqle.parser.SimqleParser;
+import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
 import org.symqle.processor.InterfaceDeclarationsProcessor;
@@ -27,8 +27,8 @@ public class TestInterfaceParsing extends TestCase {
     private SyntaxTree readSyntaxTree() throws FileNotFoundException, ParseException {
         String source = "src/test-data/model/Interfaces.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
-        SimqleParser parser = new SimqleParser(reader);
-        return new SyntaxTree(parser.SimqleUnit(), source);
+        SymqleParser parser = new SymqleParser(reader);
+        return new SyntaxTree(parser.SymqleUnit(), source);
     }
 
     public void testScalar() throws Exception {
@@ -217,8 +217,8 @@ public class TestInterfaceParsing extends TestCase {
     }
 
     public void testExplicitValueMethod() throws Exception {
-        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/ExplicitValueMethodDeclaration.sdl"));
-        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "ExplicitValueMethodDeclaration.sdl");
+        SymqleParser parser = new SymqleParser(new FileReader("src/test-data/ExplicitValueMethodDeclaration.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SymqleUnit(), "ExplicitValueMethodDeclaration.sdl");
         final Model model = ModelUtils.prepareModel();
         try {
             new InterfaceDeclarationsProcessor().process(node, model);
@@ -231,8 +231,8 @@ public class TestInterfaceParsing extends TestCase {
     }
 
     public void testExplicitCreateMethod() throws Exception {
-        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/ExplicitCreateMethodDeclaration.sdl"));
-        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "ExplicitCreateMethodDeclaration.sdl");
+        SymqleParser parser = new SymqleParser(new FileReader("src/test-data/ExplicitCreateMethodDeclaration.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SymqleUnit(), "ExplicitCreateMethodDeclaration.sdl");
         final Model model = ModelUtils.prepareModel();
         try {
             new InterfaceDeclarationsProcessor().process(node, model);
@@ -245,8 +245,8 @@ public class TestInterfaceParsing extends TestCase {
     }
 
     public void testDuplicateInterface() throws Exception {
-        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/DuplicateInterface.sdl"));
-        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "DuplicateInterface.sdl");
+        SymqleParser parser = new SymqleParser(new FileReader("src/test-data/DuplicateInterface.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SymqleUnit(), "DuplicateInterface.sdl");
         final Model model = ModelUtils.prepareModel();
         try {
             new InterfaceDeclarationsProcessor().process(node, model);
@@ -257,8 +257,8 @@ public class TestInterfaceParsing extends TestCase {
     }
 
     public void testDuplicateMethodInInterface() throws Exception {
-        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/InterfaceMethodOverloading.sdl"));
-        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "InterfaceMethodOverloading.sdl");
+        SymqleParser parser = new SymqleParser(new FileReader("src/test-data/InterfaceMethodOverloading.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SymqleUnit(), "InterfaceMethodOverloading.sdl");
         final Model model = ModelUtils.prepareModel();
         try {
             new InterfaceDeclarationsProcessor().process(node, model);

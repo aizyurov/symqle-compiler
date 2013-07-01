@@ -1,7 +1,7 @@
 package org.symqle.model;
 
 import junit.framework.TestCase;
-import org.symqle.parser.SimqleParser;
+import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
 import org.symqle.processor.InterfaceDeclarationsProcessor;
@@ -20,8 +20,8 @@ public class TestArchetypeTypeParam extends TestCase {
         final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/ArchetypeNoQueryParam.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
-        SimqleParser parser = new SimqleParser(reader);
-        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        SymqleParser parser = new SymqleParser(reader);
+        final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
         try {
             new InterfaceDeclarationsProcessor().process(syntaxTree, model);
             fail("GrammarException expected");
@@ -34,8 +34,8 @@ public class TestArchetypeTypeParam extends TestCase {
         final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/ArchetypeSqlParam.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
-        SimqleParser parser = new SimqleParser(reader);
-        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        SymqleParser parser = new SymqleParser(reader);
+        final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
         try {
             new InterfaceDeclarationsProcessor().process(syntaxTree, model);
             fail("GrammarException expected");
@@ -48,8 +48,8 @@ public class TestArchetypeTypeParam extends TestCase {
         final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/ArchetypeIllegalMethodName.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
-        SimqleParser parser = new SimqleParser(reader);
-        final SyntaxTree syntaxTree = new SyntaxTree(parser.SimqleUnit(), source);
+        SymqleParser parser = new SymqleParser(reader);
+        final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
         try {
             new InterfaceDeclarationsProcessor().process(syntaxTree, model);
             fail("GrammarException expected");

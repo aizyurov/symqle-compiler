@@ -14,12 +14,12 @@ import org.symqle.simqle.Row;
 import org.symqle.simqle.jdbc.ResultSetRow;
 import org.symqle.simqle.jdbc.StatementParameters;
 import static org.symqle.simqle.SqlTerm.*;
-public final class Simqle  {
-    private static final Simqle instance = new Simqle();
+public final class Symqle  {
+    private static final Symqle instance = new Symqle();
 
-    private Simqle() {}
+    private Symqle() {}
 
-    public static Simqle get() {
+    public static Symqle get() {
          return instance;
     }
 }

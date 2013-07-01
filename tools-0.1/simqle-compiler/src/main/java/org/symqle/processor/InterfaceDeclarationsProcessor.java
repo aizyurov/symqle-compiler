@@ -22,7 +22,7 @@ public class InterfaceDeclarationsProcessor implements Processor {
 
         Map<String, SyntaxTree> nodeByName = new HashMap<String, SyntaxTree>();
         for (SyntaxTree node : tree.find(
-                        "SimqleDeclarationBlock.SimqleDeclaration.SimqleInterfaceDeclaration")) {
+                        "SymqleDeclarationBlock.SymqleDeclaration.SymqleInterfaceDeclaration")) {
             try {
                 InterfaceDefinition definition = new InterfaceDefinition(node);
                 model.addInterface(definition);

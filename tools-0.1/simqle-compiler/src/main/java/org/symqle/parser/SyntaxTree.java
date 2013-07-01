@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * This is a simplified presentation of SimpleNode, containing exactly what is needed for Simqle
+ * This is a simplified presentation of SimpleNode, containing exactly what is needed for Symqle
  * User: lvovich
  * Date: 13.10.11
  * Time: 14:56

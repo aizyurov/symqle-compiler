@@ -27,14 +27,14 @@ public class ProductionDeclarationProcessor implements Processor {
         final InterfaceDefinition dialect;
         final ClassDefinition genericDialect;
         try {
-            simqle = model.getClassDef("Simqle");
+            simqle = model.getClassDef("Symqle");
             dialect = model.getInterface("Dialect");
             genericDialect = model.getClassDef("GenericDialect");
         } catch (ModelException e) {
             throw new IllegalStateException("Internal error", e);
         }
 
-        for (SyntaxTree productionChoice: tree.find("SimqleDeclarationBlock.SimqleDeclaration.ProductionDeclaration.ProductionChoice")) {
+        for (SyntaxTree productionChoice: tree.find("SymqleDeclarationBlock.SymqleDeclaration.ProductionDeclaration.ProductionChoice")) {
             // must be exactrly one ProductionRule
             final SyntaxTree productionRuleNode = productionChoice.find("ProductionRule").get(0);
             ProductionRule productionRule = new ProductionRule(productionRuleNode);
@@ -75,10 +75,10 @@ public class ProductionDeclarationProcessor implements Processor {
                             && !methodToImplement.getAccessModifier().equals("protected"))
                     model.addExplicitMethod(methodToImplement, declarationImports);
                 }
-                // create implementing method in SimqleGeneric via anonymous class
+                // create implementing method in SymqleGeneric via anonymous class
                 try {
                     final AnonymousClass anonymousClass = new AnonymousClass(productionImplNode);
-                    // create implementing method for SimqleGeneric class (uses the anonymous class and the rule)
+                    // create implementing method for SymqleGeneric class (uses the anonymous class and the rule)
                     // first implement all non-implemented methods in the class
                     final Collection<MethodDefinition> anonymousClassAllMethods = anonymousClass.getAllMethods(model);
                     for (MethodDefinition method: anonymousClassAllMethods) {
@@ -174,7 +174,7 @@ public class ProductionDeclarationProcessor implements Processor {
         StringBuilder builder = new StringBuilder();
         // find leftmost element, which is FormalParameter
         if (method.getResultType().getSimpleName().equals("Sql")) {
-            // just what is returned by Simqle
+            // just what is returned by Symqle
             builder.append(" {").append(Utils.LINE_BREAK);
             builder.append("                ");
             builder.append("return ");

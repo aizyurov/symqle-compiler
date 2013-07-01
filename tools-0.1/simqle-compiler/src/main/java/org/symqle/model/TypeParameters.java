@@ -54,7 +54,7 @@ public class TypeParameters {
     /**
      * Creates a map of (type parameter name, type argument).
      * Infers the type arguments from formal parameter and actual argument type.
-     * For Simqle, one formal parameter - argument pair suffices, although in general case
+     * For Symqle, one formal parameter - argument pair suffices, although in general case
      * we could infer from multiple pairs.
      * @param formalType
      * @param actualArgType

@@ -4,7 +4,7 @@
 package org.symqle.model;
 
 import junit.framework.TestCase;
-import org.symqle.parser.SimqleParser;
+import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.AbstractMethodsProcessor;
 import org.symqle.processor.ClassDeclarationProcessor;
@@ -24,8 +24,8 @@ public class TestClassParsing extends TestCase {
 
     public void testRegularClass() throws Exception {
         Model model = new Model();
-        SimqleParser parser = new SimqleParser(new FileReader("src/test-data/model/SimpleClass.sdl"));
-        SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "SimpleClass.sdl");
+        SymqleParser parser = new SymqleParser(new FileReader("src/test-data/model/SimpleClass.sdl"));
+        SyntaxTree node = new SyntaxTree(parser.SymqleUnit(), "SimpleClass.sdl");
         new InterfaceDeclarationsProcessor().process(node, model);
         new ClassDeclarationProcessor().process(node, model);
         new AbstractMethodsProcessor().process(model);
@@ -45,8 +45,8 @@ public class TestClassParsing extends TestCase {
 
     public void testDuplicateClass() throws Exception {
         final Model model = ModelUtils.prepareModel();
-            SimqleParser parser = new SimqleParser(new FileReader("src/test-data/DuplicateClass.sdl"));
-            SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "DuplicateClass.sdl");
+            SymqleParser parser = new SymqleParser(new FileReader("src/test-data/DuplicateClass.sdl"));
+            SyntaxTree node = new SyntaxTree(parser.SymqleUnit(), "DuplicateClass.sdl");
         {
             Processor processor = new InterfaceDeclarationsProcessor();
             processor.process(node, model);
@@ -62,8 +62,8 @@ public class TestClassParsing extends TestCase {
 
     public void testStandaloneClass() throws Exception {
         final Model model = ModelUtils.prepareModel();
-            SimqleParser parser = new SimqleParser(new FileReader("src/test-data/StandaloneClass.sdl"));
-            SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "StandaloneClass.sdl");
+            SymqleParser parser = new SymqleParser(new FileReader("src/test-data/StandaloneClass.sdl"));
+            SyntaxTree node = new SyntaxTree(parser.SymqleUnit(), "StandaloneClass.sdl");
         {
             Processor processor = new InterfaceDeclarationsProcessor();
             processor.process(node, model);
@@ -81,8 +81,8 @@ public class TestClassParsing extends TestCase {
 
     public void testUndefinedInterface() throws Exception {
         final Model model = ModelUtils.prepareModel();
-            SimqleParser parser = new SimqleParser(new FileReader("src/test-data/UndefinedInterface.sdl"));
-            SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "UndefinedInterface.sdl");
+            SymqleParser parser = new SymqleParser(new FileReader("src/test-data/UndefinedInterface.sdl"));
+            SyntaxTree node = new SyntaxTree(parser.SymqleUnit(), "UndefinedInterface.sdl");
         {
             Processor processor = new InterfaceDeclarationsProcessor();
             processor.process(node, model);
@@ -99,8 +99,8 @@ public class TestClassParsing extends TestCase {
 
     public void testGeneratedMethodConflict() throws Exception {
         final Model model = ModelUtils.prepareModel();
-            SimqleParser parser = new SimqleParser(new FileReader("src/test-data/GeneratedMethodConflict.sdl"));
-            SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "GeneratedMethodConflict.sdl");
+            SymqleParser parser = new SymqleParser(new FileReader("src/test-data/GeneratedMethodConflict.sdl"));
+            SyntaxTree node = new SyntaxTree(parser.SymqleUnit(), "GeneratedMethodConflict.sdl");
         {
             Processor processor = new InterfaceDeclarationsProcessor();
             processor.process(node, model);
@@ -117,8 +117,8 @@ public class TestClassParsing extends TestCase {
 
     public void testDuplicateMethod() throws Exception {
         final Model model = ModelUtils.prepareModel();
-            SimqleParser parser = new SimqleParser(new FileReader("src/test-data/DuplicateMethod.sdl"));
-            SyntaxTree node = new SyntaxTree(parser.SimqleUnit(), "DuplicateMEthod.sdl");
+            SymqleParser parser = new SymqleParser(new FileReader("src/test-data/DuplicateMethod.sdl"));
+            SyntaxTree node = new SyntaxTree(parser.SymqleUnit(), "DuplicateMEthod.sdl");
             new InterfaceDeclarationsProcessor().process(node, model);
         try {
             new ClassDeclarationProcessor().process(node, model);
