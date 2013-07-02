@@ -1,8 +1,0 @@
-public interface test_interface<T>
-{
-}
-
-public class TestClass<T> implements test_interface<T> with sqlBuilder
-{
-    private final int variable=0, variable=2;
-}

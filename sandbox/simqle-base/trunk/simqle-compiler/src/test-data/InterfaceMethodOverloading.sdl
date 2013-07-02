@@ -1,6 +1,0 @@
-public interface expression<T> extends Scalar<T>
-{
-    String getValue();
-    Integer getValue(String s);
-
-}
