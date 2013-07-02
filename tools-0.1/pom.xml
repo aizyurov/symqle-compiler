@@ -4,14 +4,14 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.simqle</groupId>
-  <artifactId>simqle-tools</artifactId>
+  <groupId>org.symqle</groupId>
+  <artifactId>symqle-tools</artifactId>
   <version>0.1</version>
   <packaging>pom</packaging>
-  <name>simqle-tools</name>
+  <name>symqle build tools</name>
 
   <modules>
-    <module>simqle-compiler</module>
-    <module>simqle-compiler-plugin</module>
+    <module>compiler</module>
+    <module>plugin</module>
   </modules>
 </project>
