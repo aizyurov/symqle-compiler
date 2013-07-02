@@ -63,25 +63,25 @@ public class ProductionsTest extends TestCase {
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
 
-        final ClassDefinition simqle = model.getClassDef("Symqle");
-        System.out.println(simqle);
+        final ClassDefinition symqle = model.getClassDef("Symqle");
+        System.out.println(symqle);
 
-        Utils.createParser(simqle.toString()).SymqleDeclarationBlock();
+        Utils.createParser(symqle.toString()).SymqleDeclarationBlock();
 
         //
-        assertEquals(3, simqle.getDeclaredMethods().size());
-        assertEquals(3, simqle.getAllMethods(model).size());
-        for (MethodDefinition method: simqle.getDeclaredMethods()) {
+        assertEquals(3, symqle.getDeclaredMethods().size());
+        assertEquals(3, symqle.getAllMethods(model).size());
+        for (MethodDefinition method: symqle.getDeclaredMethods()) {
             assertFalse(method.getOtherModifiers().toString(), method.getOtherModifiers().contains("abstract"));
         }
         {
-            final MethodDefinition method = simqle.getDeclaredMethodBySignature("z$zSelectStatement$from$zCursorSpecification(zCursorSpecification)");
+            final MethodDefinition method = symqle.getDeclaredMethodBySignature("z$zSelectStatement$from$zCursorSpecification(zCursorSpecification)");
             assertEquals("<T> zSelectStatement<T> z$zSelectStatement$from$zCursorSpecification(final zCursorSpecification<T> cspec)",
                     method.declaration());
             assertTrue(method.toString(), method.toString().contains("throw new RuntimeException(\"Not implemented\");"));
         }
         {
-            final MethodDefinition method = simqle.getDeclaredMethodBySignature("forReadOnly(zCursorSpecification)");
+            final MethodDefinition method = symqle.getDeclaredMethodBySignature("forReadOnly(zCursorSpecification)");
             assertEquals("public <T> SelectStatement<T> forReadOnly(final zCursorSpecification<T> cspec)",
                     method.declaration());
         }
@@ -95,13 +95,13 @@ public class ProductionsTest extends TestCase {
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
 
-        final ClassDefinition simqle = model.getClassDef("Symqle");
+        final ClassDefinition symqle = model.getClassDef("Symqle");
 
-        System.out.println(simqle.toString());
-        Utils.createParser(simqle.toString()).SymqleDeclarationBlock();
+        System.out.println(symqle.toString());
+        Utils.createParser(symqle.toString()).SymqleDeclarationBlock();
 
         {
-            final MethodDefinition method = simqle.getDeclaredMethodBySignature("z$zValueExpression$from$zValueExpressionPrimary(zValueExpressionPrimary)");
+            final MethodDefinition method = symqle.getDeclaredMethodBySignature("z$zValueExpression$from$zValueExpressionPrimary(zValueExpressionPrimary)");
             assertEquals(TestUtils.pureCode(
                     "    <T> zValueExpression<T>" +
                     "    z$zValueExpression$from$zValueExpressionPrimary(final zValueExpressionPrimary<T> e) { \n" +
@@ -144,8 +144,8 @@ public class ProductionsTest extends TestCase {
         SyntaxTree syntaxTree = readSyntaxTree("src/test-data/model/Parentheses.sdl");
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
-        ClassDefinition simqle = model.getClassDef("Symqle");
-        MethodDefinition method = simqle.getDeclaredMethodBySignature("z$Subquery$from$SelectList(SelectList)");
+        ClassDefinition symqle = model.getClassDef("Symqle");
+        MethodDefinition method = symqle.getDeclaredMethodBySignature("z$Subquery$from$SelectList(SelectList)");
         assertEquals(TestUtils.pureCode(
                 "<T> Subquery<T> z$Subquery$from$SelectList(final SelectList<T> sl) { \n" +
                         "        return new Subquery<T>() {\n" +
@@ -174,9 +174,9 @@ public class ProductionsTest extends TestCase {
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
 
-        final ClassDefinition simqle = model.getClassDef("Symqle");
+        final ClassDefinition symqle = model.getClassDef("Symqle");
 
-        Utils.createParser(simqle.toString()).SymqleDeclarationBlock();
+        Utils.createParser(symqle.toString()).SymqleDeclarationBlock();
 
     }
 

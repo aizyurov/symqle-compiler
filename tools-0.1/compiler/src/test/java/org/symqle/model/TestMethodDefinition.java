@@ -10,7 +10,7 @@ public class TestMethodDefinition extends TestCase {
 
     public void testEllipsis() throws Exception {
         final Model model = ModelUtils.prepareModel();
-        ClassDefinition simqle = model.getClassDef("Symqle");
-        MethodDefinition.parse("public abstract RoutineInvocation<T> apply(ValueExpression<?>... arg);", simqle);
+        ClassDefinition symqle = model.getClassDef("Symqle");
+        MethodDefinition.parse("public abstract RoutineInvocation<T> apply(ValueExpression<?>... arg);", symqle);
     }
 }

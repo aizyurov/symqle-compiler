@@ -137,10 +137,10 @@ public class ClassEnhancer implements ModelProcessor {
     }
 
 
-    private MethodDefinition createMyMethod(final ClassDefinition classDef, MethodDefinition simqleMethod, Type myType, final Map<String, TypeArgument> mapping) {
+    private MethodDefinition createMyMethod(final ClassDefinition classDef, MethodDefinition symqleMethod, Type myType, final Map<String, TypeArgument> mapping) {
         final List<TypeParameter> myTypeParameterList = new ArrayList<TypeParameter>();
         // skip parameters, which are in mapping: they are inferred
-        for (TypeParameter typeParameter: simqleMethod.getTypeParameters().list()) {
+        for (TypeParameter typeParameter: symqleMethod.getTypeParameters().list()) {
             if (mapping.get(typeParameter.getName()) == null) {
                 // TODO new type parameter may hide class type parameter; rename if necessary
                 myTypeParameterList.add(typeParameter);
@@ -148,14 +148,14 @@ public class ClassEnhancer implements ModelProcessor {
         }
         final TypeParameters myTypeParameters = new TypeParameters(myTypeParameterList);
         List<FormalParameter> myFormalParameters = new ArrayList<FormalParameter>();
-        final List<FormalParameter> simqleFormalParameters = simqleMethod.getFormalParameters();
-        for (int i=1; i< simqleFormalParameters.size(); i++) {
-            final FormalParameter simqleFormalParameter = simqleFormalParameters.get(i);
-            myFormalParameters.add(simqleFormalParameter.replaceParams(mapping));
+        final List<FormalParameter> symqleFormalParameters = symqleMethod.getFormalParameters();
+        for (int i=1; i< symqleFormalParameters.size(); i++) {
+            final FormalParameter symqleFormalParameter = symqleFormalParameters.get(i);
+            myFormalParameters.add(symqleFormalParameter.replaceParams(mapping));
         }
-        Set<String> myModifiers = new HashSet<String>(simqleMethod.getOtherModifiers());
+        Set<String> myModifiers = new HashSet<String>(symqleMethod.getOtherModifiers());
         myModifiers.add("abstract");
-        final BufferedReader reader = new BufferedReader(new StringReader(simqleMethod.getComment()));
+        final BufferedReader reader = new BufferedReader(new StringReader(symqleMethod.getComment()));
         final CharArrayWriter charArrayWriter = new CharArrayWriter();
         final PrintWriter writer = new PrintWriter(charArrayWriter);
         try {
@@ -164,7 +164,7 @@ public class ClassEnhancer implements ModelProcessor {
                 if (!classDef.getTypeParameters().isEmpty() && s.contains("@param "+classDef.getTypeParameters().toString())) {
                     continue;
                 }
-                writer.println(s.replace("@param "+simqleMethod.getFormalParameters().get(0).getName(), "{@code this}"));
+                writer.println(s.replace("@param "+symqleMethod.getFormalParameters().get(0).getName(), "{@code this}"));
             }
             writer.close();
             reader.close();
@@ -175,17 +175,17 @@ public class ClassEnhancer implements ModelProcessor {
         final StringBuilder builder = new StringBuilder();
         builder.append(charArrayWriter.toString().replaceAll("\\s$", ""));
         builder.append(Utils.LINE_BREAK).append("    ");
-        builder.append(simqleMethod.getAccessModifier())
+        builder.append(symqleMethod.getAccessModifier())
                 .append(" ")
-                .append(Utils.format(simqleMethod.getOtherModifiers(), "", " ", " "))
+                .append(Utils.format(symqleMethod.getOtherModifiers(), "", " ", " "))
                 .append(myTypeParameters)
-                .append(simqleMethod.getResultType().replaceParams(mapping))
+                .append(symqleMethod.getResultType().replaceParams(mapping))
                 .append(" ")
-                .append(simqleMethod.getName())
+                .append(symqleMethod.getName())
                 .append("(")
                 .append(Utils.format(myFormalParameters, "", ", ", ""))
                 .append(")")
-                .append(Utils.format(simqleMethod.getThrownExceptions(), " throws ", ", ", ""))
+                .append(Utils.format(symqleMethod.getThrownExceptions(), " throws ", ", ", ""))
                 .append(";");
         final String body = builder.toString();
         return MethodDefinition.parse(body, classDef);

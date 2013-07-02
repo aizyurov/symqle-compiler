@@ -23,11 +23,11 @@ public class ProductionDeclarationProcessor implements Processor {
     @Override
     public void process(final SyntaxTree tree, final Model model) throws GrammarException {
 
-        final ClassDefinition simqle;
+        final ClassDefinition symqle;
         final InterfaceDefinition dialect;
         final ClassDefinition genericDialect;
         try {
-            simqle = model.getClassDef("Symqle");
+            symqle = model.getClassDef("Symqle");
             dialect = model.getInterface("Dialect");
             genericDialect = model.getClassDef("GenericDialect");
         } catch (ModelException e) {
@@ -52,10 +52,10 @@ public class ProductionDeclarationProcessor implements Processor {
 
             for (SyntaxTree productionImplNode: productionChoice.find("ProductionImplementation")) {
                 final List<String> declarationImports = productionImplNode.find("^.^.^.^.ImportDeclaration", SyntaxTree.BODY);
-                simqle.addImportLines(declarationImports);
+                symqle.addImportLines(declarationImports);
                 final List<String> implementationImports = productionImplNode.find("ImportDeclaration", SyntaxTree.BODY);
                     // implementation only
-                simqle.addImportLines(implementationImports);
+                symqle.addImportLines(implementationImports);
                 final ProductionImplementation productionImpl = new ProductionImplementation(productionImplNode);
                 for (FormalParameter formalParameter: productionImpl.getFormalParameters()) {
                     try {
@@ -67,7 +67,7 @@ public class ProductionDeclarationProcessor implements Processor {
                 String abstractMethodDeclaration =
                         productionImpl.getComment() +
                         productionImpl.asAbstractMethodDeclaration()+";";
-                final MethodDefinition methodToImplement = MethodDefinition.parse(abstractMethodDeclaration, simqle);
+                final MethodDefinition methodToImplement = MethodDefinition.parse(abstractMethodDeclaration, symqle);
                 if (productionImpl.isImplicit()) {
                     model.addImplicitMethod(methodToImplement);
                 } else {

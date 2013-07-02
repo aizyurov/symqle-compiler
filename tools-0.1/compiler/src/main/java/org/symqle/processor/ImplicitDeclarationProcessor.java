@@ -14,9 +14,9 @@ public class ImplicitDeclarationProcessor implements Processor {
 
     @Override
     public void process(SyntaxTree tree, Model model) throws GrammarException {
-        final ClassDefinition simqle;
+        final ClassDefinition symqle;
         try {
-            simqle = model.getClassDef("Symqle");
+            symqle = model.getClassDef("Symqle");
         } catch (ModelException e) {
             throw new IllegalStateException(e);
         }
@@ -40,9 +40,9 @@ public class ImplicitDeclarationProcessor implements Processor {
                     .append(argument)
                     .append(")")
                     .append(methodBody);
-            MethodDefinition method = MethodDefinition.parse(builder.toString(), simqle);
+            MethodDefinition method = MethodDefinition.parse(builder.toString(), symqle);
             try {
-                simqle.addMethod(method);
+                symqle.addMethod(method);
                 model.addImplicitMethod(method);
             } catch (ModelException e) {
                 throw new GrammarException(e, methodNode);
