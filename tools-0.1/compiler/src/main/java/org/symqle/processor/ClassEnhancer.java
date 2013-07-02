@@ -58,7 +58,6 @@ public class ClassEnhancer implements ModelProcessor {
                     generatedMethods.put(signature, methodTemplate);
                 }
                 // add imports only if you are declaring the method
-                System.out.println("Adding imports for "+method.getName() + " to "+classDef.getName());
                 classDef.addImportLines(model.getImportsForExplicitMethod(method));
             }
         }

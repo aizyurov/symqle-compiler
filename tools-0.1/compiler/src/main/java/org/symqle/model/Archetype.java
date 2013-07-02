@@ -77,7 +77,7 @@ public abstract class Archetype {
 
         @Override
         public List<String> getRequiredImports() {
-            return Arrays.asList("import org.symqle.SqlContext;", "import org.symqle.Sql;");
+            return Arrays.asList("import org.symqle.common.SqlContext;", "import org.symqle.common.Sql;");
         }
 
     }
@@ -101,7 +101,7 @@ public abstract class Archetype {
 
         @Override
         public List<String> getRequiredImports() {
-            return Arrays.asList("import org.symqle.SqlContext;", "import org.symqle.Query;");
+            return Arrays.asList("import org.symqle.common.SqlContext;", "import org.symqle.common.Query;");
         }
     }
 
