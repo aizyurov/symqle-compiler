@@ -30,26 +30,26 @@ public class ProductionsTest extends TestCase {
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
 
-        final ClassDefinition simqle = model.getClassDef("Symqle");
-        System.out.println(simqle);
+        final ClassDefinition symqle = model.getClassDef("Symqle");
+        System.out.println(symqle);
         System.out.println("==========");
 
         // make sure that classes are compilable
-        Utils.createParser(simqle.toString()).SymqleDeclarationBlock();;
+        Utils.createParser(symqle.toString()).SymqleDeclarationBlock();;
 
         //
-        assertEquals(3, simqle.getDeclaredMethods().size());
-        assertEquals(3, simqle.getDeclaredMethods().size());
-        for (MethodDefinition method: simqle.getDeclaredMethods()) {
+        assertEquals(3, symqle.getDeclaredMethods().size());
+        assertEquals(3, symqle.getDeclaredMethods().size());
+        for (MethodDefinition method: symqle.getDeclaredMethods()) {
             assertFalse(method.getOtherModifiers().toString(), method.getOtherModifiers().contains("abstract"));
         }
         {
-            final MethodDefinition method = simqle.getDeclaredMethodBySignature("z$zSelectStatement$from$zCursorSpecification(zCursorSpecification)");
+            final MethodDefinition method = symqle.getDeclaredMethodBySignature("z$zSelectStatement$from$zCursorSpecification(zCursorSpecification)");
             assertEquals("<T> zSelectStatement<T> z$zSelectStatement$from$zCursorSpecification(final zCursorSpecification<T> cspec)",
                     method.declaration());
         }
         {
-            final MethodDefinition method = simqle.getDeclaredMethodBySignature("forReadOnly(zCursorSpecification)");
+            final MethodDefinition method = symqle.getDeclaredMethodBySignature("forReadOnly(zCursorSpecification)");
             assertEquals("public <T> SelectStatement<T> forReadOnly(final zCursorSpecification<T> cspec)",
                     method.declaration());
         }

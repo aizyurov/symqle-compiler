@@ -23,7 +23,7 @@ public interface select_statement<T> : Query<T>
 public interface select_statement_scalar<T> extends Scalar<T> : Query<T>
 {}
 
-import org.symqle.simqle.Element;
+import org.symqle.Element;
 public interface Scalar<T>
 {
     T value(Element element);

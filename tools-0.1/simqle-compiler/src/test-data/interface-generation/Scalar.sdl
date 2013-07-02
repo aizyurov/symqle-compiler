@@ -1,4 +1,4 @@
-import org.symqle.simqle.Element;
+import org.symqle.Element;
 public interface Scalar<T>
 {
     T value(final Element element);
