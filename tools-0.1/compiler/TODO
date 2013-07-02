@@ -60,4 +60,5 @@ Later: all imports put classes to the Model (using reflection) and mark them as 
 
 (done) Precede each method body, including implicit conversions,  with a line comment pointing to the source (Simqle only).
 
+make Symqle methods static (big change)
 
