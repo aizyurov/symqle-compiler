@@ -57,9 +57,10 @@ public class ClassEnhancer implements ModelProcessor {
                 } else {
                     generatedMethods.put(signature, methodTemplate);
                 }
+                // add imports only if you are declaring the method
+                System.out.println("Adding imports for "+method.getName() + " to "+classDef.getName());
+                classDef.addImportLines(model.getImportsForExplicitMethod(method));
             }
-            classDef.addImportLines(model.getImportsForExplicitMethod(method));
-            classDef.ensureRequiredImports(model);
         }
         // generate real methods
         for (Map.Entry<String, MethodTemplate> entry: generatedMethods.entrySet()) {
@@ -74,7 +75,7 @@ public class ClassEnhancer implements ModelProcessor {
 
                 ((MethodDefinition) myAbstractMethod).implement(myAbstractMethod.getAccessModifier(), " {" + Utils.LINE_BREAK +
                         "        " +
-                        (myAbstractMethod.getResultType().equals(Type.VOID) ? "" : "return ")+
+                        (myAbstractMethod.getResultType().equals(Type.VOID) ? "" : "return ") +
                         "Symqle.get()." +
                         myAbstractMethod.getName() +
                         "(" +
@@ -83,6 +84,10 @@ public class ClassEnhancer implements ModelProcessor {
                         "    }"
                 );
         }
+
+        // finally, make sure that imports from ancestors go to this class
+        classDef.ensureRequiredImports(model);
+
     }
 
     private MethodTemplate tryAddMethod(final ClassDefinition classDef, final MethodDefinition method, final Model model) {

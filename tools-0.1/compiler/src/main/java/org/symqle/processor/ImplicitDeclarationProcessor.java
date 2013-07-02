@@ -44,6 +44,7 @@ public class ImplicitDeclarationProcessor implements Processor {
             try {
                 symqle.addMethod(method);
                 model.addImplicitMethod(method);
+                method.setSourceRef(methodNode);
             } catch (ModelException e) {
                 throw new GrammarException(e, methodNode);
             }

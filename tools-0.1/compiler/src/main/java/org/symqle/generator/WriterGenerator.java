@@ -29,9 +29,8 @@ public class WriterGenerator implements Generator {
             final String fileName = def.getName() + ".java";
             PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(targetDir, fileName))));
             try {
-                out.print("/* THIS CODE IS GENERATED FROM ");
-                out.print(def.getSourceFile().getName());
-                out.println(". ALL CHANGES WILL BE LOST */");
+                out.println("/* THIS IS GENERATED CODE. ALL CHANGES WILL BE LOST");
+                out.println("   See " + def.getSourceRef() +" */");
                 out.println();
                 out.write("package ");
                 out.write(packageName);

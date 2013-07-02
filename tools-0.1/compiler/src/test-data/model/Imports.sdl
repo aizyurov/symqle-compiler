@@ -1,0 +1,31 @@
+public interface SelectStatement<T> : Query<T> {}
+
+public class AbstractSelectStatement<T> implements SelectStatement<T>
+{}
+
+
+public interface CursorSpecification<T> : Query<T> {}
+
+public class AbstractCursorSpecification<T> implements CursorSpecification<T>
+{}
+
+import java.util.List;
+<T> SelectStatement<T> ::= cspec:CursorSpecification<T>
+    ::
+    import java.util.ArrayList;
+    implicit {}
+
+| cspec:CursorSpecification<T>  FOR READ ONLY
+    :: public AbstractSelectStatement<T> forReadOnly {}
+
+| cspec:CursorSpecification<T> FOR UPDATE
+    :: public AbstractSelectStatement<T> forUpdate {}
+;
+
+#import java.sql.Connection;
+#import java.sql.DataSource;
+#import java.util.List;
+:: public <T> List<T> list(final SelectStatement<T> spec, final DataSource dataSource) {
+      final Connection connection = dataSource.getConnection();
+         throw new RuntimeException("Not implemented yet");
+}

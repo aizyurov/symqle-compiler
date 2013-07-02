@@ -33,6 +33,7 @@ public class SymqleMethodProcessorTest extends TestCase {
         final ClassDefinition symqle = model.getClassDef("Symqle");
 
         final MethodDefinition list = symqle.getMethodBySignature("list(SelectStatement,Database)", model);
+        System.out.println(list);
         assertEquals(TestUtils.pureCode("public List<T> list(final SelectStatement statement, final Database database) {\n" +
                 "    final SqlContext context = new SqlContext();\n" +
                 "    return database.list(statement.z$sqlOfSelectStatement(context));\n" +

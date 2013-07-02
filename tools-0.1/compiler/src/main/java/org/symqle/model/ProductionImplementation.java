@@ -5,6 +5,7 @@ import org.symqle.processor.GrammarException;
 import org.symqle.util.Assert;
 import org.symqle.util.Utils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class ProductionImplementation {
     private final boolean implicit;
     private final String accessModifier;
     private final String comment;
+    private final String sourceRef;
 
     public ProductionImplementation(SyntaxTree node) throws GrammarException {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "ProductionImplementation");
@@ -66,7 +68,10 @@ public class ProductionImplementation {
         // implicit methods are package scope; others may have any access modifier
         accessModifier = implicit ? "" : Utils.getAccessModifier(node.find("MethodModifiers.MethodModifier"));
         comment = node.find("^.ProductionRule").get(0).getComments();
+        this.sourceRef = new File(node.getFileName()).getName() + ":" + node.getLine();
     }
+
+
 
     public String generatedComment() {
         return
@@ -188,6 +193,6 @@ public class ProductionImplementation {
     }
 
     public String getComment() {
-        return comment;
+        return "//" + sourceRef + Utils.LINE_BREAK + comment;
     }
 }

@@ -67,9 +67,6 @@ public class InheritanceProcessor implements ModelProcessor {
                     final String resName = entry.getKey();
                     MethodDefinition methodDef = entry.getValue();
                     final TypeParameters methodTypeParams = methodDef.getTypeParameters();
-                    if (methodDef.getName().equals("z$zValueExpression$from$zValueExpressionPrimary")) {
-                        System.out.println("Got here");
-                    }
                     final Map<String, TypeArgument> paramMapping =
                             methodTypeParams.inferTypeArguments(methodDef.getFormalParameters().get(0).getType(), argType);
 

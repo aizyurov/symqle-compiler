@@ -39,6 +39,6 @@ public class TestUtils {
     }
 
     private final static Pattern multilineComment = Pattern.compile("/\\*.*?\\*/", Pattern.DOTALL | Pattern.MULTILINE);
-    private final static Pattern singleLineComment = Pattern.compile("//.*?");
+    private final static Pattern singleLineComment = Pattern.compile("//.*");
     private final static Pattern whiteSpace = Pattern.compile("\\s+");
 }

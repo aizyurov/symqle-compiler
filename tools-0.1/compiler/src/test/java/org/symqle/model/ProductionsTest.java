@@ -102,6 +102,7 @@ public class ProductionsTest extends TestCase {
 
         {
             final MethodDefinition method = symqle.getDeclaredMethodBySignature("z$zValueExpression$from$zValueExpressionPrimary(zValueExpressionPrimary)");
+            System.out.println(method);
             assertEquals(TestUtils.pureCode(
                     "    <T> zValueExpression<T>" +
                     "    z$zValueExpression$from$zValueExpressionPrimary(final zValueExpressionPrimary<T> e) { \n" +

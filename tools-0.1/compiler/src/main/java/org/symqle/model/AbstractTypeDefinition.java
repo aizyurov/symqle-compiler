@@ -25,7 +25,7 @@ public abstract class AbstractTypeDefinition {
     private final Map<String, MethodDefinition> methods = new TreeMap<String, MethodDefinition>();
     private final List<String> otherDeclarations = new ArrayList<String>();
     private final List<String> annotations;
-    private final String sourceFile;
+    private final String sourceRef;
 
     private static int anonymousClassCounter = 0;
 
@@ -87,7 +87,7 @@ public abstract class AbstractTypeDefinition {
             }
         }
         comment = node.getComments();
-        sourceFile = node.getFileName();
+        sourceRef = new File(node.getFileName()).getName() + ":" + node.getLine();
     }
 
     public void addFieldDeclaration(FieldDeclaration declaration) {
@@ -151,8 +151,8 @@ public abstract class AbstractTypeDefinition {
         return methods.get(signature);
     }
 
-    public File getSourceFile() {
-        return new File(sourceFile);
+    public String getSourceRef() {
+        return sourceRef;
     }
 
     public String toString() {

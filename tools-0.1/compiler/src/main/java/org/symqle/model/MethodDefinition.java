@@ -7,6 +7,7 @@ import org.symqle.processor.GrammarException;
 import org.symqle.util.Assert;
 import org.symqle.util.Utils;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -35,6 +36,8 @@ public class MethodDefinition {
     private final boolean isPublic;
 
     private final boolean isAbstract;
+
+    private String sourceRef;
 
     public boolean isPublic() {
         return isPublic;
@@ -194,7 +197,8 @@ public class MethodDefinition {
     }
 
     public String toString() {
-        return comment + declaration() + body;
+        final String sourceRefComment = sourceRef == null ? "" : "// "+sourceRef+Utils.LINE_BREAK;
+        return sourceRefComment + comment + declaration() + body;
     }
 
     public MethodDefinition override(final AbstractTypeDefinition targetOwner, final Model model) throws ModelException {
@@ -408,5 +412,10 @@ public class MethodDefinition {
 
     public String getComment() {
         return comment;
+    }
+
+    public void setSourceRef(final SyntaxTree node) {
+        final String name = new File(node.getFileName()).getName();
+        this.sourceRef = name + ":" + node.getLine();
     }
 }

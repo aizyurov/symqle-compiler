@@ -31,6 +31,7 @@ public class SymqleMethodProcessor implements Processor {
             List<String> declarationImports = methodNode.find("^.^.ImportDeclaration", SyntaxTree.BODY);
             try {
                 symqle.addMethod(method);
+                method.setSourceRef(methodNode);
                 // private and protected methods are not ExplicitMethods
                 // protected make no sense because Symqle is final
                 if (!method.getAccessModifier().equals("private") && !method.getAccessModifier().equals("protected"))
