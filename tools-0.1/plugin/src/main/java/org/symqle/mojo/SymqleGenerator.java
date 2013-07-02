@@ -32,7 +32,7 @@ import java.io.FilenameFilter;
  * 
  * @phase generate-sources
  */
-public class MyMojo
+public class SymqleGenerator
     extends AbstractMojo
 {
     /**
@@ -61,13 +61,20 @@ public class MyMojo
     private File testOutputDirectory;
 
     /**
-     *  The directory where Simqle sources resides. All *.sdl files from the directory
+     *  The directory where Symqle sources resides. All *.sdl files from the directory
      * are compiled
      *
      * @parameter expression="${sourceDirectory}" default-value="${basedir}/src/main/symqle"
      * @required
      */
     private File sourceDirectory;
+
+    protected File getOutputDirectory() {
+        return outputDirectory;
+    }
+
+
+
 
     public void execute()
         throws MojoExecutionException, MojoFailureException
@@ -78,12 +85,7 @@ public class MyMojo
 
         final Director director = new Director();
         try {
-            director.doAll(sourceDirectory.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(final File dir, final String name) {
-                    return name.endsWith(".sdl");
-                }
-            }), outputDirectory);
+            director.doAll(getSources(), getOutputDirectory());
         } catch (Exception e) {
             e.printStackTrace();
             throw new MojoFailureException(e.toString());
@@ -93,30 +95,21 @@ public class MyMojo
         project.addTestCompileSourceRoot(testOutputDirectory.getAbsolutePath());
     }
 
+    protected File[] getSources() {
+        return sourceDirectory.listFiles(new FilenameFilter() {
+                    @Override
+                    public boolean accept(final File dir, final String name) {
+                        return name.endsWith(".sdl");
+                    }
+                });
+    }
+
     private void prepareDirectory(final File directory) throws MojoExecutionException {
         directory.mkdirs();
         for (File subdir: directory.listFiles()) {
             deleteRecursively(subdir);
         }
     }
-
-//    private SyntaxTree parseSourceFile(File source) throws MojoExecutionException, MojoFailureException {
-//        try {
-//            final FileInputStream inputStream = new FileInputStream(source);
-//            try {
-//                SimqleParser simqleParser = new SimqleParser(inputStream);
-//                final SimpleNode start = simqleParser.Start();
-//                return new SyntaxTree(start);
-//            } finally {
-//                inputStream.close();
-//            }
-//        } catch (ParseException e) {
-//            throw new MojoFailureException(e.getMessage());
-//        } catch (IOException e) {
-//            throw new MojoExecutionException("Code generation failed", e);
-//        }
-//    }
-
 
     private static void deleteRecursively(File f) throws MojoExecutionException {
         if (f.isDirectory()) {
