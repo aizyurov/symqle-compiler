@@ -49,6 +49,7 @@ public class ProductionDeclarationProcessor implements Processor {
             } catch (ModelException e) {
                 throw new GrammarException(e, productionRuleNode);
             }
+            model.addRule(productionRule.getTargetTypeName(), productionRule.getShortRule());
 
             for (SyntaxTree productionImplNode: productionChoice.find("ProductionImplementation")) {
                 final List<String> declarationImports = productionImplNode.find("^.^.^.^.ImportDeclaration", SyntaxTree.BODY);

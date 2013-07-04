@@ -30,7 +30,7 @@ public abstract class AbstractTypeDefinition {
     private static int anonymousClassCounter = 0;
 
     // presentation part
-    private final String comment;
+    private String comment;
 
     protected AbstractTypeDefinition(SyntaxTree node) throws GrammarException {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SymqleInterfaceDeclaration", "NormalClassDeclaration", "ProductionImplementation");
@@ -229,6 +229,10 @@ public abstract class AbstractTypeDefinition {
     }
 
     protected abstract Set<AbstractTypeDefinition> getAllAncestors(Model model) throws ModelException;
+
+    public void replaceComment(final String newComment) {
+        this.comment = newComment;
+    }
 }
 
 

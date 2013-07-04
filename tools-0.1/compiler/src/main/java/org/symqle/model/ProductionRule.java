@@ -23,11 +23,13 @@ public class ProductionRule {
     private final String syntax;
     private final List<String> elementNames;
     private final String targetTypeName;
+    private final String shortRule;
 
     public ProductionRule(SyntaxTree node) throws GrammarException {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "ProductionRule");
-        StringBuilder nameBuilder = new StringBuilder();
-        StringBuilder syntaxBuilder = new StringBuilder();
+        final StringBuilder nameBuilder = new StringBuilder();
+        final StringBuilder syntaxBuilder = new StringBuilder();
+        final StringBuilder shortFormBuilder = new StringBuilder();
         elementNames = new ArrayList<String>();
         // exactly one
         Type targetType = node.find("^.^.ClassOrInterfaceType", Type.CONSTRUCT).get(0);
@@ -43,6 +45,7 @@ public class ProductionRule {
             final String descriptiveName = type != null ? type.getSimpleName() : name;
             final String syntaxElement = type != null ? name + ":" + descriptiveName : descriptiveName;
             nameBuilder.append("_").append(descriptiveName);
+            shortFormBuilder.append(" ").append(descriptiveName);
             syntaxBuilder.append(" ").append(syntaxElement);
             if (type != null) {
                 formalParameters.add(
@@ -52,6 +55,7 @@ public class ProductionRule {
         }
         name = nameBuilder.toString();
         syntax = syntaxBuilder.toString();
+        shortRule = shortFormBuilder.toString();
     }
 
     public String generatedComment() {
@@ -67,7 +71,6 @@ public class ProductionRule {
                 }) +
                     "    * @return Sql constructed according to the rule" + Utils.LINE_BREAK +
                     "    */"  + Utils.LINE_BREAK;
-
     }
 
     public String getName() {
@@ -91,4 +94,11 @@ public class ProductionRule {
         return new ArrayList<FormalParameter>(formalParameters);
     }
 
+    public String getTargetTypeName() {
+        return targetTypeName;
+    }
+
+    public String getShortRule() {
+        return shortRule;
+    }
 }

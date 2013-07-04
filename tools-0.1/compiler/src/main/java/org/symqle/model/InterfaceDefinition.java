@@ -8,7 +8,6 @@ import org.symqle.processor.GrammarException;
 import org.symqle.util.Assert;
 import org.symqle.util.Utils;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,7 +22,6 @@ import java.util.Set;
 public class InterfaceDefinition extends AbstractTypeDefinition {
     private final List<Type> extended;
     private final MethodDefinition archetypeMethod;
-    private final String sourceRef;
 
     public InterfaceDefinition(SyntaxTree node) throws GrammarException {
         super(node);
@@ -49,7 +47,6 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
             e.printStackTrace();
             throw new GrammarException(e, node);
         }
-        this.sourceRef = "//" + new File(node.getFileName()).getName() + ":" + node.getLine() + Utils.LINE_BREAK;
     }
 
     @Override

@@ -7,6 +7,7 @@ import org.symqle.processor.ClassDeclarationProcessor;
 import org.symqle.processor.ClassEnhancer;
 import org.symqle.processor.InheritanceProcessor;
 import org.symqle.processor.InterfaceDeclarationsProcessor;
+import org.symqle.processor.InterfaceJavadocProcessor;
 import org.symqle.processor.ProductionDeclarationProcessor;
 import org.symqle.processor.SymqleMethodProcessor;
 import org.symqle.util.ModelUtils;
@@ -36,6 +37,7 @@ public class ImportsTest extends TestCase {
         new SymqleMethodProcessor().process(syntaxTree, model);
         new InheritanceProcessor().process(model);
         new ClassEnhancer().process(model);
+        new InterfaceJavadocProcessor().process(model);
         final ClassDefinition cursorSpec = model.getClassDef("AbstractCursorSpecification");
         System.out.println("===");
         System.out.println(cursorSpec);
@@ -45,6 +47,7 @@ public class ImportsTest extends TestCase {
         System.out.println("===");
         final ClassDefinition symqle = model.getClassDef("Symqle");
         System.out.println(symqle);
+        System.out.println(model.getInterface("SelectStatement"));
 //        MethodDefinition delegatedMethod = cursorSpec.getDeclaredMethodBySignature("z$sqlOfzSelectStatement(SqlContext)");
 //        assertEquals(TestUtils.pureCode
 //                ("public final Query<T> z$sqlOfzSelectStatement(final SqlContext context) {\n" +

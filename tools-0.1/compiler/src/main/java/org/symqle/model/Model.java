@@ -19,6 +19,7 @@ public class Model {
 
     private final List<MethodDefinition> implicitSymqleMethods = new ArrayList<MethodDefinition>();
     private final Map<MethodDefinition, Set<String>> explicitSymqleMethods = new LinkedHashMap<MethodDefinition, Set<String>>();
+    private final Map<String, List<String>> rulesByTargetTypeName = new HashMap<String, List<String>>();
 
     public void addImplicitMethod(MethodDefinition method) {
         implicitSymqleMethods.add(method);
@@ -143,6 +144,20 @@ public class Model {
 
     public ClassDefinition getClassDef(Type t) throws ModelException {
         return getClassDef(t.getSimpleName());
+    }
+
+    public void addRule(String targetTypeName, String rule) {
+        List<String> rules = rulesByTargetTypeName.get(targetTypeName);
+        if (rules == null) {
+            rules = new ArrayList<String>();
+            rulesByTargetTypeName.put(targetTypeName, rules);
+        }
+        rules.add(rule);
+    }
+
+    public List<String> getRules(String targetTypeName) {
+        final List<String> rules = rulesByTargetTypeName.get(targetTypeName);
+        return rules == null ? null : Collections.unmodifiableList(rules);
     }
 
 }

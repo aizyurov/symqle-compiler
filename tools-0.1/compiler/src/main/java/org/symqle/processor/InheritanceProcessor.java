@@ -18,7 +18,7 @@ public class InheritanceProcessor implements ModelProcessor {
      * Add interfaces, reachable via a chain of implicit conversions,
      * to classes. Adds implementation of methods declared by the interfaces
      * based on delegation to a new object constructed by implicit convertion.
-     * @param model should have all interfaces and classes befor the call to this method
+     * @param model should have all interfaces and classes before the call to this method
      * @throws ModelException
      */
     @Override
