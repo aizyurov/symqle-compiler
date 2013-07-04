@@ -68,6 +68,7 @@ public class ProductionDeclarationProcessor implements Processor {
                         productionImpl.getComment() +
                         productionImpl.asAbstractMethodDeclaration()+";";
                 final MethodDefinition methodToImplement = MethodDefinition.parse(abstractMethodDeclaration, symqle);
+                methodToImplement.setSourceRef(productionImpl.getSourceRef());
                 if (productionImpl.isImplicit()) {
                     model.addImplicitMethod(methodToImplement);
                 } else {
@@ -75,7 +76,7 @@ public class ProductionDeclarationProcessor implements Processor {
                             && !methodToImplement.getAccessModifier().equals("protected"))
                     model.addExplicitMethod(methodToImplement, declarationImports);
                 }
-                // create implementing method in SymqleGeneric via anonymous class
+                // create implementing method in Symqle via anonymous class
                 try {
                     final AnonymousClass anonymousClass = new AnonymousClass(productionImplNode);
                     // create implementing method for SymqleGeneric class (uses the anonymous class and the rule)
@@ -96,7 +97,7 @@ public class ProductionDeclarationProcessor implements Processor {
                                 final String methodName = method.getName();
                                 String propertyName = methodName.substring(3,4).toLowerCase() +
                                         methodName.substring(4, methodName.length());
-                                String fieldDeclarationSource = "private final " +
+                                String fieldDeclarationSource = "        private final " +
                                         method.getResultType() + " " + propertyName + " = " +
                                         callLeftmostArg(model, productionImpl, method);
                                 delegationCall = propertyGetter(propertyName);
@@ -110,8 +111,8 @@ public class ProductionDeclarationProcessor implements Processor {
                     methodToImplement.implement(methodToImplement.getAccessModifier(),
                             " { " +  Utils.LINE_BREAK +
                                     "        return new "+methodToImplement.getResultType()+"()" +
-                            anonymousClass.instanceBodyAsString() + ";/*anonymous*/"+ Utils.LINE_BREAK +
-                            "    }/*rule method*/"+Utils.LINE_BREAK,
+                            anonymousClass.instanceBodyAsString() + ";"+ Utils.LINE_BREAK +
+                            "    }"+Utils.LINE_BREAK,
                             true, false);
                 } catch (ModelException e) {
                     throw new GrammarException(e, productionImplNode);
@@ -188,7 +189,7 @@ public class ProductionDeclarationProcessor implements Processor {
                         }
                     }))
                     .append(")").append(";").append(Utils.LINE_BREAK);
-            builder.append("            }/*delegation*/");
+            builder.append("            }");
         } else {
             // scan elements until is not constant
             final ProductionImplementation.RuleElement queryDelegate = findVariable(productionImpl);
@@ -218,7 +219,7 @@ public class ProductionDeclarationProcessor implements Processor {
                     .append(")")
                     .append(";")
                     .append(Utils.LINE_BREAK);
-            builder.append("            }/*delegation*/");
+            builder.append("            }");
         }
         return builder.toString();
     }

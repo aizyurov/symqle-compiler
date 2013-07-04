@@ -57,7 +57,7 @@ public class ProductionRule {
     public String generatedComment() {
         return
             "    /**" + Utils.LINE_BREAK +
-            "    * {@code " + toString() +"}" + Utils.LINE_BREAK +
+            "    * {@code " + toString() +"}." + Utils.LINE_BREAK +
             Utils.format(formalParameters, "", Utils.LINE_BREAK, Utils.LINE_BREAK,
                 new F<FormalParameter, String, RuntimeException>() {
                     @Override

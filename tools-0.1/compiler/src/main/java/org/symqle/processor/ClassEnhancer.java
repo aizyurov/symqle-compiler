@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * @author lvovich
@@ -80,7 +81,7 @@ public class ClassEnhancer implements ModelProcessor {
                         "(" +
                         Utils.format(parameters, "", ", ", "") +
                         ");" + Utils.LINE_BREAK +
-                        "    }"
+                        "    }", true, true
                 );
         }
 
@@ -166,6 +167,7 @@ public class ClassEnhancer implements ModelProcessor {
             for (String s = reader.readLine(); s != null; s = reader.readLine()) {
                 // expecting at most one class type parameter
                 if (!classDef.getTypeParameters().isEmpty() && s.contains("@param "+classDef.getTypeParameters().toString())) {
+                    // skip this line
                     continue;
                 }
                 writer.println(s.replace("@param "+symqleMethod.getFormalParameters().get(0).getName(), "{@code this}"));
@@ -176,9 +178,11 @@ public class ClassEnhancer implements ModelProcessor {
             throw new RuntimeException("Internal error", e);
         }
 
+        final Pattern TRAILING_WHITESPACE = Pattern.compile("\\s$", Pattern.MULTILINE);
+
         final StringBuilder builder = new StringBuilder();
-        builder.append(charArrayWriter.toString().replaceAll("\\s$", ""));
-        builder.append(Utils.LINE_BREAK).append("    ");
+        builder.append(TRAILING_WHITESPACE.matcher(charArrayWriter.toString()).replaceAll(""));
+        builder.append("    ");
         builder.append(symqleMethod.getAccessModifier())
                 .append(" ")
                 .append(Utils.format(symqleMethod.getOtherModifiers(), "", " ", " "))
@@ -192,7 +196,9 @@ public class ClassEnhancer implements ModelProcessor {
                 .append(Utils.format(symqleMethod.getThrownExceptions(), " throws ", ", ", ""))
                 .append(";");
         final String body = builder.toString();
-        return MethodDefinition.parse(body, classDef);
+        final MethodDefinition method = MethodDefinition.parse(body, classDef);
+        method.setSourceRef(symqleMethod.getSourceRef());
+        return method;
     }
 
 

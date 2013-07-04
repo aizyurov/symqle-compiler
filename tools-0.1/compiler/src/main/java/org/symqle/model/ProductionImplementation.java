@@ -193,6 +193,10 @@ public class ProductionImplementation {
     }
 
     public String getComment() {
-        return "//" + sourceRef + Utils.LINE_BREAK + comment;
+        return comment;
+    }
+
+    public String getSourceRef() {
+        return sourceRef;
     }
 }

@@ -164,7 +164,8 @@ public abstract class AbstractTypeDefinition {
                 .append(Utils.LINE_BREAK)
                 .append(bodyStringWithoutBraces())
                 .append(Utils.LINE_BREAK)
-                .append("}");
+                .append("}")
+                .append(Utils.LINE_BREAK);
         return builder.toString();
 
     }

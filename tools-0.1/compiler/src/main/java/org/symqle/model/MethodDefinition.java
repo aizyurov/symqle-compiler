@@ -348,8 +348,7 @@ public class MethodDefinition {
         if (makeMethodFinal) {
             newModifiers.add("final");
         }
-        owner.addMethod(
-        new MethodDefinition(
+        final MethodDefinition implementation = new MethodDefinition(
                 comment,
                 newAccessModifier,
                 newModifiers,
@@ -361,7 +360,10 @@ public class MethodDefinition {
                 newBody,
                 owner,
                 owner.methodIsPublic(newAccessModifier),
-                false)
+                false);
+        implementation.setSourceRef(this.getSourceRef());
+        owner.addMethod(
+                implementation
         );
     }
 
@@ -417,5 +419,13 @@ public class MethodDefinition {
     public void setSourceRef(final SyntaxTree node) {
         final String name = new File(node.getFileName()).getName();
         this.sourceRef = name + ":" + node.getLine();
+    }
+
+    public void setSourceRef(final String sourceRef) {
+        this.sourceRef = sourceRef;
+    }
+
+    public String getSourceRef() {
+        return sourceRef;
     }
 }
