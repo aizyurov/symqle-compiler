@@ -111,9 +111,18 @@ public class ProductionImplementation {
         return typeParameters + (typeParameters.isEmpty() ? "" : " " ) + targetType + " ::= " + Utils.format(ruleElements, "", " ", "");
     }
 
-    public String asAbstractMethodDeclaration() {
-        return accessModifier+" "+"abstract "+ typeParameters + (typeParameters.isEmpty() ? "" : " " ) + returnType + " " + name
-                + "(" + Utils.format(formalParameters, "", ", ", "") +")";
+    public String asStaticMethodDeclaration() {
+        return accessModifier+" "+"static "+ typeParameters + (typeParameters.isEmpty() ? "" : " " ) + returnType + " " + name
+                + "(" + Utils.format(formalParameters, "", ", ", "", new F<FormalParameter, String, RuntimeException>() {
+                            @Override
+                            public String apply(final FormalParameter formalParameter) {
+                                return "final "+formalParameter.toString();
+                            }
+                        }) +")";
+    }
+
+    public Type getReturnType() {
+        return returnType;
     }
 
     public String asMethodDeclaration() {

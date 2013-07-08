@@ -367,6 +367,13 @@ public class MethodDefinition {
         );
     }
 
+    public void makeStatic() throws ModelException {
+        if (isAbstract()) {
+            throw new ModelException("Abstract method cannot be static");
+        }
+        otherModifiers.add("static");
+    }
+
     public void declareAbstract(final String newAccessModifier) throws ModelException {
         final Set<String> newModifiers = new HashSet<String>(otherModifiers);
         newModifiers.add("abstract");

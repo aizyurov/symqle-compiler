@@ -1,11 +1,7 @@
 public final class Symqle  {
-    private static final Symqle instance = new Symqle();
 
     private Symqle() {}
 
-    public static Symqle get() {
-         return instance;
-    }
 }
 
 

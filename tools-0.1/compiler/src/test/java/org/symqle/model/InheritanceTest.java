@@ -40,7 +40,7 @@ public class InheritanceTest extends TestCase {
         MethodDefinition delegatedMethod = cursorSpec.getDeclaredMethodBySignature("z$sqlOfzSelectStatement(SqlContext)");
         assertEquals(TestUtils.pureCode
                 ("public final Query<T> z$sqlOfzSelectStatement(final SqlContext context) {\n" +
-                "                return Symqle.get()\n" +
+                "                return Symqle\n" +
                 "                    .z$zSelectStatement$from$zCursorSpecification(this)\n" +
                 "                    .z$sqlOfzSelectStatement(context);\n" +
                 "            }"), TestUtils.pureCode(delegatedMethod.toString()));
@@ -63,7 +63,7 @@ public class InheritanceTest extends TestCase {
         final MethodDefinition asCursorSpec = queryExpr.getDeclaredMethodBySignature("z$sqlOfzCursorSpecification(SqlContext)");
         assertEquals(TestUtils.pureCode(
                 "public final Query<T> z$sqlOfzCursorSpecification(final SqlContext context) {\n" +
-                        "                return Symqle.get()\n" +
+                        "                return Symqle\n" +
                         "                    .z$zCursorSpecification$from$zQueryExpression(this)\n" +
                         "                    .z$sqlOfzCursorSpecification(context);\n" +
                         "            }"
@@ -71,7 +71,7 @@ public class InheritanceTest extends TestCase {
         final MethodDefinition asSelectStatement = queryExpr.getDeclaredMethodBySignature("z$sqlOfzSelectStatement(SqlContext)");
         assertEquals(TestUtils.pureCode(
                 "public final Query<T> z$sqlOfzSelectStatement(final SqlContext context) {\n" +
-                        "                return Symqle.get()\n" +
+                        "                return Symqle\n" +
                         "                    .z$zSelectStatement$from$zCursorSpecification(this)\n" +
                         "                    .z$sqlOfzSelectStatement(context);\n" +
                         "            }"),

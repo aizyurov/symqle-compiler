@@ -103,7 +103,7 @@ public class InheritanceProcessor implements ModelProcessor {
                                 "                " +
                                 (methodToImplement.getResultType()==Type.VOID ? "" : "return ") +
                                 methodToImplement.delegationInvocation(
-                                        methodDef.invoke("Symqle.get()"+Utils.LINE_BREAK+"                    ",
+                                        methodDef.invoke("Symqle"+Utils.LINE_BREAK+"                    ",
                                                 Collections.singletonList("this"))+Utils.LINE_BREAK+"                    ") +
                                 ";" + Utils.LINE_BREAK+"            "+"}"+Utils.LINE_BREAK,
                                 true, true);

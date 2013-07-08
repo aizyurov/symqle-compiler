@@ -31,6 +31,7 @@ public class ImplicitDeclarationProcessor implements Processor {
 
             StringBuilder builder = new StringBuilder();
             builder.append(methodNode.getComments())
+                    .append("static ")
                     .append(typeParameters)
                     .append(" ")
                     .append(targetType)

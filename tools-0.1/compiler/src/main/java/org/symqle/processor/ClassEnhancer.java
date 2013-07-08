@@ -76,7 +76,7 @@ public class ClassEnhancer implements ModelProcessor {
                 ((MethodDefinition) myAbstractMethod).implement(myAbstractMethod.getAccessModifier(), " {" + Utils.LINE_BREAK +
                         "        " +
                         (myAbstractMethod.getResultType().equals(Type.VOID) ? "" : "return ") +
-                        "Symqle.get()." +
+                        "Symqle." +
                         myAbstractMethod.getName() +
                         "(" +
                         Utils.format(parameters, "", ", ", "") +
@@ -160,6 +160,7 @@ public class ClassEnhancer implements ModelProcessor {
         }
         Set<String> myModifiers = new HashSet<String>(symqleMethod.getOtherModifiers());
         myModifiers.add("abstract");
+        myModifiers.remove("static");
         final BufferedReader reader = new BufferedReader(new StringReader(symqleMethod.getComment()));
         final CharArrayWriter charArrayWriter = new CharArrayWriter();
         final PrintWriter writer = new PrintWriter(charArrayWriter);
@@ -185,7 +186,7 @@ public class ClassEnhancer implements ModelProcessor {
         builder.append("    ");
         builder.append(symqleMethod.getAccessModifier())
                 .append(" ")
-                .append(Utils.format(symqleMethod.getOtherModifiers(), "", " ", " "))
+                .append(Utils.format(myModifiers, "", " ", " "))
                 .append(myTypeParameters)
                 .append(symqleMethod.getResultType().replaceParams(mapping))
                 .append(" ")

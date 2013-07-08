@@ -65,18 +65,9 @@ public class ProductionDeclarationProcessor implements Processor {
                         throw new GrammarException(e, productionRuleNode);
                     }
                 }
-                String abstractMethodDeclaration =
+                String staticMethodDeclaration =
                         productionImpl.getComment() +
-                        productionImpl.asAbstractMethodDeclaration()+";";
-                final MethodDefinition methodToImplement = MethodDefinition.parse(abstractMethodDeclaration, symqle);
-                methodToImplement.setSourceRef(productionImpl.getSourceRef());
-                if (productionImpl.isImplicit()) {
-                    model.addImplicitMethod(methodToImplement);
-                } else {
-                    if (!methodToImplement.getAccessModifier().equals("private")
-                            && !methodToImplement.getAccessModifier().equals("protected"))
-                    model.addExplicitMethod(methodToImplement, declarationImports);
-                }
+                        productionImpl.asStaticMethodDeclaration();
                 // create implementing method in Symqle via anonymous class
                 try {
                     final AnonymousClass anonymousClass = new AnonymousClass(productionImplNode);
@@ -109,12 +100,21 @@ public class ProductionDeclarationProcessor implements Processor {
                             method.implement("public", delegationCall, true, false);
                         }
                     }
-                    methodToImplement.implement(methodToImplement.getAccessModifier(),
+                    final MethodDefinition methodToImplement = MethodDefinition.parse(staticMethodDeclaration +
+                            Utils.LINE_BREAK +
                             " { " +  Utils.LINE_BREAK +
-                                    "        return new "+methodToImplement.getResultType()+"()" +
+                                    "        return new "+productionImpl.getReturnType()+"()" +
                             anonymousClass.instanceBodyAsString() + ";"+ Utils.LINE_BREAK +
-                            "    }"+Utils.LINE_BREAK,
-                            true, false);
+                            "    }"+Utils.LINE_BREAK                            , symqle);
+                    methodToImplement.setSourceRef(productionImpl.getSourceRef());
+                    symqle.addMethod(methodToImplement);
+                    if (productionImpl.isImplicit()) {
+                        model.addImplicitMethod(methodToImplement);
+                    } else {
+                        if (!methodToImplement.getAccessModifier().equals("private")
+                                && !methodToImplement.getAccessModifier().equals("protected"))
+                        model.addExplicitMethod(methodToImplement, declarationImports);
+                    }
                 } catch (ModelException e) {
                     throw new GrammarException(e, productionImplNode);
                 }

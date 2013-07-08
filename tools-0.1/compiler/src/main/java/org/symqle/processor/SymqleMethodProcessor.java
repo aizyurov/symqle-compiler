@@ -30,6 +30,7 @@ public class SymqleMethodProcessor implements Processor {
             MethodDefinition method = new MethodDefinition(methodNode, symqle);
             List<String> declarationImports = methodNode.find("^.^.ImportDeclaration", SyntaxTree.BODY);
             try {
+                method.makeStatic();
                 symqle.addMethod(method);
                 method.setSourceRef(methodNode);
                 // private and protected methods are not ExplicitMethods

@@ -38,19 +38,18 @@ public class ProductionsTest extends TestCase {
         Utils.createParser(symqle.toString()).SymqleDeclarationBlock();;
 
         //
-        assertEquals(3, symqle.getDeclaredMethods().size());
-        assertEquals(3, symqle.getDeclaredMethods().size());
-        for (MethodDefinition method: symqle.getDeclaredMethods()) {
+        assertEquals(3, symqle.getStaticMethods().size());
+        for (MethodDefinition method: symqle.getStaticMethods()) {
             assertFalse(method.getOtherModifiers().toString(), method.getOtherModifiers().contains("abstract"));
         }
         {
             final MethodDefinition method = symqle.getDeclaredMethodBySignature("z$zSelectStatement$from$zCursorSpecification(zCursorSpecification)");
-            assertEquals("<T> zSelectStatement<T> z$zSelectStatement$from$zCursorSpecification(final zCursorSpecification<T> cspec)",
+            assertEquals("static <T> zSelectStatement<T> z$zSelectStatement$from$zCursorSpecification(final zCursorSpecification<T> cspec)",
                     method.declaration());
         }
         {
             final MethodDefinition method = symqle.getDeclaredMethodBySignature("forReadOnly(zCursorSpecification)");
-            assertEquals("public <T> SelectStatement<T> forReadOnly(final zCursorSpecification<T> cspec)",
+            assertEquals("public static <T> SelectStatement<T> forReadOnly(final zCursorSpecification<T> cspec)",
                     method.declaration());
         }
     }
@@ -69,20 +68,19 @@ public class ProductionsTest extends TestCase {
         Utils.createParser(symqle.toString()).SymqleDeclarationBlock();
 
         //
-        assertEquals(3, symqle.getDeclaredMethods().size());
-        assertEquals(3, symqle.getAllMethods(model).size());
-        for (MethodDefinition method: symqle.getDeclaredMethods()) {
+        assertEquals(3, symqle.getStaticMethods().size());
+        for (MethodDefinition method: symqle.getStaticMethods()) {
             assertFalse(method.getOtherModifiers().toString(), method.getOtherModifiers().contains("abstract"));
         }
         {
             final MethodDefinition method = symqle.getDeclaredMethodBySignature("z$zSelectStatement$from$zCursorSpecification(zCursorSpecification)");
-            assertEquals("<T> zSelectStatement<T> z$zSelectStatement$from$zCursorSpecification(final zCursorSpecification<T> cspec)",
+            assertEquals("static <T> zSelectStatement<T> z$zSelectStatement$from$zCursorSpecification(final zCursorSpecification<T> cspec)",
                     method.declaration());
             assertTrue(method.toString(), method.toString().contains("throw new RuntimeException(\"Not implemented\");"));
         }
         {
             final MethodDefinition method = symqle.getDeclaredMethodBySignature("forReadOnly(zCursorSpecification)");
-            assertEquals("public <T> SelectStatement<T> forReadOnly(final zCursorSpecification<T> cspec)",
+            assertEquals("public static <T> SelectStatement<T> forReadOnly(final zCursorSpecification<T> cspec)",
                     method.declaration());
         }
     }
@@ -104,7 +102,7 @@ public class ProductionsTest extends TestCase {
             final MethodDefinition method = symqle.getDeclaredMethodBySignature("z$zValueExpression$from$zValueExpressionPrimary(zValueExpressionPrimary)");
             System.out.println(method);
             assertEquals(TestUtils.pureCode(
-                    "    <T> zValueExpression<T>" +
+                    "    static <T> zValueExpression<T>" +
                     "    z$zValueExpression$from$zValueExpressionPrimary(final zValueExpressionPrimary<T> e) { \n" +
                     "        return new zValueExpression<T>() {\n" +
                             "    public T value(final Element element) throws SQLException {\n" +
@@ -148,7 +146,7 @@ public class ProductionsTest extends TestCase {
         ClassDefinition symqle = model.getClassDef("Symqle");
         MethodDefinition method = symqle.getDeclaredMethodBySignature("z$Subquery$from$SelectList(SelectList)");
         assertEquals(TestUtils.pureCode(
-                "<T> Subquery<T> z$Subquery$from$SelectList(final SelectList<T> sl) { \n" +
+                "static <T> Subquery<T> z$Subquery$from$SelectList(final SelectList<T> sl) { \n" +
                         "        return new Subquery<T>() {\n" +
                         "            /**\n" +
                         "            * Creates a Query representing <code>this</code>\n" +

@@ -71,15 +71,10 @@ public abstract class AbstractTypeDefinition {
             if (type.equals("AbstractMethodDeclaration") ||
                     type.equals("MethodDeclaration")) {
                 MethodDefinition methodDefinition = new MethodDefinition(child, this);
-                if (methodDefinition.getOtherModifiers().contains("static")) {
-                    // static methods are not processed by Symqle
-                    otherDeclarations.add(child.getImage());
-                } else {
-                    try {
-                        addMethod(methodDefinition);
-                    } catch (ModelException e) {
-                        throw new GrammarException(e, child);
-                    }
+                try {
+                    addMethod(methodDefinition);
+                } catch (ModelException e) {
+                    throw new GrammarException(e, child);
                 }
             } else {
                 // just copy to other otherDeclarations
@@ -129,9 +124,36 @@ public abstract class AbstractTypeDefinition {
         return typeParameters;
     }
 
-    public Collection<MethodDefinition> getDeclaredMethods() {
-        return methods.values();
+    /**
+     * Actually returns only non-static methods
+     * @return
+     */
+    public Collection<MethodDefinition> getNonStaticMethods() {
+        final Collection<MethodDefinition> methods = this.methods.values();
+        final List<MethodDefinition> nonStaticMethods = new ArrayList<MethodDefinition>();
+        for (MethodDefinition method : methods) {
+            if (!method.getOtherModifiers().contains("static")) {
+                nonStaticMethods.add(method);
+            }
+        }
+        return nonStaticMethods;
     }
+
+    public Collection<MethodDefinition> getDeclaredMethods() {
+        return Collections.unmodifiableCollection(methods.values());
+    }
+
+    public Collection<MethodDefinition> getStaticMethods() {
+        final Collection<MethodDefinition> methods = this.methods.values();
+        final List<MethodDefinition> staticMethods = new ArrayList<MethodDefinition>();
+        for (MethodDefinition method : methods) {
+            if (method.getOtherModifiers().contains("static")) {
+                staticMethods.add(method);
+            }
+        }
+        return staticMethods;
+    }
+
 
     public final Collection<MethodDefinition> getAllMethods(Model model) throws ModelException {
         return getAllMethodsMap(model).values();
