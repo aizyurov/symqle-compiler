@@ -24,6 +24,7 @@ import org.symqle.processor.Director;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 
 /**
  * Goal which touches a timestamp file.
@@ -80,6 +81,13 @@ public class SymqleGenerator
         throws MojoExecutionException, MojoFailureException
     {
 
+        if (isClean()) {
+            getLog().info("All files are up to date");
+            return;
+        } else {
+            getLog().info("Changes detected - rebuilding");
+        }
+
         prepareDirectory(outputDirectory);
         prepareDirectory(testOutputDirectory);
 
@@ -91,8 +99,32 @@ public class SymqleGenerator
             throw new MojoFailureException(e.toString());
         }
 
+        File marker = new File(outputDirectory, "symqle.built");
+        marker.delete();
+        try {
+            marker.createNewFile();
+        } catch (IOException e) {
+            // ignore - not critical: will cause full rebuild next time
+        }
         project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
         project.addTestCompileSourceRoot(testOutputDirectory.getAbsolutePath());
+    }
+
+    private boolean isClean() {
+        if (!outputDirectory.exists()) {
+            return false;
+        }
+        File marker = new File(outputDirectory, "symqle.built");
+        if (!marker.exists()) {
+            return false;
+        }
+        final long markerTs = marker.lastModified();
+        for (File file : getSources()) {
+            if (file.lastModified() > markerTs) {
+                return false;
+            }
+        }
+        return true;
     }
 
     protected File[] getSources() {
