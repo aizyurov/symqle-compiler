@@ -334,6 +334,7 @@ public class Constants {
         "NONE",
         "OBJECT",
         "OFF",
+        "OFFSET",
         "OID",
         "OLD",
         "OPERATION",
