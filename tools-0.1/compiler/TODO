@@ -62,3 +62,5 @@ Later: all imports put classes to the Model (using reflection) and mark them as 
 
 (done) make Symqle methods static (big change)
 
+better conflicts resolution: (1) if equal distance from 2 interfaces, choose the one, which have more methods to implement.
+(2) if still not resolved, fail.
