@@ -13,13 +13,13 @@ import java.util.List;
 <T> SelectStatement<T> ::= cspec:CursorSpecification<T>
     ::
     import java.util.ArrayList;
-    implicit {}
+    implicit AbstractCursorSpecification<T>
 
 | cspec:CursorSpecification<T>  FOR READ ONLY
-    :: public AbstractSelectStatement<T> forReadOnly {}
+    :: public AbstractSelectStatement<T> forReadOnly
 
 | cspec:CursorSpecification<T> FOR UPDATE
-    :: public AbstractSelectStatement<T> forUpdate {}
+    :: public AbstractSelectStatement<T> forUpdate
 ;
 
 #import java.sql.Connection;

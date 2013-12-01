@@ -1100,7 +1100,19 @@ IdentifierWithTypeArguments Identifier(arguments derived from the rule) {
 Variable names declared in the production are available in the body (they are final variables in the context).
 */
     ( ImportDeclaration() ) *
-    ( "implicit" | MethodModifiers() ClassOrInterfaceType() Identifier() ) ClassBody()
+    ( ( MethodModifiers() ClassOrInterfaceType() Identifier() ) | "implicit" ) [ ImplementationHint() ]
+}
+
+SimpleNode ImplementationHint() :
+{}
+{
+(
+     ClassOrInterfaceType() [ ClassBody() ]
+|
+     ClassBody()
+)     
+
+    { return jjtThis; }
 }
 
 void ImplicitConversionDeclaration():

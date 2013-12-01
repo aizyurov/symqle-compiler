@@ -3,28 +3,23 @@ package org.symqle.processor;
 import org.symqle.model.*;
 import org.symqle.util.Utils;
 
-import java.io.BufferedReader;
-import java.io.CharArrayWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringReader;
+import java.io.*;
 import java.util.*;
 import java.util.regex.Pattern;
 
 /**
  * @author lvovich
  */
-public class ClassEnhancer implements ModelProcessor {
+public class InterfaceEnhancer implements ModelProcessor {
 
     @Override
     public void process(final Model model) throws ModelException {
-        for (ClassDefinition classDef: model.getAllClasses()) {
-            enhanceClass(classDef, model);
-            classDef.makeAbstractIfNeeded(model);
+        for (InterfaceDefinition interfaceDefinition: model.getAllInterfaces()) {
+            enhanceInterface(interfaceDefinition, model);
         }
     }
 
-    private void enhanceClass(final ClassDefinition classDefinition, final Model model) throws ModelException {
+    private void enhanceInterface(final InterfaceDefinition interfaceDefinition, final Model model) throws ModelException {
         for (MethodDefinition method: model.getExplicitSymqleMethods()) {
             String accessModifier = method.getAccessModifier();
             // package scope methods of Symqle get translated to public methods of classes and interfaces
@@ -36,7 +31,7 @@ public class ClassEnhancer implements ModelProcessor {
                 continue;
             }
             final Type firstArgType = formalParameters.get(0).getType();
-            Type myType = classDefinition.getType();
+            Type myType = interfaceDefinition.getType();
             // names must match
             if (!myType.getSimpleName().equals(firstArgType.getSimpleName())) {
                 continue;
@@ -54,14 +49,44 @@ public class ClassEnhancer implements ModelProcessor {
                     && myType.getTypeArguments().getArguments().size() == 1)) {
                 // special case: both have a single parameter, which is wildcard in firstArg,
                 // so types match
-                final MethodDefinition newMethod = createMyMethod(classDefinition, method, myType, mapping);
-                classDefinition.addMethod(newMethod);
+                final MethodDefinition newMethod = createMyMethod(interfaceDefinition, method, myType, mapping);
+                interfaceDefinition.addMethod(newMethod);
+                implementMethod(newMethod, model);
             }
         }
-        classDefinition.addImportLines(Arrays.asList("import org.symqle.common.*;"));
+        interfaceDefinition.addImportLines(Arrays.asList("import org.symqle.common.*;"));
     }
 
-    private MethodDefinition createMyMethod(final ClassDefinition classDef, MethodDefinition symqleMethod, Type myType, final Map<String, TypeArgument> mapping) {
+    private void implementMethod(final MethodDefinition method, final Model model) throws ModelException {
+        for (final ClassDefinition classDef : model.getAllClasses()) {
+            final MethodDefinition classMethod = classDef.getMethodBySignature(method.signature(), model);
+            if (classMethod == null) {
+                continue;
+            }
+            if (classMethod.getOtherModifiers().contains("transient")) {
+                // not implemented yet
+                StringBuilder implBuilder = new StringBuilder();
+                implBuilder.append("{ ");
+                if (!method.getResultType().equals(Type.VOID)) {
+                    implBuilder.append("return ");
+                }
+                implBuilder.append("Symqle.")
+                    .append(method.getName()).append("(this");
+                implBuilder.append(Utils.format(classMethod.getFormalParameters(), ", ", ",", "",
+                        new F<FormalParameter, String, RuntimeException>() {
+                            @Override
+                            public String apply(FormalParameter formalParameter) {
+                                return formalParameter.getName();
+                            }
+                        })).append("); }");
+
+                classMethod.implement("public", implBuilder.toString(), true, true);
+                classDef.addImportLines(method.getOwner().getImportLines());
+            }
+        }
+    }
+
+    private MethodDefinition createMyMethod(final InterfaceDefinition interfaceDefinition, MethodDefinition symqleMethod, Type myType, final Map<String, TypeArgument> mapping) {
         final List<TypeParameter> myTypeParameterList = new ArrayList<TypeParameter>();
         // skip parameters, which are in mapping: they are inferred
         for (TypeParameter typeParameter: symqleMethod.getTypeParameters().list()) {
@@ -87,22 +112,9 @@ public class ClassEnhancer implements ModelProcessor {
                 .append(Utils.format(myFormalParameters, "", ", ", ""))
                 .append(")")
                 .append(Utils.format(symqleMethod.getThrownExceptions(), " throws ", ", ", ""))
-                .append(" {")
-                .append(Utils.LINE_BREAK)
-                .append("    return Symqle.")
-                .append(symqleMethod.getName())
-                .append("(")
-                .append(Utils.format(myFormalParameters, "", ", ", "", new F<FormalParameter, String, RuntimeException>() {
-                    @Override
-                    public String apply(FormalParameter formalParameter) {
-                        return formalParameter.getName();
-                    }
-                }))
-                .append(");")
-                .append("    }");
-
+                .append(";");
         final String body = builder.toString();
-        final MethodDefinition method = MethodDefinition.parse(body, classDef);
+        final MethodDefinition method = MethodDefinition.parse(body, interfaceDefinition);
         method.setSourceRef(symqleMethod.getSourceRef());
         return method;
     }

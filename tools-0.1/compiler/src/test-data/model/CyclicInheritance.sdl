@@ -12,7 +12,7 @@ public class Value<T> implements zValueExpression<T>
 
 <T> zValueExpression<T> ::=
 		e:zValueExpressionPrimary<T>
-		:: implicit {}
+		:: implicit ValueExpressionPrimary<T>
 ;
 
 <T extends Number> zValueExpression<Number> ::=
@@ -36,9 +36,9 @@ public class ValueExpressionPrimary<T> implements zValueExpressionPrimary<T>
 {}
 
 <T> zValueExpressionPrimary<T> ::=
-    LEFT_PAREN ve:zValueExpression<T> RIGHT_PAREN :: implicit {}
+    LEFT_PAREN ve:zValueExpression<T> RIGHT_PAREN ::  implicit Value<T>
 |
-    cr:zColumnReference<T> :: implicit {}
+    cr:zColumnReference<T> ::  implicit Column<T>
 ;
 
 public interface	zColumnReference<T> extends Scalar<T> : Sql

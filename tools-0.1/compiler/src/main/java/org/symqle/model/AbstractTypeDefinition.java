@@ -3,6 +3,7 @@
 */
 package org.symqle.model;
 
+import org.symqle.parser.ParseException;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
 import org.symqle.util.Assert;
@@ -33,7 +34,7 @@ public abstract class AbstractTypeDefinition {
     private String comment;
 
     protected AbstractTypeDefinition(SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SymqleInterfaceDeclaration", "NormalClassDeclaration", "ProductionImplementation");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SymqleInterfaceDeclaration", "NormalClassDeclaration", "ImplementationHint");
 
         this.importLines = new TreeSet<String>(node.find("^.^.ImportDeclaration", SyntaxTree.BODY));
         // modifiers may be of interface or class; one of collections is empty
@@ -59,9 +60,16 @@ public abstract class AbstractTypeDefinition {
         typeParams.addAll(node.find("^.TypeParameters.TypeParameter", TypeParameter.CONSTRUCT));
         this.typeParameters = new TypeParameters(typeParams);
         // exactly one body guaranteed by syntax - either InterfaceBody or ClassBody
+        // except for ImplementationHiht, which can have no body
         final List<SyntaxTree> bodies = node.find("InterfaceBody");
         bodies.addAll(node.find("ClassBody"));
-        bodies.addAll(node.find("^.ProductionImplementation.ClassBody"));
+        if (node.getType().equals("ImplementationHint") && bodies.isEmpty()) {
+            try {
+                bodies.add(new SyntaxTree(Utils.createParser("{}").ClassBody(), node.getFileName()));
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+        }
         final SyntaxTree bodyNode = bodies.get(0);
         final List<SyntaxTree> members = bodyNode.find("InterfaceMemberDeclaration");
         members.addAll(bodyNode.find("ClassBodyDeclaration"));

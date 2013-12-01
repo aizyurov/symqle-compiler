@@ -22,6 +22,7 @@ public class ProductionImplementation {
     private final TypeParameters typeParameters;
     private final Type targetType;
     private final Type returnType;
+    private final Type implementationType;
     // this is the name of associated method
     private final String name;
     private final boolean implicit;
@@ -33,9 +34,16 @@ public class ProductionImplementation {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "ProductionImplementation");
         targetType = node.find("^.^.ClassOrInterfaceType", Type.CONSTRUCT).get(0);
         final List<Type> returnTypes = node.find("ClassOrInterfaceType", Type.CONSTRUCT);
-        // at most one type by syntax; no type if implicit (in this case it is targetType)
+        // exactry one type by syntax; no type if implicit (in this case it is targetType)
         returnType = returnTypes.isEmpty() ? targetType : returnTypes.get(0);
-        implicit = returnTypes.isEmpty();
+        final List<Type> suggestedImplementationTypes =
+                node.find("ImplementationHint.ClassOrInterfaceType", Type.CONSTRUCT);
+        if (suggestedImplementationTypes.isEmpty()) {
+            implementationType = returnType;
+        } else {
+            implementationType = suggestedImplementationTypes.get(0);
+        }
+        implicit = node.find("Identifier").isEmpty();
         ruleElements = node.find("^.ProductionRule.ProductionElement", new F<SyntaxTree, RuleElement, GrammarException>() {
             @Override
             public RuleElement apply(final SyntaxTree syntaxTree) throws GrammarException {
@@ -123,6 +131,10 @@ public class ProductionImplementation {
 
     public Type getReturnType() {
         return returnType;
+    }
+
+    public Type getImplementationType() {
+        return implementationType;
     }
 
     public String asMethodDeclaration() {

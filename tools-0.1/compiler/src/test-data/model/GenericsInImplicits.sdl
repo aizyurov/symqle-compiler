@@ -12,7 +12,7 @@ public class Value<R> implements zValueExpression<R>
 
 <S> zValueExpression<S> ::=
 		e:zValueExpressionPrimary<S>
-		:: implicit {}
+		:: implicit ValueExpressionPrimary<S>
 ;
 
 <T extends Number> zValueExpression<Number> ::=
@@ -32,7 +32,7 @@ public class BooleanValueExpression implements zBooleanValueExpression
 
 
 zValueExpression<Boolean> ::= bve: zBooleanValueExpression
-	    :: implicit {}
+	    :: implicit BooleanValueExpression
 ;
 
 

@@ -40,8 +40,9 @@ public class Director {
 
     private ModelProcessor[] step2modelProcessors = {
             new InheritanceProcessor(),
-            new ClassEnhancer(),
-            new InterfaceJavadocProcessor()
+            new InterfaceEnhancer(),
+            new ClassEnhancer()
+//            new InterfaceJavadocProcessor()
     };
 
     private final Generator[] generators = {

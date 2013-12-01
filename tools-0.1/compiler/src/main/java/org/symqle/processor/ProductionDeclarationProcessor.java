@@ -4,6 +4,7 @@
 package org.symqle.processor;
 
 import org.symqle.model.*;
+import org.symqle.parser.ParseException;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.util.Utils;
 
@@ -69,8 +70,19 @@ public class ProductionDeclarationProcessor implements Processor {
                         productionImpl.getComment() +
                         productionImpl.asStaticMethodDeclaration();
                 // create implementing method in Symqle via anonymous class
+                final List<SyntaxTree> hints = productionImplNode.find("ImplementationHint");
+                final SyntaxTree anonymousClassNode;
+                if (!hints.isEmpty()) {
+                    anonymousClassNode = hints.get(0);
+                } else {
+                    try {
+                        anonymousClassNode = new SyntaxTree(Utils.createParser(productionImpl.getImplementationType().toString()).ImplementationHint(), productionImplNode.getFileName());
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
                 try {
-                    final AnonymousClass anonymousClass = new AnonymousClass(productionImplNode);
+                    final AnonymousClass anonymousClass = new AnonymousClass(anonymousClassNode, productionImpl.getImplementationType());
                     // create implementing method for SymqleGeneric class (uses the anonymous class and the rule)
                     // first implement all non-implemented methods in the class
                     final Collection<MethodDefinition> anonymousClassAllMethods = anonymousClass.getAllMethods(model);
@@ -103,7 +115,7 @@ public class ProductionDeclarationProcessor implements Processor {
                     final MethodDefinition methodToImplement = MethodDefinition.parse(staticMethodDeclaration +
                             Utils.LINE_BREAK +
                             " { " +  Utils.LINE_BREAK +
-                                    "        return new "+productionImpl.getReturnType()+"()" +
+                                    "        return new "+productionImpl.getImplementationType()+"()" +
                             anonymousClass.instanceBodyAsString() + ";"+ Utils.LINE_BREAK +
                             "    }"+Utils.LINE_BREAK                            , symqle);
                     methodToImplement.setSourceRef(productionImpl.getSourceRef());

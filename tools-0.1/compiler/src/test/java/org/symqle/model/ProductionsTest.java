@@ -104,7 +104,7 @@ public class ProductionsTest extends TestCase {
             assertEquals(TestUtils.pureCode(
                     "    static <T> zValueExpression<T>" +
                     "    z$zValueExpression$from$zValueExpressionPrimary(final zValueExpressionPrimary<T> e) { \n" +
-                    "        return new zValueExpression<T>() {\n" +
+                    "        return new Value<T>() {\n" +
                             "    public T value(final Element element) throws SQLException {\n" +
                             "        return e.value(element);\n" +
                             "    }\n" +
@@ -142,12 +142,13 @@ public class ProductionsTest extends TestCase {
         final Model model = ModelUtils.prepareModel();
         SyntaxTree syntaxTree = readSyntaxTree("src/test-data/model/Parentheses.sdl");
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+        new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
         ClassDefinition symqle = model.getClassDef("Symqle");
         MethodDefinition method = symqle.getDeclaredMethodBySignature("z$Subquery$from$SelectList(SelectList)");
         assertEquals(TestUtils.pureCode(
                 "static <T> Subquery<T> z$Subquery$from$SelectList(final SelectList<T> sl) { \n" +
-                        "        return new Subquery<T>() {\n" +
+                        "        return new AbstractSubquery<T>() {\n" +
                         "            /**\n" +
                         "            * Creates a Query representing <code>this</code>\n" +
                         "            * @param context the Sql construction context\n" +

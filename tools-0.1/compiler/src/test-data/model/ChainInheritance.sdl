@@ -13,20 +13,20 @@ import java.util.List;
 <T> zSelectStatement<T> ::= cspec:zCursorSpecification<T>
     ::
     import java.util.LinkedList;
-    implicit {}
+    implicit SelectStatement<T>
 
 | cspec:zCursorSpecification<T>  FOR READ ONLY
-    :: SelectStatement<T> forReadOnly {}
+    :: SelectStatement<T> forReadOnly
 
 | cspec:zCursorSpecification<T> FOR UPDATE
-    :: SelectStatement<T> forUpdate {}
+    :: SelectStatement<T> forUpdate
 ;
 
 <T> zCursorSpecification<T> ::= qe:zQueryExpression<T>
-    ::  implicit {}
+    ::  implicit QueryExpression<T>
 
 | qe:zQueryExpression<T> obc:zOrderByClause
-    :: QueryExpression<T> orderBy{}
+    :: QueryExpression<T> orderBy
 ;
 
 public interface zOrderByClause : Sql

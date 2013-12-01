@@ -13,7 +13,7 @@ public class Value<T> implements zValueExpression<T>
 
 <T> zValueExpression<T> ::=
 		e:zValueExpressionPrimary<T>
-		:: implicit {}
+		:: implicit Value<T>
 ;
 
 

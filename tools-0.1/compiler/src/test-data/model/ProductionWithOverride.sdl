@@ -5,20 +5,21 @@ public class SelectStatement<T> implements zSelectStatement<T>
 
 
 interface zCursorSpecification<T> : Query<T> {}
+class CursorSpecification<T> implements zCursorSpecification<T> {}
 
 import java.util.List;
 <T> zSelectStatement<T> ::= cspec:zCursorSpecification<T>
     ::
     import java.util.LinkedList;
-    implicit {
+    implicit CursorSpecification<T> {
             public Query<T> z$sqlOfzSelectStatement(final SqlContext context) {
                 throw new RuntimeException("Not implemented");
             }
     }
 
 | cspec:zCursorSpecification<T>  FOR READ ONLY
-    :: public SelectStatement<T> forReadOnly {}
+    :: public SelectStatement<T> forReadOnly
 
 | cspec:zCursorSpecification<T> FOR UPDATE
-    :: public SelectStatement<T> forUpdate {}
+    :: public SelectStatement<T> forUpdate
 ;

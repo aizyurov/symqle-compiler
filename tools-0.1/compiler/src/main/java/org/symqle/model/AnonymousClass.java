@@ -24,13 +24,10 @@ public class AnonymousClass extends AbstractTypeDefinition {
     // class or interface - does not matter
     private Type extended;
 
-    public AnonymousClass(final SyntaxTree node) throws GrammarException {
+    public AnonymousClass(final SyntaxTree node, final Type extendedType) throws GrammarException {
         super(node);
 
-        final Type defaultExtended = node.find("^.^.ClassOrInterfaceType", Type.CONSTRUCT).get(0);
-        final List<Type> overridingExtended = node.find("ClassOrInterfaceType", Type.CONSTRUCT);
-
-        extended = overridingExtended.isEmpty() ? defaultExtended : overridingExtended.get(0);
+        extended = extendedType;
     }
 
 

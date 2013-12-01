@@ -10,11 +10,11 @@ import java.util.List;
 <T> zSelectStatement<T> ::= cspec:zCursorSpecification<T>
     ::
     import java.util.LinkedList;
-    implicit {}
+    implicit SelectStatement<T>
 
 | cspec:zCursorSpecification<T>  FOR READ ONLY
-    :: public SelectStatement<T> forReadOnly {}
+    :: public SelectStatement<T> forReadOnly
 
 | cspec:zCursorSpecification<T> FOR UPDATE
-    :: public SelectStatement<T> forUpdate {}
+    :: public SelectStatement<T> forUpdate
 ;
