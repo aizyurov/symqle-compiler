@@ -16,10 +16,10 @@ import java.util.List;
 public class ProductionDeclarationProcessor implements Processor {
 
     @Override
-    public void process(final SyntaxTree tree, final Model model) throws GrammarException {
+    public boolean process(final SyntaxTree tree, final Model model) throws GrammarException {
 
         final ClassDefinition symqleTemplate = model.getSymqleTemplate();
-        for (SyntaxTree productionImplNode: tree.find("SymqleDeclarationBlock.SymqleDeclaration.ProductionDeclaration.ProductionChoice.ProductionRule.ProductionImplementation")) {
+        for (SyntaxTree productionImplNode: tree.find("SymqleDeclarationBlock.SymqleDeclaration.ProductionDeclaration.ProductionChoice.ProductionImplementation")) {
             final List<String> declarationImports = productionImplNode.find("^.^.^.^.ImportDeclaration", SyntaxTree.BODY);
             symqleTemplate.addImportLines(declarationImports);
             final List<String> implementationImports = productionImplNode.find("ImportDeclaration", SyntaxTree.BODY);
@@ -47,16 +47,17 @@ public class ProductionDeclarationProcessor implements Processor {
                     model.addImplicitMethod(methodDefinition, anonymousClass);
                 } else {
                     model.addExplicitMethod(methodDefinition, anonymousClass, implementationImports);
+                }
                     // associate with Dialect method
                     final SyntaxTree productionRuleNode = productionImplNode.find("^.ProductionRule").get(0);
                     final ProductionRule productionRule = new ProductionRule(productionRuleNode);
                     final String dialectName = productionRule.getName();
                     model.associateDialectName(dialectName, methodDefinition);
-                }
             } catch (ModelException e) {
                 throw new GrammarException(e, productionImplNode);
             }
         } // for ProductionImplNode
+        return true;
     }
 
 

@@ -12,5 +12,5 @@ import org.symqle.parser.SyntaxTree;
  * @author Alexander Izyurov
  */
 public interface Processor {
-    void process(SyntaxTree tree, Model model) throws GrammarException;
+    boolean process(SyntaxTree tree, Model model) throws GrammarException;
 }

@@ -2,7 +2,7 @@ public interface SelectStatement
 {}
 
 import org.symqle.Database;
-:: public List<T> list(final SelectStatement statement, final Database database) {
+:: List<T> list(final SelectStatement statement, final Database database) {
     final SqlContext context = new SqlContext();
     return database.list(statement.z$sqlOfSelectStatement(context));
 }

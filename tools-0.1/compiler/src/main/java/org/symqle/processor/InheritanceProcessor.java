@@ -28,6 +28,7 @@ public class InheritanceProcessor extends ModelProcessor {
         for (ClassDefinition classDef: model.getAllClasses()) {
             addInterfaces(classDef, implicitConversions, model);
             classDef.makeAbstractIfNeeded(model);
+            classDef.ensureRequiredImports(model);
         }
     }
 
@@ -36,6 +37,13 @@ public class InheritanceProcessor extends ModelProcessor {
     private void addInterfaces(final ClassDefinition classDef,
                                final Map<String, Map<String, MethodDefinition>> implicitConversions,
                                final Model model) throws ModelException {
+        // verify that all interface methods are implemented by the time if this call
+        for (MethodDefinition methodDef : classDef.getAllMethods(model)) {
+            if (methodDef.getOtherModifiers().contains("abstract") && methodDef.getOtherModifiers().contains("volatile")) {
+                throw new ModelException("Not implemented in " + classDef + ": " + methodDef.declaration());
+            }
+        }
+
         // Names of all interfaces implemented by classDef
         final Set<Type> allInterfaces = new HashSet<Type>();
         // All interfaces reachable by N implicit conversions
@@ -58,6 +66,7 @@ public class InheritanceProcessor extends ModelProcessor {
         }
         // invariant is true
         while (!nHopsReachable.isEmpty()) {
+            System.err.println(classDef.getName() + "[" + nHops +"]: " + Utils.format(nHopsReachable, "(", ", ", ")"));
             for (Type argType: nHopsReachable) {
                 Map<String, MethodDefinition> conversionsByArg = implicitConversions.get(argType.getSimpleName());
                 if (conversionsByArg==null) {
@@ -71,6 +80,7 @@ public class InheritanceProcessor extends ModelProcessor {
                             methodTypeParams.inferTypeArguments(methodDef.getFormalParameters().get(0).getType(), argType);
 
                     final Type resType = methodDef.getResultType().replaceParams(paramMapping);
+                    System.err.println(classDef.getName() + "[" + nHops +"]: " + "adding " + resType);
                     if (!allInterfaces.contains(resType)) {
                         // this a new one reachable in N+1 hops; not reachable in N or less hops
                         if (nPlusOneHopsReachable.containsKey(resType)) {
@@ -80,9 +90,49 @@ public class InheritanceProcessor extends ModelProcessor {
                                     nPlusOneHopsReachable.get(resType).getName() +
                                     " or "+ methodDef.getName());
                             // do not replace: first conversion wins
-                        } else {
+                        } else if (isCompatible(resType, classDef, paramMapping, model)) {
                             nPlusOneHopsReachable.put(resType, methodDef);
+                            classDef.addImplementedInterface(resType, nHops);
+                            allInterfaces.add(resType);
+                            System.err.println(classDef.getName() + "[" + nHops +"]: " + "added " + resType);
+                            // now it is implemented but its methods may be not
+                            InterfaceDefinition interfaceOwner = model.getInterface(resType);
+                            classDef.addImportLines(interfaceOwner.getImportLines());
+                            for (MethodDefinition methodToImplement: classDef.getAllMethods(model)) {
+                                if (methodToImplement.getOtherModifiers().contains("volatile")
+                                        && methodToImplement.getOtherModifiers().contains("abstract")
+                                        ) {
+                                    if (interfaceOwner.canDelegateToSymqle(methodToImplement)) {
+                                        final Collection<String> params = Utils.map(methodToImplement.getFormalParameters(), FormalParameter.NAME);
+                                        final List<String> augmentedParams = new ArrayList<String>();
+                                        augmentedParams.add("this");
+                                        augmentedParams.addAll(params);
+                                        methodToImplement.implement("public",
+                                                " {" + Utils.LINE_BREAK +
+                                                "                " +
+                                                (methodToImplement.getResultType()==Type.VOID ? "" : "return ") + "Symqle." +
+                                                 methodToImplement.getName() + "(" +
+                                                 Utils.format(augmentedParams, "", ", ", "") +
+                                                 ");" + Utils.LINE_BREAK+"            "+"}"+Utils.LINE_BREAK,
+                                                true, true);
+                                    } else {
+                                        methodToImplement.implement("public",
+                                                " {" + Utils.LINE_BREAK +
+                                                "                " +
+                                                (methodToImplement.getResultType()==Type.VOID ? "" : "return ") +
+                                                methodToImplement.delegationInvocation(
+                                                        methodDef.invoke("Symqle"+Utils.LINE_BREAK+"                    ",
+                                                                Collections.singletonList("this"))+Utils.LINE_BREAK+"                    ") +
+                                                ";" + Utils.LINE_BREAK+"            "+"}"+Utils.LINE_BREAK,
+                                                true, true);
+                                        }
+                                }
+                            }
+                        } else {
+                            System.err.println("Interface not compatible to " + classDef.getName()+ ", skipping: " + resType.getSimpleName());
                         }
+                    } else {
+                        System.err.println(classDef.getName() + "[" + nHops +"]: " + "already has " + resType.getSimpleName());
                     }
                 }
             }
@@ -90,44 +140,6 @@ public class InheritanceProcessor extends ModelProcessor {
             // for last step conversion
             // add interfaces to classDef and implement everything it must implement
             nHops += 1;
-            for (Map.Entry<Type, MethodDefinition> entry: nPlusOneHopsReachable.entrySet()) {
-                final Type resType = entry.getKey();
-                MethodDefinition methodDef = entry.getValue();
-                classDef.addImplementedInterface(resType, nHops);
-                allInterfaces.add(resType);
-                // now it is implemented but its methods may be not
-                for (MethodDefinition methodToImplement: classDef.getAllMethods(model)) {
-                    if (methodToImplement.getOtherModifiers().contains("volatile")
-                            && methodToImplement.getOtherModifiers().contains("abstract")
-                            ) {
-                        InterfaceDefinition interfaceOwner = model.getInterface(methodToImplement.getOwner().getName());
-                        if (interfaceOwner.canDelegateToSymqle(methodToImplement)) {
-                            final Collection<String> params = Utils.map(methodToImplement.getFormalParameters(), FormalParameter.NAME);
-                            final List<String> augmentedParams = new ArrayList<String>();
-                            augmentedParams.add("this");
-                            augmentedParams.addAll(params);
-                            methodToImplement.implement("public",
-                                    " {" + Utils.LINE_BREAK +
-                                    "                " +
-                                    (methodToImplement.getResultType()==Type.VOID ? "" : "return ") +
-                                     methodToImplement.getName() + "(" +
-                                     Utils.format(augmentedParams, "", ", ", "") +
-                                     ");" + Utils.LINE_BREAK+"            "+"}"+Utils.LINE_BREAK,
-                                    true, true);
-                        } else {
-                            methodToImplement.implement("public",
-                                    " {" + Utils.LINE_BREAK +
-                                    "                " +
-                                    (methodToImplement.getResultType()==Type.VOID ? "" : "return ") +
-                                    methodToImplement.delegationInvocation(
-                                            methodDef.invoke("Symqle"+Utils.LINE_BREAK+"                    ",
-                                                    Collections.singletonList("this"))+Utils.LINE_BREAK+"                    ") +
-                                    ";" + Utils.LINE_BREAK+"            "+"}"+Utils.LINE_BREAK,
-                                    true, true);
-                            }
-                    }
-                }
-            }
             // all interfaces added and method implemented: proceed to next number of hops
             nHopsReachable.clear();
             nHopsReachable.addAll(nPlusOneHopsReachable.keySet());
@@ -157,8 +169,23 @@ public class InheritanceProcessor extends ModelProcessor {
         return conversionsMap;
     }
 
-
-
-
+    private boolean isCompatible(Type interfaceType, ClassDefinition classDef, Map<String, TypeArgument> paramMapping, Model model) throws ModelException {
+        final InterfaceDefinition anInterface = model.getInterface(interfaceType);
+        for (MethodDefinition interfaceMethod : anInterface.getAllMethods(model)) {
+            for (MethodDefinition classMethod: classDef.getAllMethods(model)) {
+                if (classMethod.signature().equals(interfaceMethod.signature())) {
+                    if (!classMethod.getResultType().getSimpleName().equals(interfaceMethod.getResultType().getSimpleName())) {
+                        System.err.println(classDef.getName() + " incompatible to " + anInterface.getName() +" : " + interfaceMethod.signature() + " returns " +classMethod.getResultType() + "/" + interfaceMethod.getResultType());
+                        return false;
+                    }
+//                    final MethodDefinition adjusted = interfaceMethod.replaceParams(classDef, paramMapping);
+//                    if (!adjusted.matches(classMethod)) {
+//                        return false;
+//                    }
+                }
+            }
+        }
+        return true;
+    }
 
 }

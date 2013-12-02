@@ -3,15 +3,14 @@
 */
 package org.symqle.processor;
 
-import org.symqle.model.*;
-import org.symqle.parser.ParseException;
+import org.symqle.model.ClassDefinition;
+import org.symqle.model.InterfaceDefinition;
+import org.symqle.model.MethodDefinition;
+import org.symqle.model.Model;
+import org.symqle.model.ModelException;
+import org.symqle.model.ProductionRule;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.util.Utils;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * <br/>20.11.2011
@@ -22,7 +21,7 @@ public class DialectCompilationProcessor implements Processor {
 
 
     @Override
-    public void process(final SyntaxTree tree, final Model model) throws GrammarException {
+    public boolean process(final SyntaxTree tree, final Model model) throws GrammarException {
 
         final InterfaceDefinition dialect;
         final ClassDefinition genericDialect;
@@ -50,6 +49,7 @@ public class DialectCompilationProcessor implements Processor {
             }
             model.addRule(productionRule.getTargetTypeName(), productionRule.getShortRule());
         }
+        return true;
     }
 
     private MethodDefinition createDialectMethod(ProductionRule rule, InterfaceDefinition dialect) {

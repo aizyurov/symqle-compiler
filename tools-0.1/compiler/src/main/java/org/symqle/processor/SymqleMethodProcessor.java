@@ -18,7 +18,7 @@ import java.util.List;
 public class SymqleMethodProcessor implements Processor {
 
     @Override
-    public void process(SyntaxTree tree, Model model) throws GrammarException {
+    public boolean process(SyntaxTree tree, Model model) throws GrammarException {
 
         final ClassDefinition symqleTemplate = model.getSymqleTemplate();
         for (SyntaxTree methodNode: tree.find("SymqleDeclarationBlock.SymqleDeclaration.MethodDeclaration")) {
@@ -28,16 +28,12 @@ public class SymqleMethodProcessor implements Processor {
                 method.makeStatic();
                 symqleTemplate.addMethod(method);
                 method.setSourceRef(methodNode);
-                // private and protected methods are not ExplicitMethods
-                // protected make no sense because Symqle is final
-                if (!method.getAccessModifier().equals("private") && !method.getAccessModifier().equals("protected"))
-                {
-                    model.addExplicitMethod(symqleTemplate.getDeclaredMethodBySignature(method.signature()), declarationImports);
-                }
+                model.addExplicitMethod(symqleTemplate.getDeclaredMethodBySignature(method.signature()), null, declarationImports);
             } catch (ModelException e) {
                 throw new GrammarException(e, methodNode);
             }
             symqleTemplate.addImportLines(declarationImports);
         }
+        return true;
     }
 }

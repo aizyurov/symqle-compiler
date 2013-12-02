@@ -30,6 +30,7 @@ public class SymqleMethodProcessorTest extends TestCase {
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
         new SymqleMethodProcessor().process(syntaxTree, model);
+        new ProductionImplementationProcessor().process(syntaxTree, model);
         final ClassDefinition symqle = model.getClassDef("Symqle");
 
         final MethodDefinition list = symqle.getMethodBySignature("list(SelectStatement,Database)", model);

@@ -14,9 +14,10 @@ import org.symqle.parser.SyntaxTree;
 public abstract class ModelProcessor implements Processor {
 
     @Override
-    public void process(SyntaxTree tree, Model model) throws GrammarException {
+    public boolean process(SyntaxTree tree, Model model) throws GrammarException {
         try {
             process(model);
+            return false;
         } catch (ModelException e) {
             throw new GrammarException(e, tree);
         }

@@ -13,7 +13,7 @@ import org.symqle.parser.SyntaxTree;
 public class ImplicitDeclarationProcessor implements Processor {
 
     @Override
-    public void process(SyntaxTree tree, Model model) throws GrammarException {
+    public boolean process(SyntaxTree tree, Model model) throws GrammarException {
         final ClassDefinition symqle;
         try {
             symqle = model.getClassDef("Symqle");
@@ -44,11 +44,12 @@ public class ImplicitDeclarationProcessor implements Processor {
             MethodDefinition method = MethodDefinition.parse(builder.toString(), symqle);
             try {
                 symqle.addMethod(method);
-                model.addImplicitMethod(method);
+                model.addImplicitMethod(method, null);
                 method.setSourceRef(methodNode);
             } catch (ModelException e) {
                 throw new GrammarException(e, methodNode);
             }
         }
+        return true;
     }
 }

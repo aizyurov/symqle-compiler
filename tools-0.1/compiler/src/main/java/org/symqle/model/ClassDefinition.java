@@ -86,7 +86,7 @@ public class ClassDefinition extends AbstractTypeDefinition {
         for (MethodDefinition method: getAllMethods(model)) {
             if (method.getOtherModifiers().contains("abstract") ||
                     ( method.getOtherModifiers().contains("volatile") && method.isAbstract())) {
-                System.out.println(getName()+ " made abstract due to "+method);
+//                System.out.println(getName()+ " made abstract due to "+method);
                 makeAbstract();
 
                 return;

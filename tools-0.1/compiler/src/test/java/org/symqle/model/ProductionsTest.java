@@ -8,6 +8,7 @@ import org.symqle.processor.ClassDeclarationProcessor;
 import org.symqle.processor.GrammarException;
 import org.symqle.processor.InterfaceDeclarationsProcessor;
 import org.symqle.processor.ProductionDeclarationProcessor;
+import org.symqle.processor.ProductionImplementationProcessor;
 import org.symqle.test.TestUtils;
 import org.symqle.util.ModelUtils;
 import org.symqle.util.Utils;
@@ -29,13 +30,13 @@ public class ProductionsTest extends TestCase {
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
-
+        new ProductionImplementationProcessor().process(syntaxTree, model);
         final ClassDefinition symqle = model.getClassDef("Symqle");
         System.out.println(symqle);
         System.out.println("==========");
 
         // make sure that classes are compilable
-        Utils.createParser(symqle.toString()).SymqleDeclarationBlock();;
+        Utils.createParser(symqle.toString()).SymqleDeclarationBlock();
 
         //
         assertEquals(3, symqle.getStaticMethods().size());

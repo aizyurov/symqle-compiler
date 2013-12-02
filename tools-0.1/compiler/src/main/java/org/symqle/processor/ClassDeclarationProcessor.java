@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class ClassDeclarationProcessor implements Processor {
 
-    public void process(SyntaxTree tree, Model model) throws GrammarException {
+    public boolean process(SyntaxTree tree, Model model) throws GrammarException {
         final Map<String, SyntaxTree> nodeByName = new HashMap<String, SyntaxTree>();
         for (SyntaxTree classDeclarationNode: tree.find("SymqleDeclarationBlock.SymqleDeclaration.NormalClassDeclaration")) {
             ClassDefinition definition = new ClassDefinition(classDeclarationNode);
@@ -27,7 +27,7 @@ public class ClassDeclarationProcessor implements Processor {
                 throw new GrammarException(e, classDeclarationNode);
             }
         }
-
+        return true;
     }
 
 }

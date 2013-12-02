@@ -4,12 +4,11 @@
 package org.symqle.processor;
 
 import org.symqle.model.*;
-import org.symqle.parser.SyntaxTree;
 import org.symqle.util.Utils;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -41,6 +40,7 @@ public class ProductionImplementationProcessor extends ModelProcessor {
             }
             symqle.addMethod(newMethod);
         }
+        symqle.addImportLines(symqleTemplate.getImportLines());
     }
 
     private static MethodDefinition copyMethod(final MethodDefinition method, final ClassDefinition newOwner) {
@@ -54,22 +54,40 @@ public class ProductionImplementationProcessor extends ModelProcessor {
             final Set<String> modifiers = innerMethod.getOtherModifiers();
             if (modifiers.contains("volatile") && modifiers.contains("abstract")) {
                 if (Archetype.isArchetypeMethod(innerMethod)) {
-                    final String body = archetypeMethodBody(innerMethod, model);
-                    method.implement("public", body, true, false);
+                                    final String body = archetypeMethodBody(innerMethod, method, model);
+                                    innerMethod.implement("public", body, true, false);
                 } else if (method.getName().startsWith("get")
-                            && method.getName().length() > 3
-                            && method.getFormalParameters().size()==0) {
-                    final String body = implementPropertyMethod(anonymousClass, innerMethod, model);
-                    method.implement("public", body, true, false);
+                                            && method.getName().length() > 3
+                                            && method.getFormalParameters().size()==0) {
+                                    final String body = implementPropertyMethod(anonymousClass, innerMethod, model);
+                                    innerMethod.implement("public", body, true, false);
+                } else if (!method.getFormalParameters().isEmpty()) {
+                    final FormalParameter firstArg = method.getFormalParameters().get(0);
+                    final Type firstArgType = firstArg.getType();
+                    final AbstractTypeDefinition firstArgClass = model.getAbstractType(firstArgType.getSimpleName());
+                    final MethodDefinition methodToDelegate = firstArgClass.getMethodBySignature(innerMethod.signature(), model);
+                    // we have very simple method to delegate like getMapper, so no check for type parameters here
+                    // signature is enough
+                    if (methodToDelegate != null && methodToDelegate.getResultType().equals(innerMethod.getResultType())) {
+                        innerMethod.implement("public", " { " + (innerMethod.getResultType().equals(Type.VOID) ? "" : "return ") +
+                                methodToDelegate.delegationInvocation(firstArg.getName()) +
+                                "; }"
+                        );
+                    } else {
+                        // should be call to Symqle
+                        innerMethod.implement("public", implementBySymqleCall(innerMethod, model), true, false);
+                    }
                 } else {
-                    // should be call to Symqle
-                    method.implement("public", implementBySymqleCall(innerMethod, model), true, false);
+                    // cannot delegate; should be Symqle method with a single arg of this
+                    innerMethod.implement("public", implementBySymqleCall(innerMethod, model), true, false);
+
                 }
             }
         }
-        final MethodDefinition implemented = MethodDefinition.parse(method.declaration() + " {" +
+        final MethodDefinition implemented = MethodDefinition.parse(method.getAccessModifier() + " static " + method.getTypeParameters() +" " +
+                method.getResultType() + " " + method.getName() +
+                "(" + Utils.format(method.getFormalParameters(), "", ", ", "") +")" + " {" +
                 Utils.LINE_BREAK +
-                " { " +  Utils.LINE_BREAK +
                         "        return new "+method.getResultType()+"()" +
                 anonymousClass.instanceBodyAsString() + ";"+ Utils.LINE_BREAK +
                 "    }"+Utils.LINE_BREAK                            , newOwner);
@@ -77,20 +95,20 @@ public class ProductionImplementationProcessor extends ModelProcessor {
         return implemented;
     }
 
-    private static String archetypeMethodBody(MethodDefinition innerMethod, Model model) throws ModelException {
+    private static String archetypeMethodBody(MethodDefinition innerMethod, MethodDefinition outerMethod, Model model) throws ModelException {
         final String resultTypeName = innerMethod.getResultType().getSimpleName();
         if (resultTypeName.equals("Sql")) {
-            return createSqlMethodBody(innerMethod, model);
+            return createSqlMethodBody(innerMethod, outerMethod, model);
         } else {
             // Query
-            return createQueryMethodBody(innerMethod, model);
+            return createQueryMethodBody(innerMethod, outerMethod, model);
           }
         }
 
-    private static String createQueryMethodBody(MethodDefinition innerMethod, final Model model) throws ModelException {
+    private static String createQueryMethodBody(MethodDefinition innerMethod, MethodDefinition outerMethod, final Model model) throws ModelException {
         StringBuilder builder = new StringBuilder();
         builder.append(" {").append(Utils.LINE_BREAK);
-        final FormalParameter firstParameter = innerMethod.getFormalParameters().get(0);
+        final FormalParameter firstParameter = outerMethod.getFormalParameters().get(0);
         final InterfaceDefinition interfaceDef = model.getInterface(firstParameter.getType());
         // find corresponding archetype method of this interface
         final String firstSqlParam = interfaceDef.getArchetypeMethod().delegationInvocation(firstParameter.getName());
@@ -107,9 +125,9 @@ public class ProductionImplementationProcessor extends ModelProcessor {
                 .append("(")
                 .append("__rowMapper, ")
                 .append("context.get(Dialect.class).")
-                .append(model.getAssociatedDialectName(innerMethod))
+                .append(model.getAssociatedDialectName(outerMethod))
                 .append("(")
-                .append(Utils.format(innerMethod.getFormalParameters(), "", ", ", "", new F<FormalParameter, String, ModelException>() {
+                .append(Utils.format(outerMethod.getFormalParameters(), "", ", ", "", new F<FormalParameter, String, ModelException>() {
                     int count = 0;
                     @Override
                     public String apply(final FormalParameter formalParameter) throws ModelException {
@@ -130,12 +148,19 @@ public class ProductionImplementationProcessor extends ModelProcessor {
         return builder.toString();
     }
 
-    private static String createSqlMethodBody(MethodDefinition innerMethod, Model model) {
+    private static String createSqlMethodBody(MethodDefinition innerMethod, MethodDefinition outerMethod, final Model model) throws ModelException {
         StringBuilder builder = new StringBuilder();
-        builder.append( " return context.get(Dialect.class).")
-                .append(model.getAssociatedDialectName(innerMethod))
+        builder.append( " { return context.get(Dialect.class).")
+                .append(model.getAssociatedDialectName(outerMethod))
                 .append("(")
-                .append(Utils.format(innerMethod.getFormalParameters(), "", ", ", ""))
+                .append(Utils.format(outerMethod.getFormalParameters(), "", ", ", "", new F<FormalParameter, String, ModelException>() {
+                                    @Override
+                                    public String apply(final FormalParameter formalParameter) throws ModelException {
+                                            final InterfaceDefinition interfaceDef = model.getInterface(formalParameter.getType());
+                                            // find corresponding archetype method of this interface
+                                            return interfaceDef.getArchetypeMethod().delegationInvocation(formalParameter.getName());
+                                    }
+                }))
                 .append("); } ");
         return builder.toString();
     }
@@ -159,6 +184,21 @@ public class ProductionImplementationProcessor extends ModelProcessor {
     }
 
     private static String implementBySymqleCall(MethodDefinition innerMethod, Model model) {
-        throw new RuntimeException("Not implemented");
+        final Collection<String> parameters = Utils.map(innerMethod.getFormalParameters(), FormalParameter.NAME);
+        final List<String> symqleParameters = new ArrayList<String>();
+        symqleParameters.add("this");
+        symqleParameters.addAll(parameters);
+        StringBuilder bodyBuilder = new StringBuilder();
+        bodyBuilder.append(" {").append(Utils.LINE_BREAK)
+            .append("                ");
+        if (!innerMethod.getResultType().equals(Type.VOID)) {
+            bodyBuilder.append("return ");
+        }
+        bodyBuilder.append("Symqle.").append(innerMethod.getName())
+                .append("(")
+                .append(Utils.format(symqleParameters, "", ", ", ""))
+                .append(");");
+        bodyBuilder.append("            }");
+        return bodyBuilder.toString();
     }
 }

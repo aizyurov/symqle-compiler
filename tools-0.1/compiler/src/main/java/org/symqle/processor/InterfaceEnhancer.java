@@ -3,9 +3,10 @@ package org.symqle.processor;
 import org.symqle.model.*;
 import org.symqle.util.Utils;
 
-import java.io.*;
-import java.util.*;
-import java.util.regex.Pattern;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author lvovich
@@ -14,6 +15,12 @@ public class InterfaceEnhancer extends ModelProcessor {
 
     @Override
     public void process(final Model model) throws ModelException {
+        System.err.println("All interfaces: " + Utils.map(model.getAllInterfaces(), new F<InterfaceDefinition, String, RuntimeException>() {
+            @Override
+            public String apply(final InterfaceDefinition o) {
+                return o.getName();
+            }
+        }));
         for (InterfaceDefinition interfaceDefinition: model.getAllInterfaces()) {
             enhanceInterface(interfaceDefinition, model);
         }
@@ -50,7 +57,12 @@ public class InterfaceEnhancer extends ModelProcessor {
                 // special case: both have a single parameter, which is wildcard in firstArg,
                 // so types match
                 final MethodDefinition newMethod = createMyMethod(interfaceDefinition, method, myType, mapping);
-                interfaceDefinition.addDelegateMethod(newMethod);
+                try {
+                    interfaceDefinition.addDelegateMethod(newMethod);
+                } catch (ModelException e) {
+                    System.err.println("Explicit methods are " + model.getExplicitSymqleMethods());
+                    throw new RuntimeException("Internal error", e);
+                }
             }
         }
         interfaceDefinition.addImportLines(Arrays.asList("import org.symqle.common.*;"));

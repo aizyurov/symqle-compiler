@@ -26,19 +26,22 @@ public class Director {
             new InterfaceValidator(),
             new ClassDeclarationProcessor(),
             new AbstractMethodsProcessor(),
+            new DialectCompilationProcessor(),
             new ProductionDeclarationProcessor(),
             new SymqleMethodProcessor(),
             new ImplicitDeclarationProcessor(),
             // by this time all Symqle methods are in symqleTemplate, some of them abstract
-            new InitialImplementationProcessor(),
-            // initial (not Symqle )methods are implemented in classes
+            new AbstractMethodsProcessor(),
+            // initial (not Symqle ) methods are explicitly declared abstract
             new InterfaceEnhancer(),
             // all explicit methods are declared in interfaces
+            new InitialImplementationProcessor(),
+
             new ProductionImplementationProcessor(),
             // all production methods are implemented in Symqle
             // or moved from symqleTemplate if already implemented
-            new InheritanceProcessor(),
-            new ClassEnhancer()
+            new InheritanceProcessor()
+//            new ClassEnhancer()
     };
 
     private final Generator[] generators = {
@@ -62,7 +65,9 @@ public class Director {
         Model model = new Model();
         for (Processor processor: processors) {
             for (SyntaxTree source: parsedSources) {
-                processor. process(source, model);
+                if (!processor. process(source, model)) {
+                    break;
+                }
             }
         }
         outputDirectory.mkdirs();

@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class InterfaceDeclarationsProcessor implements Processor {
 
-    public void process(SyntaxTree tree, Model model) throws GrammarException {
+    public boolean process(SyntaxTree tree, Model model) throws GrammarException {
 
         Map<String, SyntaxTree> nodeByName = new HashMap<String, SyntaxTree>();
         for (SyntaxTree node : tree.find(
@@ -31,6 +31,7 @@ public class InterfaceDeclarationsProcessor implements Processor {
                 throw new GrammarException(e, node);
             }
         }
+        return true;
 
     }
 
