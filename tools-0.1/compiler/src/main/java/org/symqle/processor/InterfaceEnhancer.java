@@ -57,11 +57,15 @@ public class InterfaceEnhancer extends ModelProcessor {
                 // special case: both have a single parameter, which is wildcard in firstArg,
                 // so types match
                 final MethodDefinition newMethod = createMyMethod(interfaceDefinition, method, myType, mapping);
-                try {
-                    interfaceDefinition.addDelegateMethod(newMethod);
-                } catch (ModelException e) {
-                    System.err.println("Explicit methods are " + model.getExplicitSymqleMethods());
-                    throw new RuntimeException("Internal error", e);
+                if (!model.isAmbiguous(newMethod.signature())) {
+                        try {
+                            interfaceDefinition.addDelegateMethod(newMethod);
+                        } catch (ModelException e) {
+                            System.err.println("Explicit methods are " + model.getExplicitSymqleMethods());
+                            throw new RuntimeException("Internal error", e);
+                        }
+                } else {
+                    System.err.println("Not adding ambiguous " + newMethod.signature() + " to " + interfaceDefinition.getName());
                 }
             }
         }

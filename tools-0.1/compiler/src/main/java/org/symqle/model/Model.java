@@ -27,6 +27,8 @@ public class Model {
 
     private final Map<String, String> dialectNameBySymqleSignature = new HashMap<String, String>();
 
+    private final Set<String> ambiguousMethodSignature = new HashSet<String>();
+
     /**
      *
      * @param method
@@ -43,6 +45,14 @@ public class Model {
 
     public String getAssociatedDialectName(MethodDefinition methodDef) {
         return dialectNameBySymqleSignature.get(methodDef.signature());
+    }
+
+    public void setAmbiguous(String signature) {
+        ambiguousMethodSignature.add(signature);
+    }
+
+    public boolean isAmbiguous(String signature) {
+        return ambiguousMethodSignature.contains(signature);
     }
 
     /**

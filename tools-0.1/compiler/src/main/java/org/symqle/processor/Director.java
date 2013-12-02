@@ -33,6 +33,8 @@ public class Director {
             // by this time all Symqle methods are in symqleTemplate, some of them abstract
             new AbstractMethodsProcessor(),
             // initial (not Symqle ) methods are explicitly declared abstract
+            new UnsafeMethodsMarker(),
+
             new InterfaceEnhancer(),
             // all explicit methods are declared in interfaces
             new InitialImplementationProcessor(),
@@ -40,8 +42,8 @@ public class Director {
             new ProductionImplementationProcessor(),
             // all production methods are implemented in Symqle
             // or moved from symqleTemplate if already implemented
-            new InheritanceProcessor()
-//            new ClassEnhancer()
+            new InheritanceProcessor(),
+            new ClassEnhancer()
     };
 
     private final Generator[] generators = {
