@@ -13,7 +13,7 @@ import static org.symqle.util.Utils.LINE_BREAK;
 /**
  * @author lvovich
  */
-public class AbstractMethodsProcessor implements ModelProcessor {
+public class AbstractMethodsProcessor extends ModelProcessor {
 
     @Override
     public void process(final Model model) throws ModelException {

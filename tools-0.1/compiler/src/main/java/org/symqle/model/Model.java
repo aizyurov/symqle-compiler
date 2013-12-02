@@ -21,12 +21,42 @@ public class Model {
     private final Map<MethodDefinition, Set<String>> explicitSymqleMethods = new LinkedHashMap<MethodDefinition, Set<String>>();
     private final Map<String, List<String>> rulesByTargetTypeName = new HashMap<String, List<String>>();
 
-    public void addImplicitMethod(MethodDefinition method) {
+    private final Map<String, AnonymousClass> anonymousClassByMethodSignature = new HashMap<String, AnonymousClass>();
+
+    private final ClassDefinition symqleTemplate = ClassDefinition.parse("class symqleTemplate {}");
+
+    private final Map<String, String> dialectNameBySymqleSignature = new HashMap<String, String>();
+
+    /**
+     *
+     * @param method
+     * @param classDefinition not null for abstract methods
+     */
+    public void addImplicitMethod(MethodDefinition method, AnonymousClass classDefinition) {
         implicitSymqleMethods.add(method);
+        anonymousClassByMethodSignature.put(method.signature(), classDefinition);
     }
 
-    public void addExplicitMethod(MethodDefinition method, Collection<String> requiredImports) {
+    public void associateDialectName(String dialectName, MethodDefinition methodDef) {
+        dialectNameBySymqleSignature.put(methodDef.signature(), dialectName);
+    }
+
+    public String getAssociatedDialectName(MethodDefinition methodDef) {
+        return dialectNameBySymqleSignature.get(methodDef.signature());
+    }
+
+    /**
+     *
+     * @param method
+     * @param classDefinition not null for abstract methods
+     */
+    public void addExplicitMethod(MethodDefinition method, AnonymousClass classDefinition, Collection<String> requiredImports) {
         explicitSymqleMethods.put(method, new HashSet<String>(requiredImports));
+        anonymousClassByMethodSignature.put(method.signature(), classDefinition);
+    }
+
+    public AnonymousClass getAnonymousClassByMethodSignature(String signature) {
+        return anonymousClassByMethodSignature.get(signature);
     }
 
     public List<MethodDefinition> getImplicitSymqleMethods() {
@@ -160,6 +190,9 @@ public class Model {
         return rules == null ? null : Collections.unmodifiableList(rules);
     }
 
+    public ClassDefinition getSymqleTemplate() {
+        return symqleTemplate;
+    }
 }
 
 

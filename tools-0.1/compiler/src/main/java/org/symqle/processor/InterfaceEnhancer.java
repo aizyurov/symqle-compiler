@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 /**
  * @author lvovich
  */
-public class InterfaceEnhancer implements ModelProcessor {
+public class InterfaceEnhancer extends ModelProcessor {
 
     @Override
     public void process(final Model model) throws ModelException {
@@ -50,8 +50,7 @@ public class InterfaceEnhancer implements ModelProcessor {
                 // special case: both have a single parameter, which is wildcard in firstArg,
                 // so types match
                 final MethodDefinition newMethod = createMyMethod(interfaceDefinition, method, myType, mapping);
-                interfaceDefinition.addMethod(newMethod);
-                implementMethod(newMethod, model);
+                interfaceDefinition.addDelegateMethod(newMethod);
             }
         }
         interfaceDefinition.addImportLines(Arrays.asList("import org.symqle.common.*;"));
@@ -63,7 +62,7 @@ public class InterfaceEnhancer implements ModelProcessor {
             if (classMethod == null) {
                 continue;
             }
-            if (classMethod.getOtherModifiers().contains("transient")) {
+            if (classMethod.getOtherModifiers().contains("volatile")) {
                 // not implemented yet
                 StringBuilder implBuilder = new StringBuilder();
                 implBuilder.append("{ ");

@@ -220,7 +220,7 @@ public class MethodDefinition {
             newThrownExceptions.add(exceptionType.replaceParams(mapping));
         }
         final Set<String> newModifiers = new HashSet<String>(otherModifiers);
-        newModifiers.add("transient");
+        newModifiers.add("volatile");
         newModifiers.addAll(targetOwner.addImplicitMethodModifiers(this));
         String newAccessModifier = targetOwner.implicitMethodAccessModifier(this);
         return new MethodDefinition(
@@ -249,7 +249,7 @@ public class MethodDefinition {
 //            newThrownExceptions.add(exceptionType.substituteParameters(typeParameters, typeArguments));
 //        }
 //        final Set<String> newModifiers = new HashSet<String>(otherModifiers);
-//        newModifiers.add("transient");
+//        newModifiers.add("volatile");
 //        newModifiers.addAll(targetOwner.addImplicitMethodModifiers(this));
 //        String newAccessModifier = targetOwner.implicitMethodAccessModifier(this);
 //        return new MethodDefinition(
@@ -344,7 +344,7 @@ public class MethodDefinition {
                 formalParameters;
         final Set<String> newModifiers = new HashSet<String>(otherModifiers);
         newModifiers.remove("abstract");
-        newModifiers.remove("transient");
+        newModifiers.remove("volatile");
         if (makeMethodFinal) {
             newModifiers.add("final");
         }
@@ -377,7 +377,7 @@ public class MethodDefinition {
     public void declareAbstract(final String newAccessModifier) throws ModelException {
         final Set<String> newModifiers = new HashSet<String>(otherModifiers);
         newModifiers.add("abstract");
-        newModifiers.remove("transient");
+        newModifiers.remove("volatile");
         owner.addMethod(
             new MethodDefinition(
                     comment,

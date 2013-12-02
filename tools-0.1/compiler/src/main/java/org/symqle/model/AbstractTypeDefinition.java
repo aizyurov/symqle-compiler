@@ -34,7 +34,7 @@ public abstract class AbstractTypeDefinition {
     private String comment;
 
     protected AbstractTypeDefinition(SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SymqleInterfaceDeclaration", "NormalClassDeclaration", "ImplementationHint");
+        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SymqleInterfaceDeclaration", "NormalClassDeclaration", "ProductionImplementation");
 
         this.importLines = new TreeSet<String>(node.find("^.^.ImportDeclaration", SyntaxTree.BODY));
         // modifiers may be of interface or class; one of collections is empty
@@ -63,7 +63,7 @@ public abstract class AbstractTypeDefinition {
         // except for ImplementationHiht, which can have no body
         final List<SyntaxTree> bodies = node.find("InterfaceBody");
         bodies.addAll(node.find("ClassBody"));
-        if (node.getType().equals("ImplementationHint") && bodies.isEmpty()) {
+        if (node.getType().equals("ProductionImplementation") && bodies.isEmpty()) {
             try {
                 bodies.add(new SyntaxTree(Utils.createParser("{}").ClassBody(), node.getFileName()));
             } catch (ParseException e) {

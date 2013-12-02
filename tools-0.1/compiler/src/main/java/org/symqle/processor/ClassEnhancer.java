@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 /**
  * @author lvovich
  */
-public class ClassEnhancer implements ModelProcessor {
+public class ClassEnhancer extends ModelProcessor {
 
     @Override
     public void process(final Model model) throws ModelException {

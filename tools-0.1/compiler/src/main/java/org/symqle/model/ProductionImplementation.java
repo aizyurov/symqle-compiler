@@ -36,13 +36,7 @@ public class ProductionImplementation {
         final List<Type> returnTypes = node.find("ClassOrInterfaceType", Type.CONSTRUCT);
         // exactry one type by syntax; no type if implicit (in this case it is targetType)
         returnType = returnTypes.isEmpty() ? targetType : returnTypes.get(0);
-        final List<Type> suggestedImplementationTypes =
-                node.find("ImplementationHint.ClassOrInterfaceType", Type.CONSTRUCT);
-        if (suggestedImplementationTypes.isEmpty()) {
-            implementationType = returnType;
-        } else {
-            implementationType = suggestedImplementationTypes.get(0);
-        }
+        implementationType = returnType;
         implicit = node.find("Identifier").isEmpty();
         ruleElements = node.find("^.ProductionRule.ProductionElement", new F<SyntaxTree, RuleElement, GrammarException>() {
             @Override

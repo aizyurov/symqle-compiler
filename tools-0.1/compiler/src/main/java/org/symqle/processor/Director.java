@@ -21,28 +21,24 @@ import java.util.List;
  * @author Alexander Izyurov
  */
 public class Director {
-    private Processor[] step1processors = {
+    private Processor[] processors = {
             new InterfaceDeclarationsProcessor(),
             new InterfaceValidator(),
             new ClassDeclarationProcessor(),
-    };
-
-    private ModelProcessor[] step1modelProcessors = {
-            new AbstractMethodsProcessor()
-    };
-
-    private Processor[] step2processors = {
+            new AbstractMethodsProcessor(),
             new ProductionDeclarationProcessor(),
             new SymqleMethodProcessor(),
-            new ImplicitDeclarationProcessor()
-    };
-
-
-    private ModelProcessor[] step2modelProcessors = {
-            new InheritanceProcessor(),
+            new ImplicitDeclarationProcessor(),
+            // by this time all Symqle methods are in symqleTemplate, some of them abstract
+            new InitialImplementationProcessor(),
+            // initial (not Symqle )methods are implemented in classes
             new InterfaceEnhancer(),
+            // all explicit methods are declared in interfaces
+            new ProductionImplementationProcessor(),
+            // all production methods are implemented in Symqle
+            // or moved from symqleTemplate if already implemented
+            new InheritanceProcessor(),
             new ClassEnhancer()
-//            new InterfaceJavadocProcessor()
     };
 
     private final Generator[] generators = {
@@ -64,21 +60,10 @@ public class Director {
             }
         }
         Model model = new Model();
-        for (Processor processor: step1processors) {
+        for (Processor processor: processors) {
             for (SyntaxTree source: parsedSources) {
                 processor. process(source, model);
             }
-        }
-        for (ModelProcessor modelProcessor: step1modelProcessors) {
-            modelProcessor.process(model);
-        }
-        for (Processor processor: step2processors) {
-            for (SyntaxTree source: parsedSources) {
-                processor. process(source, model);
-            }
-        }
-        for (ModelProcessor modelProcessor: step2modelProcessors) {
-            modelProcessor.process(model);
         }
         outputDirectory.mkdirs();
         for (Generator generator: generators) {

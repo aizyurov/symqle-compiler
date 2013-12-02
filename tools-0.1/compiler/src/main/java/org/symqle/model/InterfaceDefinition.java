@@ -22,6 +22,7 @@ import java.util.Set;
 public class InterfaceDefinition extends AbstractTypeDefinition {
     private final List<Type> extended;
     private final MethodDefinition archetypeMethod;
+    private final Set<String> delegatedMethodsSignatures = new HashSet<String>();
 
     public InterfaceDefinition(SyntaxTree node) throws GrammarException {
         super(node);
@@ -47,6 +48,15 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
             e.printStackTrace();
             throw new GrammarException(e, node);
         }
+    }
+
+    public void addDelegateMethod(final MethodDefinition method) throws ModelException {
+        addMethod(method);
+        delegatedMethodsSignatures.add(method.signature());
+    }
+
+    public boolean canDelegateToSymqle(final MethodDefinition method) {
+        return delegatedMethodsSignatures.contains(method.signature());
     }
 
     @Override

@@ -3,11 +3,7 @@ package org.symqle.model;
 import junit.framework.TestCase;
 import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
-import org.symqle.processor.ClassDeclarationProcessor;
-import org.symqle.processor.InheritanceProcessor;
-import org.symqle.processor.InterfaceDeclarationsProcessor;
-import org.symqle.processor.ProductionDeclarationProcessor;
-import org.symqle.processor.SymqleMethodProcessor;
+import org.symqle.processor.*;
 import org.symqle.test.TestUtils;
 import org.symqle.util.ModelUtils;
 
@@ -34,6 +30,7 @@ public class InheritanceTest extends TestCase {
         new ClassDeclarationProcessor().process(syntaxTree, model);
         new ProductionDeclarationProcessor().process(syntaxTree, model);
         new SymqleMethodProcessor().process(syntaxTree, model);
+        new InterfaceEnhancer().process(model);
         new InheritanceProcessor().process(model);
         final ClassDefinition cursorSpec = model.getClassDef("CursorSpecification");
 //        System.out.println(cursorSpec);

@@ -12,7 +12,7 @@ import java.util.*;
  * Time: 19:53:08
  * To change this template use File | Settings | File Templates.
  */
-public class InheritanceProcessor implements ModelProcessor {
+public class InheritanceProcessor extends ModelProcessor {
 
     /**
      * Add interfaces, reachable via a chain of implicit conversions,
@@ -40,7 +40,7 @@ public class InheritanceProcessor implements ModelProcessor {
         final Set<Type> allInterfaces = new HashSet<Type>();
         // All interfaces reachable by N implicit conversions
         final Set<Type> nHopsReachable = new HashSet<Type>();
-        // All interfaces reachable by N+! implicit conversions
+        // All interfaces reachable by N+1 implicit conversions
         // as map (interfaceName, last method in conversion chain)
         final Map<Type, MethodDefinition> nPlusOneHopsReachable = new HashMap<Type, MethodDefinition>();
         // holds current number of hops for the two Sets above
@@ -72,7 +72,7 @@ public class InheritanceProcessor implements ModelProcessor {
 
                     final Type resType = methodDef.getResultType().replaceParams(paramMapping);
                     if (!allInterfaces.contains(resType)) {
-                        // this a new one reachable in N+! hops; not reachable in N or less hops
+                        // this a new one reachable in N+1 hops; not reachable in N or less hops
                         if (nPlusOneHopsReachable.containsKey(resType)) {
                             System.err.println("WARN: multiple ways to reach " +
                                     resName + " from " + classDef.getName() +
@@ -97,16 +97,34 @@ public class InheritanceProcessor implements ModelProcessor {
                 allInterfaces.add(resType);
                 // now it is implemented but its methods may be not
                 for (MethodDefinition methodToImplement: classDef.getAllMethods(model)) {
-                    if (methodToImplement.getOtherModifiers().contains("transient") && methodToImplement.getOtherModifiers().contains("abstract")) {
-                        methodToImplement.implement("public",
-                                " {" + Utils.LINE_BREAK +
-                                "                " +
-                                (methodToImplement.getResultType()==Type.VOID ? "" : "return ") +
-                                methodToImplement.delegationInvocation(
-                                        methodDef.invoke("Symqle"+Utils.LINE_BREAK+"                    ",
-                                                Collections.singletonList("this"))+Utils.LINE_BREAK+"                    ") +
-                                ";" + Utils.LINE_BREAK+"            "+"}"+Utils.LINE_BREAK,
-                                true, true);
+                    if (methodToImplement.getOtherModifiers().contains("volatile")
+                            && methodToImplement.getOtherModifiers().contains("abstract")
+                            ) {
+                        InterfaceDefinition interfaceOwner = model.getInterface(methodToImplement.getOwner().getName());
+                        if (interfaceOwner.canDelegateToSymqle(methodToImplement)) {
+                            final Collection<String> params = Utils.map(methodToImplement.getFormalParameters(), FormalParameter.NAME);
+                            final List<String> augmentedParams = new ArrayList<String>();
+                            augmentedParams.add("this");
+                            augmentedParams.addAll(params);
+                            methodToImplement.implement("public",
+                                    " {" + Utils.LINE_BREAK +
+                                    "                " +
+                                    (methodToImplement.getResultType()==Type.VOID ? "" : "return ") +
+                                     methodToImplement.getName() + "(" +
+                                     Utils.format(augmentedParams, "", ", ", "") +
+                                     ");" + Utils.LINE_BREAK+"            "+"}"+Utils.LINE_BREAK,
+                                    true, true);
+                        } else {
+                            methodToImplement.implement("public",
+                                    " {" + Utils.LINE_BREAK +
+                                    "                " +
+                                    (methodToImplement.getResultType()==Type.VOID ? "" : "return ") +
+                                    methodToImplement.delegationInvocation(
+                                            methodDef.invoke("Symqle"+Utils.LINE_BREAK+"                    ",
+                                                    Collections.singletonList("this"))+Utils.LINE_BREAK+"                    ") +
+                                    ";" + Utils.LINE_BREAK+"            "+"}"+Utils.LINE_BREAK,
+                                    true, true);
+                            }
                     }
                 }
             }

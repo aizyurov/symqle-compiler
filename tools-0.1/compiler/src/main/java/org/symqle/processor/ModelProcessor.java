@@ -2,6 +2,7 @@ package org.symqle.processor;
 
 import org.symqle.model.Model;
 import org.symqle.model.ModelException;
+import org.symqle.parser.SyntaxTree;
 
 /**
  * Created by IntelliJ IDEA.
@@ -10,7 +11,16 @@ import org.symqle.model.ModelException;
  * Time: 19:52:00
  * To change this template use File | Settings | File Templates.
  */
-public interface ModelProcessor {
+public abstract class ModelProcessor implements Processor {
 
-    void process(Model model) throws ModelException;
+    @Override
+    public void process(SyntaxTree tree, Model model) throws GrammarException {
+        try {
+            process(model);
+        } catch (ModelException e) {
+            throw new GrammarException(e, tree);
+        }
+    }
+
+    abstract void process(Model model) throws ModelException;
 }

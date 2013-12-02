@@ -19,30 +19,25 @@ public class SymqleMethodProcessor implements Processor {
 
     @Override
     public void process(SyntaxTree tree, Model model) throws GrammarException {
-        final ClassDefinition symqle;
-        try {
-            symqle = model.getClassDef("Symqle");
-        } catch (ModelException e) {
-            throw new IllegalStateException(e);
-        }
 
+        final ClassDefinition symqleTemplate = model.getSymqleTemplate();
         for (SyntaxTree methodNode: tree.find("SymqleDeclarationBlock.SymqleDeclaration.MethodDeclaration")) {
-            MethodDefinition method = new MethodDefinition(methodNode, symqle);
+            MethodDefinition method = new MethodDefinition(methodNode, symqleTemplate);
             List<String> declarationImports = methodNode.find("^.^.ImportDeclaration", SyntaxTree.BODY);
             try {
                 method.makeStatic();
-                symqle.addMethod(method);
+                symqleTemplate.addMethod(method);
                 method.setSourceRef(methodNode);
                 // private and protected methods are not ExplicitMethods
                 // protected make no sense because Symqle is final
                 if (!method.getAccessModifier().equals("private") && !method.getAccessModifier().equals("protected"))
                 {
-                    model.addExplicitMethod(symqle.getDeclaredMethodBySignature(method.signature()), declarationImports);
+                    model.addExplicitMethod(symqleTemplate.getDeclaredMethodBySignature(method.signature()), declarationImports);
                 }
             } catch (ModelException e) {
                 throw new GrammarException(e, methodNode);
             }
-            symqle.addImportLines(declarationImports);
+            symqleTemplate.addImportLines(declarationImports);
         }
     }
 }
