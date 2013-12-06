@@ -62,5 +62,14 @@ Later: all imports put classes to the Model (using reflection) and mark them as 
 
 (done) make Symqle methods static (big change)
 
-better conflicts resolution: (1) if equal distance from 2 interfaces, choose the one, which have more methods to implement.
-(2) if still not resolved, fail.
+strict methods: each metohd or implicit first parameter should have archetype, otherwise fail build
+
+reporting plugin - cross-reference, hide/show Java code. Hidable code: ClassBody (with its comments) in ProductionImplementation,
+MethodBody in explicit methods and off-production implicits, import and Java-comments everywhere
+
+better placement of Javadocs; interface, class and method - OK, must go to proper places. Archetype method comments are
+generated. Comments before productions are lost. Comments if ProductionImplementation (preceding ClassBody) go to
+corresponding interface methods (not Symqle). Symqle has no javadoc and is all package scope.
+
+generate TestCases interfaces
+

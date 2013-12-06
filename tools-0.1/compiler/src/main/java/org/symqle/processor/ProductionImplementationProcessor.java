@@ -84,7 +84,14 @@ public class ProductionImplementationProcessor extends ModelProcessor {
                 }
             }
         }
-        final MethodDefinition implemented = MethodDefinition.parse(method.getAccessModifier() + " static " + method.getTypeParameters() +" " +
+        final String accessModifier = method.getAccessModifier();
+        final String newAccessModifier;
+        if ("private".equals(accessModifier) || "protected".equals(accessModifier)) {
+            newAccessModifier = "private ";
+        } else {
+            newAccessModifier = "";
+        }
+        final MethodDefinition implemented = MethodDefinition.parse(newAccessModifier + "static " + method.getTypeParameters() +" " +
                 method.getResultType() + " " + method.getName() +
                 "(" + Utils.format(method.getFormalParameters(), "", ", ", "") +")" + " {" +
                 Utils.LINE_BREAK +

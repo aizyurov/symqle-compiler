@@ -24,6 +24,7 @@ public class InitialImplementationProcessor extends ModelProcessor {
     @Override
     void process(Model model) throws ModelException {
         for (ClassDefinition classDef : model.getAllClasses()) {
+            System.err.println("Initial implementation of " + classDef.getName());
             for (MethodDefinition myMethod: classDef.getAllMethods(model)) {
                 final Set<String> modifiers = myMethod.getOtherModifiers();
                 if (modifiers.contains("abstract") && modifiers.contains("volatile")) {
