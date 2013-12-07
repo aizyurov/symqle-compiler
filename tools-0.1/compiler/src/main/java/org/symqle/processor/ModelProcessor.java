@@ -4,6 +4,8 @@ import org.symqle.model.Model;
 import org.symqle.model.ModelException;
 import org.symqle.parser.SyntaxTree;
 
+import java.util.List;
+
 /**
  * Created by IntelliJ IDEA.
  * User: aizyurov
@@ -11,15 +13,15 @@ import org.symqle.parser.SyntaxTree;
  * Time: 19:52:00
  * To change this template use File | Settings | File Templates.
  */
-public abstract class ModelProcessor implements Processor {
+public abstract class ModelProcessor extends ChainedProcessor {
 
     @Override
-    public boolean process(SyntaxTree tree, Model model) throws GrammarException {
+    public void process(List<SyntaxTree> trees, Model model) throws GrammarException {
         try {
+            predecessor().process(trees, model);
             process(model);
-            return false;
         } catch (ModelException e) {
-            throw new GrammarException(e, tree);
+            throw new GrammarException(e, trees.get(0));
         }
     }
 

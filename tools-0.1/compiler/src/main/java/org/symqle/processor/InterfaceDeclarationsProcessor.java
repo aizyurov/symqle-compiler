@@ -9,6 +9,7 @@ import org.symqle.model.ModelException;
 import org.symqle.parser.SyntaxTree;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,22 +17,40 @@ import java.util.Map;
  *
  * @author Alexander Izyurov
  */
-public class InterfaceDeclarationsProcessor implements Processor {
+public class InterfaceDeclarationsProcessor extends SyntaxTreeProcessor {
 
-    public boolean process(SyntaxTree tree, Model model) throws GrammarException {
+    @Override
+    protected Processor predecessor() {
+        // nothing required
+        return new Processor() {
+            @Override
+            public void process(List<SyntaxTree> trees, Model model) throws GrammarException {
+                // do nothing
+            }
+        };
+    }
 
-        Map<String, SyntaxTree> nodeByName = new HashMap<String, SyntaxTree>();
+    public void process(SyntaxTree tree, Model model) throws GrammarException {
+
+        final Map<String, SyntaxTree> nodeByInterfaceName = new HashMap<String, SyntaxTree>();
         for (SyntaxTree node : tree.find(
                         "SymqleDeclarationBlock.SymqleDeclaration.SymqleInterfaceDeclaration")) {
             try {
                 InterfaceDefinition definition = new InterfaceDefinition(node);
                 model.addInterface(definition);
-                nodeByName.put(definition.getName(), node);
+                nodeByInterfaceName.put(definition.getName(), node);
             } catch (ModelException e) {
                 throw new GrammarException(e, node);
             }
         }
-        return true;
+        // validate for no name clashes: getAllMetods will throw ModelException if any
+        for (InterfaceDefinition def: model.getAllInterfaces()) {
+            try {
+                def.getAllMethods(model);
+            } catch (ModelException e) {
+                throw new GrammarException(e, nodeByInterfaceName.get(def.getName()));
+            }
+        }
 
     }
 

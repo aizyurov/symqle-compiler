@@ -12,16 +12,21 @@ import org.symqle.model.ProductionRule;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.util.Utils;
 
+import java.util.List;
+
 /**
  * <br/>20.11.2011
  *
  * @author Alexander Izyurov
  */
-public class DialectCompilationProcessor implements Processor {
-
+public class DialectCompilationProcessor extends SyntaxTreeProcessor {
 
     @Override
-    public boolean process(final SyntaxTree tree, final Model model) throws GrammarException {
+    protected Processor predecessor() {
+        return new ClassDeclarationProcessor();
+    }
+
+    public void process(final SyntaxTree tree, final Model model) throws GrammarException {
 
         final InterfaceDefinition dialect;
         final ClassDefinition genericDialect;
@@ -49,7 +54,6 @@ public class DialectCompilationProcessor implements Processor {
             }
             model.addRule(productionRule.getTargetTypeName(), productionRule.getShortRule());
         }
-        return true;
     }
 
     private MethodDefinition createDialectMethod(ProductionRule rule, InterfaceDefinition dialect) {

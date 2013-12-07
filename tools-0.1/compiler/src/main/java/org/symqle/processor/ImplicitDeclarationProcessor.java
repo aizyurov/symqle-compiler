@@ -10,10 +10,10 @@ import org.symqle.parser.SyntaxTree;
  * Time: 20:03:35
  * To change this template use File | Settings | File Templates.
  */
-public class ImplicitDeclarationProcessor implements Processor {
+public class ImplicitDeclarationProcessor extends SyntaxTreeProcessor {
 
     @Override
-    public boolean process(SyntaxTree tree, Model model) throws GrammarException {
+    public void process(SyntaxTree tree, Model model) throws GrammarException {
         final ClassDefinition symqle;
         try {
             symqle = model.getClassDef("Symqle");
@@ -50,6 +50,5 @@ public class ImplicitDeclarationProcessor implements Processor {
                 throw new GrammarException(e, methodNode);
             }
         }
-        return true;
     }
 }

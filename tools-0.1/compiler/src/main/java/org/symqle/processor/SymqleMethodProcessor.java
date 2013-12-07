@@ -15,10 +15,10 @@ import java.util.List;
  * Time: 10:59:32
  * To change this template use File | Settings | File Templates.
  */
-public class SymqleMethodProcessor implements Processor {
+public class SymqleMethodProcessor extends SyntaxTreeProcessor {
 
     @Override
-    public boolean process(SyntaxTree tree, Model model) throws GrammarException {
+    public void process(SyntaxTree tree, Model model) throws GrammarException {
 
         final ClassDefinition symqleTemplate = model.getSymqleTemplate();
         for (SyntaxTree methodNode: tree.find("SymqleDeclarationBlock.SymqleDeclaration.MethodDeclaration")) {
@@ -34,6 +34,5 @@ public class SymqleMethodProcessor implements Processor {
             }
             symqleTemplate.addImportLines(declarationImports);
         }
-        return true;
     }
 }

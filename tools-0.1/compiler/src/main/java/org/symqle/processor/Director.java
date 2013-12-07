@@ -23,15 +23,12 @@ import java.util.List;
 public class Director {
     private Processor[] processors = {
             new InterfaceDeclarationsProcessor(),
-            new InterfaceValidator(),
             new ClassDeclarationProcessor(),
-            new AbstractMethodsProcessor(),
             new DialectCompilationProcessor(),
-            new ProductionDeclarationProcessor(),
+            new ProductionProcessor(),
             new SymqleMethodProcessor(),
             new ImplicitDeclarationProcessor(),
             // by this time all Symqle methods are in symqleTemplate, some of them abstract
-            new AbstractMethodsProcessor(),
             // initial (not Symqle ) methods are explicitly declared abstract
             new UnsafeMethodsMarker(),
 
@@ -66,11 +63,7 @@ public class Director {
         }
         Model model = new Model();
         for (Processor processor: processors) {
-            for (SyntaxTree source: parsedSources) {
-                if (!processor. process(source, model)) {
-                    break;
-                }
-            }
+            processor. process(parsedSources, model);
         }
         outputDirectory.mkdirs();
         for (Generator generator: generators) {

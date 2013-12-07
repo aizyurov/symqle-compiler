@@ -6,11 +6,13 @@ package org.symqle.processor;
 import org.symqle.model.Model;
 import org.symqle.parser.SyntaxTree;
 
+import java.util.List;
+
 /**
  * <br/>14.11.2011
  *
  * @author Alexander Izyurov
  */
 public interface Processor {
-    boolean process(SyntaxTree tree, Model model) throws GrammarException;
+    void process(List<SyntaxTree> trees, Model model) throws GrammarException;
 }
