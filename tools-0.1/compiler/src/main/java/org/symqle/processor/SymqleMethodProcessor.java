@@ -18,21 +18,31 @@ import java.util.List;
 public class SymqleMethodProcessor extends SyntaxTreeProcessor {
 
     @Override
+    protected Processor predecessor() {
+        return new ProductionProcessor();
+    }
+
+    @Override
     public void process(SyntaxTree tree, Model model) throws GrammarException {
 
-        final ClassDefinition symqleTemplate = model.getSymqleTemplate();
+        final ClassDefinition symqle;
+        try {
+            symqle = model.getClassDef("Symqle");
+        } catch (ModelException e) {
+            throw new IllegalStateException(e);
+        }
+
         for (SyntaxTree methodNode: tree.find("SymqleDeclarationBlock.SymqleDeclaration.MethodDeclaration")) {
-            MethodDefinition method = new MethodDefinition(methodNode, symqleTemplate);
+            MethodDefinition method = new MethodDefinition(methodNode, symqle);
             List<String> declarationImports = methodNode.find("^.^.ImportDeclaration", SyntaxTree.BODY);
             try {
                 method.makeStatic();
-                symqleTemplate.addMethod(method);
                 method.setSourceRef(methodNode);
-                model.addExplicitMethod(symqleTemplate.getDeclaredMethodBySignature(method.signature()), null, declarationImports);
+                model.addExplicitMethod(method, null, declarationImports);
             } catch (ModelException e) {
                 throw new GrammarException(e, methodNode);
             }
-            symqleTemplate.addImportLines(declarationImports);
+            symqle.addImportLines(declarationImports);
         }
     }
 }

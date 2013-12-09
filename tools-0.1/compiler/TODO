@@ -73,3 +73,6 @@ corresponding interface methods (not Symqle). Symqle has no javadoc and is all p
 
 generate TestCases interfaces
 
+InheritanceProcessor: use allInterfaces, simplify (just transitive closure)
+ImplementaionProcessor and ClassEnhancer: use TSort
+Compiler: cleanup of implemented interfaces: remove grandparents if declared.

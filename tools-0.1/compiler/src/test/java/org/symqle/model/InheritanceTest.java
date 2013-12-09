@@ -28,7 +28,7 @@ public class InheritanceTest extends TestCase {
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
-        new ProductionDeclarationProcessor().process(syntaxTree, model);
+        new ProductionProcessor().process(syntaxTree, model);
         new SymqleMethodProcessor().process(syntaxTree, model);
         new InterfaceEnhancer().process(model);
         new InheritanceProcessor().process(model);
@@ -52,7 +52,7 @@ public class InheritanceTest extends TestCase {
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
-        new ProductionDeclarationProcessor().process(syntaxTree, model);
+        new ProductionProcessor().process(syntaxTree, model);
         new SymqleMethodProcessor().process(syntaxTree, model);
         new InheritanceProcessor().process(model);
         ClassDefinition queryExpr = model.getClassDef("QueryExpression");
@@ -83,7 +83,7 @@ public class InheritanceTest extends TestCase {
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
-        new ProductionDeclarationProcessor().process(syntaxTree, model);
+        new ProductionProcessor().process(syntaxTree, model);
         new SymqleMethodProcessor().process(syntaxTree, model);
         new InheritanceProcessor().process(model);
         for (ClassDefinition classDef: model.getAllClasses()) {
@@ -101,7 +101,7 @@ public class InheritanceTest extends TestCase {
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
-        new ProductionDeclarationProcessor().process(syntaxTree, model);
+        new ProductionProcessor().process(syntaxTree, model);
         new SymqleMethodProcessor().process(syntaxTree, model);
         new InheritanceProcessor().process(model);
         for (ClassDefinition classDef: model.getAllClasses()) {

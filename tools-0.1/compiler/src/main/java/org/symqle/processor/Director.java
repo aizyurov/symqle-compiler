@@ -21,27 +21,6 @@ import java.util.List;
  * @author Alexander Izyurov
  */
 public class Director {
-    private Processor[] processors = {
-            new InterfaceDeclarationsProcessor(),
-            new ClassDeclarationProcessor(),
-            new DialectCompilationProcessor(),
-            new ProductionProcessor(),
-            new SymqleMethodProcessor(),
-            new ImplicitDeclarationProcessor(),
-            // by this time all Symqle methods are in symqleTemplate, some of them abstract
-            // initial (not Symqle ) methods are explicitly declared abstract
-            new UnsafeMethodsMarker(),
-
-            new InterfaceEnhancer(),
-            // all explicit methods are declared in interfaces
-            new InitialImplementationProcessor(),
-
-            new ProductionImplementationProcessor(),
-            // all production methods are implemented in Symqle
-            // or moved from symqleTemplate if already implemented
-            new InheritanceProcessor(),
-            new ClassEnhancer()
-    };
 
     private final Generator[] generators = {
             new WriterGenerator("org.symqle.sql")
@@ -62,9 +41,7 @@ public class Director {
             }
         }
         Model model = new Model();
-        for (Processor processor: processors) {
-            processor. process(parsedSources, model);
-        }
+        new Compiler(). process(parsedSources, model);
         outputDirectory.mkdirs();
         for (Generator generator: generators) {
             generator.generate(model, outputDirectory);

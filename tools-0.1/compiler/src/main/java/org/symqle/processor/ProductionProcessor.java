@@ -112,13 +112,10 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
                             anonymousClass.instanceBodyAsString() + ";"+ Utils.LINE_BREAK +
                             "    }"+Utils.LINE_BREAK                            , symqle);
                     methodToImplement.setSourceRef(productionImpl.getSourceRef());
-                    symqle.addMethod(methodToImplement);
                     if (productionImpl.isImplicit()) {
-                        model.addImplicitMethod(methodToImplement);
+                        model.addImplicitMethod(methodToImplement, anonymousClass);
                     } else {
-                        if (!methodToImplement.getAccessModifier().equals("private")
-                                && !methodToImplement.getAccessModifier().equals("protected"))
-                        model.addExplicitMethod(methodToImplement, declarationImports);
+                        model.addExplicitMethod(methodToImplement, anonymousClass, declarationImports);
                     }
                 } catch (ModelException e) {
                     throw new GrammarException(e, productionImplNode);

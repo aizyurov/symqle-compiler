@@ -10,7 +10,12 @@ import org.symqle.parser.SyntaxTree;
  * Time: 20:03:35
  * To change this template use File | Settings | File Templates.
  */
-public class ImplicitDeclarationProcessor extends SyntaxTreeProcessor {
+public class ImplicitConversionProcessor extends SyntaxTreeProcessor {
+
+    @Override
+    protected Processor predecessor() {
+        return new SymqleMethodProcessor();
+    }
 
     @Override
     public void process(SyntaxTree tree, Model model) throws GrammarException {
@@ -42,13 +47,8 @@ public class ImplicitDeclarationProcessor extends SyntaxTreeProcessor {
                     .append(")")
                     .append(methodBody);
             MethodDefinition method = MethodDefinition.parse(builder.toString(), symqle);
-            try {
-                symqle.addMethod(method);
-                model.addImplicitMethod(method, null);
-                method.setSourceRef(methodNode);
-            } catch (ModelException e) {
-                throw new GrammarException(e, methodNode);
-            }
+            model.addImplicitMethod(method, null);
+            method.setSourceRef(methodNode);
         }
     }
 }

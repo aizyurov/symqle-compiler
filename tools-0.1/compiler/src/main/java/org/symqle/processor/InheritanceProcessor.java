@@ -14,6 +14,11 @@ import java.util.*;
  */
 public class InheritanceProcessor extends ModelProcessor {
 
+    @Override
+    protected Processor predecessor() {
+        return new ImplicitConversionProcessor();
+    }
+
     /**
      * Add interfaces, reachable via a chain of implicit conversions,
      * to classes. Adds implementation of methods declared by the interfaces
@@ -98,25 +103,10 @@ public class InheritanceProcessor extends ModelProcessor {
                             // now it is implemented but its methods may be not
                             InterfaceDefinition interfaceOwner = model.getInterface(resType);
                             classDef.addImportLines(interfaceOwner.getImportLines());
-                            // methods will be added in ClassEnhancer
                             for (MethodDefinition methodToImplement: classDef.getAllMethods(model)) {
                                 if (methodToImplement.getOtherModifiers().contains("volatile")
                                         && methodToImplement.getOtherModifiers().contains("abstract")
                                         ) {
-                                    if (interfaceOwner.canDelegateToSymqle(methodToImplement)) {
-                                        final Collection<String> params = Utils.map(methodToImplement.getFormalParameters(), FormalParameter.NAME);
-                                        final List<String> augmentedParams = new ArrayList<String>();
-                                        augmentedParams.add("this");
-                                        augmentedParams.addAll(params);
-                                        methodToImplement.implement("public",
-                                                " {" + Utils.LINE_BREAK +
-                                                "                " +
-                                                (methodToImplement.getResultType()==Type.VOID ? "" : "return ") + "Symqle." +
-                                                 methodToImplement.getName() + "(" +
-                                                 Utils.format(augmentedParams, "", ", ", "") +
-                                                 ");" + Utils.LINE_BREAK+"            "+"}"+Utils.LINE_BREAK,
-                                                true, true);
-                                    } else {
                                         methodToImplement.implement("public",
                                                 " {" + Utils.LINE_BREAK +
                                                 "                " +
@@ -126,7 +116,6 @@ public class InheritanceProcessor extends ModelProcessor {
                                                                 Collections.singletonList("this"))+Utils.LINE_BREAK+"                    ") +
                                                 ";" + Utils.LINE_BREAK+"            "+"}"+Utils.LINE_BREAK,
                                                 true, true);
-                                        }
                                 }
                             }
                         } else {

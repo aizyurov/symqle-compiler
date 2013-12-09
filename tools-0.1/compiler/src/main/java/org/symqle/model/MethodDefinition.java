@@ -29,7 +29,7 @@ public class MethodDefinition {
     private final List<FormalParameter> formalParameters;
 
     private final Set<Type> thrownExceptions;
-    private final String body;
+    private String body;
 
     private final AbstractTypeDefinition owner;
 
@@ -365,6 +365,10 @@ public class MethodDefinition {
         owner.addMethod(
                 implementation
         );
+    }
+
+    public void replaceBody(String newBody) {
+        this.body = newBody;
     }
 
     public void makeStatic() throws ModelException {

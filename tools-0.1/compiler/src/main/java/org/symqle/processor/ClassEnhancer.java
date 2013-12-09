@@ -21,6 +21,11 @@ import java.util.regex.Pattern;
  */
 public class ClassEnhancer extends ModelProcessor {
 
+    @Override
+    protected Processor predecessor() {
+        return new ImplementationProcessor();
+    }
+
     public void process(final Model model) throws ModelException {
         for (ClassDefinition classDef: model.getAllClasses()) {
             enhanceClass(classDef, model);
@@ -88,6 +93,7 @@ public class ClassEnhancer extends ModelProcessor {
 
         // finally, make sure that imports from ancestors go to this class
         classDef.ensureRequiredImports(model);
+        // make class abstract if necessary
 
     }
 

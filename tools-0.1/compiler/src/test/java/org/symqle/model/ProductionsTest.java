@@ -7,8 +7,7 @@ import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.ClassDeclarationProcessor;
 import org.symqle.processor.GrammarException;
 import org.symqle.processor.InterfaceDeclarationsProcessor;
-import org.symqle.processor.ProductionDeclarationProcessor;
-import org.symqle.processor.ProductionImplementationProcessor;
+import org.symqle.processor.ProductionProcessor;
 import org.symqle.test.TestUtils;
 import org.symqle.util.ModelUtils;
 import org.symqle.util.Utils;
@@ -27,10 +26,7 @@ public class ProductionsTest extends TestCase {
         final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/BasicProduction.sdl";
         final SyntaxTree syntaxTree = readSyntaxTree(source);
-        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
-        new ClassDeclarationProcessor().process(syntaxTree, model);
-        new ProductionDeclarationProcessor().process(syntaxTree, model);
-        new ProductionImplementationProcessor().process(syntaxTree, model);
+        new ProductionProcessor().process(syntaxTree, model);
         final ClassDefinition symqle = model.getClassDef("Symqle");
         System.out.println(symqle);
         System.out.println("==========");
@@ -61,7 +57,7 @@ public class ProductionsTest extends TestCase {
         final SyntaxTree syntaxTree = readSyntaxTree(source);
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
-        new ProductionDeclarationProcessor().process(syntaxTree, model);
+        new ProductionProcessor().process(syntaxTree, model);
 
         final ClassDefinition symqle = model.getClassDef("Symqle");
         System.out.println(symqle);
@@ -92,7 +88,7 @@ public class ProductionsTest extends TestCase {
         final SyntaxTree syntaxTree = readSyntaxTree(source);
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
-        new ProductionDeclarationProcessor().process(syntaxTree, model);
+        new ProductionProcessor().process(syntaxTree, model);
 
         final ClassDefinition symqle = model.getClassDef("Symqle");
 
@@ -131,7 +127,7 @@ public class ProductionsTest extends TestCase {
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
         try {
-            new ProductionDeclarationProcessor().process(syntaxTree, model);
+            new ProductionProcessor().process(syntaxTree, model);
             fail("GrammarException expected");
         } catch (GrammarException e) {
             assertTrue(e.getMessage(), e.getMessage().startsWith("Type not found:"));
@@ -144,7 +140,7 @@ public class ProductionsTest extends TestCase {
         SyntaxTree syntaxTree = readSyntaxTree("src/test-data/model/Parentheses.sdl");
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
-        new ProductionDeclarationProcessor().process(syntaxTree, model);
+        new ProductionProcessor().process(syntaxTree, model);
         ClassDefinition symqle = model.getClassDef("Symqle");
         MethodDefinition method = symqle.getDeclaredMethodBySignature("z$Subquery$from$SelectList(SelectList)");
         assertEquals(TestUtils.pureCode(
@@ -173,7 +169,7 @@ public class ProductionsTest extends TestCase {
         final SyntaxTree syntaxTree = readSyntaxTree(source);
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
-        new ProductionDeclarationProcessor().process(syntaxTree, model);
+        new ProductionProcessor().process(syntaxTree, model);
 
         final ClassDefinition symqle = model.getClassDef("Symqle");
 

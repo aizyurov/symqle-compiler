@@ -3,12 +3,8 @@ package org.symqle.model;
 import junit.framework.TestCase;
 import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
-import org.symqle.processor.ClassDeclarationProcessor;
-import org.symqle.processor.ClassEnhancer;
-import org.symqle.processor.InheritanceProcessor;
-import org.symqle.processor.InterfaceDeclarationsProcessor;
-import org.symqle.processor.ProductionDeclarationProcessor;
-import org.symqle.processor.SymqleMethodProcessor;
+import org.symqle.processor.*;
+import org.symqle.processor.ProductionProcessor;
 import org.symqle.util.ModelUtils;
 
 import java.io.FileInputStream;
@@ -28,7 +24,7 @@ public class TestFactoryMethods extends TestCase {
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
         new InterfaceDeclarationsProcessor().process(syntaxTree, model);
         new ClassDeclarationProcessor().process(syntaxTree, model);
-        new ProductionDeclarationProcessor().process(syntaxTree, model);
+        new ProductionProcessor().process(syntaxTree, model);
         new SymqleMethodProcessor().process(syntaxTree, model);
         new InheritanceProcessor().process(model);
         new ClassEnhancer().process(model);

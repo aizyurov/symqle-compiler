@@ -45,7 +45,7 @@ public class ClassDefinition extends AbstractTypeDefinition {
     }
 
     @Override
-    protected Set<AbstractTypeDefinition> getAllAncestors(Model model) throws ModelException {
+    public Set<AbstractTypeDefinition> getAllAncestors(Model model) throws ModelException {
         final Set<AbstractTypeDefinition> ancestors = new HashSet<AbstractTypeDefinition>();
         if (extendedClass != null) {
             final AbstractTypeDefinition ancestor = model.getAbstractType(extendedClass.getSimpleName());

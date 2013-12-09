@@ -258,7 +258,7 @@ public abstract class AbstractTypeDefinition {
         }
     }
 
-    protected abstract Set<AbstractTypeDefinition> getAllAncestors(Model model) throws ModelException;
+    public abstract Set<AbstractTypeDefinition> getAllAncestors(Model model) throws ModelException;
 
     public void replaceComment(final String newComment) {
         this.comment = newComment;

@@ -43,15 +43,6 @@ public class InterfaceDeclarationsProcessor extends SyntaxTreeProcessor {
                 throw new GrammarException(e, node);
             }
         }
-        // validate for no name clashes: getAllMetods will throw ModelException if any
-        for (InterfaceDefinition def: model.getAllInterfaces()) {
-            try {
-                def.getAllMethods(model);
-            } catch (ModelException e) {
-                throw new GrammarException(e, nodeByInterfaceName.get(def.getName()));
-            }
-        }
-
     }
 
 }

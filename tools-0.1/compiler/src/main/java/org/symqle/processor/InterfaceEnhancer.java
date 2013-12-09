@@ -14,6 +14,11 @@ import java.util.Map;
 public class InterfaceEnhancer extends ModelProcessor {
 
     @Override
+    protected Processor predecessor() {
+        return new InheritanceProcessor();
+    }
+
+    @Override
     public void process(final Model model) throws ModelException {
         System.err.println("All interfaces: " + Utils.map(model.getAllInterfaces(), new F<InterfaceDefinition, String, RuntimeException>() {
             @Override
@@ -28,6 +33,9 @@ public class InterfaceEnhancer extends ModelProcessor {
 
     private void enhanceInterface(final InterfaceDefinition interfaceDefinition, final Model model) throws ModelException {
         for (MethodDefinition method: model.getExplicitSymqleMethods()) {
+            if (!model.isUnique(method.getName())) {
+                continue;
+            }
             String accessModifier = method.getAccessModifier();
             // package scope methods of Symqle get translated to public methods of classes and interfaces
             if (accessModifier.equals("private") || accessModifier.equals("protected")) {
@@ -57,48 +65,15 @@ public class InterfaceEnhancer extends ModelProcessor {
                 // special case: both have a single parameter, which is wildcard in firstArg,
                 // so types match
                 final MethodDefinition newMethod = createMyMethod(interfaceDefinition, method, myType, mapping);
-                if (!model.isAmbiguous(newMethod.signature())) {
-                        try {
-                            interfaceDefinition.addDelegateMethod(newMethod);
-                        } catch (ModelException e) {
-                            System.err.println("Explicit methods are " + model.getExplicitSymqleMethods());
-                            throw new RuntimeException("Internal error", e);
-                        }
-                } else {
-                    System.err.println("Not adding ambiguous " + newMethod.signature() + " to " + interfaceDefinition.getName());
+                try {
+                    interfaceDefinition.addDelegateMethod(newMethod);
+                } catch (ModelException e) {
+                    System.err.println("Explicit methods are " + model.getExplicitSymqleMethods());
+                    throw new RuntimeException("Internal error", e);
                 }
             }
         }
         interfaceDefinition.addImportLines(Arrays.asList("import org.symqle.common.*;"));
-    }
-
-    private void implementMethod(final MethodDefinition method, final Model model) throws ModelException {
-        for (final ClassDefinition classDef : model.getAllClasses()) {
-            final MethodDefinition classMethod = classDef.getMethodBySignature(method.signature(), model);
-            if (classMethod == null) {
-                continue;
-            }
-            if (classMethod.getOtherModifiers().contains("volatile")) {
-                // not implemented yet
-                StringBuilder implBuilder = new StringBuilder();
-                implBuilder.append("{ ");
-                if (!method.getResultType().equals(Type.VOID)) {
-                    implBuilder.append("return ");
-                }
-                implBuilder.append("Symqle.")
-                    .append(method.getName()).append("(this");
-                implBuilder.append(Utils.format(classMethod.getFormalParameters(), ", ", ",", "",
-                        new F<FormalParameter, String, RuntimeException>() {
-                            @Override
-                            public String apply(FormalParameter formalParameter) {
-                                return formalParameter.getName();
-                            }
-                        })).append("); }");
-
-                classMethod.implement("public", implBuilder.toString(), true, true);
-                classDef.addImportLines(method.getOwner().getImportLines());
-            }
-        }
     }
 
     private MethodDefinition createMyMethod(final InterfaceDefinition interfaceDefinition, MethodDefinition symqleMethod, Type myType, final Map<String, TypeArgument> mapping) {

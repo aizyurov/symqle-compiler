@@ -65,7 +65,7 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
     }
 
     @Override
-    protected Set<AbstractTypeDefinition> getAllAncestors(Model model) throws ModelException {
+    public Set<AbstractTypeDefinition> getAllAncestors(Model model) throws ModelException {
         final Set<AbstractTypeDefinition> ancestors = new HashSet<AbstractTypeDefinition>();
         for (Type type: extended) {
             final AbstractTypeDefinition ancestor = model.getAbstractType(type.getSimpleName());

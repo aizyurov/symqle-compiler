@@ -20,7 +20,8 @@ import java.util.Set;
  * anonymous classes are never registered with the Model
  * @author lvovich
  */
-public class AnonymousClass extends AbstractTypeDefinition {
+public class
+        AnonymousClass extends AbstractTypeDefinition {
     // class or interface - does not matter
     private Type extended;
 
@@ -38,7 +39,7 @@ public class AnonymousClass extends AbstractTypeDefinition {
     }
 
     @Override
-    protected Set<AbstractTypeDefinition> getAllAncestors(Model model) throws ModelException {
+    public Set<AbstractTypeDefinition> getAllAncestors(Model model) throws ModelException {
         final Set<AbstractTypeDefinition> ancestors = new HashSet<AbstractTypeDefinition>();
         final AbstractTypeDefinition ancestor = model.getAbstractType(extended.getSimpleName());
         ancestors.add(ancestor);
@@ -89,7 +90,7 @@ public class AnonymousClass extends AbstractTypeDefinition {
     }
 
     @Override
-    protected String getExtendsImplements() {
+    public String getExtendsImplements() {
         // will produce non-compilable code if extended is interface
         return "extends " + extended;
     }

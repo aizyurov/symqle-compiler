@@ -17,60 +17,48 @@ public class Model {
 
     private final Set<String> caseInsensitiveClassNames = new HashSet<String>();
 
-    private final List<MethodDefinition> implicitSymqleMethods = new ArrayList<MethodDefinition>();
+    private final Map<MethodDefinition, AnonymousClass> implicitSymqleMethods = new HashMap<MethodDefinition, AnonymousClass>();
     private final Map<MethodDefinition, Set<String>> explicitSymqleMethods = new LinkedHashMap<MethodDefinition, Set<String>>();
+    private final Map<MethodDefinition, AnonymousClass> anonymousClassByMethod = new HashMap<MethodDefinition, AnonymousClass>();
     private final Map<String, List<String>> rulesByTargetTypeName = new HashMap<String, List<String>>();
-
-    private final Map<String, AnonymousClass> anonymousClassByMethodSignature = new HashMap<String, AnonymousClass>();
-
-    private final ClassDefinition symqleTemplate = ClassDefinition.parse("class symqleTemplate {}");
 
     private final Map<String, String> dialectNameBySymqleSignature = new HashMap<String, String>();
 
-    private final Set<String> ambiguousMethodSignature = new HashSet<String>();
+    private final Map<String, Boolean> symqleMethodNemeUniqueness = new HashMap<String, Boolean>();
 
     /**
      *
      * @param method
-     * @param classDefinition not null for abstract methods
      */
-    public void addImplicitMethod(MethodDefinition method, AnonymousClass classDefinition) {
-        implicitSymqleMethods.add(method);
-        anonymousClassByMethodSignature.put(method.signature(), classDefinition);
+    public void addImplicitMethod(MethodDefinition method, AnonymousClass anonymousClass) {
+        implicitSymqleMethods.put(method, anonymousClass);
     }
 
-    public void associateDialectName(String dialectName, MethodDefinition methodDef) {
-        dialectNameBySymqleSignature.put(methodDef.signature(), dialectName);
+    public AnonymousClass getAnonymousClassForConversion(MethodDefinition method) {
+        return implicitSymqleMethods.get(method);
     }
 
-    public String getAssociatedDialectName(MethodDefinition methodDef) {
-        return dialectNameBySymqleSignature.get(methodDef.signature());
-    }
-
-    public void setAmbiguous(String signature) {
-        ambiguousMethodSignature.add(signature);
-    }
-
-    public boolean isAmbiguous(String signature) {
-        return ambiguousMethodSignature.contains(signature);
+    public boolean isUnique(String methodName) {
+        return symqleMethodNemeUniqueness.get(methodName);
     }
 
     /**
      *
      * @param method
-     * @param classDefinition not null for abstract methods
      */
-    public void addExplicitMethod(MethodDefinition method, AnonymousClass classDefinition, Collection<String> requiredImports) {
+    public void addExplicitMethod(MethodDefinition method, AnonymousClass anonymousClass, Collection<String> requiredImports) {
         explicitSymqleMethods.put(method, new HashSet<String>(requiredImports));
-        anonymousClassByMethodSignature.put(method.signature(), classDefinition);
+        final Boolean isKnown = symqleMethodNemeUniqueness.get(method.getName());
+        symqleMethodNemeUniqueness.put(method.getName(), isKnown == null);
+        anonymousClassByMethod.put(method, anonymousClass);
     }
 
-    public AnonymousClass getAnonymousClassByMethodSignature(String signature) {
-        return anonymousClassByMethodSignature.get(signature);
+    public AnonymousClass getAnonymousClassByMethod(MethodDefinition method) {
+        return anonymousClassByMethod.get(method);
     }
 
     public List<MethodDefinition> getImplicitSymqleMethods() {
-        return implicitSymqleMethods;
+        return new ArrayList<MethodDefinition>(implicitSymqleMethods.keySet());
     }
 
     public List<MethodDefinition> getExplicitSymqleMethods() {
@@ -200,9 +188,6 @@ public class Model {
         return rules == null ? null : Collections.unmodifiableList(rules);
     }
 
-    public ClassDefinition getSymqleTemplate() {
-        return symqleTemplate;
-    }
 }
 
 
