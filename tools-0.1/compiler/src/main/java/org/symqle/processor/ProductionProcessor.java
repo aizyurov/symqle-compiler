@@ -26,7 +26,7 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
     }
 
     @Override
-    public void process(final SyntaxTree tree, final Model model) throws GrammarException {
+    protected void process(final SyntaxTree tree, final Model model) throws GrammarException {
 
         final ClassDefinition symqle;
         final InterfaceDefinition dialect;

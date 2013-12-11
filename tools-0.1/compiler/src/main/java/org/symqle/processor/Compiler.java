@@ -13,7 +13,7 @@ import org.symqle.model.ModelException;
 public class Compiler extends ModelProcessor {
 
     @Override
-    void process(Model model) throws ModelException {
+    protected void process(Model model) throws ModelException {
         // does nothing; just entry point
     }
 

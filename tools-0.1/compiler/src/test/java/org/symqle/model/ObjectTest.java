@@ -6,16 +6,17 @@ import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.ClassDeclarationProcessor;
 
 import java.io.FileReader;
+import java.util.Arrays;
 
 /**
  * @author lvovich
  */
 public class ObjectTest extends TestCase {
-    public void testJustClass() throws Exception {
+    public void testObjectClass() throws Exception {
         Model model = new Model();
         SymqleParser parser = new SymqleParser(new FileReader("src/test-data/model/Object.sdl"));
         SyntaxTree node = new SyntaxTree(parser.SymqleUnit(), "Object.sdl");
-        new ClassDeclarationProcessor().process(node, model);
+        new ClassDeclarationProcessor().process(Arrays.asList(node), model);
         System.out.println(model.getClassDef("Object"));
     }
 

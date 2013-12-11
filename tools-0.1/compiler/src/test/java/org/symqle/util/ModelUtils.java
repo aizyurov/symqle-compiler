@@ -6,12 +6,13 @@ import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.ClassDeclarationProcessor;
 import org.symqle.processor.GrammarException;
-import org.symqle.processor.InterfaceDeclarationsProcessor;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author lvovich
@@ -23,9 +24,8 @@ public class ModelUtils {
         String source = "src/test-data/model/CommonClasses.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SymqleParser parser = new SymqleParser(reader);
-        final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
-        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
-        new ClassDeclarationProcessor().process(syntaxTree, model);
+        final List<SyntaxTree> syntaxTrees = Arrays.asList(new SyntaxTree(parser.SymqleUnit(), source));
+        new ClassDeclarationProcessor().process(syntaxTrees, model);
         return model;
     }
 }

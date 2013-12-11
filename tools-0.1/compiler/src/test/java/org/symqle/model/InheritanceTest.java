@@ -3,13 +3,16 @@ package org.symqle.model;
 import junit.framework.TestCase;
 import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
-import org.symqle.processor.*;
+import org.symqle.processor.ClassDeclarationProcessor;
+import org.symqle.processor.InheritanceProcessor;
 import org.symqle.test.TestUtils;
 import org.symqle.util.ModelUtils;
 
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -25,13 +28,8 @@ public class InheritanceTest extends TestCase {
         String source = "src/test-data/model/SimpleInheritance.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SymqleParser parser = new SymqleParser(reader);
-        final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
-        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
-        new ClassDeclarationProcessor().process(syntaxTree, model);
-        new ProductionProcessor().process(syntaxTree, model);
-        new SymqleMethodProcessor().process(syntaxTree, model);
-        new InterfaceEnhancer().process(model);
-        new InheritanceProcessor().process(model);
+        final List<SyntaxTree> syntaxTrees = Arrays.asList(new SyntaxTree(parser.SymqleUnit(), source));
+        new InheritanceProcessor().process(syntaxTrees, model);
         final ClassDefinition cursorSpec = model.getClassDef("CursorSpecification");
 //        System.out.println(cursorSpec);
         MethodDefinition delegatedMethod = cursorSpec.getDeclaredMethodBySignature("z$sqlOfzSelectStatement(SqlContext)");
@@ -49,12 +47,8 @@ public class InheritanceTest extends TestCase {
         String source = "src/test-data/model/ChainInheritance.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SymqleParser parser = new SymqleParser(reader);
-        final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
-        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
-        new ClassDeclarationProcessor().process(syntaxTree, model);
-        new ProductionProcessor().process(syntaxTree, model);
-        new SymqleMethodProcessor().process(syntaxTree, model);
-        new InheritanceProcessor().process(model);
+        final List<SyntaxTree> syntaxTrees = Arrays.asList(new SyntaxTree(parser.SymqleUnit(), source));
+        new InheritanceProcessor().process(syntaxTrees, model);
         ClassDefinition queryExpr = model.getClassDef("QueryExpression");
         System.out.println(queryExpr);
         final MethodDefinition asCursorSpec = queryExpr.getDeclaredMethodBySignature("z$sqlOfzCursorSpecification(SqlContext)");
@@ -80,12 +74,8 @@ public class InheritanceTest extends TestCase {
         String source = "src/test-data/model/CyclicInheritance.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SymqleParser parser = new SymqleParser(reader);
-        final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
-        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
-        new ClassDeclarationProcessor().process(syntaxTree, model);
-        new ProductionProcessor().process(syntaxTree, model);
-        new SymqleMethodProcessor().process(syntaxTree, model);
-        new InheritanceProcessor().process(model);
+        final List<SyntaxTree> syntaxTrees = Arrays.asList(new SyntaxTree(parser.SymqleUnit(), source));
+        new InheritanceProcessor().process(syntaxTrees, model);
         for (ClassDefinition classDef: model.getAllClasses()) {
             System.out.println(classDef);
             System.out.println("==============");
@@ -98,12 +88,8 @@ public class InheritanceTest extends TestCase {
         String source = "src/test-data/model/GenericsInImplicits.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SymqleParser parser = new SymqleParser(reader);
-        final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
-        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
-        new ClassDeclarationProcessor().process(syntaxTree, model);
-        new ProductionProcessor().process(syntaxTree, model);
-        new SymqleMethodProcessor().process(syntaxTree, model);
-        new InheritanceProcessor().process(model);
+        final List<SyntaxTree> syntaxTrees = Arrays.asList(new SyntaxTree(parser.SymqleUnit(), source));
+        new InheritanceProcessor().process(syntaxTrees, model);
         for (ClassDefinition classDef: model.getAllClasses()) {
             System.out.println(classDef);
             System.out.println("==============");
@@ -116,9 +102,8 @@ public class InheritanceTest extends TestCase {
         String source = "src/test-data/model/DependsPropagation.sdl";
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SymqleParser parser = new SymqleParser(reader);
-        final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
-        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
-        new ClassDeclarationProcessor().process(syntaxTree, model);
+        final List<SyntaxTree> syntaxTrees = Arrays.asList(new SyntaxTree(parser.SymqleUnit(), source));
+        new ClassDeclarationProcessor().process(syntaxTrees, model);
         for (ClassDefinition classDef: model.getAllClasses()) {
             System.out.println(classDef);
             System.out.println("==============");

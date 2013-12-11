@@ -27,7 +27,7 @@ public class InheritanceProcessor extends ModelProcessor {
      * @throws ModelException
      */
     @Override
-    public void process(Model model) throws ModelException {
+    protected void process(Model model) throws ModelException {
         final Map<String, Map<String, MethodDefinition>> implicitConversions =
                 makeImplicitConversionsMap(model);
         for (ClassDefinition classDef: model.getAllClasses()) {

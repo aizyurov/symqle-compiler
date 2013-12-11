@@ -25,5 +25,5 @@ public abstract class ModelProcessor extends ChainedProcessor {
         }
     }
 
-    abstract void process(Model model) throws ModelException;
+    protected abstract void process(Model model) throws ModelException;
 }

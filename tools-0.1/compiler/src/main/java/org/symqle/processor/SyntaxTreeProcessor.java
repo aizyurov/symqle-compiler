@@ -21,5 +21,5 @@ public abstract class SyntaxTreeProcessor extends ChainedProcessor {
         }
     }
 
-    public abstract void process(SyntaxTree tree, Model model) throws GrammarException;
+    protected abstract void process(SyntaxTree tree, Model model) throws GrammarException;
 }

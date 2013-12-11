@@ -26,6 +26,24 @@ public class Director {
             new WriterGenerator("org.symqle.sql")
     };
 
+    // processors sequence is define inside processors; currentkry:
+    /*
+
+       InterfaceDeclarationsProcessor
+       ClassDeclarationProcessor
+       ProductionProcessor
+       SymqleMethodProcessor
+       ImplicitConversionProcessor
+       InheritanceProcessor
+       InterfaceEnhancer
+       ImplementationProcessor
+       ClassEnhancer
+       InterfaceJavadocProcessor,
+       Compiler
+     */
+
+
+
     public void doAll(final File[] sources, final File outputDirectory) throws IOException, GrammarException, ParseException, ModelException {
         List<SyntaxTree> parsedSources = new ArrayList<SyntaxTree>(sources.length);
         for (File source: sources) {

@@ -23,7 +23,7 @@ public class SymqleMethodProcessor extends SyntaxTreeProcessor {
     }
 
     @Override
-    public void process(SyntaxTree tree, Model model) throws GrammarException {
+    protected void process(SyntaxTree tree, Model model) throws GrammarException {
 
         final ClassDefinition symqle;
         try {

@@ -26,7 +26,7 @@ public class ClassEnhancer extends ModelProcessor {
         return new ImplementationProcessor();
     }
 
-    public void process(final Model model) throws ModelException {
+    protected void process(final Model model) throws ModelException {
         for (ClassDefinition classDef: model.getAllClasses()) {
             enhanceClass(classDef, model);
         }

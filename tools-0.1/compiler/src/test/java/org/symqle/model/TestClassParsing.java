@@ -14,6 +14,7 @@ import org.symqle.util.ModelUtils;
 
 import java.io.FileReader;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * <br/>15.11.2011
@@ -25,18 +26,18 @@ public class TestClassParsing extends TestCase {
     public void testRegularClass() throws Exception {
         Model model = new Model();
         SymqleParser parser = new SymqleParser(new FileReader("src/test-data/model/SimpleClass.sdl"));
-        SyntaxTree node = new SyntaxTree(parser.SymqleUnit(), "SimpleClass.sdl");
-        new ClassDeclarationProcessor().process(node, model);
-        final ClassDefinition selectStatement = model.getClassDef("SelectStatement");
+        final List<SyntaxTree> nodes = Arrays.asList(new SyntaxTree(parser.SymqleUnit(), "SimpleClass.sdl"));
+        new ClassDeclarationProcessor().process(nodes, model);
+        final ClassDefinition selectStatement = model.getClassDef("AbstractSelectStatement");
         assertEquals(2, selectStatement.getAllMethods(model).size());
         assertEquals(2, selectStatement.getDeclaredMethods().size());
-        final MethodDefinition generated = selectStatement.getDeclaredMethodBySignature("z$sqlOfzSelectStatement(SqlContext)");
+        final MethodDefinition generated = selectStatement.getDeclaredMethodBySignature("z$sqlOfSelectStatement(SqlContext)");
         assertNotNull(generated);
-        assertEquals("public abstract Query<T> z$sqlOfzSelectStatement(SqlContext context)", generated.declaration());
+        assertEquals("public abstract Query<T> z$sqlOfSelectStatement(SqlContext context)", generated.declaration());
     // getDeclaredMethod and getMethod should return the same
-        final MethodDefinition generated1 = selectStatement.getMethodBySignature("z$sqlOfzSelectStatement(SqlContext)", model);
+        final MethodDefinition generated1 = selectStatement.getMethodBySignature("z$sqlOfSelectStatement(SqlContext)", model);
         assertNotNull(generated1);
-        assertEquals("public abstract Query<T> z$sqlOfzSelectStatement(SqlContext context)", generated1.declaration());
+        assertEquals("public abstract Query<T> z$sqlOfSelectStatement(SqlContext context)", generated1.declaration());
         assertTrue(generated.matches(generated1));
         assertTrue(generated1.matches(generated));
     }
@@ -117,9 +118,8 @@ public class TestClassParsing extends TestCase {
         final Model model = ModelUtils.prepareModel();
             SymqleParser parser = new SymqleParser(new FileReader("src/test-data/DuplicateMethod.sdl"));
             SyntaxTree node = new SyntaxTree(parser.SymqleUnit(), "DuplicateMEthod.sdl");
-            new InterfaceDeclarationsProcessor().process(node, model);
         try {
-            new ClassDeclarationProcessor().process(node, model);
+            new ClassDeclarationProcessor().process(Arrays.asList(node), model);
             fail("GrammarException expected here");
         } catch (GrammarException e) {
             assertTrue(e.getMessage().startsWith("Duplicate method: dump"));

@@ -19,7 +19,7 @@ public class InterfaceEnhancer extends ModelProcessor {
     }
 
     @Override
-    public void process(final Model model) throws ModelException {
+    protected void process(final Model model) throws ModelException {
         System.err.println("All interfaces: " + Utils.map(model.getAllInterfaces(), new F<InterfaceDefinition, String, RuntimeException>() {
             @Override
             public String apply(final InterfaceDefinition o) {

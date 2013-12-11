@@ -3,13 +3,15 @@
 */
 package org.symqle.processor;
 
-import org.symqle.model.*;
+import org.symqle.model.ClassDefinition;
+import org.symqle.model.F;
+import org.symqle.model.FormalParameter;
+import org.symqle.model.MethodDefinition;
+import org.symqle.model.Model;
+import org.symqle.model.ModelException;
+import org.symqle.model.Type;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.util.Utils;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.symqle.util.Utils.LINE_BREAK;
 
@@ -26,7 +28,7 @@ public class ClassDeclarationProcessor extends SyntaxTreeProcessor {
     }
 
     @Override
-    public void process(SyntaxTree tree, Model model) throws GrammarException {
+    protected void process(SyntaxTree tree, Model model) throws GrammarException {
         for (SyntaxTree classDeclarationNode: tree.find("SymqleDeclarationBlock.SymqleDeclaration.NormalClassDeclaration")) {
             ClassDefinition definition = new ClassDefinition(classDeclarationNode);
             try {

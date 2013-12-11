@@ -21,7 +21,7 @@ public class InterfaceJavadocProcessor extends ModelProcessor {
     }
 
     @Override
-    public void process(final Model model) throws ModelException {
+    protected void process(final Model model) throws ModelException {
         for (InterfaceDefinition def : model.getAllInterfaces()) {
             final String name = def.getType().getSimpleName();
             final List<String> rules = model.getRules(name);

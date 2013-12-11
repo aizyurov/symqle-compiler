@@ -13,7 +13,7 @@ public class Value<T> implements ValueExpression<T>
 
 <T> ValueExpression<T> ::=
 		e:ValueExpressionPrimary<T>
-		::  implicit Value<T>
+		::  implicit
 ;
 
 

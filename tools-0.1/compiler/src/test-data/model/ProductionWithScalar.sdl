@@ -5,18 +5,15 @@ public interface Scalar<T>
     T value(final Element element) throws SQLException;
 }
 
-public interface zValueExpression<T> extends Scalar<T> : Sql
+public interface ValueExpression<T> extends Scalar<T> : Sql
 {}
 
-public class Value<T> implements zValueExpression<T>
-{}
-
-<T> zValueExpression<T> ::=
-		e:zValueExpressionPrimary<T>
-		:: implicit Value<T>
+<T> ValueExpression<T> ::=
+		e:ValueExpressionPrimary<T>
+		:: implicit
 ;
 
 
-public interface zValueExpressionPrimary<T> extends Scalar<T> : Sql
+public interface ValueExpressionPrimary<T> extends Scalar<T> : Sql
 {}
 

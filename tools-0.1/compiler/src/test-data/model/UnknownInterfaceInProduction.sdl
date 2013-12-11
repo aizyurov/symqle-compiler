@@ -12,7 +12,7 @@ public class AbstractSelectStatement<T> implements SelectStatement<T>
 {}
 
 <T> SelectStatement<T> ::=
-    cspec:CursorSpecification<T> :: implicit AbstractCursorSpecification<T>
+    cspec:CursorSpecification<T> :: implicit
 |
     cspec:CursorSpecification<T>  FOR READ ONLY
         :: public AbstractCursorSpecification<T> forReadOnly

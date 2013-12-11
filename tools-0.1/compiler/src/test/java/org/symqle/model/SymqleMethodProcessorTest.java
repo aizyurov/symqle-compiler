@@ -4,13 +4,17 @@ import junit.framework.TestCase;
 import org.symqle.parser.ParseException;
 import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
-import org.symqle.processor.*;
+import org.symqle.processor.ImplicitConversionProcessor;
+import org.symqle.processor.SymqleMethodProcessor;
+import org.symqle.test.TestUtils;
 import org.symqle.util.ModelUtils;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by IntelliJ IDEA.
@@ -22,33 +26,36 @@ import java.io.Reader;
 public class SymqleMethodProcessorTest extends TestCase {
 
     public void testList() throws Exception {
-//        final Model model = ModelUtils.prepareModel();
-//        String source = "src/test-data/model/SymqleMethod.sdl";
-//        final SyntaxTree syntaxTree = readSyntaxTree(source);
-//        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
-//        new ClassDeclarationProcessor().process(syntaxTree, model);
-//        new ProductionProcessor().process(syntaxTree, model);
-//        new SymqleMethodProcessor().process(syntaxTree, model);
-//        new ProductionImplementationProcessor().process(syntaxTree, model);
-//        final ClassDefinition symqle = model.getClassDef("Symqle");
+        final Model model = ModelUtils.prepareModel();
+        String source = "src/test-data/model/SymqleMethod.sdl";
+        final List<SyntaxTree> syntaxTree = Arrays.asList(readSyntaxTree(source));
+        new SymqleMethodProcessor().process(syntaxTree, model);
+        final ClassDefinition symqle = model.getClassDef("Symqle");
+        assertEquals(0, symqle.getAllMethods(model).size());
 
-//        final MethodDefinition list = symqle.getMethodBySignature("list(SelectStatement,Database)", model);
-//        System.out.println(list);
-//        assertEquals(TestUtils.pureCode("public static List<T> list(final SelectStatement statement, final Database database) {\n" +
-//                "    final SqlContext context = new SqlContext();\n" +
-//                "    return database.list(statement.z$sqlOfSelectStatement(context));\n" +
-//                "}"), TestUtils.pureCode(list.toString()));
-//
+        final List<MethodDefinition> methods = model.getExplicitSymqleMethods();
+        assertEquals(1, methods.size());
+
+        assertEquals(TestUtils.pureCode("static List<T> list(final SelectStatement statement, final Database database) {\n" +
+                "    final SqlContext context = new SqlContext();\n" +
+                "    return database.list(statement.z$sqlOfSelectStatement(context));\n" +
+                "}"), TestUtils.pureCode(methods.get(0).toString()));
+
     }
 
     public void testImplicitConversion() throws Exception {
         final Model model = ModelUtils.prepareModel();
         SyntaxTree tree = readSyntaxTree("src/test-data/model/SmandaloneImplicit.sdl");
-        new InterfaceDeclarationsProcessor().process(tree, model);
-        new ClassDeclarationProcessor().process(tree, model);
-        new ProductionProcessor().process(tree, model);
-        new ImplicitConversionProcessor().process(tree, model);
-        System.out.println(model.getClassDef("Symqle"));
+        new ImplicitConversionProcessor().process(Arrays.asList(tree), model);
+        final ClassDefinition symqle = model.getClassDef("Symqle");
+        assertEquals(0, symqle.getAllMethods(model).size());
+        final List<MethodDefinition> conversions = model.getImplicitSymqleMethods();
+        assertEquals(1, conversions.size());
+
+        final String expected = "static <T> QueryBase<T> z$QueryBase$from$SelectList(SelectList<T> sl) {\n" +
+                "                        return selectFrom(sl, new ImplicitFromClause());\n" +
+                "                        }";
+        assertEquals(TestUtils.pureCode(expected), TestUtils.pureCode(conversions.get(0).toString()));
     }
 
     private SyntaxTree readSyntaxTree(String source) throws FileNotFoundException, ParseException {

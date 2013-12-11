@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Arrays;
 
 /**
  * @author lvovich
@@ -27,7 +28,7 @@ public class TestArchetypes extends TestCase {
     public void testChild1() throws Exception {
         final SyntaxTree syntaxTree = readSyntaxTree();
         final Model model = ModelUtils.prepareModel();
-        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+        new InterfaceDeclarationsProcessor().process(Arrays.asList(syntaxTree), model);
         final InterfaceDefinition child = model.getInterface("Child1");
         assertEquals("Child1", child.getName());
         assertEquals(2, child.getDeclaredMethods().size());
@@ -53,8 +54,8 @@ public class TestArchetypes extends TestCase {
             final MethodDefinition valueMethod = child.getMethodBySignature("value()", model);
             assertEquals("", valueMethod.getAccessModifier());
             assertEquals(1, valueMethod.getOtherModifiers().size());
-            assertEquals("transient T value() throws SQLException", valueMethod.declaration());
-            assertEquals("transient T value() throws SQLException;", valueMethod.toString().trim());
+            assertEquals("volatile T value() throws SQLException", valueMethod.declaration());
+            assertEquals("volatile T value() throws SQLException;", valueMethod.toString().trim());
             assertTrue(valueMethod.isPublic());
             assertTrue(valueMethod.isAbstract());
         }
@@ -62,8 +63,8 @@ public class TestArchetypes extends TestCase {
             final MethodDefinition paramMethod = child.getMethodBySignature("param(Object)", model);
             assertEquals("", paramMethod.getAccessModifier());
             assertEquals(1, paramMethod.getOtherModifiers().size());
-            assertEquals("transient ValueExpression<T> param(T value)", paramMethod.declaration());
-            assertEquals("transient ValueExpression<T> param(T value);", paramMethod.toString().trim());
+            assertEquals("volatile ValueExpression<T> param(T value)", paramMethod.declaration());
+            assertEquals("volatile ValueExpression<T> param(T value);", paramMethod.toString().trim());
             assertTrue(paramMethod.isPublic());
             assertTrue(paramMethod.isAbstract());
         }
@@ -72,7 +73,7 @@ public class TestArchetypes extends TestCase {
     public void testChild2() throws Exception {
         final SyntaxTree syntaxTree = readSyntaxTree();
         final Model model = ModelUtils.prepareModel();
-        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+        new InterfaceDeclarationsProcessor().process(Arrays.asList(syntaxTree), model);
         final InterfaceDefinition child = model.getInterface("Child2");
         assertEquals("Child2", child.getName());
         assertEquals(1, child.getDeclaredMethods().size());
@@ -90,7 +91,7 @@ public class TestArchetypes extends TestCase {
     public void testChild3() throws Exception {
         final SyntaxTree syntaxTree = readSyntaxTree();
         final Model model = ModelUtils.prepareModel();
-        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+        new InterfaceDeclarationsProcessor().process(Arrays.asList(syntaxTree), model);
         final InterfaceDefinition child = model.getInterface("Child3");
         assertEquals("Child3", child.getName());
         assertEquals(1, child.getDeclaredMethods().size());
@@ -108,7 +109,7 @@ public class TestArchetypes extends TestCase {
     public void testChild4() throws Exception {
         final SyntaxTree syntaxTree = readSyntaxTree();
         final Model model = ModelUtils.prepareModel();
-        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+        new InterfaceDeclarationsProcessor().process(Arrays.asList(syntaxTree), model);
         final InterfaceDefinition child = model.getInterface("Child4");
         System.out.println(child);
         for (MethodDefinition method: child.getAllMethods(model)) {
@@ -130,8 +131,8 @@ public class TestArchetypes extends TestCase {
             final MethodDefinition valueMethod = child.getMethodBySignature("value()", model);
             assertEquals("", valueMethod.getAccessModifier());
             assertEquals(1, valueMethod.getOtherModifiers().size());
-            assertEquals("transient T value() throws SQLException", valueMethod.declaration());
-            assertEquals("transient T value() throws SQLException;", valueMethod.toString().trim());
+            assertEquals("volatile T value() throws SQLException", valueMethod.declaration());
+            assertEquals("volatile T value() throws SQLException;", valueMethod.toString().trim());
             assertTrue(valueMethod.isPublic());
             assertTrue(valueMethod.isAbstract());
         }
@@ -139,8 +140,8 @@ public class TestArchetypes extends TestCase {
             final MethodDefinition paramMethod = child.getMethodBySignature("param(Object)", model);
             assertEquals("", paramMethod.getAccessModifier());
             assertEquals(1, paramMethod.getOtherModifiers().size());
-            assertEquals("transient ValueExpression<T> param(T value)", paramMethod.declaration());
-            assertEquals("transient ValueExpression<T> param(T value);", paramMethod.toString().trim());
+            assertEquals("volatile ValueExpression<T> param(T value)", paramMethod.declaration());
+            assertEquals("volatile ValueExpression<T> param(T value);", paramMethod.toString().trim());
             assertTrue(paramMethod.isPublic());
             assertTrue(paramMethod.isAbstract());
         }

@@ -30,7 +30,7 @@ public class InterfaceDeclarationsProcessor extends SyntaxTreeProcessor {
         };
     }
 
-    public void process(SyntaxTree tree, Model model) throws GrammarException {
+    protected void process(SyntaxTree tree, Model model) throws GrammarException {
 
         final Map<String, SyntaxTree> nodeByInterfaceName = new HashMap<String, SyntaxTree>();
         for (SyntaxTree node : tree.find(

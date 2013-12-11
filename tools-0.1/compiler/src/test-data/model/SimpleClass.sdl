@@ -1,4 +1,4 @@
-public interface zSelectStatement<T> : Query<T>
+public interface SelectStatement<T> : Query<T>
 {}
 
 /* declaration imports -- will be propagated to classes, which mimic this */
@@ -6,7 +6,7 @@ import java.util.List;
 import org.symqle.core.Database;
 import java.sql.SQLException;
 @ThreadSafe
-public abstract class SelectStatement<T> implements zSelectStatement<T>
+public abstract class AbstractSelectStatement<T> implements SelectStatement<T>
 /* implementation import -- will NOT be propagated to classes, which mimic this */
 {
     // TODO add scroll

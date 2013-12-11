@@ -22,7 +22,7 @@ public class ImplementationProcessor extends ModelProcessor {
     }
 
     @Override
-    void process(Model model) throws ModelException {
+    protected void process(Model model) throws ModelException {
 
         final ClassDefinition symqle;
         try {

@@ -4,9 +4,7 @@ import junit.framework.TestCase;
 import org.symqle.parser.ParseException;
 import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
-import org.symqle.processor.ClassDeclarationProcessor;
 import org.symqle.processor.GrammarException;
-import org.symqle.processor.InterfaceDeclarationsProcessor;
 import org.symqle.processor.ProductionProcessor;
 import org.symqle.test.TestUtils;
 import org.symqle.util.ModelUtils;
@@ -16,6 +14,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author lvovich
@@ -25,8 +25,8 @@ public class ProductionsTest extends TestCase {
     public void testBasicProduction() throws Exception {
         final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/BasicProduction.sdl";
-        final SyntaxTree syntaxTree = readSyntaxTree(source);
-        new ProductionProcessor().process(syntaxTree, model);
+        final List<SyntaxTree> syntaxTrees = readSyntaxTree(source);
+        new ProductionProcessor().process(syntaxTrees, model);
         final ClassDefinition symqle = model.getClassDef("Symqle");
         System.out.println(symqle);
         System.out.println("==========");
@@ -35,29 +35,16 @@ public class ProductionsTest extends TestCase {
         Utils.createParser(symqle.toString()).SymqleDeclarationBlock();
 
         //
-        assertEquals(3, symqle.getStaticMethods().size());
-        for (MethodDefinition method: symqle.getStaticMethods()) {
-            assertFalse(method.getOtherModifiers().toString(), method.getOtherModifiers().contains("abstract"));
-        }
-        {
-            final MethodDefinition method = symqle.getDeclaredMethodBySignature("z$zSelectStatement$from$zCursorSpecification(zCursorSpecification)");
-            assertEquals("static <T> zSelectStatement<T> z$zSelectStatement$from$zCursorSpecification(final zCursorSpecification<T> cspec)",
-                    method.declaration());
-        }
-        {
-            final MethodDefinition method = symqle.getDeclaredMethodBySignature("forReadOnly(zCursorSpecification)");
-            assertEquals("public static <T> SelectStatement<T> forReadOnly(final zCursorSpecification<T> cspec)",
-                    method.declaration());
-        }
+        assertEquals(1, model.getImplicitSymqleMethods().size());
+        assertEquals(2, model.getExplicitSymqleMethods().size());
+        // TODO verify methods
     }
 
     public void testProductionWithOverride() throws Exception {
         final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/ProductionWithOverride.sdl";
-        final SyntaxTree syntaxTree = readSyntaxTree(source);
-        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
-        new ClassDeclarationProcessor().process(syntaxTree, model);
-        new ProductionProcessor().process(syntaxTree, model);
+        final List<SyntaxTree> syntaxTrees = readSyntaxTree(source);
+        new ProductionProcessor().process(syntaxTrees, model);
 
         final ClassDefinition symqle = model.getClassDef("Symqle");
         System.out.println(symqle);
@@ -65,48 +52,36 @@ public class ProductionsTest extends TestCase {
         Utils.createParser(symqle.toString()).SymqleDeclarationBlock();
 
         //
-        assertEquals(3, symqle.getStaticMethods().size());
-        for (MethodDefinition method: symqle.getStaticMethods()) {
-            assertFalse(method.getOtherModifiers().toString(), method.getOtherModifiers().contains("abstract"));
-        }
+        assertEquals(1, model.getImplicitSymqleMethods().size());
         {
-            final MethodDefinition method = symqle.getDeclaredMethodBySignature("z$zSelectStatement$from$zCursorSpecification(zCursorSpecification)");
-            assertEquals("static <T> zSelectStatement<T> z$zSelectStatement$from$zCursorSpecification(final zCursorSpecification<T> cspec)",
+            final MethodDefinition method = model.getImplicitSymqleMethods().get(0);
+            assertEquals("static <T> SelectStatement<T> z$SelectStatement$from$CursorSpecification(final CursorSpecification<T> cspec)",
                     method.declaration());
             assertTrue(method.toString(), method.toString().contains("throw new RuntimeException(\"Not implemented\");"));
         }
-        {
-            final MethodDefinition method = symqle.getDeclaredMethodBySignature("forReadOnly(zCursorSpecification)");
-            assertEquals("public static <T> SelectStatement<T> forReadOnly(final zCursorSpecification<T> cspec)",
-                    method.declaration());
-        }
+        assertEquals(2, model.getExplicitSymqleMethods().size());
     }
 
     public void testProductionWithScalar() throws Exception {
         final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/ProductionWithScalar.sdl";
-        final SyntaxTree syntaxTree = readSyntaxTree(source);
-        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
-        new ClassDeclarationProcessor().process(syntaxTree, model);
+        final List<SyntaxTree> syntaxTree = readSyntaxTree(source);
         new ProductionProcessor().process(syntaxTree, model);
 
-        final ClassDefinition symqle = model.getClassDef("Symqle");
-
-        System.out.println(symqle.toString());
-        Utils.createParser(symqle.toString()).SymqleDeclarationBlock();
-
+        final List<MethodDefinition> conversions = model.getImplicitSymqleMethods();
+        assertEquals(1, conversions.size());
         {
-            final MethodDefinition method = symqle.getDeclaredMethodBySignature("z$zValueExpression$from$zValueExpressionPrimary(zValueExpressionPrimary)");
+            final MethodDefinition method = conversions.get(0);
             System.out.println(method);
             assertEquals(TestUtils.pureCode(
-                    "    static <T> zValueExpression<T>" +
-                    "    z$zValueExpression$from$zValueExpressionPrimary(final zValueExpressionPrimary<T> e) { \n" +
-                    "        return new Value<T>() {\n" +
+                    "    static <T> ValueExpression<T>" +
+                    "    z$ValueExpression$from$ValueExpressionPrimary(final ValueExpressionPrimary<T> e) { \n" +
+                    "        return new ValueExpression<T>() {\n" +
                             "    public T value(final Element element) throws SQLException {\n" +
                             "        return e.value(element);\n" +
                             "    }\n" +
-                    "           public Sql z$sqlOfzValueExpression(final SqlContext context) {\n" +
-                    "               return context.get(Dialect.class).zValueExpression_is_zValueExpressionPrimary(e.z$sqlOfzValueExpressionPrimary(context));\n" +
+                    "           public Sql z$sqlOfValueExpression(final SqlContext context) {\n" +
+                    "               return context.get(Dialect.class).ValueExpression_is_ValueExpressionPrimary(e.z$sqlOfValueExpressionPrimary(context));\n" +
                     "           }\n" +
                     "       };\n" +
                     "   }"),
@@ -114,20 +89,18 @@ public class ProductionsTest extends TestCase {
         }
     }
 
-    private SyntaxTree readSyntaxTree(String source) throws FileNotFoundException, ParseException {
+    private List<SyntaxTree> readSyntaxTree(String source) throws FileNotFoundException, ParseException {
         Reader reader = new InputStreamReader(new FileInputStream(source));
         SymqleParser parser = new SymqleParser(reader);
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
-        return syntaxTree;
+        return Arrays.asList(syntaxTree);
     }
 
     public void testInterfaceMisspelling() throws Exception {
         final Model model = ModelUtils.prepareModel();
-        SyntaxTree syntaxTree = readSyntaxTree("src/test-data/model/UnknownInterfaceInProduction.sdl");
-        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
-        new ClassDeclarationProcessor().process(syntaxTree, model);
+        List<SyntaxTree> syntaxTrees = readSyntaxTree("src/test-data/model/UnknownInterfaceInProduction.sdl");
         try {
-            new ProductionProcessor().process(syntaxTree, model);
+            new ProductionProcessor().process(syntaxTrees, model);
             fail("GrammarException expected");
         } catch (GrammarException e) {
             assertTrue(e.getMessage(), e.getMessage().startsWith("Type not found:"));
@@ -137,15 +110,14 @@ public class ProductionsTest extends TestCase {
 
     public void testParentheses() throws Exception {
         final Model model = ModelUtils.prepareModel();
-        SyntaxTree syntaxTree = readSyntaxTree("src/test-data/model/Parentheses.sdl");
-        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
-        new ClassDeclarationProcessor().process(syntaxTree, model);
-        new ProductionProcessor().process(syntaxTree, model);
-        ClassDefinition symqle = model.getClassDef("Symqle");
-        MethodDefinition method = symqle.getDeclaredMethodBySignature("z$Subquery$from$SelectList(SelectList)");
+        List<SyntaxTree> syntaxTrees = readSyntaxTree("src/test-data/model/Parentheses.sdl");
+        new ProductionProcessor().process(syntaxTrees, model);
+        final List<MethodDefinition> conversions = model.getImplicitSymqleMethods();
+        assertEquals(1, conversions.size());
+        MethodDefinition method = conversions.get(0);
         assertEquals(TestUtils.pureCode(
                 "static <T> Subquery<T> z$Subquery$from$SelectList(final SelectList<T> sl) { \n" +
-                        "        return new AbstractSubquery<T>() {\n" +
+                        "        return new Subquery<T>() {\n" +
                         "            /**\n" +
                         "            * Creates a Query representing <code>this</code>\n" +
                         "            * @param context the Sql construction context\n" +
@@ -166,14 +138,31 @@ public class ProductionsTest extends TestCase {
     public void testProductionWithPropertyGetter() throws Exception {
         final Model model = ModelUtils.prepareModel();
         String source = "src/test-data/model/ProductionWithProperties.sdl";
-        final SyntaxTree syntaxTree = readSyntaxTree(source);
-        new InterfaceDeclarationsProcessor().process(syntaxTree, model);
-        new ClassDeclarationProcessor().process(syntaxTree, model);
+        final List<SyntaxTree> syntaxTree = readSyntaxTree(source);
         new ProductionProcessor().process(syntaxTree, model);
 
-        final ClassDefinition symqle = model.getClassDef("Symqle");
+        final List<MethodDefinition> conversions = model.getImplicitSymqleMethods();
+        assertEquals(1, conversions.size());
 
-        Utils.createParser(symqle.toString()).SymqleDeclarationBlock();
+        final String expected = "static <T> ValueExpression<T> z$ValueExpression$from$ValueExpressionPrimary(final ValueExpressionPrimary<T> e)\n" +
+                " { \n" +
+                "        return new ValueExpression<T>() {\n" +
+                "        private T elementMapper = e.getElementMapper();\n" +
+                "\n" +
+                "    public T getElementMapper() {\n" +
+                "                return elementMapper;            }\n" +
+                "            /**\n" +
+                "            * Creates an Sql representing ValueExpression.\n" +
+                "            * @param context the Sql construction context\n" +
+                "            * @return constructed Sql\n" +
+                "            */\n" +
+                "            public Sql z$sqlOfValueExpression(final SqlContext context) {\n" +
+                "                return context.get(Dialect.class).ValueExpression_is_ValueExpressionPrimary(e.z$sqlOfValueExpressionPrimary(context));\n" +
+                "            }\n" +
+                "\n" +
+                "        };\n" +
+                "    }\n";
+        assertEquals(TestUtils.pureCode(expected), TestUtils.pureCode(conversions.get(0).toString()));
 
     }
 

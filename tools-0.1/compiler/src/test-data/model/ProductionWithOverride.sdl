@@ -1,25 +1,26 @@
-public interface zSelectStatement<T> : Query<T> {}
 
-public class SelectStatement<T> implements zSelectStatement<T>
+public interface SelectStatement<T> : Query<T> {}
+
+public class AbstractSelectStatement<T> implements SelectStatement<T>
 {}
 
 
-interface zCursorSpecification<T> : Query<T> {}
-class CursorSpecification<T> implements zCursorSpecification<T> {}
+interface CursorSpecification<T> : Query<T> {}
+class AbstractCursorSpecification<T> implements CursorSpecification<T> {}
 
 import java.util.List;
-<T> zSelectStatement<T> ::= cspec:zCursorSpecification<T>
+<T> SelectStatement<T> ::= cspec:CursorSpecification<T>
     ::
     import java.util.LinkedList;
-    implicit CursorSpecification<T> {
-            public Query<T> z$sqlOfzSelectStatement(final SqlContext context) {
+    implicit {
+            public Query<T> z$sqlOfSelectStatement(final SqlContext context) {
                 throw new RuntimeException("Not implemented");
             }
     }
 
-| cspec:zCursorSpecification<T>  FOR READ ONLY
-    :: public SelectStatement<T> forReadOnly
+| cspec:CursorSpecification<T>  FOR READ ONLY
+    :: public AbstractSelectStatement<T> forReadOnly
 
-| cspec:zCursorSpecification<T> FOR UPDATE
-    :: public SelectStatement<T> forUpdate
+| cspec:CursorSpecification<T> FOR UPDATE
+    :: public AbstractSelectStatement<T> forUpdate
 ;

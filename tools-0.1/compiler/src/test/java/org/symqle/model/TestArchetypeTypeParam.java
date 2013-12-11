@@ -10,6 +10,7 @@ import org.symqle.util.ModelUtils;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Arrays;
 
 /**
  * @author lvovich
@@ -23,7 +24,7 @@ public class TestArchetypeTypeParam extends TestCase {
         SymqleParser parser = new SymqleParser(reader);
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
         try {
-            new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+            new InterfaceDeclarationsProcessor().process(Arrays.asList(syntaxTree), model);
             fail("GrammarException expected");
         } catch (GrammarException e) {
             assertTrue(e.getMessage().startsWith("Query archetype requires 1 type parameter, found: 0"));
@@ -37,7 +38,7 @@ public class TestArchetypeTypeParam extends TestCase {
         SymqleParser parser = new SymqleParser(reader);
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
         try {
-            new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+            new InterfaceDeclarationsProcessor().process(Arrays.asList(syntaxTree), model);
             fail("GrammarException expected");
         } catch (GrammarException e) {
             assertTrue(e.getMessage().startsWith("Sql archetype does not take type parameters, found: 1"));
@@ -51,7 +52,7 @@ public class TestArchetypeTypeParam extends TestCase {
         SymqleParser parser = new SymqleParser(reader);
         final SyntaxTree syntaxTree = new SyntaxTree(parser.SymqleUnit(), source);
         try {
-            new InterfaceDeclarationsProcessor().process(syntaxTree, model);
+            new InterfaceDeclarationsProcessor().process(Arrays.asList(syntaxTree), model);
             fail("GrammarException expected");
         } catch (GrammarException e) {
             assertTrue(e.getMessage(), e.getMessage().startsWith("Prefix \"z$sqlOf\" is reserved for generated methods"));

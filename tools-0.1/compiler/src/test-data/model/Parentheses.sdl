@@ -4,5 +4,5 @@ public class AbstractSelectList<T> implements SelectList<T> {}
 public interface Subquery<T> : Query<T> {}
 public class AbstractSubquery<T> implements Subquery<T> {}
 
-<T> Subquery<T> ::= LEFT_PAREN sl:SelectList<T> RIGHT_PAREN :: implicit AbstractSubquery<T>
+<T> Subquery<T> ::= LEFT_PAREN sl:SelectList<T> RIGHT_PAREN :: implicit
 ;
