@@ -1,0 +1,11 @@
+public interface List<T> {}
+
+public class AbstractList<R> implements List<R> {}
+
+public class ArrayList<S> extends AbstractList<S> {}
+
+public interface Map<T,U> {}
+
+public class AbstractMap<A,B> implements Map<A,B> {}
+
+public class HashMap<K,V> extends AbstractMap<K,V>  {}

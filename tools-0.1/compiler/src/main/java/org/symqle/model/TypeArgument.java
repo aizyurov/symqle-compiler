@@ -100,12 +100,20 @@ public class TypeArgument {
             };
 
     public TypeArgument replaceParams(final Map<String, TypeArgument> mapping) {
-        return new TypeArgument(isWildCardArgument, boundType,
+        if (isWildCardArgument()) {
+            final String name = "#" + System.identityHashCode(this);
+            if (mapping.containsKey(name)) {
+                return mapping.get(name);
+            } else {
+                return this;
+            }
+        } else {
+            return new TypeArgument(isWildCardArgument, boundType,
                 reference == null ? null : reference.replaceParams(mapping));
+        }
     }
 
     public void addInferredTypeArguments(final TypeArgument formalTypeArgument, final Map<String, TypeArgument> parameterMapping) throws ModelException {
-        // ignore wildcard arguments: they are OK, but do not help in inferring
         if (!formalTypeArgument.isWildCardArgument()) {
             final String name = formalTypeArgument.getReference().getSimpleName();
             if (parameterMapping.containsKey(name)) {
@@ -127,6 +135,10 @@ public class TypeArgument {
                     }
                 }
             }
+        } else {
+            // each wildcard argument is distinct anonymous type; create a name and put to map
+            final String name = "#" + System.identityHashCode(formalTypeArgument);
+            parameterMapping.put(name, this);
         }
     }
 

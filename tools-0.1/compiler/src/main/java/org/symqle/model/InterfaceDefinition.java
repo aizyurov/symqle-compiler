@@ -65,20 +65,16 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
     }
 
     @Override
-    public Set<AbstractTypeDefinition> getAllAncestors(Model model) throws ModelException {
-        final Set<AbstractTypeDefinition> ancestors = new HashSet<AbstractTypeDefinition>();
+    public Set<Type> getAllAncestors(Model model) throws ModelException {
+        final Set<Type> ancestors = new HashSet<Type>();
         for (Type type: extended) {
-            final AbstractTypeDefinition ancestor = model.getAbstractType(type.getSimpleName());
-            ancestors.add(ancestor);
-            ancestors.addAll(ancestor.getAllAncestors(model));
+            ancestors.add(type);
+            ancestors.addAll(getInheritedAncestors(type, model));
         }
         return ancestors;
     }
 
     public MethodDefinition getArchetypeMethod() throws ModelException {
-        if (archetypeMethod==null) {
-            throw new ModelException("Interface "+getName()+" does not have archetype");
-        }
         return archetypeMethod;
     }
 

@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,63 +32,63 @@ public class ClassEnhancer extends ModelProcessor {
     }
 
     private void enhanceClass(final ClassDefinition classDef, final Model model) throws ModelException {
-        Map<String, MethodTemplate> generatedMethods = new HashMap<String, MethodTemplate>();
-        Set<String> ambiguousMethods = new HashSet<String>();
-        for (MethodDefinition method: model.getExplicitSymqleMethods()) {
-            final MethodTemplate methodTemplate = tryAddMethod(classDef, method, model);
-            if (methodTemplate != null) {
-                final String signature = methodTemplate.myAbstractMethod.signature();
-                if (generatedMethods.containsKey(signature)) {
-                    final MethodTemplate existing = generatedMethods.get(signature);
-
-                    final MethodTemplate keep;
-                    final MethodTemplate throwAway;
-                    // less priority wins, if equal, first wins
-                    if (existing.priority <= methodTemplate.priority) {
-                        keep = existing;
-                        throwAway = methodTemplate;
-                    } else {
-                        keep = methodTemplate;
-                        throwAway = existing;
-                    }
-                    System.err.println("WARN: conflicting methods; keep: " +
-                            keep.myAbstractMethod.declaration() + " ["+keep.priority+"]" +
-                    " throw away: " +
-                            throwAway.myAbstractMethod.declaration() + " ["+throwAway.priority+"]" +
-                            " in "+ classDef.getName());
-                    ambiguousMethods.add(signature);
-                    generatedMethods.put(signature, keep);
-                } else {
-                    generatedMethods.put(signature, methodTemplate);
-                }
-                // add imports only if you are declaring the method
-                classDef.addImportLines(model.getImportsForExplicitMethod(method));
-            }
-        }
-        // generate real methods
-        for (Map.Entry<String, MethodTemplate> entry: generatedMethods.entrySet()) {
-            final MethodDefinition myAbstractMethod = entry.getValue().myAbstractMethod;
-            List<String> parameters = new ArrayList<String>(Utils.map(myAbstractMethod.getFormalParameters(), FormalParameter.NAME));
-            if (ambiguousMethods.contains(entry.getKey())) {
-                // must explicitly cast to myType
-                parameters.add(0, "("+entry.getValue().myType+") this");
-            } else {
-                parameters.add(0, "this");
-            }
-
-            if (classDef.getDeclaredMethodBySignature(myAbstractMethod.signature()) == null) {
-                ((MethodDefinition) myAbstractMethod).implement(myAbstractMethod.getAccessModifier(), " {" + Utils.LINE_BREAK +
-                        "        " +
-                        (myAbstractMethod.getResultType().equals(Type.VOID) ? "" : "return ") +
-                        "Symqle." +
-                        myAbstractMethod.getName() +
-                        "(" +
-                        Utils.format(parameters, "", ", ", "") +
-                        ");" + Utils.LINE_BREAK +
-                        "    }", true, true
-                );
-            }
-        }
+//        Map<String, MethodTemplate> generatedMethods = new HashMap<String, MethodTemplate>();
+//        Set<String> ambiguousMethods = new HashSet<String>();
+//        for (MethodDefinition method: model.getExplicitSymqleMethods()) {
+//            final MethodTemplate methodTemplate = tryAddMethod(classDef, method, model);
+//            if (methodTemplate != null) {
+//                final String signature = methodTemplate.myAbstractMethod.signature();
+//                if (generatedMethods.containsKey(signature)) {
+//                    final MethodTemplate existing = generatedMethods.get(signature);
+//
+//                    final MethodTemplate keep;
+//                    final MethodTemplate throwAway;
+//                    // less priority wins, if equal, first wins
+//                    if (existing.priority <= methodTemplate.priority) {
+//                        keep = existing;
+//                        throwAway = methodTemplate;
+//                    } else {
+//                        keep = methodTemplate;
+//                        throwAway = existing;
+//                    }
+//                    System.err.println("WARN: conflicting methods; keep: " +
+//                            keep.myAbstractMethod.declaration() + " ["+keep.priority+"]" +
+//                    " throw away: " +
+//                            throwAway.myAbstractMethod.declaration() + " ["+throwAway.priority+"]" +
+//                            " in "+ classDef.getName());
+//                    ambiguousMethods.add(signature);
+//                    generatedMethods.put(signature, keep);
+//                } else {
+//                    generatedMethods.put(signature, methodTemplate);
+//                }
+//                // add imports only if you are declaring the method
+//                classDef.addImportLines(model.getImportsForExplicitMethod(method));
+//            }
+//        }
+//        // generate real methods
+//        for (Map.Entry<String, MethodTemplate> entry: generatedMethods.entrySet()) {
+//            final MethodDefinition myAbstractMethod = entry.getValue().myAbstractMethod;
+//            List<String> parameters = new ArrayList<String>(Utils.map(myAbstractMethod.getFormalParameters(), FormalParameter.NAME));
+//            if (ambiguousMethods.contains(entry.getKey())) {
+//                // must explicitly cast to myType
+//                parameters.add(0, "("+entry.getValue().myType+") this");
+//            } else {
+//                parameters.add(0, "this");
+//            }
+//
+//            if (classDef.getDeclaredMethodBySignature(myAbstractMethod.signature()) == null) {
+//                ((MethodDefinition) myAbstractMethod).implement(myAbstractMethod.getAccessModifier(), " {" + Utils.LINE_BREAK +
+//                        "        " +
+//                        (myAbstractMethod.getResultType().equals(Type.VOID) ? "" : "return ") +
+//                        "Symqle." +
+//                        myAbstractMethod.getName() +
+//                        "(" +
+//                        Utils.format(parameters, "", ", ", "") +
+//                        ");" + Utils.LINE_BREAK +
+//                        "    }", true, true
+//                );
+//            }
+//        }
 
         // finally, make sure that imports from ancestors go to this class
         classDef.ensureRequiredImports(model);
@@ -126,7 +125,7 @@ public class ClassEnhancer extends ModelProcessor {
                     && myType.getTypeArguments().getArguments().size() == 1)) {
                 // special case: both have a single parameter, which is wildcard in firstArg,
                 // so types match
-                return new MethodTemplate(createMyMethod(classDef, method, myType, mapping), myType, classDef.getPriority(myType));
+                return new MethodTemplate(createMyMethod(classDef, method, myType, mapping), myType);
 
             } else {
                 return null;
@@ -139,12 +138,10 @@ public class ClassEnhancer extends ModelProcessor {
     private static class MethodTemplate {
         private final MethodDefinition myAbstractMethod;
         private final Type myType;
-        private final int priority;
 
-        private MethodTemplate(final MethodDefinition myAbstractMethod, final Type myType, final int priority) {
+        private MethodTemplate(final MethodDefinition myAbstractMethod, final Type myType) {
             this.myAbstractMethod = myAbstractMethod;
             this.myType = myType;
-            this.priority = priority;
         }
     }
 

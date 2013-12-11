@@ -1,39 +1,39 @@
-public interface zSelectStatement<T> : Query<T> {}
+public interface SelectStatement<T> : Query<T> {}
 
-public class SelectStatement<T> implements zSelectStatement<T>
+public class AbstractSelectStatement<T> implements SelectStatement<T>
 {}
 
 
-public interface zCursorSpecification<T> : Query<T> {}
+public interface CursorSpecification<T> : Query<T> {}
 
-public class CursorSpecification<T> implements zCursorSpecification<T>
+public class AbstractCursorSpecification<T> implements CursorSpecification<T>
 {}
 
 import java.util.List;
-<T> zSelectStatement<T> ::= cspec:zCursorSpecification<T>
+<T> SelectStatement<T> ::= cspec:CursorSpecification<T>
     ::
     import java.util.LinkedList;
-    implicit SelectStatement<T>
+    implicit
 
-| cspec:zCursorSpecification<T>  FOR READ ONLY
-    :: SelectStatement<T> forReadOnly
+| cspec:CursorSpecification<T>  FOR READ ONLY
+    :: AbstractSelectStatement<T> forReadOnly
 
-| cspec:zCursorSpecification<T> FOR UPDATE
-    :: SelectStatement<T> forUpdate
+| cspec:CursorSpecification<T> FOR UPDATE
+    :: AbstractSelectStatement<T> forUpdate
 ;
 
-<T> zCursorSpecification<T> ::= qe:zQueryExpression<T>
-    ::  implicit QueryExpression<T>
+<T> CursorSpecification<T> ::= qe:QueryExpression<T>
+    ::  implicit
 
-| qe:zQueryExpression<T> obc:zOrderByClause
-    :: QueryExpression<T> orderBy
+| qe:QueryExpression<T> obc:OrderByClause
+    :: AbstractQueryExpression<T> orderBy
 ;
 
-public interface zOrderByClause : Sql
+public interface OrderByClause : Sql
 {}
 
-public interface zQueryExpression<T> : Query<T>
+public interface QueryExpression<T> : Query<T>
 {}
 
-public class QueryExpression<T> implements zQueryExpression<T>
+public class AbstractQueryExpression<T> implements QueryExpression<T>
 {}

@@ -4,19 +4,19 @@ public interface Scalar<T>
 }
 
 
-public interface zValueExpression<T> extends Scalar<T> : Sql
+public interface ValueExpression<T> extends Scalar<T> : Sql
 {}
 
-public class Value<R> implements zValueExpression<R>
+public class Value<R> implements ValueExpression<R>
 {}
 
-<S> zValueExpression<S> ::=
-		e:zValueExpressionPrimary<S>
-		:: implicit ValueExpressionPrimary<S>
+<S> ValueExpression<S> ::=
+		e:ValueExpressionPrimary<S>
+		:: implicit
 ;
 
-<T extends Number> zValueExpression<Number> ::=
-    l:zValueExpressionPrimary<T> PLUS r:zValueExpressionPrimary<T> :: public Value<Number> plus {
+<T extends Number> ValueExpression<Number> ::=
+    l:ValueExpressionPrimary<T> PLUS r:ValueExpressionPrimary<T> :: public Value<Number> plus {
         public Number value(final Element element) throws SQLException {
             return Element.getBigDecimal();
         }
@@ -24,22 +24,18 @@ public class Value<R> implements zValueExpression<R>
 ;
 
 
-public interface zBooleanValueExpression extends Scalar<Boolean> : Sql
+public interface BooleanValueExpression extends Scalar<Boolean> : Sql
 {}
 
-public class BooleanValueExpression implements zBooleanValueExpression
-{}
-
-
-zValueExpression<Boolean> ::= bve: zBooleanValueExpression
-	    :: implicit BooleanValueExpression
+ValueExpression<Boolean> ::= bve: BooleanValueExpression
+	    :: implicit
 ;
 
 
-public interface zValueExpressionPrimary<U> extends Scalar<U> : Sql
+public interface ValueExpressionPrimary<U> extends Scalar<U> : Sql
 {}
 
-public class ValueExpressionPrimary<V> implements zValueExpressionPrimary<V>
+public class AbstractValueExpressionPrimary<V> implements ValueExpressionPrimary<V>
 {}
 
 

@@ -6,7 +6,6 @@ import org.symqle.util.Utils;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,11 +38,12 @@ public class
     }
 
     @Override
-    public Set<AbstractTypeDefinition> getAllAncestors(Model model) throws ModelException {
-        final Set<AbstractTypeDefinition> ancestors = new HashSet<AbstractTypeDefinition>();
-        final AbstractTypeDefinition ancestor = model.getAbstractType(extended.getSimpleName());
-        ancestors.add(ancestor);
-        ancestors.addAll(ancestor.getAllAncestors(model));
+    public Set<Type> getAllAncestors(Model model) throws ModelException {
+        final Set<Type> ancestors = new HashSet<Type>();
+        final Type parentType = extended;
+        ancestors.add(parentType);
+        final Set<Type> myAncestors = getInheritedAncestors(parentType, model);
+        ancestors.addAll(myAncestors);
         return ancestors;
     }
 

@@ -22,7 +22,7 @@ public abstract class AbstractTypeDefinition {
     private final String name;
     private final String accessModifier;
     private final Set<String> otherModifiers;
-    private final TypeParameters typeParameters;
+    protected final TypeParameters typeParameters;
     private final Map<String, MethodDefinition> methods = new TreeMap<String, MethodDefinition>();
     private final List<String> otherDeclarations = new ArrayList<String>();
     private final List<String> annotations;
@@ -258,10 +258,21 @@ public abstract class AbstractTypeDefinition {
         }
     }
 
-    public abstract Set<AbstractTypeDefinition> getAllAncestors(Model model) throws ModelException;
+    public abstract Set<Type> getAllAncestors(Model model) throws ModelException;
 
     public void replaceComment(final String newComment) {
         this.comment = newComment;
+    }
+
+    protected Set<Type> getInheritedAncestors(final Type parentType, final Model model) throws ModelException {
+        final AbstractTypeDefinition parent = model.getAbstractType(parentType.getSimpleName());
+        final Set<Type> parentAncestors = parent.getAllAncestors(model);
+        final Set<Type> myAncestors = new HashSet<Type>();
+        for (Type parentAncestor: parentAncestors) {
+            final Map<String, TypeArgument> replacementMap = parent.getTypeParameters().inferTypeArguments(parent.getType(), parentType);
+            myAncestors.add(parentAncestor.replaceParams(replacementMap));
+        }
+        return myAncestors;
     }
 }
 

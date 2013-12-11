@@ -30,14 +30,12 @@ public class InheritanceTest extends TestCase {
         SymqleParser parser = new SymqleParser(reader);
         final List<SyntaxTree> syntaxTrees = Arrays.asList(new SyntaxTree(parser.SymqleUnit(), source));
         new InheritanceProcessor().process(syntaxTrees, model);
-        final ClassDefinition cursorSpec = model.getClassDef("CursorSpecification");
+        final ClassDefinition cursorSpec = model.getClassDef("AbstractCursorSpecification");
 //        System.out.println(cursorSpec);
-        MethodDefinition delegatedMethod = cursorSpec.getDeclaredMethodBySignature("z$sqlOfzSelectStatement(SqlContext)");
+        MethodDefinition delegatedMethod = cursorSpec.getDeclaredMethodBySignature("z$sqlOfSelectStatement(SqlContext)");
         assertEquals(TestUtils.pureCode
-                ("public final Query<T> z$sqlOfzSelectStatement(final SqlContext context) {\n" +
-                "                return Symqle\n" +
-                "                    .z$zSelectStatement$from$zCursorSpecification(this)\n" +
-                "                    .z$sqlOfzSelectStatement(context);\n" +
+                ("public final Query<T> z$sqlOfSelectStatement(final SqlContext context) {\n" +
+                "                return Symqle.z$SelectStatement$from$CursorSpecification(this).z$sqlOfSelectStatement(context);\n" +
                 "            }"), TestUtils.pureCode(delegatedMethod.toString()));
 
     }
@@ -49,22 +47,18 @@ public class InheritanceTest extends TestCase {
         SymqleParser parser = new SymqleParser(reader);
         final List<SyntaxTree> syntaxTrees = Arrays.asList(new SyntaxTree(parser.SymqleUnit(), source));
         new InheritanceProcessor().process(syntaxTrees, model);
-        ClassDefinition queryExpr = model.getClassDef("QueryExpression");
+        ClassDefinition queryExpr = model.getClassDef("AbstractQueryExpression");
         System.out.println(queryExpr);
-        final MethodDefinition asCursorSpec = queryExpr.getDeclaredMethodBySignature("z$sqlOfzCursorSpecification(SqlContext)");
+        final MethodDefinition asCursorSpec = queryExpr.getDeclaredMethodBySignature("z$sqlOfCursorSpecification(SqlContext)");
         assertEquals(TestUtils.pureCode(
-                "public final Query<T> z$sqlOfzCursorSpecification(final SqlContext context) {\n" +
-                        "                return Symqle\n" +
-                        "                    .z$zCursorSpecification$from$zQueryExpression(this)\n" +
-                        "                    .z$sqlOfzCursorSpecification(context);\n" +
+                "public final Query<T> z$sqlOfCursorSpecification(final SqlContext context) {\n" +
+                        "                return Symqle.z$CursorSpecification$from$QueryExpression(this).z$sqlOfCursorSpecification(context);\n" +
                         "            }"
         ), TestUtils.pureCode(asCursorSpec.toString()));
-        final MethodDefinition asSelectStatement = queryExpr.getDeclaredMethodBySignature("z$sqlOfzSelectStatement(SqlContext)");
+        final MethodDefinition asSelectStatement = queryExpr.getDeclaredMethodBySignature("z$sqlOfSelectStatement(SqlContext)");
         assertEquals(TestUtils.pureCode(
-                "public final Query<T> z$sqlOfzSelectStatement(final SqlContext context) {\n" +
-                        "                return Symqle\n" +
-                        "                    .z$zSelectStatement$from$zCursorSpecification(this)\n" +
-                        "                    .z$sqlOfzSelectStatement(context);\n" +
+                "public final Query<T> z$sqlOfSelectStatement(final SqlContext context) {\n" +
+                        "                return Symqle.z$SelectStatement$from$CursorSpecification(this).z$sqlOfSelectStatement(context);\n" +
                         "            }"),
                 TestUtils.pureCode(asSelectStatement.toString()));
     }
@@ -107,6 +101,19 @@ public class InheritanceTest extends TestCase {
         for (ClassDefinition classDef: model.getAllClasses()) {
             System.out.println(classDef);
             System.out.println("==============");
+        }
+
+    }
+
+    public void testAllAncestorsForClass() throws Exception {
+        final Model model = ModelUtils.prepareModel();
+        String source = "src/test-data/model/ClassHierarchy.sdl";
+        Reader reader = new InputStreamReader(new FileInputStream(source));
+        SymqleParser parser = new SymqleParser(reader);
+        final List<SyntaxTree> syntaxTrees = Arrays.asList(new SyntaxTree(parser.SymqleUnit(), source));
+        new ClassDeclarationProcessor().process(syntaxTrees, model);
+        for (AbstractTypeDefinition classDef : model.getAllTypes()) {
+            System.out.println(classDef.getName() + classDef.getTypeParameters() + " <- " + classDef.getAllAncestors(model));
         }
 
     }

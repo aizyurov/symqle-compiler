@@ -3,7 +3,11 @@ package org.symqle.processor;
 import org.symqle.model.*;
 import org.symqle.util.Utils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by IntelliJ IDEA.
@@ -28,10 +32,8 @@ public class InheritanceProcessor extends ModelProcessor {
      */
     @Override
     protected void process(Model model) throws ModelException {
-        final Map<String, Map<String, MethodDefinition>> implicitConversions =
-                makeImplicitConversionsMap(model);
         for (ClassDefinition classDef: model.getAllClasses()) {
-            addInterfaces(classDef, implicitConversions, model);
+            addInterfaces(classDef, model);
             classDef.makeAbstractIfNeeded(model);
             classDef.ensureRequiredImports(model);
         }
@@ -40,7 +42,6 @@ public class InheritanceProcessor extends ModelProcessor {
 
 
     private void addInterfaces(final ClassDefinition classDef,
-                               final Map<String, Map<String, MethodDefinition>> implicitConversions,
                                final Model model) throws ModelException {
         // verify that all interface methods are implemented by the time if this call
         for (MethodDefinition methodDef : classDef.getAllMethods(model)) {
@@ -49,133 +50,74 @@ public class InheritanceProcessor extends ModelProcessor {
             }
         }
 
-        // Names of all interfaces implemented by classDef
-        final Set<Type> allInterfaces = new HashSet<Type>();
-        // All interfaces reachable by N implicit conversions
-        final Set<Type> nHopsReachable = new HashSet<Type>();
-        // All interfaces reachable by N+1 implicit conversions
-        // as map (interfaceName, last method in conversion chain)
-        final Map<Type, MethodDefinition> nPlusOneHopsReachable = new HashMap<Type, MethodDefinition>();
-        // holds current number of hops for the two Sets above
-        int nHops = 0;
-        // cycle invariant:
-        // all interfaces reachable in N hops and less are implemented by the class
-        // all their names are in allInterfaceNames
-        // nHopsReachable contains all interfaces to which classDef can be converted in N hops
-        // all methods to be implemented in classDef are either implemented or explicitly declared abstract
-        //
-        // initialize the variables:
-        for (Type interfaceType: classDef.getImplementedInterfaces()) {
-            allInterfaces.add(interfaceType);
-            nHopsReachable.add(interfaceType);
-        }
-        // invariant is true
-        while (!nHopsReachable.isEmpty()) {
-            System.err.println(classDef.getName() + "[" + nHops +"]: " + Utils.format(nHopsReachable, "(", ", ", ")"));
-            for (Type argType: nHopsReachable) {
-                Map<String, MethodDefinition> conversionsByArg = implicitConversions.get(argType.getSimpleName());
-                if (conversionsByArg==null) {
-                    continue;
-                }
-                for (Map.Entry<String, MethodDefinition> entry: conversionsByArg.entrySet()) {
-                    final String resName = entry.getKey();
-                    MethodDefinition methodDef = entry.getValue();
-                    final TypeParameters methodTypeParams = methodDef.getTypeParameters();
-                    final Map<String, TypeArgument> paramMapping =
-                            methodTypeParams.inferTypeArguments(methodDef.getFormalParameters().get(0).getType(), argType);
+        final Set<Type> unexplored = new HashSet<Type>();
 
-                    final Type resType = methodDef.getResultType().replaceParams(paramMapping);
-                    System.err.println(classDef.getName() + "[" + nHops +"]: " + "adding " + resType);
-                    if (!allInterfaces.contains(resType)) {
-                        // this a new one reachable in N+1 hops; not reachable in N or less hops
-                        if (nPlusOneHopsReachable.containsKey(resType)) {
-                            System.err.println("WARN: multiple ways to reach " +
-                                    resName + " from " + classDef.getName() +
-                                    " last step is " +
-                                    nPlusOneHopsReachable.get(resType).getName() +
-                                    " or "+ methodDef.getName());
-                            // do not replace: first conversion wins
-                        } else if (isCompatible(resType, classDef, paramMapping, model)) {
-                            nPlusOneHopsReachable.put(resType, methodDef);
-                            classDef.addImplementedInterface(resType, nHops);
-                            allInterfaces.add(resType);
-                            System.err.println(classDef.getName() + "[" + nHops +"]: " + "added " + resType);
-                            // now it is implemented but its methods may be not
-                            InterfaceDefinition interfaceOwner = model.getInterface(resType);
-                            classDef.addImportLines(interfaceOwner.getImportLines());
-                            for (MethodDefinition methodToImplement: classDef.getAllMethods(model)) {
-                                if (methodToImplement.getOtherModifiers().contains("volatile")
-                                        && methodToImplement.getOtherModifiers().contains("abstract")
-                                        ) {
-                                        methodToImplement.implement("public",
-                                                " {" + Utils.LINE_BREAK +
-                                                "                " +
-                                                (methodToImplement.getResultType()==Type.VOID ? "" : "return ") +
-                                                methodToImplement.delegationInvocation(
-                                                        methodDef.invoke("Symqle"+Utils.LINE_BREAK+"                    ",
-                                                                Collections.singletonList("this"))+Utils.LINE_BREAK+"                    ") +
-                                                ";" + Utils.LINE_BREAK+"            "+"}"+Utils.LINE_BREAK,
-                                                true, true);
-                                }
-                            }
-                        } else {
-                            System.err.println("Interface not compatible to " + classDef.getName()+ ", skipping: " + resType.getSimpleName());
-                        }
-                    } else {
-                        System.err.println(classDef.getName() + "[" + nHops +"]: " + "already has " + resType.getSimpleName());
-                    }
+        for (Type type: classDef.getAllAncestors(model)) {
+            final AbstractTypeDefinition ancestorClass = model.getAbstractType(type.getSimpleName());
+            if (ancestorClass.getClass().equals(InterfaceDefinition.class)) {
+                InterfaceDefinition interfaceDefinition = (InterfaceDefinition) ancestorClass;
+                if (interfaceDefinition.getArchetypeMethod() != null) {
+                    unexplored.add(type);
                 }
             }
-            // now nPlusOneHopsReachable contains all possible interfaces to implement with methods to use
-            // for last step conversion
-            // add interfaces to classDef and implement everything it must implement
-            nHops += 1;
-            // all interfaces added and method implemented: proceed to next number of hops
-            nHopsReachable.clear();
-            nHopsReachable.addAll(nPlusOneHopsReachable.keySet());
-            nPlusOneHopsReachable.clear();
+        }
+
+        while (!unexplored.isEmpty()) {
+            final Set<Type> allAncestors = new HashSet<Type>(classDef.getAllAncestors(model));
+            final Type type = unexplored.iterator().next();
+            // find suitable implicit conversions
+            final Map<MethodDefinition, Type> availableConversions = findAvailableConversions(type, model);
+            for (Map.Entry<MethodDefinition, Type> entry : availableConversions.entrySet()) {
+                if (!allAncestors.contains(entry.getValue())) {
+                    classDef.addImplementedInterface(entry.getValue());
+                    final Set<Type> newAncestors = classDef.getAllAncestors(model);
+                    newAncestors.removeAll(allAncestors);
+                    unexplored.addAll(newAncestors);
+                    implementNewMethods(classDef, entry.getKey(), model);
+                }
+            }
+            unexplored.remove(type);
         }
     }
 
     /**
-     * Creates a map of implicit conversions
-     * key is argument interface name
-     * valye is map of (result interface name, conversion method)
+     * Avaliable conversions. Key is conversion method, value is returned type.
+     * @param type the type of conversion argument
      * @param model
      * @return
      */
-    private final Map<String, Map<String, MethodDefinition>> makeImplicitConversionsMap(final Model model) {
-        final Map<String, Map<String, MethodDefinition>> conversionsMap = new HashMap<String, Map<String, MethodDefinition>>();
-        for (MethodDefinition methodDef: model.getImplicitSymqleMethods()) {
-            final String argName = methodDef.getFormalParameters().get(0).getType().getSimpleName();
-            final String resName = methodDef.getResultType().getSimpleName();
-            Map<String, MethodDefinition> conversionsFromArg = conversionsMap.get(argName);
-            if (conversionsFromArg==null) {
-                conversionsFromArg = new HashMap<String, MethodDefinition>();
-                conversionsMap.put(argName, conversionsFromArg);
-            }
-            conversionsFromArg.put(resName, methodDef);
-        }
-        return conversionsMap;
-    }
-
-    private boolean isCompatible(Type interfaceType, ClassDefinition classDef, Map<String, TypeArgument> paramMapping, Model model) throws ModelException {
-        final InterfaceDefinition anInterface = model.getInterface(interfaceType);
-        for (MethodDefinition interfaceMethod : anInterface.getAllMethods(model)) {
-            for (MethodDefinition classMethod: classDef.getAllMethods(model)) {
-                if (classMethod.signature().equals(interfaceMethod.signature())) {
-                    if (!classMethod.getResultType().getSimpleName().equals(interfaceMethod.getResultType().getSimpleName())) {
-                        System.err.println(classDef.getName() + " incompatible to " + anInterface.getName() +" : " + interfaceMethod.signature() + " returns " +classMethod.getResultType() + "/" + interfaceMethod.getResultType());
-                        return false;
-                    }
-//                    final MethodDefinition adjusted = interfaceMethod.replaceParams(classDef, paramMapping);
-//                    if (!adjusted.matches(classMethod)) {
-//                        return false;
-//                    }
+    public static Map<MethodDefinition, Type> findAvailableConversions(Type type, Model model) throws ModelException {
+        final Map<MethodDefinition, Type> map = new HashMap<MethodDefinition, Type>();
+        for (MethodDefinition conversion : model.getImplicitSymqleMethods()) {
+            final Type arg0Type = conversion.getFormalParameters().get(0).getType();
+            if (arg0Type.getSimpleName().equals(type.getSimpleName())) {
+                final Map<String, TypeArgument> replacementMap = conversion.getTypeParameters().inferTypeArguments(arg0Type, type);
+                final Type resultType = conversion.getResultType().replaceParams(replacementMap);
+                final Type argType = arg0Type.replaceParams(replacementMap);
+                if (argType.equals(type)) {
+                    map.put(conversion, resultType);
                 }
             }
         }
-        return true;
+        return map;
+    }
+
+    private void implementNewMethods(ClassDefinition classDef, MethodDefinition conversionMethod, Model model) throws ModelException {
+        for (MethodDefinition methodToImplement: classDef.getAllMethods(model)) {
+            if (methodToImplement.getOtherModifiers().contains("volatile")
+                    && methodToImplement.getOtherModifiers().contains("abstract")
+                    ) {
+                    methodToImplement.implement("public",
+                            " {" + Utils.LINE_BREAK +
+                            "                " +
+                            (methodToImplement.getResultType()==Type.VOID ? "" : "return ") +
+                            methodToImplement.delegationInvocation(
+                                    conversionMethod.invoke("Symqle", Collections.singletonList("this"))) +
+                            ";" + Utils.LINE_BREAK+"            "+"}"+Utils.LINE_BREAK,
+                            true, true);
+            }
+        }
+
     }
 
 }
