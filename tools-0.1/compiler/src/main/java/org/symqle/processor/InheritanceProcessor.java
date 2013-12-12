@@ -20,7 +20,7 @@ public class InheritanceProcessor extends ModelProcessor {
 
     @Override
     protected Processor predecessor() {
-        return new ImplicitConversionProcessor();
+        return new SymqleMethodProcessor();
     }
 
     /**

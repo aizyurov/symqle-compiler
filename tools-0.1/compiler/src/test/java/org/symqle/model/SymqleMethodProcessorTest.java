@@ -4,7 +4,6 @@ import junit.framework.TestCase;
 import org.symqle.parser.ParseException;
 import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
-import org.symqle.processor.ImplicitConversionProcessor;
 import org.symqle.processor.SymqleMethodProcessor;
 import org.symqle.test.TestUtils;
 import org.symqle.util.ModelUtils;
@@ -41,21 +40,6 @@ public class SymqleMethodProcessorTest extends TestCase {
                 "    return database.list(statement.z$sqlOfSelectStatement(context));\n" +
                 "}"), TestUtils.pureCode(methods.get(0).toString()));
 
-    }
-
-    public void testImplicitConversion() throws Exception {
-        final Model model = ModelUtils.prepareModel();
-        SyntaxTree tree = readSyntaxTree("src/test-data/model/SmandaloneImplicit.sdl");
-        new ImplicitConversionProcessor().process(Arrays.asList(tree), model);
-        final ClassDefinition symqle = model.getClassDef("Symqle");
-        assertEquals(0, symqle.getAllMethods(model).size());
-        final List<MethodDefinition> conversions = model.getImplicitSymqleMethods();
-        assertEquals(1, conversions.size());
-
-        final String expected = "static <T> QueryBase<T> z$QueryBase$from$SelectList(SelectList<T> sl) {\n" +
-                "                        return selectFrom(sl, new ImplicitFromClause());\n" +
-                "                        }";
-        assertEquals(TestUtils.pureCode(expected), TestUtils.pureCode(conversions.get(0).toString()));
     }
 
     private SyntaxTree readSyntaxTree(String source) throws FileNotFoundException, ParseException {

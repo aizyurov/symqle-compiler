@@ -1021,9 +1021,6 @@ void SymqleDeclaration():
         LOOKAHEAD( ClassModifiers() "class" )
         NormalClassDeclaration()
     |
-        LOOKAHEAD( "::" [ TypeParameters() ] ClassOrInterfaceType() "implicit" )
-        ImplicitConversionDeclaration()
-    |
         "::" MethodDeclaration()
     |
         ProductionDeclaration() ";"
@@ -1101,19 +1098,6 @@ Variable names declared in the production are available in the body (they are fi
 */
     ( ImportDeclaration() ) *
     ( ( MethodModifiers() ClassOrInterfaceType() Identifier() ) | "implicit" ) [ ClassBody() ]
-}
-
-void ImplicitConversionDeclaration():
-{}
-{
-    "::"
-    [ TypeParameters() ]
-    ClassOrInterfaceType()
-    "implicit"
-    "("
-    FormalParameter()
-    ")"
-    MethodBody()
 }
 
 /*****************************************
