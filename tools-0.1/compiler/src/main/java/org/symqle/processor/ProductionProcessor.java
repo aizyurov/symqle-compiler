@@ -22,7 +22,7 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
 
     @Override
     protected Processor predecessor() {
-        return new ClassDeclarationProcessor();
+        return new ClassCompletionProcessor();
     }
 
     @Override

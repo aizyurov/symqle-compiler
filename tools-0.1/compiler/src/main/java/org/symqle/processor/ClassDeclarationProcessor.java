@@ -33,7 +33,6 @@ public class ClassDeclarationProcessor extends SyntaxTreeProcessor {
             ClassDefinition definition = new ClassDefinition(classDeclarationNode);
             try {
                 model.addClass(definition);
-                finalizeClass(model, definition);
             } catch (ModelException e) {
                 throw new GrammarException(e, classDeclarationNode);
             }

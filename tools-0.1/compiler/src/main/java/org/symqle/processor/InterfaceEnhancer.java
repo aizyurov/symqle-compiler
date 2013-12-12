@@ -33,7 +33,7 @@ public class InterfaceEnhancer extends ModelProcessor {
 
     private void enhanceInterface(final InterfaceDefinition interfaceDefinition, final Model model) throws ModelException {
         for (MethodDefinition method: model.getExplicitSymqleMethods()) {
-            if (!model.isUnique(method.getName())) {
+            if (!model.isUnambiguous(method)) {
                 continue;
             }
             String accessModifier = method.getAccessModifier();

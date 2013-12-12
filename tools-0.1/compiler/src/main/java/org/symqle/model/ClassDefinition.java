@@ -26,6 +26,10 @@ public class ClassDefinition extends AbstractTypeDefinition {
 
     private  Set<Type> implementedInterfaces;
 
+    // Implemented interface: kew, inplemented via: value
+    // directly implemented interfaces are not included
+    private Map<Type, Type> pathInfo = new HashMap<Type, Type>();
+
 
     public static ClassDefinition parse(final String source) {
         try {
@@ -57,14 +61,6 @@ public class ClassDefinition extends AbstractTypeDefinition {
         }
         return ancestors;
     }
-
-    private final static F<ImplementationInfo, Type, RuntimeException> TYPE = new F<ImplementationInfo, Type, RuntimeException>() {
-        @Override
-        public Type apply(final ImplementationInfo implementationInfo) {
-            return implementationInfo.type;
-        }
-    };
-
 
     public List<Type> getImplementedInterfaces() {
         return new ArrayList<Type>(implementedInterfaces);
@@ -171,15 +167,23 @@ public class ClassDefinition extends AbstractTypeDefinition {
         }
     }
 
-    private static class ImplementationInfo {
-        final Type type;
-        // the less, the more priority
-        final int priority;
+    public void addPath(Type to, Type from) {
+        pathInfo.put(to, from);
+    }
 
-        private ImplementationInfo(final Type type, final int priority) {
-            this.type = type;
-            this.priority = priority;
+    public int distance(Type type, Model model) throws ModelException {
+        if (!getAllAncestors(model).contains(type)) {
+            throw new IllegalArgumentException(type + " is not ancestor of " + this.getType());
+        }
+        final Type previous = pathInfo.get(type);
+        if (previous == null) {
+            return 0;
+        } else {
+            return 1 + distance(previous, model);
         }
     }
 
+    public Type getExtendedClass() {
+        return extendedClass;
+    }
 }

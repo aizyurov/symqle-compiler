@@ -32,7 +32,7 @@ public class InheritanceProcessor extends ModelProcessor {
      */
     @Override
     protected void process(Model model) throws ModelException {
-        for (ClassDefinition classDef: model.getAllClasses()) {
+        for (ClassDefinition classDef: model.getSortedClasses()) {
             addInterfaces(classDef, model);
             classDef.makeAbstractIfNeeded(model);
             classDef.ensureRequiredImports(model);
@@ -73,6 +73,9 @@ public class InheritanceProcessor extends ModelProcessor {
                     final Set<Type> newAncestors = classDef.getAllAncestors(model);
                     newAncestors.removeAll(allAncestors);
                     unexplored.addAll(newAncestors);
+                    for (Type newAncestor: newAncestors) {
+                        classDef.addPath(newAncestor, type);
+                    }
                     implementNewMethods(classDef, entry.getKey(), model);
                 }
             }

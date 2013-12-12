@@ -19,7 +19,9 @@ public abstract class ModelProcessor extends ChainedProcessor {
     public void process(List<SyntaxTree> trees, Model model) throws GrammarException {
         try {
             predecessor().process(trees, model);
+            System.err.println("STARTING " + getClass().getSimpleName());
             process(model);
+            System.err.println("FINISHED " + getClass().getSimpleName());
         } catch (ModelException e) {
             throw new GrammarException(e, trees.get(0));
         }

@@ -6,6 +6,7 @@ package org.symqle.model;
 import junit.framework.TestCase;
 import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
+import org.symqle.processor.ClassCompletionProcessor;
 import org.symqle.processor.ClassDeclarationProcessor;
 import org.symqle.processor.GrammarException;
 import org.symqle.processor.InterfaceDeclarationsProcessor;
@@ -27,7 +28,7 @@ public class TestClassParsing extends TestCase {
         Model model = new Model();
         SymqleParser parser = new SymqleParser(new FileReader("src/test-data/model/SimpleClass.sdl"));
         final List<SyntaxTree> nodes = Arrays.asList(new SyntaxTree(parser.SymqleUnit(), "SimpleClass.sdl"));
-        new ClassDeclarationProcessor().process(nodes, model);
+        new ClassCompletionProcessor().process(nodes, model);
         final ClassDefinition selectStatement = model.getClassDef("AbstractSelectStatement");
         assertEquals(2, selectStatement.getAllMethods(model).size());
         assertEquals(2, selectStatement.getDeclaredMethods().size());

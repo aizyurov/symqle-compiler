@@ -8,6 +8,7 @@ import org.symqle.processor.GrammarException;
 import org.symqle.util.Assert;
 import org.symqle.util.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,6 +24,15 @@ public class TypeParameter {
         Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "TypeParameter");
         name = node.find("Identifier").get(0).getValue();
         typeBound = node.find("TypeBound.ClassOrInterfaceType", Type.CONSTRUCT);
+    }
+
+    private TypeParameter(final String name, final List<Type> typeBound) {
+        this.name = name;
+        this.typeBound = typeBound;
+    }
+
+    public TypeParameter rename(String newName) {
+        return new TypeParameter(newName, new ArrayList<Type>(typeBound));
     }
 
     public String getName() {

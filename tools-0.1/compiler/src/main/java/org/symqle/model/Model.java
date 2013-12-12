@@ -3,6 +3,9 @@
 */
 package org.symqle.model;
 
+import org.symqle.util.TSort;
+import org.symqle.util.Utils;
+
 import java.util.*;
 
 /**
@@ -24,7 +27,8 @@ public class Model {
 
     private final Map<String, String> dialectNameBySymqleSignature = new HashMap<String, String>();
 
-    private final Map<String, Boolean> symqleMethodNemeUniqueness = new HashMap<String, Boolean>();
+    // key is "reduced signature" -name and afgumetns but the first one
+    private final Map<String, Boolean> symqleMethodUniqueness = new HashMap<String, Boolean>();
 
     /**
      *
@@ -38,8 +42,8 @@ public class Model {
         return implicitSymqleMethods.get(method);
     }
 
-    public boolean isUnique(String methodName) {
-        return symqleMethodNemeUniqueness.get(methodName);
+    public boolean isUnambiguous(MethodDefinition method) {
+        return symqleMethodUniqueness.get(reducedSignature(method));
     }
 
     /**
@@ -48,9 +52,19 @@ public class Model {
      */
     public void addExplicitMethod(MethodDefinition method, AnonymousClass anonymousClass, Collection<String> requiredImports) {
         explicitSymqleMethods.put(method, new HashSet<String>(requiredImports));
-        final Boolean isKnown = symqleMethodNemeUniqueness.get(method.getName());
-        symqleMethodNemeUniqueness.put(method.getName(), isKnown == null);
+        final String key = reducedSignature(method);
+        final Boolean isKnown = symqleMethodUniqueness.get(key);
+        symqleMethodUniqueness.put(key, isKnown == null);
         anonymousClassByMethod.put(method, anonymousClass);
+    }
+
+    public String reducedSignature(MethodDefinition method) {
+        final List<FormalParameter> formalParameters = method.getFormalParameters();
+        if (formalParameters.size() == 0) {
+            return method.getName();
+        } else {
+            return method.getName() + "(" + Utils.format(formalParameters.subList(1, formalParameters.size()), "", ",", "") +")";
+        }
     }
 
     public AnonymousClass getAnonymousClassByMethod(MethodDefinition method) {
@@ -186,6 +200,24 @@ public class Model {
     public List<String> getRules(String targetTypeName) {
         final List<String> rules = rulesByTargetTypeName.get(targetTypeName);
         return rules == null ? null : Collections.unmodifiableList(rules);
+    }
+
+    public List<ClassDefinition> getSortedClasses() {
+        TSort<ClassDefinition> tSort = new TSort<ClassDefinition>();
+        for (ClassDefinition classDef: getAllClasses()) {
+            final Type extendedClass = classDef.getExtendedClass();
+            if (extendedClass == null) {
+                tSort.add(classDef);
+            } else {
+                final AbstractTypeDefinition parent = classMap.get(extendedClass.getSimpleName());
+                if (parent == null || !parent.getClass().equals(ClassDefinition.class)) {
+                    tSort.add(classDef);
+                } else {
+                    tSort.add(classDef, (ClassDefinition) parent);
+                }
+            }
+        }
+        return tSort.sort();
     }
 
 }

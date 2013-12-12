@@ -31,7 +31,7 @@ public class ImplementationProcessor extends ModelProcessor {
             throw new IllegalStateException(e);
         }
 
-        for (ClassDefinition classDef : model.getAllClasses()) {
+        for (ClassDefinition classDef : model.getSortedClasses()) {
             implement(classDef, model);
         }
         for (MethodDefinition method: model.getImplicitSymqleMethods()) {
