@@ -81,6 +81,11 @@ public class SymqleGenerator
         throws MojoExecutionException, MojoFailureException
     {
 
+        outputDirectory.mkdirs();
+        testOutputDirectory.mkdirs();
+        project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
+        project.addTestCompileSourceRoot(testOutputDirectory.getAbsolutePath());
+
         if (isClean()) {
             getLog().info("All files are up to date");
             return;
@@ -106,8 +111,6 @@ public class SymqleGenerator
         } catch (IOException e) {
             // ignore - not critical: will cause full rebuild next time
         }
-        project.addCompileSourceRoot(outputDirectory.getAbsolutePath());
-        project.addTestCompileSourceRoot(testOutputDirectory.getAbsolutePath());
     }
 
     private boolean isClean() {
@@ -137,7 +140,6 @@ public class SymqleGenerator
     }
 
     private void prepareDirectory(final File directory) throws MojoExecutionException {
-        directory.mkdirs();
         for (File subdir: directory.listFiles()) {
             deleteRecursively(subdir);
         }

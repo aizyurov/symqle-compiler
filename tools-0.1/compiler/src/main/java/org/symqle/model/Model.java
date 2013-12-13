@@ -20,7 +20,7 @@ public class Model {
 
     private final Set<String> caseInsensitiveClassNames = new HashSet<String>();
 
-    private final Map<MethodDefinition, AnonymousClass> implicitSymqleMethods = new HashMap<MethodDefinition, AnonymousClass>();
+    private final List<ImplicitConversion> conversions = new ArrayList<ImplicitConversion>();
     private final Map<MethodDefinition, Set<String>> explicitSymqleMethods = new LinkedHashMap<MethodDefinition, Set<String>>();
     private final Map<MethodDefinition, AnonymousClass> anonymousClassByMethod = new HashMap<MethodDefinition, AnonymousClass>();
     private final Map<String, List<String>> rulesByTargetTypeName = new HashMap<String, List<String>>();
@@ -32,14 +32,9 @@ public class Model {
 
     /**
      *
-     * @param method
      */
-    public void addImplicitMethod(MethodDefinition method, AnonymousClass anonymousClass) {
-        implicitSymqleMethods.put(method, anonymousClass);
-    }
-
-    public AnonymousClass getAnonymousClassForConversion(MethodDefinition method) {
-        return implicitSymqleMethods.get(method);
+    public void addConversion(ImplicitConversion conversion) {
+        conversions.add(conversion);
     }
 
     public boolean isUnambiguous(MethodDefinition method) {
@@ -71,8 +66,8 @@ public class Model {
         return anonymousClassByMethod.get(method);
     }
 
-    public List<MethodDefinition> getImplicitSymqleMethods() {
-        return new ArrayList<MethodDefinition>(implicitSymqleMethods.keySet());
+    public List<ImplicitConversion> getConversions() {
+        return Collections.unmodifiableList(conversions);
     }
 
     public List<MethodDefinition> getExplicitSymqleMethods() {
@@ -106,18 +101,15 @@ public class Model {
         }
     }
 
-    public AbstractTypeDefinition getAbstractType(String name) throws ModelException {
+    public AbstractTypeDefinition getAbstractType(String name) {
         final AbstractTypeDefinition def = classMap.get(name);
-        if (def == null) {
-            throw new ModelException("Type not found: "+name);
-        }
         return def;
     }
 
     public List<InterfaceDefinition> getAllInterfaces() {
         List<InterfaceDefinition> result = new LinkedList<InterfaceDefinition>();
         for (AbstractTypeDefinition candidate: classMap.values()) {
-            if (candidate instanceof InterfaceDefinition) {
+            if (candidate.getClass().equals(InterfaceDefinition.class)) {
                 result.add((InterfaceDefinition) candidate);
             }
         }
@@ -143,7 +135,7 @@ public class Model {
     public List<ClassDefinition> getAllClasses() {
         List<ClassDefinition> result = new LinkedList<ClassDefinition>();
         for (AbstractTypeDefinition candidate: classMap.values()) {
-            if (candidate instanceof ClassDefinition) {
+            if (candidate.getClass().equals(ClassDefinition.class)) {
                 result.add((ClassDefinition) candidate);
             }
         }
@@ -152,32 +144,6 @@ public class Model {
 
     public List<FactoryMethodModel> getAllFactoryMethods() {
         return new ArrayList<FactoryMethodModel>(factoryMethods.values());
-    }
-
-    private static class ClassOrInterface {
-        private final ClassDefinition classDefinition;
-        private final InterfaceDefinition interfaceDefinition;
-        private boolean isInterface;
-
-        private ClassOrInterface(InterfaceDefinition interfaceDefinition) {
-            this.interfaceDefinition = interfaceDefinition;
-            this.classDefinition = null;
-            this.isInterface = true;
-        }
-
-        private ClassOrInterface(ClassDefinition classDefinition) {
-            this.classDefinition = classDefinition;
-            this.interfaceDefinition = null;
-            this.isInterface = false;
-        }
-
-        private AbstractTypeDefinition getAbstract() {
-            return isInterface ? interfaceDefinition : classDefinition;
-        }
-    }
-
-    public boolean hasType(Type t) {
-        return classMap.containsKey(t.getSimpleName());        
     }
 
     public InterfaceDefinition getInterface(Type t) throws ModelException {

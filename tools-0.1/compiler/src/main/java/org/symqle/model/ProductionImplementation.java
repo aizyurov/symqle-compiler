@@ -36,8 +36,8 @@ public class ProductionImplementation {
         final List<Type> returnTypes = node.find("ClassOrInterfaceType", Type.CONSTRUCT);
         // exactry one type by syntax; no type if implicit (in this case it is targetType)
         returnType = returnTypes.isEmpty() ? targetType : returnTypes.get(0);
-        implementationType = returnType;
         implicit = node.find("Identifier").isEmpty();
+        implementationType = returnType;
         ruleElements = node.find("^.ProductionRule.ProductionElement", new F<SyntaxTree, RuleElement, GrammarException>() {
             @Override
             public RuleElement apply(final SyntaxTree syntaxTree) throws GrammarException {
@@ -113,32 +113,12 @@ public class ProductionImplementation {
         return typeParameters + (typeParameters.isEmpty() ? "" : " " ) + targetType + " ::= " + Utils.format(ruleElements, "", " ", "");
     }
 
-    public String asStaticMethodDeclaration() {
-        return accessModifier+" "+"static "+ typeParameters + (typeParameters.isEmpty() ? "" : " " ) + returnType + " " + name
-                + "(" + Utils.format(formalParameters, "", ", ", "", new F<FormalParameter, String, RuntimeException>() {
-                            @Override
-                            public String apply(final FormalParameter formalParameter) {
-                                return "final "+formalParameter.toString();
-                            }
-                        }) +")";
-    }
-
     public Type getReturnType() {
         return returnType;
     }
 
     public Type getImplementationType() {
         return implementationType;
-    }
-
-    public String asMethodDeclaration() {
-        return typeParameters + (typeParameters.isEmpty() ? "" : " " ) + targetType + " " + name
-                + "(" + Utils.format(formalParameters, "", ", ", "", new F<FormalParameter, String, RuntimeException>() {
-            @Override
-            public String apply(final FormalParameter formalParameter) {
-                return "final "+formalParameter.toString();
-            }
-        }) +")";
     }
 
     public boolean isImplicit() {
@@ -198,11 +178,15 @@ public class ProductionImplementation {
         }
 
         public String asMethodArgument(final Model model) throws ModelException {
-            try {
-                return model.getInterface(type).getArchetypeMethod().delegationInvocation(name);
-            } catch (NullPointerException e) {
-                throw e;
+            final InterfaceDefinition definition = model.getInterface(type);
+            if (definition == null) {
+                throw new ModelException("Unknown interface " + type);
             }
+            final MethodDefinition archetypeMethod = definition.getArchetypeMethod();
+            if (archetypeMethod == null) {
+                throw new IllegalStateException("No archetype method in " + type);
+            }
+            return archetypeMethod.delegationInvocation(name);
         }
 
     }
@@ -213,5 +197,17 @@ public class ProductionImplementation {
 
     public String getSourceRef() {
         return sourceRef;
+    }
+
+    public TypeParameters getTypeParameters() {
+        return typeParameters;
+    }
+
+    public Type getTargetType() {
+        return targetType;
+    }
+
+    public String getAccessModifier() {
+        return accessModifier;
     }
 }

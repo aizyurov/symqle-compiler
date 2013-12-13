@@ -112,9 +112,8 @@ public class ClassEnhancer extends ModelProcessor {
     private int richness(final MethodDefinition method, final Model model) throws ModelException {
         final Type resultType = method.getResultType();
         final AbstractTypeDefinition abstractType;
-        try {
-            abstractType = model.getAbstractType(resultType.getSimpleName());
-        } catch (ModelException e) {
+        abstractType = model.getAbstractType(resultType.getSimpleName());
+        if (abstractType == null) {
             System.err.println("Non-symqle result type in " + method.getResultType() + " " + method.signature());
             return -1;
         }

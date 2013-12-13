@@ -75,6 +75,7 @@ public class InheritanceProcessor extends ModelProcessor {
                     unexplored.addAll(newAncestors);
                     for (Type newAncestor: newAncestors) {
                         classDef.addPath(newAncestor, type);
+                        System.err.println(classDef.getName() + " now implementing " + newAncestor.getSimpleName() + " via " + type.getSimpleName() + " using " + entry.getKey().getName() + entry.getKey().signature());
                     }
                     implementNewMethods(classDef, entry.getKey(), model);
                 }
@@ -91,14 +92,14 @@ public class InheritanceProcessor extends ModelProcessor {
      */
     public static Map<MethodDefinition, Type> findAvailableConversions(Type type, Model model) throws ModelException {
         final Map<MethodDefinition, Type> map = new HashMap<MethodDefinition, Type>();
-        for (MethodDefinition conversion : model.getImplicitSymqleMethods()) {
-            final Type arg0Type = conversion.getFormalParameters().get(0).getType();
-            if (arg0Type.getSimpleName().equals(type.getSimpleName())) {
-                final Map<String, TypeArgument> replacementMap = conversion.getTypeParameters().inferTypeArguments(arg0Type, type);
-                final Type resultType = conversion.getResultType().replaceParams(replacementMap);
-                final Type argType = arg0Type.replaceParams(replacementMap);
+        for (ImplicitConversion conversion : model.getConversions()) {
+            final Type fromType = conversion.getFrom();
+            if (fromType.getSimpleName().equals(type.getSimpleName())) {
+                final Map<String, TypeArgument> replacementMap = conversion.getTypeParameters().inferTypeArguments(fromType, type);
+                final Type resultType = conversion.getTo().replaceParams(replacementMap);
+                final Type argType = fromType.replaceParams(replacementMap);
                 if (argType.equals(type)) {
-                    map.put(conversion, resultType);
+                    map.put(conversion.getConversionMethod(), resultType);
                 }
             }
         }
@@ -110,6 +111,7 @@ public class InheritanceProcessor extends ModelProcessor {
             if (methodToImplement.getOtherModifiers().contains("volatile")
                     && methodToImplement.getOtherModifiers().contains("abstract")
                     ) {
+                System.err.println(classDef.getName() + " implementing new method " + methodToImplement.signature());
                     methodToImplement.implement("public",
                             " {" + Utils.LINE_BREAK +
                             "                " +

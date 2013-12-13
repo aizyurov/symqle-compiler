@@ -15,7 +15,9 @@ import org.symqle.util.ModelUtils;
 
 import java.io.FileReader;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <br/>15.11.2011
@@ -60,22 +62,23 @@ public class TestClassParsing extends TestCase {
         }
     }
 
-    public void testStandaloneClass() throws Exception {
-//        final Model model = ModelUtils.prepareModel();
-//            SymqleParser parser = new SymqleParser(new FileReader("src/test-data/StandaloneClass.sdl"));
-//            SyntaxTree node = new SyntaxTree(parser.SymqleUnit(), "StandaloneClass.sdl");
-//        {
-//            Processor processor = new InterfaceDeclarationsProcessor();
-//            processor.process(node, model);
-//        }
-//        {
-//            Processor processor = new ClassDeclarationProcessor();
-//            processor.process(node, model);
-//        }
-//        final ClassDefinition justForFun = model.getClassDef("JustForFun");
-//        assertNotNull(justForFun);
-//        assertEquals(1, justForFun.getDeclaredMethods().size());
-//
+    public void testScalarClass() throws Exception {
+        final Model model = ModelUtils.prepareModel();
+            SymqleParser parser = new SymqleParser(new FileReader("src/test-data/StandaloneClass.sdl"));
+            SyntaxTree node = new SyntaxTree(parser.SymqleUnit(), "StandaloneClass.sdl");
+            Processor processor = new ClassCompletionProcessor();
+            processor.process(Arrays.asList(node), model);
+        final AbstractTypeDefinition abstractValueExpression = model.getAbstractType("AbstractValueExpression");
+        assertNotNull(abstractValueExpression);
+        System.out.println(abstractValueExpression);
+        final Collection<MethodDefinition> allMethods = abstractValueExpression.getAllMethods(model);
+        assertEquals(2, allMethods.size());
+        for (MethodDefinition method : allMethods) {
+            final Set<String> modifiers = method.getOtherModifiers();
+            assertTrue(modifiers.toString(), modifiers.contains("abstract"));
+            assertFalse(modifiers.toString(), modifiers.contains("volatile"));
+        }
+
     }
 
 

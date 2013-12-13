@@ -70,53 +70,71 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
                         throw new GrammarException(e, productionRuleNode);
                     }
                 }
-                String staticMethodDeclaration =
-                        productionImpl.getComment() +
-                        productionImpl.asStaticMethodDeclaration();
                 // create implementing method in Symqle via anonymous class
                 try {
-                    final AnonymousClass anonymousClass = new AnonymousClass(productionImplNode, productionImpl.getImplementationType());
-                    // create implementing method for SymqleGeneric class (uses the anonymous class and the rule)
-                    // first implement all non-implemented methods in the class
-                    final Collection<MethodDefinition> anonymousClassAllMethods = anonymousClass.getAllMethods(model);
-                    for (MethodDefinition method: anonymousClassAllMethods) {
-                        // implement non-implemented methods
-                        final Set<String> modifiers = method.getOtherModifiers();
-                        if (modifiers.contains("volatile") && modifiers.contains("abstract")) {
-                            // must implement
-                            final String delegationCall;
-                            if (Archetype.isArchetypeMethod(method)) {
-                                delegationCall = delegateArchetypeMethod(model, productionImpl, method, productionRule);
-                            } else if (method.getName().startsWith("get")
-                                    && method.getName().length() > 3
-                                    && method.getFormalParameters().size()==0) {
-                                // "property getter"
-                                final String methodName = method.getName();
-                                String propertyName = methodName.substring(3,4).toLowerCase() +
-                                        methodName.substring(4, methodName.length());
-                                String fieldDeclarationSource = "        private final " +
-                                        method.getResultType() + " " + propertyName + " = " +
-                                        callLeftmostArg(model, productionImpl, method);
-                                delegationCall = propertyGetter(propertyName);
-                                anonymousClass.addFieldDeclaration(FieldDeclaration.parse(fieldDeclarationSource));
-                            } else {
-                                delegationCall = delegateToLeftmostArg(model, productionImpl, method);
+
+                    final Type implementationType = productionImpl.isImplicit() ?
+                            ImplicitConversion.getImplementationType(productionImpl.getReturnType(), model) :
+                            productionImpl.getImplementationType();
+
+                    final Type formalReturnType = productionImpl.isImplicit() ? implementationType : productionImpl.getReturnType();
+                    final String staticMethodDeclaration =
+                            productionImpl.getComment() +
+                                    productionImpl.getAccessModifier() + " " + "static " + productionImpl.getTypeParameters() + " " + formalReturnType + " " + productionImpl.getName()
+                                            + "(" + Utils.format(productionImpl.getFormalParameters(), "", ", ", "", new F<FormalParameter, String, RuntimeException>() {
+                                        @Override
+                                        public String apply(final FormalParameter formalParameter) {
+                                            return "final " + formalParameter.toString();
+                                        }
+                                    }) + ")";
+
+                    final AnonymousClass anonymousClass = new AnonymousClass(productionImplNode, implementationType);
+                        // create implementing method for SymqleGeneric class (uses the anonymous class and the rule)
+                        // first implement all non-implemented methods in the class
+                        final Collection<MethodDefinition> anonymousClassAllMethods = anonymousClass.getAllMethods(model);
+                        for (MethodDefinition method: anonymousClassAllMethods) {
+                            // implement non-implemented methods
+                            final Set<String> modifiers = method.getOtherModifiers();
+                            if (modifiers.contains("volatile") && modifiers.contains("abstract")) {
+                                // must implement
+                                final String delegationCall;
+                                if (Archetype.isArchetypeMethod(method)) {
+                                    delegationCall = delegateArchetypeMethod(model, productionImpl, method, productionRule);
+                                } else if (method.getName().startsWith("get")
+                                        && method.getName().length() > 3
+                                        && method.getFormalParameters().size()==0) {
+                                    // "property getter"
+                                    final String methodName = method.getName();
+                                    String propertyName = methodName.substring(3,4).toLowerCase() +
+                                            methodName.substring(4, methodName.length());
+                                    String fieldDeclarationSource = "        private final " +
+                                            method.getResultType() + " " + propertyName + " = " +
+                                            callLeftmostArg(model, productionImpl, method);
+                                    delegationCall = propertyGetter(propertyName);
+                                    anonymousClass.addFieldDeclaration(FieldDeclaration.parse(fieldDeclarationSource));
+                                } else {
+                                    delegationCall = delegateToLeftmostArg(model, productionImpl, method);
+                                }
+                                method.implement("public", delegationCall, true, false);
                             }
-                            method.implement("public", delegationCall, true, false);
                         }
-                    }
-                    final MethodDefinition methodToImplement = MethodDefinition.parse(staticMethodDeclaration +
-                            Utils.LINE_BREAK +
-                            " { " +  Utils.LINE_BREAK +
-                                    "        return new "+productionImpl.getReturnType()+"()" +
-                            anonymousClass.instanceBodyAsString() + ";"+ Utils.LINE_BREAK +
-                            "    }"+Utils.LINE_BREAK                            , symqle);
-                    methodToImplement.setSourceRef(productionImpl.getSourceRef());
-                    if (productionImpl.isImplicit()) {
-                        model.addImplicitMethod(methodToImplement, anonymousClass);
-                    } else {
-                        model.addExplicitMethod(methodToImplement, anonymousClass, declarationImports);
-                    }
+                        final MethodDefinition methodToImplement = MethodDefinition.parse(staticMethodDeclaration +
+                                Utils.LINE_BREAK +
+                                " { " +  Utils.LINE_BREAK +
+                                        "        return new "+implementationType+"()" +
+                                anonymousClass.instanceBodyAsString() + ";"+ Utils.LINE_BREAK +
+                                "    }"+Utils.LINE_BREAK                            , symqle);
+                        methodToImplement.setSourceRef(productionImpl.getSourceRef());
+                        if (productionImpl.isImplicit()) {
+                            model.addConversion(new ImplicitConversion(productionImpl.getTypeParameters(),
+                                    productionImpl.getFormalParameters().get(0).getType(),
+                                    productionImpl.getReturnType(),
+                                    methodToImplement));
+                            symqle.addMethod(methodToImplement);
+                        } else {
+                            model.addExplicitMethod(methodToImplement, anonymousClass, declarationImports);
+                        }
+                /*    } */
                 } catch (ModelException e) {
                     throw new GrammarException(e, productionImplNode);
                 }

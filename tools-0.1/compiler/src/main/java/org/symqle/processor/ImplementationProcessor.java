@@ -34,15 +34,7 @@ public class ImplementationProcessor extends ModelProcessor {
         for (ClassDefinition classDef : model.getSortedClasses()) {
             implement(classDef, model);
         }
-        for (MethodDefinition method: model.getImplicitSymqleMethods()) {
-            final AnonymousClass classDef = model.getAnonymousClassForConversion(method);
-            if (classDef != null) {
-                implement(classDef, model);
-                symqle.addMethod(reimplementMethod(method, classDef));
-            } else {
-                symqle.addMethod(method);
-            }
-        }
+
         for (MethodDefinition method: model.getExplicitSymqleMethods()) {
             final AnonymousClass classDef = model.getAnonymousClassByMethod(method);
             if (classDef != null) {

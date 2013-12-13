@@ -35,7 +35,7 @@ public class ProductionsTest extends TestCase {
         Utils.createParser(symqle.toString()).SymqleDeclarationBlock();
 
         //
-        assertEquals(1, model.getImplicitSymqleMethods().size());
+        assertEquals(1, model.getConversions().size());
         assertEquals(2, model.getExplicitSymqleMethods().size());
         // TODO verify methods
     }
@@ -52,10 +52,10 @@ public class ProductionsTest extends TestCase {
         Utils.createParser(symqle.toString()).SymqleDeclarationBlock();
 
         //
-        assertEquals(1, model.getImplicitSymqleMethods().size());
+        assertEquals(1, model.getConversions().size());
         {
-            final MethodDefinition method = model.getImplicitSymqleMethods().get(0);
-            assertEquals("static <T> SelectStatement<T> z$SelectStatement$from$CursorSpecification(final CursorSpecification<T> cspec)",
+            final MethodDefinition method = model.getConversions().get(0).getConversionMethod();
+            assertEquals("static <T> SelectStatementSqlBuilder<T> z$SelectStatement$from$CursorSpecification(final CursorSpecification<T> cspec)",
                     method.declaration());
             assertTrue(method.toString(), method.toString().contains("throw new RuntimeException(\"Not implemented\");"));
         }
@@ -68,18 +68,15 @@ public class ProductionsTest extends TestCase {
         final List<SyntaxTree> syntaxTree = readSyntaxTree(source);
         new ProductionProcessor().process(syntaxTree, model);
 
-        final List<MethodDefinition> conversions = model.getImplicitSymqleMethods();
+        final List<ImplicitConversion> conversions = model.getConversions();
         assertEquals(1, conversions.size());
         {
-            final MethodDefinition method = conversions.get(0);
+            final MethodDefinition method = conversions.get(0).getConversionMethod();
             System.out.println(method);
             assertEquals(TestUtils.pureCode(
-                    "    static <T> ValueExpression<T>" +
+                    "    static <T> ValueExpressionSqlBuilder<T>" +
                     "    z$ValueExpression$from$ValueExpressionPrimary(final ValueExpressionPrimary<T> e) { \n" +
-                    "        return new ValueExpression<T>() {\n" +
-                            "    public T value(final Element element) throws SQLException {\n" +
-                            "        return e.value(element);\n" +
-                            "    }\n" +
+                    "        return new ValueExpressionSqlBuilder<T>() {\n" +
                     "           public Sql z$sqlOfValueExpression(final SqlContext context) {\n" +
                     "               return context.get(Dialect.class).ValueExpression_is_ValueExpressionPrimary(e.z$sqlOfValueExpressionPrimary(context));\n" +
                     "           }\n" +
@@ -103,7 +100,7 @@ public class ProductionsTest extends TestCase {
             new ProductionProcessor().process(syntaxTrees, model);
             fail("GrammarException expected");
         } catch (GrammarException e) {
-            assertTrue(e.getMessage(), e.getMessage().startsWith("Type not found:"));
+            assertTrue(e.getMessage(), e.getMessage().contains("zCursorSpecification<T>"));
         }
 
     }
@@ -112,12 +109,12 @@ public class ProductionsTest extends TestCase {
         final Model model = ModelUtils.prepareModel();
         List<SyntaxTree> syntaxTrees = readSyntaxTree("src/test-data/model/Parentheses.sdl");
         new ProductionProcessor().process(syntaxTrees, model);
-        final List<MethodDefinition> conversions = model.getImplicitSymqleMethods();
+        final List<ImplicitConversion> conversions = model.getConversions();
         assertEquals(1, conversions.size());
-        MethodDefinition method = conversions.get(0);
+        MethodDefinition method = conversions.get(0).getConversionMethod();
         assertEquals(TestUtils.pureCode(
-                "static <T> Subquery<T> z$Subquery$from$SelectList(final SelectList<T> sl) { \n" +
-                        "        return new Subquery<T>() {\n" +
+                "static <T> SubquerySqlBuilder<T> z$Subquery$from$SelectList(final SelectList<T> sl) { \n" +
+                        "        return new SubquerySqlBuilder<T>() {\n" +
                         "            /**\n" +
                         "            * Creates a Query representing <code>this</code>\n" +
                         "            * @param context the Sql construction context\n" +
@@ -141,28 +138,19 @@ public class ProductionsTest extends TestCase {
         final List<SyntaxTree> syntaxTree = readSyntaxTree(source);
         new ProductionProcessor().process(syntaxTree, model);
 
-        final List<MethodDefinition> conversions = model.getImplicitSymqleMethods();
+        final List<ImplicitConversion> conversions = model.getConversions();
         assertEquals(1, conversions.size());
 
-        final String expected = "static <T> ValueExpression<T> z$ValueExpression$from$ValueExpressionPrimary(final ValueExpressionPrimary<T> e)\n" +
+        final String expected = "static <T> ValueExpressionSqlBuilder<T> z$ValueExpression$from$ValueExpressionPrimary(final ValueExpressionPrimary<T> e)\n" +
                 " { \n" +
-                "        return new ValueExpression<T>() {\n" +
-                "        private T elementMapper = e.getElementMapper();\n" +
-                "\n" +
-                "    public T getElementMapper() {\n" +
-                "                return elementMapper;            }\n" +
-                "            /**\n" +
-                "            * Creates an Sql representing ValueExpression.\n" +
-                "            * @param context the Sql construction context\n" +
-                "            * @return constructed Sql\n" +
-                "            */\n" +
+                "        return new ValueExpressionSqlBuilder<T>() {\n" +
                 "            public Sql z$sqlOfValueExpression(final SqlContext context) {\n" +
                 "                return context.get(Dialect.class).ValueExpression_is_ValueExpressionPrimary(e.z$sqlOfValueExpressionPrimary(context));\n" +
                 "            }\n" +
                 "\n" +
                 "        };\n" +
                 "    }\n";
-        assertEquals(TestUtils.pureCode(expected), TestUtils.pureCode(conversions.get(0).toString()));
+        assertEquals(TestUtils.pureCode(expected), TestUtils.pureCode(conversions.get(0).getConversionMethod().toString()));
 
     }
 

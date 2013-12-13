@@ -1,8 +1,9 @@
-# does not implement any interfaces; all code is manualy written
-public class JustForFun<T,W>
-{
-    public String toString() {
-        return "wow";
-    }
+public interface Scalar<T> {
+  public Mapper<T> getMapper();
 }
+
+public interface ValueExpression<T> extends Scalar<T> : Sql {}
+
+public class AbstractValueExpression<T> implements ValueExpression<T> {}
+
 
