@@ -140,8 +140,6 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
                 }
             }
         }
-
-
     }
 
     private String propertyGetter(String propertyName) {

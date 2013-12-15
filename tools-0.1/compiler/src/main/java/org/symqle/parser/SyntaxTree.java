@@ -155,7 +155,7 @@ public class SyntaxTree {
     public final static F<SyntaxTree, String, RuntimeException> VALUE =
             new F<SyntaxTree, String, RuntimeException>() {
                 @Override
-                public String apply(SyntaxTree syntaxTree) throws RuntimeException {
+                public String apply(SyntaxTree syntaxTree) {
                     return syntaxTree.getValue();
                 }
             };
@@ -163,7 +163,7 @@ public class SyntaxTree {
     public final static F<SyntaxTree, String, RuntimeException> BODY =
             new F<SyntaxTree, String, RuntimeException>() {
                 @Override
-                public String apply(SyntaxTree syntaxTree) throws RuntimeException {
+                public String apply(SyntaxTree syntaxTree) {
                     return syntaxTree.getBody();
                 }
             };

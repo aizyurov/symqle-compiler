@@ -3,11 +3,7 @@ package org.symqle.processor;
 import org.symqle.model.*;
 import org.symqle.util.Utils;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by IntelliJ IDEA.
@@ -50,7 +46,7 @@ public class InheritanceProcessor extends ModelProcessor {
             }
         }
 
-        final Set<Type> unexplored = new HashSet<Type>();
+        final Set<Type> unexplored = new LinkedHashSet<Type>();
 
         for (Type type: classDef.getAllAncestors(model)) {
             final AbstractTypeDefinition ancestorClass = model.getAbstractType(type.getSimpleName());
