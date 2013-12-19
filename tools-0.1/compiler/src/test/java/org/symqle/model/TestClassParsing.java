@@ -32,8 +32,8 @@ public class TestClassParsing extends TestCase {
         final List<SyntaxTree> nodes = Arrays.asList(new SyntaxTree(parser.SymqleUnit(), "SimpleClass.sdl"));
         new ClassCompletionProcessor().process(nodes, model);
         final ClassDefinition selectStatement = model.getClassDef("AbstractSelectStatement");
-        assertEquals(2, selectStatement.getAllMethods(model).size());
-        assertEquals(2, selectStatement.getDeclaredMethods().size());
+        assertEquals(3, selectStatement.getAllMethods(model).size());
+        assertEquals(3, selectStatement.getDeclaredMethods().size());
         final MethodDefinition generated = selectStatement.getDeclaredMethodBySignature("z$sqlOfSelectStatement(SqlContext)");
         assertNotNull(generated);
         assertEquals("public abstract Query<T> z$sqlOfSelectStatement(SqlContext context)", generated.declaration());
@@ -72,11 +72,14 @@ public class TestClassParsing extends TestCase {
         assertNotNull(abstractValueExpression);
         System.out.println(abstractValueExpression);
         final Collection<MethodDefinition> allMethods = abstractValueExpression.getAllMethods(model);
-        assertEquals(2, allMethods.size());
+        assertEquals(3, allMethods.size());
         for (MethodDefinition method : allMethods) {
             final Set<String> modifiers = method.getOtherModifiers();
-            assertTrue(modifiers.toString(), modifiers.contains("abstract"));
-            assertFalse(modifiers.toString(), modifiers.contains("volatile"));
+            if (modifiers.contains("abstract")) {
+                assertFalse(modifiers.toString(), modifiers.contains("volatile"));
+            } else {
+            assertTrue(modifiers.toString(), modifiers.contains("static"));
+            }
         }
 
     }
