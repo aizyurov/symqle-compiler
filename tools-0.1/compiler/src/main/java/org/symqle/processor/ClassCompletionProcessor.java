@@ -71,6 +71,18 @@ public class ClassCompletionProcessor extends ModelProcessor {
                     }
                     if (ancestorMethodsSignatures.containsAll(abstractMethodsSignatures)) {
                         // can implement by delegation
+                        // first check that the method is not already implemented
+                        boolean alreadyHaveAdaptMethod = false;
+                        for  (MethodDefinition existingMethod : classDefinition.getAllMethods(model)) {
+                            if (existingMethod.getName().equals("adapt")) {
+                                alreadyHaveAdaptMethod = true;
+                                break;
+                            }
+                        }
+                        if (alreadyHaveAdaptMethod) {
+                            // adapt() already implemented
+                            continue;
+                        }
                         StringBuilder adaptBuilder = new StringBuilder();
                         adaptBuilder.append("public static ")
                                 .append(classDefinition.getTypeParameters())
