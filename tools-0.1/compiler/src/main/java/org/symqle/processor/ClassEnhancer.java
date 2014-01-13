@@ -176,6 +176,7 @@ public class ClassEnhancer extends ModelProcessor {
         myModifiers.remove("abstract");
         myModifiers.remove("static");
         final StringBuilder builder = new StringBuilder();
+        builder.append(method.getComment());
         builder.append("    ");
         // always public method!
         builder.append("public")
