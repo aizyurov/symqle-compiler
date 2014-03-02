@@ -51,7 +51,7 @@ public class ProductionRule {
                 formalParameters.add(
                         new FormalParameter(sqlType, name, Collections.singletonList("final"), false));
             }
-            elementNames.add(type != null ? name : name + ".toSql()");
+            elementNames.add(name);
         }
         name = nameBuilder.toString();
         syntax = syntaxBuilder.toString();
