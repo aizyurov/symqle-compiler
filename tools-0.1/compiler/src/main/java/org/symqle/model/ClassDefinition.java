@@ -186,4 +186,12 @@ public class ClassDefinition extends AbstractTypeDefinition {
     public Type getExtendedClass() {
         return extendedClass;
     }
+
+    public void removeRedundantInterfaces(final Model model) throws ModelException {
+        final Set<Type> indirectInterfaces = new HashSet<Type>();
+        for (Type t : implementedInterfaces) {
+            indirectInterfaces.addAll(getInheritedAncestors(t, model));
+        }
+        implementedInterfaces.removeAll(indirectInterfaces);
+    }
 }

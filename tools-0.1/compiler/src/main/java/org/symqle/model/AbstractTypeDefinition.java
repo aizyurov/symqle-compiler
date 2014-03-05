@@ -237,6 +237,9 @@ public abstract class AbstractTypeDefinition {
 
     protected void addInheritedMethodsToMap(final Model model, final Map<String, MethodDefinition> methodMap, final Type parentType) throws ModelException {
         AbstractTypeDefinition parent = model.getAbstractType(parentType.getSimpleName());
+        if (parent == null) {
+            throw new ModelException("parentType not found : "+parentType.getSimpleName());
+        }
         for (MethodDefinition method: parent.getAllMethods(model)) {
             if (!"private".equals(method.getAccessModifier())) {
                 final MethodDefinition candidate = method.override(this, model);
@@ -274,6 +277,7 @@ public abstract class AbstractTypeDefinition {
         }
         return myAncestors;
     }
+
 }
 
 

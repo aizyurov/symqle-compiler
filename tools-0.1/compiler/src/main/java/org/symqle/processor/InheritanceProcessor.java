@@ -64,8 +64,10 @@ public class InheritanceProcessor extends ModelProcessor {
             // find suitable implicit conversions
             final Map<MethodDefinition, Type> availableConversions = findAvailableConversions(type, model);
             for (Map.Entry<MethodDefinition, Type> entry : availableConversions.entrySet()) {
-                if (!allAncestors.contains(entry.getValue())) {
-                    classDef.addImplementedInterface(entry.getValue());
+                final Type implementedType = entry.getValue();
+                if (!allAncestors.contains(implementedType)) {
+                    classDef.addImplementedInterface(implementedType);
+                    System.err.println(classDef.getName() + " now directly implementing " + implementedType.getSimpleName());
                     final Set<Type> newAncestors = classDef.getAllAncestors(model);
                     newAncestors.removeAll(allAncestors);
                     unexplored.addAll(newAncestors);
@@ -73,6 +75,7 @@ public class InheritanceProcessor extends ModelProcessor {
                         classDef.addPath(newAncestor, type);
                         System.err.println(classDef.getName() + " now implementing " + newAncestor.getSimpleName() + " via " + type.getSimpleName() + " using " + entry.getKey().getName() + entry.getKey().signature());
                     }
+                    classDef.removeRedundantInterfaces(model);
                     implementNewMethods(classDef, entry.getKey(), model);
                 }
             }
