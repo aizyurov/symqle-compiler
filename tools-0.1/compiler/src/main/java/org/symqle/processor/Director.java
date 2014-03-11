@@ -3,15 +3,19 @@
 */
 package org.symqle.processor;
 
-import org.symqle.generator.Generator;
-import org.symqle.generator.WriterGenerator;
+import org.symqle.generator.CoreGenerator;
+import org.symqle.generator.TestSetGenerator;
 import org.symqle.model.Model;
 import org.symqle.model.ModelException;
 import org.symqle.parser.ParseException;
 import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,10 +25,6 @@ import java.util.List;
  * @author Alexander Izyurov
  */
 public class Director {
-
-    private final Generator[] generators = {
-            new WriterGenerator("org.symqle.sql")
-    };
 
     // processors sequence is define inside processors; currentkry:
     /*
@@ -39,12 +39,12 @@ public class Director {
        ImplementationProcessor
        ClassEnhancer
        InterfaceJavadocProcessor,
-       Compiler
+       TestClassesProcessor
      */
 
 
 
-    public void doAll(final File[] sources, final File outputDirectory) throws IOException, GrammarException, ParseException, ModelException {
+    public void doAll(final File[] sources, final File outputDirectory, final File testOutputDirectory) throws IOException, GrammarException, ParseException, ModelException {
         List<SyntaxTree> parsedSources = new ArrayList<SyntaxTree>(sources.length);
         for (File source: sources) {
             Reader reader = new InputStreamReader(new FileInputStream(source));
@@ -59,11 +59,11 @@ public class Director {
             }
         }
         Model model = new Model();
-        new Compiler(). process(parsedSources, model);
+        new TestClassesProcessor(). process(parsedSources, model);
         outputDirectory.mkdirs();
-        for (Generator generator: generators) {
-            generator.generate(model, outputDirectory);
-        }
+        testOutputDirectory.mkdirs();
+        new CoreGenerator("org.symqle.sql").generate(model, outputDirectory);
+        new TestSetGenerator("org.symqle.testset").generate(model, testOutputDirectory);
     }
 
 }

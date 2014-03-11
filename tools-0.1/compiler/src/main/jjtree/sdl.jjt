@@ -1026,7 +1026,7 @@ void SymqleDeclaration():
         ProductionDeclaration() ";"
 }
 
-void SymqleInterfaceDeclaration():
+SimpleNode SymqleInterfaceDeclaration():
 {}
 {
     InterfaceModifiers()
@@ -1036,6 +1036,8 @@ void SymqleInterfaceDeclaration():
      [ ExtendsInterfaces() ]
      [ ":" Archetype() ]
      InterfaceBody()
+
+     { return jjtThis; }
 }
 
 void Archetype():
@@ -1656,13 +1658,16 @@ void VariableDeclaratorId():
 }
 
 /* 9.1 */
-void InterfaceDeclaration():
+SimpleNode InterfaceDeclaration():
 {}
 {
+  (
     LOOKAHEAD( InterfaceModifiers() "@" )
     AnnotationTypeDeclaration()
   |
     NormalInterfaceDeclaration()
+  )
+  { return jjtThis; }
 }
 
 /* 9.1 */

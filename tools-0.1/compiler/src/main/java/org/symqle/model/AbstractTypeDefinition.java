@@ -215,6 +215,10 @@ public abstract class AbstractTypeDefinition {
         return builder.toString();
     }
 
+    public boolean isPublic() {
+        return "public".equals(accessModifier);
+    }
+
     protected abstract String getTypeKeyword();
 
     protected final String bodyStringWithoutBraces() {

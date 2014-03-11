@@ -70,13 +70,6 @@ public class SymqleGenerator
      */
     private File sourceDirectory;
 
-    protected File getOutputDirectory() {
-        return outputDirectory;
-    }
-
-
-
-
     public void execute()
         throws MojoExecutionException, MojoFailureException
     {
@@ -98,7 +91,7 @@ public class SymqleGenerator
 
         final Director director = new Director();
         try {
-            director.doAll(getSources(), getOutputDirectory());
+            director.doAll(getSources(), outputDirectory, testOutputDirectory);
         } catch (Exception e) {
             e.printStackTrace();
             throw new MojoFailureException(e.toString());

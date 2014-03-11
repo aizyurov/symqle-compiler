@@ -30,6 +30,8 @@ public class Model {
     // key is "reduced signature" -name and afgumetns but the first one
     private final Map<String, Boolean> symqleMethodUniqueness = new HashMap<String, Boolean>();
 
+    private final List<InterfaceDefinition> testInterfaces = new ArrayList<InterfaceDefinition>();
+
     /**
      *
      */
@@ -191,6 +193,13 @@ public class Model {
         return tSort.sort();
     }
 
+    public void addTestInterface(final InterfaceDefinition classDef) {
+        testInterfaces.add(classDef);
+    }
+
+    public List<InterfaceDefinition> getTestInterfaces() {
+        return Collections.unmodifiableList(testInterfaces);
+    }
 }
 
 
