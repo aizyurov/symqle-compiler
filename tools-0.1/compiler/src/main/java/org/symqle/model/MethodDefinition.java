@@ -171,6 +171,15 @@ public class MethodDefinition {
     }
 
     public String declaration() {
+        final String firstAttempt = formatDeclaration(", ");
+        if (firstAttempt.length() < 100) {
+            return firstAttempt;
+        } else {
+            return formatDeclaration("," + Utils.LINE_BREAK + "            ");
+        }
+    }
+
+    private String formatDeclaration(final String parameterSeparator) {
         Set<String> sortedExceptions = new TreeSet<String>(Utils.map(thrownExceptions, new F<Type, String, RuntimeException>() {
             @Override
             public String apply(Type type) {
@@ -190,7 +199,7 @@ public class MethodDefinition {
         builder.append(resultType).append(" ");
         builder.append(name)
                 .append("(")
-                .append(Utils.format(formalParameters, "", ", ", ""))
+                .append(Utils.format(formalParameters, "", parameterSeparator, ""))
                 .append(")")
                 .append(Utils.format(sortedExceptions, " throws ", ", ", ""));
         return builder.toString();

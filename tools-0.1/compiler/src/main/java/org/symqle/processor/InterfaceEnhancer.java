@@ -73,7 +73,6 @@ public class InterfaceEnhancer extends ModelProcessor {
                 }
             }
         }
-        interfaceDefinition.addImportLines(Arrays.asList("import org.symqle.common.*;"));
     }
 
     private MethodDefinition createMyMethod(final InterfaceDefinition interfaceDefinition, MethodDefinition symqleMethod, Type myType, final Map<String, TypeArgument> mapping) {

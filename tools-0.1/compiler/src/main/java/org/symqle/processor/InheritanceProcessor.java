@@ -113,11 +113,11 @@ public class InheritanceProcessor extends ModelProcessor {
                 System.err.println(classDef.getName() + " implementing new method " + methodToImplement.signature());
                     methodToImplement.implement("public",
                             " {" + Utils.LINE_BREAK +
-                            "                " +
+                            "        " +
                             (methodToImplement.getResultType()==Type.VOID ? "" : "return ") +
                             methodToImplement.delegationInvocation(
-                                    conversionMethod.invoke("Symqle", Collections.singletonList("this"))) +
-                            ";" + Utils.LINE_BREAK+"            "+"}"+Utils.LINE_BREAK,
+                                    conversionMethod.invoke("Symqle", Collections.singletonList("this")) + Utils.LINE_BREAK + "            ") +
+                            ";" + Utils.LINE_BREAK+"    "+"}"+Utils.LINE_BREAK,
                             true, true);
             }
         }

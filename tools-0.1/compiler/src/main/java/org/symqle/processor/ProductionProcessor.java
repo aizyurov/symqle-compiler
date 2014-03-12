@@ -119,8 +119,7 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
                             }
                         }
                         final MethodDefinition methodToImplement = MethodDefinition.parse(staticMethodDeclaration +
-                                Utils.LINE_BREAK +
-                                " { " +  Utils.LINE_BREAK +
+                                " {" +  Utils.LINE_BREAK +
                                         "        return new "+implementationType+"()" +
                                 anonymousClass.instanceBodyAsString() + ";"+ Utils.LINE_BREAK +
                                 "    }"+Utils.LINE_BREAK                            , symqle);

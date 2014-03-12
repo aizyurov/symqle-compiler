@@ -108,7 +108,7 @@ public abstract class Archetype {
     private static final String ARCHETYPE_METHOD_PREFIX = "z$sqlOf";
 
 
-    private final static String QUERY_METHOD_FORMAT = Utils.indent(12,
+    private final static String QUERY_METHOD_FORMAT = Utils.indent(4,
             "/**",
             "* Creates a Query representing %s.",
             "* @param context the Sql construction context",
@@ -117,7 +117,7 @@ public abstract class Archetype {
             "Query%s " + ARCHETYPE_METHOD_PREFIX + "%s(%sSqlContext context);"
             );
 
-    private final static String SQL_METHOD_FORMAT = Utils.indent(12,
+    private final static String SQL_METHOD_FORMAT = Utils.indent(4,
             "/**",
             "* Creates an Sql representing %s.",
             "* @param context the Sql construction context",

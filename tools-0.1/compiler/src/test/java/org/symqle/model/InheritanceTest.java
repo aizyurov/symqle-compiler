@@ -35,7 +35,8 @@ public class InheritanceTest extends TestCase {
         MethodDefinition delegatedMethod = cursorSpec.getDeclaredMethodBySignature("z$sqlOfSelectStatement(SqlContext)");
         assertEquals(TestUtils.pureCode
                 ("public final Query<T> z$sqlOfSelectStatement(final SqlContext context) {\n" +
-                "                return Symqle.z$SelectStatement$from$CursorSpecification(this).z$sqlOfSelectStatement(context);\n" +
+                "                return Symqle.z$SelectStatement$from$CursorSpecification(this)\n" +
+                        ".z$sqlOfSelectStatement(context);\n" +
                 "            }"), TestUtils.pureCode(delegatedMethod.toString()));
 
     }
@@ -52,14 +53,16 @@ public class InheritanceTest extends TestCase {
         final MethodDefinition asCursorSpec = queryExpr.getDeclaredMethodBySignature("z$sqlOfCursorSpecification(SqlContext)");
         assertEquals(TestUtils.pureCode(
                 "public final Query<T> z$sqlOfCursorSpecification(final SqlContext context) {\n" +
-                        "                return Symqle.z$CursorSpecification$from$QueryExpression(this).z$sqlOfCursorSpecification(context);\n" +
+                        "                return Symqle.z$CursorSpecification$from$QueryExpression(this)\n" +
+                        ".z$sqlOfCursorSpecification(context);\n" +
                         "            }"
         ), TestUtils.pureCode(asCursorSpec.toString()));
         final MethodDefinition asSelectStatement = queryExpr.getDeclaredMethodBySignature("z$sqlOfSelectStatement(SqlContext)");
         assertEquals(TestUtils.pureCode(
                 "public final Query<T> z$sqlOfSelectStatement(final SqlContext context) {\n" +
-                        "                return Symqle.z$SelectStatement$from$CursorSpecification(this).z$sqlOfSelectStatement(context);\n" +
-                        "            }"),
+                        "        return Symqle.z$SelectStatement$from$CursorSpecification(this)\n" +
+                        "            .z$sqlOfSelectStatement(context);\n" +
+                        "    }"),
                 TestUtils.pureCode(asSelectStatement.toString()));
     }
 

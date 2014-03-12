@@ -54,7 +54,7 @@ public class ImplementationProcessor extends ModelProcessor {
         builder.append(method.getResultType());
         builder.append(" ").append(method.getName());
         builder.append("(").append(Utils.format(method.getFormalParameters(), "", ", ", "")).append(")");
-        builder.append(" { ").append(Utils.LINE_BREAK)
+        builder.append(" {").append(Utils.LINE_BREAK)
                 .append("        return new ").append(method.getResultType()).append("()")
         .append(classDef.instanceBodyAsString()).append(";").append(Utils.LINE_BREAK)
         .append("    }").append(Utils.LINE_BREAK);
@@ -63,8 +63,9 @@ public class ImplementationProcessor extends ModelProcessor {
 
     private void implement(AbstractTypeDefinition classDef, Model model) throws ModelException {
         System.err.print("Implementing " + classDef.getName());
-        if (classDef.getClass().equals(AnonymousClass.class)) {
-            System.err.println(" extends " + ((AnonymousClass)classDef).getExtendsImplements());
+        final boolean isAnonymous = classDef.getClass().equals(AnonymousClass.class);
+        if (isAnonymous) {
+            System.err.println(" " + ((AnonymousClass)classDef).getExtendsImplements());
         }
         for (MethodDefinition myMethod: classDef.getAllMethods(model)) {
             final Set<String> modifiers = myMethod.getOtherModifiers();
@@ -74,16 +75,17 @@ public class ImplementationProcessor extends ModelProcessor {
                 parameters.add("this");
                 parameters.addAll(Utils.map(myMethod.getFormalParameters(), FormalParameter.NAME));
                 StringBuilder builder = new StringBuilder();
-                builder.append("{ ");
+                builder.append(" {").append(Utils.LINE_BREAK).append("        ");
                 if (!myMethod.getResultType().equals(Type.VOID)) {
                     builder.append("return ");
                 }
                 builder.append("Symqle.").append(myMethod.getName()).append("(")
                         .append(Utils.format(parameters, "", ", ", ""))
-                        .append("); }");
-                myMethod.implement("public", builder.toString(), true, true);
+                        .append(");").append(Utils.LINE_BREAK).append("    }");
+                // anonymous class methods are final because they cannot have descendants
+                myMethod.implement("public", builder.toString(), true, !isAnonymous);
             } else {
-                System.err.println(classDef.getName() + "skipping " + myMethod.getOtherModifiers() + " " + myMethod.getName());
+                System.err.println(classDef.getName() + " skipping " + myMethod.getOtherModifiers() + " " + myMethod.getName());
             }
         }
     }

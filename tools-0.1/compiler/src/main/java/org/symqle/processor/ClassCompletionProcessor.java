@@ -29,7 +29,7 @@ public class ClassCompletionProcessor extends ModelProcessor {
     private void finalizeClass(Model model, ClassDefinition classDefinition) throws ModelException {
         StringBuilder javadocBuilder = new StringBuilder();
         javadocBuilder.append("/**").append(LINE_BREAK);
-        javadocBuilder.append(" * Basic implementation of interface methods." ).append(LINE_BREAK);
+        javadocBuilder.append(" * Sql building block." ).append(LINE_BREAK);
         javadocBuilder.append(" * Subclasses must implement:").append(LINE_BREAK);
         javadocBuilder.append(" *<ul>").append(LINE_BREAK);
         final Set<String> abstractMethodsSignatures = new HashSet<String>();
@@ -51,6 +51,10 @@ public class ClassCompletionProcessor extends ModelProcessor {
         }
         ;
         javadocBuilder.append(" *</ul>").append(LINE_BREAK);
+        final TypeParameters typeParameters = classDefinition.getTypeParameters();
+        if (typeParameters.size() == 1) {
+            javadocBuilder.append(" * @param ").append(typeParameters.toString()).append(" the type of associated Java objects");
+        }
         javadocBuilder.append(" */").append(LINE_BREAK);
         if (!abstractMethodsSignatures.isEmpty()) {
             classDefinition.replaceComment(javadocBuilder.toString());
@@ -85,7 +89,7 @@ public class ClassCompletionProcessor extends ModelProcessor {
                         }
                         StringBuilder adaptBuilder = new StringBuilder();
                         adaptBuilder.append("public static ")
-                                .append(classDefinition.getTypeParameters())
+                                .append(typeParameters)
                                 .append(" ")
                                 .append(classDefinition.getType())
                                 .append(" adapt(final ")
@@ -95,7 +99,14 @@ public class ClassCompletionProcessor extends ModelProcessor {
                         for (MethodDefinition method: abstractMethods) {
                             adaptBuilder.append("        public ").append(method.getTypeParameters()).append(" ")
                                     .append(method.getResultType()).append(" ").append(method.getName()).append("(")
-                                    .append(Utils.format(method.getFormalParameters(), "", ", ", ""))
+                                    .append(Utils.format(method.getFormalParameters(), "", ", ", "", new F<FormalParameter, String, RuntimeException>() {
+                                        @Override
+                                        public String apply(final FormalParameter formalParameter) {
+                                            return formalParameter.getModifiers().contains("final") ?
+                                                    formalParameter.toString() :
+                                                    "final " + formalParameter;
+                                        }
+                                    }))
                                     .append(") {").append(Utils.LINE_BREAK)
                                     .append("            ")
                                     .append(method.getResultType().equals(Type.VOID) ? "" : "return ")

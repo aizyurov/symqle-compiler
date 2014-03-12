@@ -47,7 +47,11 @@ public class ImplicitConversion {
             builder = ClassDefinition.parse("abstract class " + sqlBuilderName + " " + anInterface.getTypeParameters() + " {" + Utils.LINE_BREAK
                     + myArchetypeMethodSource + Utils.LINE_BREAK +
                     "}");
-            builder.addImportLines(Arrays.asList("import org.symqle.common.*;"));
+            if (archetypeMethod.getResultType().getSimpleName().equals("Sql")) {
+                builder.addImportLines(Arrays.asList("import org.symqle.common.Sql;", "import org.symqle.common.SqlContext;"));
+            } else {
+                builder.addImportLines(Arrays.asList("import org.symqle.common.Query;", "import org.symqle.common.SqlContext;"));
+            }
             model.addClass(builder);
         }
         return builder;

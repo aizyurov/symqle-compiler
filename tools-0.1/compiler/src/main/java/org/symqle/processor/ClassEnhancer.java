@@ -175,6 +175,7 @@ public class ClassEnhancer extends ModelProcessor {
         Set<String> myModifiers = new HashSet<String>(method.getOtherModifiers());
         myModifiers.remove("abstract");
         myModifiers.remove("static");
+        myModifiers.add("final");
         final StringBuilder builder = new StringBuilder();
         builder.append(method.getComment());
         builder.append("    ");
