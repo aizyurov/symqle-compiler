@@ -215,7 +215,7 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
             builder.append("                ")
                     .append("final ")
                     .append(method.getResultType())
-                    .append(" __rowMapper = ")
+                    .append(" rowMapper = ")
                     .append(queryDelegate.asMethodArgument(model))
                     .append(";").append(Utils.LINE_BREAK);
             builder.append("                ");
@@ -223,14 +223,14 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
             builder.append("new Complex").
                 append(method.getResultType())
                     .append("(")
-                    .append("__rowMapper, ")
+                    .append("rowMapper, ")
                     .append("context.get(Dialect.class).")
                     .append(rule.getName())
                     .append("(")
                     .append(Utils.format(productionImpl.getVariableElements(), "", ", ", "", new F<ProductionImplementation.RuleElement, String, ModelException>() {
                         @Override
                         public String apply(final ProductionImplementation.RuleElement ruleElement) throws ModelException {
-                            return (ruleElement == queryDelegate) ? "__rowMapper" : ruleElement.asMethodArgument(model);
+                            return (ruleElement == queryDelegate) ? "rowMapper" : ruleElement.asMethodArgument(model);
                         }
                     }))
                     .append(")")

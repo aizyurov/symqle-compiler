@@ -135,17 +135,20 @@ public class ClassEnhancer extends ModelProcessor {
         return null;
     }
 
-    private String findNewName(Set<String> knownNames) {
+    private String findFreeName(final Map<String, TypeArgument> mapping, String candidate) {
+        if (mapping.get(candidate) == null) {
+            return candidate;
+        }
         for (char c = 'A'; c <= 'Z'; c++) {
             final String name = c + "";
-            if (!knownNames.contains(name)) {
+            if (mapping.get(name) == null) {
                 return name;
             }
         }
         for (int i=0; i<100; i++) {
             for (char c = 'A'; c <= 'Z'; c++) {
                 final String name = c + "" + i;
-                if (!knownNames.contains(name)) {
+                if (mapping.get(name) == null) {
                     return name;
                 }
             }
@@ -159,9 +162,11 @@ public class ClassEnhancer extends ModelProcessor {
         final List<TypeParameter> myTypeParameterList = new ArrayList<TypeParameter>();
         // skip parameters, which are in mapping: they are inferred
         for (TypeParameter typeParameter: method.getTypeParameters().list()) {
-            if (mapping.get(typeParameter.getName()) == null) {
-                TypeParameter renamedTypeParameter = typeParameter.rename(findNewName(mapping.keySet()));
-                mapping.put(typeParameter.getName(), new TypeArgument(false, null, new Type(findNewName(mapping.keySet()))));
+            final String typeParameterName = typeParameter.getName();
+            if (mapping.get(typeParameterName) == null) {
+                final String newParameterName = findFreeName(mapping, typeParameterName);
+                TypeParameter renamedTypeParameter = typeParameter.rename(newParameterName);
+                mapping.put(typeParameterName, new TypeArgument(false, null, new Type(newParameterName)));
                 myTypeParameterList.add(renamedTypeParameter);
             }
         }
