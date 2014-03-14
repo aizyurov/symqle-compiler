@@ -163,7 +163,11 @@ public class ClassDefinition extends AbstractTypeDefinition {
 
     public void ensureRequiredImports(final Model model) throws ModelException {
         for (Type ancestor: getAllAncestors(model)) {
-            addImportLines(model.getAbstractType(ancestor.getSimpleName()).getImportLines());
+            // copy imports from implemented interfaces: they are needed for method declarations
+            // if something is needed from extended c lasses, it should be copied manually
+            if (model.getAbstractType(ancestor.getSimpleName()).getClass().equals(InterfaceDefinition.class)) {
+                addImportLines(model.getAbstractType(ancestor.getSimpleName()).getImportLines());
+            }
         }
     }
 
