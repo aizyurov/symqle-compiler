@@ -18,7 +18,7 @@ import java.util.*;
  * To change this template use File | Settings | File Templates.
  */
 public class MethodDefinition {
-    private final String comment;
+    private String comment;
     private final String accessModifier;
     private final Set<String> otherModifiers;
     private final TypeParameters typeParameters;
@@ -206,7 +206,10 @@ public class MethodDefinition {
     }
 
     public String toString() {
-        final String sourceRefComment = sourceRef == null ? "" : "// "+sourceRef+Utils.LINE_BREAK;
+        final String sourceRefComment =
+                sourceRef == null
+                        ? ""
+                        : Utils.LINE_BREAK + "// "+sourceRef +Utils.LINE_BREAK;
         return sourceRefComment + comment + declaration() + body;
     }
 
@@ -447,5 +450,9 @@ public class MethodDefinition {
 
     public String getSourceRef() {
         return sourceRef;
+    }
+
+    public void replaceComment(String newComment) {
+        comment = newComment;
     }
 }

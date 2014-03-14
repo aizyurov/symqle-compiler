@@ -58,7 +58,9 @@ public class ImplementationProcessor extends ModelProcessor {
                 .append("        return new ").append(method.getResultType()).append("()")
         .append(classDef.instanceBodyAsString()).append(";").append(Utils.LINE_BREAK)
         .append("    }").append(Utils.LINE_BREAK);
-        return MethodDefinition.parse(builder.toString(), method.getOwner());
+        final MethodDefinition reimplemented = MethodDefinition.parse(builder.toString(), method.getOwner());
+        reimplemented.setSourceRef(method.getSourceRef());
+        return reimplemented;
     }
 
     private void implement(AbstractTypeDefinition classDef, Model model) throws ModelException {

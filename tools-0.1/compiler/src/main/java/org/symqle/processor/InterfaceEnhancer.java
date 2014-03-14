@@ -4,7 +4,6 @@ import org.symqle.model.*;
 import org.symqle.util.Utils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -65,6 +64,8 @@ public class InterfaceEnhancer extends ModelProcessor {
                 // special case: both have a single parameter, which is wildcard in firstArg,
                 // so types match
                 final MethodDefinition newMethod = createMyMethod(interfaceDefinition, method, myType, mapping);
+                // remove comment from Symqle: moved to interface.
+                method.replaceComment("");
                 try {
                     interfaceDefinition.addDelegateMethod(newMethod);
                 } catch (ModelException e) {
