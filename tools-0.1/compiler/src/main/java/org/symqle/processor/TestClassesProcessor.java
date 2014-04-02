@@ -31,9 +31,13 @@ public class TestClassesProcessor extends ModelProcessor {
             final InterfaceDefinition testInterface = newTestInterface(classDef.getName());
             for (MethodDefinition classMethod: classDef.getDeclaredMethods()) {
                 if (classMethod.isPublic() && !classMethod.getOtherModifiers().contains("abstract")
-                        && !classMethod.getName().startsWith("z$")) {
+                        && !classMethod.getName().startsWith("z$") ) {
+                    if (model.mayHaveSymqleImplementation(classMethod)) {
                     testInterface.addMethod(newClassTestMethod(classMethod, classDef, testInterface));
                     methodCount++;
+                    } else {
+                        System.err.println("NOT a Symqle method: " + classMethod.signature() + " in " + classDef.getName());
+                    }
                 }
             }
             for (MethodDefinition method : symqle.getDeclaredMethods()) {

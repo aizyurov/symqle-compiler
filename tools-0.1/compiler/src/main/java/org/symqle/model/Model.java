@@ -43,6 +43,10 @@ public class Model {
         return symqleMethodUniqueness.get(reducedSignature(method));
     }
 
+    public boolean mayHaveSymqleImplementation(MethodDefinition method) {
+        return symqleMethodUniqueness.containsKey(method.signature());
+    }
+
     /**
      *
      * @param method
@@ -60,12 +64,8 @@ public class Model {
         if (formalParameters.size() == 0) {
             return method.getName();
         } else {
-            return method.getName() + "(" + Utils.format(formalParameters.subList(1, formalParameters.size()), "", ",", "", new F<FormalParameter, String, RuntimeException>() {
-                @Override
-                public String apply(final FormalParameter formalParameter) {
-                    return formalParameter.getType().getSimpleName();
-                }
-            }) +")";
+            HashSet<String> typeParameterNames = new HashSet<String>(method.getTypeParameters().names());
+            return method.getName() + "(" + Utils.format(formalParameters.subList(1, formalParameters.size()), "", ",", "", FormalParameter.f_erasure(typeParameterNames)) +")";
         }
     }
 
