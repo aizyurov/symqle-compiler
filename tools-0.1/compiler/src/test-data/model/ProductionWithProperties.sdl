@@ -5,7 +5,7 @@ public interface Scalar<T>
     T getElementMapper();
 }
 
-public interface ValueExpression<T> extends Scalar<T> : Sql
+public interface ValueExpression<T> extends Scalar<T> : SqlBuilder
 {}
 
 public class Value<T> implements ValueExpression<T>
@@ -17,6 +17,6 @@ public class Value<T> implements ValueExpression<T>
 ;
 
 
-public interface ValueExpressionPrimary<T> extends Scalar<T> : Sql
+public interface ValueExpressionPrimary<T> extends Scalar<T> : SqlBuilder
 {}
 

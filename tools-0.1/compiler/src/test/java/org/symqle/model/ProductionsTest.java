@@ -77,7 +77,7 @@ public class ProductionsTest extends TestCase {
                     "    static <T> ValueExpressionSqlBuilder<T>" +
                     "    z$ValueExpression$from$ValueExpressionPrimary(final ValueExpressionPrimary<T> e) { \n" +
                     "        return new ValueExpressionSqlBuilder<T>() {\n" +
-                    "           public Sql z$sqlOfValueExpression(final SqlContext context) {\n" +
+                    "           public SqlBuilder z$sqlOfValueExpression(final SqlContext context) {\n" +
                     "               return context.get(Dialect.class).ValueExpression_is_ValueExpressionPrimary(e.z$sqlOfValueExpressionPrimary(context));\n" +
                     "           }\n" +
                     "       };\n" +
@@ -120,9 +120,9 @@ public class ProductionsTest extends TestCase {
                         "            * @param context the Sql construction context\n" +
                         "            * @return query conforming to <code>this</code> syntax\n" +
                         "            */\n" +
-                        "            public Query<T> z$sqlOfSubquery(final SqlContext context) {\n" +
-                        "                final Query<T> rowMapper = sl.z$sqlOfSelectList(context); " +
-                        "            return new ComplexQuery<T>(rowMapper, " +
+                        "            public QueryBuilder<T> z$sqlOfSubquery(final SqlContext context) {\n" +
+                        "                final QueryBuilder<T> rowMapper = sl.z$sqlOfSelectList(context); " +
+                        "            return new ComplexQueryBuilder<T>(rowMapper, " +
                         "                context.get(Dialect.class).Subquery_is_LEFT_PAREN_SelectList_RIGHT_PAREN(rowMapper));" +
                         "            }/*delegation*/\n" +
                         "\n" +
@@ -144,7 +144,7 @@ public class ProductionsTest extends TestCase {
         final String expected = "static <T> ValueExpressionSqlBuilder<T> z$ValueExpression$from$ValueExpressionPrimary(final ValueExpressionPrimary<T> e)\n" +
                 " { \n" +
                 "        return new ValueExpressionSqlBuilder<T>() {\n" +
-                "            public Sql z$sqlOfValueExpression(final SqlContext context) {\n" +
+                "            public SqlBuilder z$sqlOfValueExpression(final SqlContext context) {\n" +
                 "                return context.get(Dialect.class).ValueExpression_is_ValueExpressionPrimary(e.z$sqlOfValueExpressionPrimary(context));\n" +
                 "            }\n" +
                 "\n" +

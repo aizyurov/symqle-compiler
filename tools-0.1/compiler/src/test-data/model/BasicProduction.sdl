@@ -1,10 +1,10 @@
-public interface zSelectStatement<T> : Query<T> {}
+public interface zSelectStatement<T> : QueryBuilder<T> {}
 
 public class SelectStatement<T> implements zSelectStatement<T>
 {}
 
 
-interface zCursorSpecification<T> : Query<T> {}
+interface zCursorSpecification<T> : QueryBuilder<T> {}
 
 import java.util.List;
 <T> zSelectStatement<T> ::= cspec:zCursorSpecification<T>

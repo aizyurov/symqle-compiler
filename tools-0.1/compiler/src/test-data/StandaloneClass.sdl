@@ -2,7 +2,7 @@ public interface Scalar<T> {
   public Mapper<T> getMapper();
 }
 
-public interface ValueExpression<T> extends Scalar<T> : Sql {}
+public interface ValueExpression<T> extends Scalar<T> : SqlBuilder {}
 
 public class AbstractValueExpression<T> implements ValueExpression<T> {}
 

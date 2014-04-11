@@ -6,16 +6,16 @@ public interface Scalar<T> {
     ValueExpression<T> param(T value);
 }
 
-public interface Child1<T> extends Scalar<T> : Sql {
+public interface Child1<T> extends Scalar<T> : SqlBuilder {
     Collection<T> myMethod(int i) throws NoSuchElementException, ArrayIndexOutOfBoundsException;
 }
 
-public interface Child2<T> : Query<T> {
+public interface Child2<T> : QueryBuilder<T> {
 }
 
-public interface Child3 : Query<Boolean> {
+public interface Child3 : QueryBuilder<Boolean> {
 }
 
 // different types: Scalar<T> but Query<Boolean> - not very realistic case but should compile
-public interface Child4<T> extends Scalar<T> : Query<Boolean> {
+public interface Child4<T> extends Scalar<T> : QueryBuilder<Boolean> {
 }

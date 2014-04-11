@@ -44,9 +44,9 @@ public abstract class Archetype {
         TypeParameters parameters = new TypeParameters(node.find("TypeParameters.TypeParameter", TypeParameter.CONSTRUCT));
         String name = node.find("Identifier", SyntaxTree.VALUE).get(0);
         try {
-            if ("Sql".equals(name)) {
+            if ("SqlBuilder".equals(name)) {
                 return new SqlArchetype(parameters);
-            } else if ("Query".equals(name)) {
+            } else if ("QueryBuilder".equals(name)) {
                 return new QueryArchetype(parameters);
             } else {
                 throw new GrammarException("Unknown archetype: " + name, node);
@@ -65,7 +65,7 @@ public abstract class Archetype {
         private SqlArchetype(TypeParameters typeParameters) throws ModelException {
             super(typeParameters);
             if (!typeParameters.isEmpty()) {
-                throw new ModelException("Sql archetype does not take type parameters, found: "+typeParameters.size());
+                throw new ModelException("SqlBuilder archetype does not take type parameters, found: "+typeParameters.size());
             }
         }
 
@@ -77,7 +77,7 @@ public abstract class Archetype {
 
         @Override
         public List<String> getRequiredImports() {
-            return Arrays.asList("import org.symqle.common.SqlContext;", "import org.symqle.common.Sql;");
+            return Arrays.asList("import org.symqle.common.SqlContext;", "import org.symqle.common.SqlBuilder;");
         }
 
     }
@@ -101,7 +101,7 @@ public abstract class Archetype {
 
         @Override
         public List<String> getRequiredImports() {
-            return Arrays.asList("import org.symqle.common.SqlContext;", "import org.symqle.common.Query;");
+            return Arrays.asList("import org.symqle.common.SqlContext;", "import org.symqle.common.QueryBuilder;");
         }
     }
 
@@ -110,20 +110,20 @@ public abstract class Archetype {
 
     private final static String QUERY_METHOD_FORMAT = Utils.indent(4,
             "/**",
-            "* Creates a Query representing %s.",
+            "* Creates a QueryBuilder representing %s.",
             "* @param context the Sql construction context",
-            "* @return constructed Query",
+            "* @return constructed QueryBuilder",
             "*/",
-            "Query%s " + ARCHETYPE_METHOD_PREFIX + "%s(%sSqlContext context);"
+            "QueryBuilder%s " + ARCHETYPE_METHOD_PREFIX + "%s(%sSqlContext context);"
             );
 
     private final static String SQL_METHOD_FORMAT = Utils.indent(4,
             "/**",
-            "* Creates an Sql representing %s.",
+            "* Creates an SqlBuilder representing %s.",
             "* @param context the Sql construction context",
-            "* @return constructed Sql",
+            "* @return constructed SqlBuilder",
             "*/",
-            "Sql " + ARCHETYPE_METHOD_PREFIX + "%s(%sSqlContext context);"
+            "SqlBuilder " + ARCHETYPE_METHOD_PREFIX + "%s(%sSqlContext context);"
     );
 
     public static final Archetype NONE = new Archetype(new TypeParameters(Collections.<TypeParameter>emptyList())) {

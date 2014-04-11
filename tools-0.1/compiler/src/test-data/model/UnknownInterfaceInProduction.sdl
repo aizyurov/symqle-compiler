@@ -5,7 +5,7 @@ public interface Scalar<T>
     T value(final Element element) throws SQLException;
 }
 
-public interface SelectStatement<T> : Query<T>
+public interface SelectStatement<T> : QueryBuilder<T>
 {}
 
 public class AbstractSelectStatement<T> implements SelectStatement<T>
@@ -21,6 +21,6 @@ public class AbstractSelectStatement<T> implements SelectStatement<T>
         :: public AbstractCursorSpecification<T> forUpdate
 ;
 
-public interface CursorSpecification<T> : Query<T> {}
+public interface CursorSpecification<T> : QueryBuilder<T> {}
 
 public class AbstractCursorSpecification<T> implements CursorSpecification<T> {}

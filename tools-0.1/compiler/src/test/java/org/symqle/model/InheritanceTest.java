@@ -34,7 +34,7 @@ public class InheritanceTest extends TestCase {
 //        System.out.println(cursorSpec);
         MethodDefinition delegatedMethod = cursorSpec.getDeclaredMethodBySignature("z$sqlOfSelectStatement(SqlContext)");
         assertEquals(TestUtils.pureCode
-                ("public final Query<T> z$sqlOfSelectStatement(final SqlContext context) {\n" +
+                ("public final QueryBuilder<T> z$sqlOfSelectStatement(final SqlContext context) {\n" +
                 "                return Symqle.z$SelectStatement$from$CursorSpecification(this)\n" +
                         ".z$sqlOfSelectStatement(context);\n" +
                 "            }"), TestUtils.pureCode(delegatedMethod.toString()));
@@ -52,14 +52,14 @@ public class InheritanceTest extends TestCase {
         System.out.println(queryExpr);
         final MethodDefinition asCursorSpec = queryExpr.getDeclaredMethodBySignature("z$sqlOfCursorSpecification(SqlContext)");
         assertEquals(TestUtils.pureCode(
-                "public final Query<T> z$sqlOfCursorSpecification(final SqlContext context) {\n" +
+                "public final QueryBuilder<T> z$sqlOfCursorSpecification(final SqlContext context) {\n" +
                         "                return Symqle.z$CursorSpecification$from$QueryExpression(this)\n" +
                         ".z$sqlOfCursorSpecification(context);\n" +
                         "            }"
         ), TestUtils.pureCode(asCursorSpec.toString()));
         final MethodDefinition asSelectStatement = queryExpr.getDeclaredMethodBySignature("z$sqlOfSelectStatement(SqlContext)");
         assertEquals(TestUtils.pureCode(
-                "public final Query<T> z$sqlOfSelectStatement(final SqlContext context) {\n" +
+                "public final QueryBuilder<T> z$sqlOfSelectStatement(final SqlContext context) {\n" +
                         "        return Symqle.z$SelectStatement$from$CursorSpecification(this)\n" +
                         "            .z$sqlOfSelectStatement(context);\n" +
                         "    }"),

@@ -41,7 +41,7 @@ public class TestArchetypeTypeParam extends TestCase {
             new InterfaceDeclarationsProcessor().process(Arrays.asList(syntaxTree), model);
             fail("GrammarException expected");
         } catch (GrammarException e) {
-            assertTrue(e.getMessage().startsWith("Sql archetype does not take type parameters, found: 1"));
+            assertTrue(e.getMessage().startsWith("SqlBuilder archetype does not take type parameters, found: 1"));
         }
     }
 

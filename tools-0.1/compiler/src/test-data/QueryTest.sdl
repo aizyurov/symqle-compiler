@@ -1,7 +1,7 @@
-public interface query_base<T> : Query<T>
+public interface query_base<T> : QueryBuilder<T>
 {}
 
-public interface select_list<T> : Query<T>
+public interface select_list<T> : QueryBuilder<T>
 {}
 
 <T> query_base<T> ::= SELECT list:select_list<T>

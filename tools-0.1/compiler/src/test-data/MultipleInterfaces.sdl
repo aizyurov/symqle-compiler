@@ -2,10 +2,10 @@ public interface Scalar<T>
 {
     T value(final Element element);
 }
-public interface column_name : Sql
+public interface column_name : SqlBuilder
 {}
 
-public interface table_column<T> extends Scalar<T> : Sql
+public interface table_column<T> extends Scalar<T> : SqlBuilder
 {}
 
 public class Column<T> implements column_name with nameBuilder, table_column<T> with tableColumnBuilder

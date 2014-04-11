@@ -1,2 +1,2 @@
-public interface Bad<T> : Query<T, R> {
+public interface Bad<T> : QueryBuilder<T, R> {
 }

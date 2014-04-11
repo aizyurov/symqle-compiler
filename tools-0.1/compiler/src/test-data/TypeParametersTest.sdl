@@ -3,7 +3,7 @@ public interface Scalar<T>
     T value(final Element element);
 }
 
-public interface expression<T> extends Scalar<T> : Query<T>
+public interface expression<T> extends Scalar<T> : QueryBuilder<T>
 {}
 
 public class GenericExpression<V> implements expression<V> with sqlBuilder

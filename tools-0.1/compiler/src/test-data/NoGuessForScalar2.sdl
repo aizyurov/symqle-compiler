@@ -3,10 +3,10 @@ public interface Scalar<T>
     T value(final Element element);
 }
 
-public interface row_value_predicand : Sql
+public interface row_value_predicand : SqlBuilder
 {}
 
-public interface comparison_predicate<T> extends Scalar<T> : Sql
+public interface comparison_predicate<T> extends Scalar<T> : SqlBuilder
 {}
 
 # the elements do not implement Scalar, so no guess

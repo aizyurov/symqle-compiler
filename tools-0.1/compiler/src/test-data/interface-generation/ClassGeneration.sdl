@@ -3,14 +3,14 @@ public interface Scalar<T>
     T value(final Element element);
 }
 
-public interface expression_<T> extends Scalar<T> : Sql
+public interface expression_<T> extends Scalar<T> : SqlBuilder
 {}
 
 public class Expression<T> implements expression_<T> with exBuilder
 {                                                     
 }
 
-public interface term_<T> extends Scalar<T> : Sql
+public interface term_<T> extends Scalar<T> : SqlBuilder
 {}
 
 public class Term<T> implements term_<T> with tBuilder
@@ -31,7 +31,7 @@ public class Term<T> implements term_<T> with tBuilder
         }
 ;
 
-public interface primary_<T> extends Scalar<T> : Sql
+public interface primary_<T> extends Scalar<T> : SqlBuilder
 {
 }
 

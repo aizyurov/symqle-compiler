@@ -1,12 +1,12 @@
-public interface QueryBase<T> : Query<T> {}
+public interface QueryBase<T> : QueryBuilder<T> {}
 
-public interface SelectList<T> : Query<T> {}
+public interface SelectList<T> : QueryBuilder<T> {}
 
 <T> QueryBase<T> ::= SELECT sl:SelectList<T> fc:FromClause<T> ::
                         protected QueryBase<T> selectFrom {}
 ;
 
-public interface FromClause : Sql {} 
+public interface FromClause : SqlBuilder {}
 
 public class ImplicitFromClause implements FromClause {}
 

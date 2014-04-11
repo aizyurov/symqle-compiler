@@ -1,10 +1,10 @@
-public interface SelectStatement<T> : Query<T> {}
+public interface SelectStatement<T> : QueryBuilder<T> {}
 
 public class AbstractSelectStatement<T> implements SelectStatement<T>
 {}
 
 
-public interface CursorSpecification<T> : Query<T> {}
+public interface CursorSpecification<T> : QueryBuilder<T> {}
 
 public class AbstractCursorSpecification<T> implements CursorSpecification<T>
 {}

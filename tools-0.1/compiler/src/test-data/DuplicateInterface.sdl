@@ -1,5 +1,5 @@
 public interface test_interface<T> extends Scalar<T>
 {}
 
-public interface test_interface<T> : Query<T>
+public interface test_interface<T> : QueryBuilder<T>
 {}

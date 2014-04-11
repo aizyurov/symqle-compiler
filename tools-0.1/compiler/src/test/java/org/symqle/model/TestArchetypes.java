@@ -46,7 +46,7 @@ public class TestArchetypes extends TestCase {
             final MethodDefinition myMethod = child.getDeclaredMethodBySignature("z$sqlOfChild1(SqlContext)");
             assertEquals("", myMethod.getAccessModifier());
             assertEquals(0, myMethod.getOtherModifiers().size());
-            assertEquals("Sql z$sqlOfChild1(SqlContext context)", myMethod.declaration());
+            assertEquals("SqlBuilder z$sqlOfChild1(SqlContext context)", myMethod.declaration());
             assertTrue(myMethod.isPublic());
             assertTrue(myMethod.isAbstract());
         }
@@ -82,7 +82,7 @@ public class TestArchetypes extends TestCase {
             final MethodDefinition myMethod = child.getDeclaredMethodBySignature("z$sqlOfChild2(SqlContext)");
             assertEquals("", myMethod.getAccessModifier());
             assertEquals(0, myMethod.getOtherModifiers().size());
-            assertEquals("Query<T> z$sqlOfChild2(SqlContext context)", myMethod.declaration());
+            assertEquals("QueryBuilder<T> z$sqlOfChild2(SqlContext context)", myMethod.declaration());
             assertTrue(myMethod.isPublic());
             assertTrue(myMethod.isAbstract());
         }
@@ -100,7 +100,7 @@ public class TestArchetypes extends TestCase {
             final MethodDefinition myMethod = child.getDeclaredMethodBySignature("z$sqlOfChild3(SqlContext)");
             assertEquals("", myMethod.getAccessModifier());
             assertEquals(0, myMethod.getOtherModifiers().size());
-            assertEquals("Query<Boolean> z$sqlOfChild3(SqlContext context)", myMethod.declaration());
+            assertEquals("QueryBuilder<Boolean> z$sqlOfChild3(SqlContext context)", myMethod.declaration());
             assertTrue(myMethod.isPublic());
             assertTrue(myMethod.isAbstract());
         }
@@ -123,7 +123,7 @@ public class TestArchetypes extends TestCase {
             final MethodDefinition myMethod = child.getDeclaredMethodBySignature("z$sqlOfChild4(SqlContext)");
             assertEquals("", myMethod.getAccessModifier());
             assertEquals(0, myMethod.getOtherModifiers().size());
-            assertEquals("Query<Boolean> z$sqlOfChild4(SqlContext context)", myMethod.declaration());
+            assertEquals("QueryBuilder<Boolean> z$sqlOfChild4(SqlContext context)", myMethod.declaration());
             assertTrue(myMethod.isPublic());
             assertTrue(myMethod.isAbstract());
         }

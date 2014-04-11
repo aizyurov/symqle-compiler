@@ -1,10 +1,10 @@
-public interface SelectStatement<T> : Query<T> {}
+public interface SelectStatement<T> : QueryBuilder<T> {}
 
 public class AbstractSelectStatement<T> implements SelectStatement<T>
 {}
 
 
-interface CursorSpecification<T> : Query<T> {}
+interface CursorSpecification<T> : QueryBuilder<T> {}
 
 import java.util.List;
 <T> SelectStatement<T> ::= cspec:CursorSpecification<T>

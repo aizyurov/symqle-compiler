@@ -7,9 +7,9 @@ public interface Dependent {
     Set<String> dependsOn();
 }
 
-public interface ValueExpression<T> extends Scalar<T>, Dependent : Sql {}
+public interface ValueExpression<T> extends Scalar<T>, Dependent : SqlBuilder {}
 
-public interface ComparisonPredicate extends Scalar<Boolean>, Dependent : Sql {}
+public interface ComparisonPredicate extends Scalar<Boolean>, Dependent : SqlBuilder {}
 
 public class AbstractComparisonPredicate implements ComparisonPredicate {}
 

@@ -3,7 +3,7 @@ public interface Scalar<T>
     T value(final Element element);
 }
 
-public interface expression<T> extends Scalar<T> : Sql
+public interface expression<T> extends Scalar<T> : SqlBuilder
 {
     Integer z$prepare$expression(final SqlContext context);
 }

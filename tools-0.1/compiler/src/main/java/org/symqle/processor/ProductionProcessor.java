@@ -192,7 +192,7 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
     private String delegateArchetypeMethod(final Model model, final ProductionImplementation productionImpl, final MethodDefinition method, final ProductionRule rule) throws ModelException {
         StringBuilder builder = new StringBuilder();
         // find leftmost element, which is FormalParameter
-        if (method.getResultType().getSimpleName().equals("Sql")) {
+        if (method.getResultType().getSimpleName().equals("SqlBuilder")) {
             // just what is returned by Symqle
             builder.append(" {").append(Utils.LINE_BREAK);
             builder.append("                ");

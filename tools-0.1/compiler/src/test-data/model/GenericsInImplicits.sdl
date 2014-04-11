@@ -4,7 +4,7 @@ public interface Scalar<T>
 }
 
 
-public interface ValueExpression<T> extends Scalar<T> : Sql
+public interface ValueExpression<T> extends Scalar<T> : SqlBuilder
 {}
 
 public class Value<R> implements ValueExpression<R>
@@ -24,7 +24,7 @@ public class Value<R> implements ValueExpression<R>
 ;
 
 
-public interface BooleanValueExpression extends Scalar<Boolean> : Sql
+public interface BooleanValueExpression extends Scalar<Boolean> : SqlBuilder
 {}
 
 ValueExpression<Boolean> ::= bve: BooleanValueExpression
@@ -32,7 +32,7 @@ ValueExpression<Boolean> ::= bve: BooleanValueExpression
 ;
 
 
-public interface ValueExpressionPrimary<U> extends Scalar<U> : Sql
+public interface ValueExpressionPrimary<U> extends Scalar<U> : SqlBuilder
 {}
 
 public class AbstractValueExpressionPrimary<V> implements ValueExpressionPrimary<V>

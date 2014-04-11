@@ -24,7 +24,7 @@ import java.util.LinkedList;
     }
 }
 
-interface cursor_specification<T> : Query<T>
+interface cursor_specification<T> : QueryBuilder<T>
 {}
 
 import java.util.Map;

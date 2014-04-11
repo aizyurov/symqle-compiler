@@ -36,11 +36,11 @@ public class TestClassParsing extends TestCase {
         assertEquals(3, selectStatement.getDeclaredMethods().size());
         final MethodDefinition generated = selectStatement.getDeclaredMethodBySignature("z$sqlOfSelectStatement(SqlContext)");
         assertNotNull(generated);
-        assertEquals("public abstract Query<T> z$sqlOfSelectStatement(SqlContext context)", generated.declaration());
+        assertEquals("public abstract QueryBuilder<T> z$sqlOfSelectStatement(SqlContext context)", generated.declaration());
     // getDeclaredMethod and getMethod should return the same
         final MethodDefinition generated1 = selectStatement.getMethodBySignature("z$sqlOfSelectStatement(SqlContext)", model);
         assertNotNull(generated1);
-        assertEquals("public abstract Query<T> z$sqlOfSelectStatement(SqlContext context)", generated1.declaration());
+        assertEquals("public abstract QueryBuilder<T> z$sqlOfSelectStatement(SqlContext context)", generated1.declaration());
         assertTrue(generated.matches(generated1));
         assertTrue(generated1.matches(generated));
     }

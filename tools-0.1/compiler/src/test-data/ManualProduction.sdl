@@ -3,13 +3,13 @@ public interface Scalar<T>
     T value(final Element element);
 }
 
-public interface expression_<T> extends Scalar<T> : Sql
+public interface expression_<T> extends Scalar<T> : SqlBuilder
 {}
 
 public class Expression<T> implements expression_<T>
 {}
 
-public interface boolean_expression extends Scalar<Boolean> : Sql
+public interface boolean_expression extends Scalar<Boolean> : SqlBuilder
 {}
 
 public class BooleanExpression implements boolean_expression

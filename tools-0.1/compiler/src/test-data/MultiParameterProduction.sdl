@@ -1,4 +1,4 @@
-public interface select_list<T> : Query<T>
+public interface select_list<T> : QueryBuilder<T>
 {}
 
 <T,U> select_list<Pair<T,U>> ::= first:select_list<T> COMMA second:select_list<U> {

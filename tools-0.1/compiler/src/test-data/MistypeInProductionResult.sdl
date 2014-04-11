@@ -3,10 +3,10 @@ public interface Scalar<T>
     T value(final Element element);
 }
 
-public interface expression<T> extends Scalar<T> : Sql
+public interface expression<T> extends Scalar<T> : SqlBuilder
 {}
 
-public interface primary<T> extends Scalar<T> : Sql
+public interface primary<T> extends Scalar<T> : SqlBuilder
 {}
 
 <T> expression<T> ::= prim:primary<T>

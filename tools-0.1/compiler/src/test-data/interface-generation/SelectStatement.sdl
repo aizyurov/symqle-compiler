@@ -1,6 +1,6 @@
 
 # corresponds to direct_select-statement in Sql-2003.2
-public interface select_statement<T> : Query<T> {}
+public interface select_statement<T> : QueryBuilder<T> {}
 
 class SelectStatement<T> implements select_statement<T> with sqlBuilder
 import java.util.List;
@@ -58,7 +58,7 @@ import java.sql.SQLException;
     }
 ;
 
-interface cursor_specification<T> : Query<T> {}
+interface cursor_specification<T> : QueryBuilder<T> {}
 
 class CursorSpecification<T> implements cursor_specification<T> with sqlBuilder
 {}

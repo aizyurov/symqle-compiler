@@ -40,7 +40,7 @@ public class ImportsTest extends TestCase {
         System.out.println(model.getInterface("SelectStatement"));
 //        MethodDefinition delegatedMethod = cursorSpec.getDeclaredMethodBySignature("z$sqlOfzSelectStatement(SqlContext)");
 //        assertEquals(TestUtils.pureCode
-//                ("public final Query<T> z$sqlOfzSelectStatement(final SqlContext context) {\n" +
+//                ("public final QueryBuilder<T> z$sqlOfzSelectStatement(final SqlContext context) {\n" +
 //                "                return Symqle.get()\n" +
 //                "                    .z$zSelectStatement$from$zCursorSpecification(this)\n" +
 //                "                    .z$sqlOfzSelectStatement(context);\n" +

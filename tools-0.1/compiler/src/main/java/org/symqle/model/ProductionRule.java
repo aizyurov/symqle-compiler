@@ -36,7 +36,7 @@ public class ProductionRule {
         targetTypeName = targetType.getSimpleName();
         syntaxBuilder.append(targetTypeName).append(" ::=");
         nameBuilder.append(targetType.getSimpleName()).append("_is");
-        final Type sqlType = new Type("Sql");
+        final Type sqlType = new Type("SqlBuilder");
         // at most one type by syntax; no type if implicit (in this case it is targetType)
         for (SyntaxTree element: node.find("ProductionElement")) {
             final List<Type> typeList = element.find("ClassOrInterfaceType", Type.CONSTRUCT);
@@ -82,7 +82,7 @@ public class ProductionRule {
     }
 
     public String asAbstractMethodDeclaration() {
-        return generatedComment()+"Sql " + name
+        return generatedComment()+"SqlBuilder " + name
                 + "(" + Utils.format(formalParameters, "", ", ", "") +")";
     }
 

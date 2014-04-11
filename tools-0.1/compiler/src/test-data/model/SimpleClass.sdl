@@ -1,4 +1,4 @@
-public interface SelectStatement<T> : Query<T>
+public interface SelectStatement<T> : QueryBuilder<T>
 {}
 
 /* declaration imports -- will be propagated to classes, which mimic this */

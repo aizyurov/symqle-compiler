@@ -5,14 +5,14 @@ public interface Scalar<T>
 }
 
 
-public interface value_expression<T> extends Scalar<T> : Sql
+public interface value_expression<T> extends Scalar<T> : SqlBuilder
 {}
 
 public class Value<T> implements value_expression<T> with valueExpression
 {}
 
 
-public interface sort_key : Sql
+public interface sort_key : SqlBuilder
 {}
 class SortKey implements sort_key with sortKeyBuilder
 {

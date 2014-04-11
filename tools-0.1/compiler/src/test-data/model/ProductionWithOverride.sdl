@@ -1,11 +1,11 @@
 
-public interface SelectStatement<T> : Query<T> {}
+public interface SelectStatement<T> : QueryBuilder<T> {}
 
 public class AbstractSelectStatement<T> implements SelectStatement<T>
 {}
 
 
-interface CursorSpecification<T> : Query<T> {}
+interface CursorSpecification<T> : QueryBuilder<T> {}
 class AbstractCursorSpecification<T> implements CursorSpecification<T> {}
 
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
     ::
     import java.util.LinkedList;
     implicit {
-            public Query<T> z$sqlOfSelectStatement(final SqlContext context) {
+            public QueryBuilder<T> z$sqlOfSelectStatement(final SqlContext context) {
                 throw new RuntimeException("Not implemented");
             }
     }

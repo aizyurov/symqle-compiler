@@ -4,7 +4,7 @@ import java.util.List;
 /**
 * interface1 select_statement
 */
-public interface select_statement<T> : Query<T>
+public interface select_statement<T> : QueryBuilder<T>
 {
     boolean YES = true;
 }
@@ -20,7 +20,7 @@ public interface select_statement<T> : Query<T>
 * and this javadoc
 * will all appear in the interface comment
 */
-public interface select_statement_scalar<T> extends Scalar<T> : Query<T>
+public interface select_statement_scalar<T> extends Scalar<T> : QueryBuilder<T>
 {}
 
 public interface Scalar<T>
@@ -28,10 +28,10 @@ public interface Scalar<T>
     T value(final Element element);
 }
 
-public interface from_clause : Sql {
+public interface from_clause : SqlBuilder {
     void add_table(table_reference table);
 }
 
-public interface boolean_expression extends Scalar<Boolean> : Sql
+public interface boolean_expression extends Scalar<Boolean> : SqlBuilder
 {}
 

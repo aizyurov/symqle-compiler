@@ -4,7 +4,7 @@ public interface Scalar<T>
 }
 
 
-public interface ValueExpression<T> extends Scalar<T> : Sql
+public interface ValueExpression<T> extends Scalar<T> : SqlBuilder
 {}
 
 public class Value<T> implements ValueExpression<T>
@@ -23,13 +23,13 @@ public class Value<T> implements ValueExpression<T>
     }
 ;
 
-public interface BooleanValueExpression extends Scalar<Boolean> : Sql
+public interface BooleanValueExpression extends Scalar<Boolean> : SqlBuilder
 {}
 
 public class AbstractBooleanValueExpression implements BooleanValueExpression
 {}
 
-public interface ValueExpressionPrimary<T> extends Scalar<T> : Sql
+public interface ValueExpressionPrimary<T> extends Scalar<T> : SqlBuilder
 {}
 
 public class AbstractValueExpressionPrimary<T> implements ValueExpressionPrimary<T>
@@ -41,7 +41,7 @@ public class AbstractValueExpressionPrimary<T> implements ValueExpressionPrimary
     cr:ColumnReference<T> ::  implicit
 ;
 
-public interface	ColumnReference<T> extends Scalar<T> : Sql
+public interface	ColumnReference<T> extends Scalar<T> : SqlBuilder
 {}
 
 
