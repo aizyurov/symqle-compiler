@@ -42,7 +42,7 @@ implementation imports for explicit methods
      interface Collector<T> { void collect<T t); List<T> done(); }. Standard SelectLists have
       DefaultCollector (scalar, pair, triple). Mappers for objects with collections may provide
       own collectors. Same for scroll: may provide Function<T, T>, which is applied before calling
-      Callback (or provide a separate Collector for scroll - may be better).
+      Callback (or provide a separate Cotluenellector for scroll - may be better).
 
 Later: all imports put classes to the Model (using reflection) and mark them as external.
     Omonims are not allowed (OK for now).
@@ -62,7 +62,7 @@ Later: all imports put classes to the Model (using reflection) and mark them as 
 
 (done) make Symqle methods static (big change)
 
-strict methods: each metohd or implicit first parameter should have archetype, otherwise fail build
+strict methods: each method or implicit first parameter should have archetype, otherwise fail build
 
 reporting plugin - cross-reference, hide/show Java code. Hidable code: ClassBody (with its comments) in ProductionImplementation,
 MethodBody in explicit methods and off-production implicits, import and Java-comments everywhere
