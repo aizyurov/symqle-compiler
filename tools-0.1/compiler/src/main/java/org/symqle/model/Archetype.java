@@ -110,7 +110,7 @@ public abstract class Archetype {
 
     private final static String QUERY_METHOD_FORMAT = Utils.indent(4,
             "/**",
-            "* Creates a QueryBuilder representing %s.",
+            "* Creates a QueryBuilder, which constructs SQL conforming to {@link %s}.",
             "* @param context the Sql construction context",
             "* @return constructed QueryBuilder",
             "*/",
@@ -119,7 +119,7 @@ public abstract class Archetype {
 
     private final static String SQL_METHOD_FORMAT = Utils.indent(4,
             "/**",
-            "* Creates an SqlBuilder representing %s.",
+            "* Creates an SqlBuilder, which constructs SQL conforming to {@link %s}.",
             "* @param context the Sql construction context",
             "* @return constructed SqlBuilder",
             "*/",

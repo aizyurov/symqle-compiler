@@ -1,6 +1,7 @@
 package org.symqle.processor;
 
 import org.symqle.model.*;
+import org.symqle.util.Log;
 import org.symqle.util.Utils;
 
 import java.util.ArrayList;
@@ -64,15 +65,15 @@ public class ImplementationProcessor extends ModelProcessor {
     }
 
     private void implement(AbstractTypeDefinition classDef, Model model) throws ModelException {
-        System.err.print("Implementing " + classDef.getName());
+        Log.info("Implementing " + classDef.getName());
         final boolean isAnonymous = classDef.getClass().equals(AnonymousClass.class);
         if (isAnonymous) {
-            System.err.println(" " + ((AnonymousClass)classDef).getExtendsImplements());
+            Log.debug(" " + ((AnonymousClass) classDef).getExtendsImplements());
         }
         for (MethodDefinition myMethod: classDef.getAllMethods(model)) {
             final Set<String> modifiers = myMethod.getOtherModifiers();
             if (modifiers.contains("abstract") && modifiers.contains("volatile")) {
-                System.err.println(classDef.getName() + "implementing " + myMethod.getOtherModifiers() + " " + myMethod.getName());
+                Log.debug(classDef.getName() + " implementing " + myMethod.getOtherModifiers() + " " + myMethod.getName());
                 List<String> parameters = new ArrayList<String>();
                 parameters.add("this");
                 parameters.addAll(Utils.map(myMethod.getFormalParameters(), FormalParameter.NAME));
@@ -87,7 +88,7 @@ public class ImplementationProcessor extends ModelProcessor {
                 // anonymous class methods are final because they cannot have descendants
                 myMethod.implement("public", builder.toString(), true, !isAnonymous);
             } else {
-                System.err.println(classDef.getName() + " skipping " + myMethod.getOtherModifiers() + " " + myMethod.getName());
+                Log.debug(classDef.getName() + " skipping " + myMethod.getOtherModifiers() + " " + myMethod.getName());
             }
         }
     }

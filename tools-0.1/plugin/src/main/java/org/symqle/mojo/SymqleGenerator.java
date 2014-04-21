@@ -21,6 +21,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.symqle.processor.Director;
+import org.symqle.util.Log;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -89,6 +90,17 @@ public class SymqleGenerator
         prepareDirectory(outputDirectory);
         prepareDirectory(testOutputDirectory);
 
+        Log.setLog(new Log() {
+            @Override
+            public void logInfo(final String s) {
+                  getLog().info(s);
+            }
+
+            @Override
+            public void logDebug(final String s) {
+                getLog().debug(s);
+            }
+        });
         final Director director = new Director();
         try {
             director.doAll(getSources(), outputDirectory, testOutputDirectory);

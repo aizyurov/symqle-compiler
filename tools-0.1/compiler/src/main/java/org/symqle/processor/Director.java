@@ -10,6 +10,7 @@ import org.symqle.model.ModelException;
 import org.symqle.parser.ParseException;
 import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
+import org.symqle.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,7 +53,7 @@ public class Director {
                 SymqleParser parser = new SymqleParser(reader);
                 parsedSources.add(new SyntaxTree(parser.SymqleUnit(), source.getName()));
             } catch (ParseException e) {
-                System.err.println(e.getMessage()+" ["+source.getName()+"]");
+                Log.info(e.getMessage() + " [" + source.getName() + "]");
                 throw e;
             } finally {
                 reader.close();

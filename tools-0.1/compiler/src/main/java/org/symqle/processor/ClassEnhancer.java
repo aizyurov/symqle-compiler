@@ -1,6 +1,7 @@
 package org.symqle.processor;
 
 import org.symqle.model.*;
+import org.symqle.util.Log;
 import org.symqle.util.Utils;
 
 import java.util.ArrayList;
@@ -114,7 +115,7 @@ public class ClassEnhancer extends ModelProcessor {
         final AbstractTypeDefinition abstractType;
         abstractType = model.getAbstractType(resultType.getSimpleName());
         if (abstractType == null) {
-            System.err.println("Non-symqle result type in " + method.getResultType() + " " + method.signature());
+            Log.debug("Non-symqle result type in " + method.getResultType() + " " + method.signature());
             return -1;
         }
         return abstractType.getAllMethods(model).size();

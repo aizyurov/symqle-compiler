@@ -1,6 +1,7 @@
 package org.symqle.processor;
 
 import org.symqle.model.*;
+import org.symqle.util.Log;
 import org.symqle.util.Utils;
 
 import java.util.HashSet;
@@ -67,7 +68,7 @@ public class ClassCompletionProcessor extends ModelProcessor {
 
         if (!abstractMethodsSignatures.isEmpty()) {
             for (Type ancestor: classDefinition.getAllAncestors(model)) {
-                System.err.println("Trying to adapt to " + classDefinition.getName() + " "+ancestor.getSimpleName());
+                Log.debug("Trying to adapt to " + classDefinition.getName() + " " + ancestor.getSimpleName());
                 final AbstractTypeDefinition ancestorClass = model.getAbstractType(ancestor.getSimpleName());
                 if (ancestorClass.getClass().equals(InterfaceDefinition.class)) {
                     final Set<String> ancestorMethodsSignatures = new HashSet<String>();
@@ -132,12 +133,12 @@ public class ClassCompletionProcessor extends ModelProcessor {
                     } else {
                         Set<String> remaining = new HashSet<String>(abstractMethodsSignatures);
                         remaining.removeAll(ancestorMethodsSignatures);
-                        System.err.println(classDefinition.getName() + ": cannot adapt(" +ancestor.getSimpleName() +"), cannot delegate " + remaining);
+                        Log.debug(classDefinition.getName() + ": cannot adapt(" + ancestor.getSimpleName() + "), cannot delegate " + remaining);
                     }
                 }
             }
         } else {
-            System.err.println("No abstract methods in " + classDefinition.getName());
+            Log.debug("No abstract methods in " + classDefinition.getName());
         }
     }
 

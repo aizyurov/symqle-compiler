@@ -1,6 +1,7 @@
 package org.symqle.processor;
 
 import org.symqle.model.*;
+import org.symqle.util.Log;
 import org.symqle.util.Utils;
 
 import java.util.*;
@@ -67,13 +68,13 @@ public class InheritanceProcessor extends ModelProcessor {
                 final Type implementedType = entry.getValue();
                 if (!allAncestors.contains(implementedType)) {
                     classDef.addImplementedInterface(implementedType);
-                    System.err.println(classDef.getName() + " now directly implementing " + implementedType.getSimpleName());
+                    Log.debug(classDef.getName() + " now directly implements " + implementedType.getSimpleName());
                     final Set<Type> newAncestors = classDef.getAllAncestors(model);
                     newAncestors.removeAll(allAncestors);
                     unexplored.addAll(newAncestors);
                     for (Type newAncestor: newAncestors) {
                         classDef.addPath(newAncestor, type);
-                        System.err.println(classDef.getName() + " now implementing " + newAncestor.getSimpleName() + " via " + type.getSimpleName() + " using " + entry.getKey().getName() + entry.getKey().signature());
+                        Log.debug(classDef.getName() + " now implemens " + newAncestor.getSimpleName() + " via " + type.getSimpleName() + " using " + entry.getKey().getName() + entry.getKey().signature());
                     }
                     classDef.removeRedundantInterfaces(model);
                     implementNewMethods(classDef, entry.getKey(), model);
@@ -110,7 +111,7 @@ public class InheritanceProcessor extends ModelProcessor {
             if (methodToImplement.getOtherModifiers().contains("volatile")
                     && methodToImplement.getOtherModifiers().contains("abstract")
                     ) {
-                System.err.println(classDef.getName() + " implementing new method " + methodToImplement.signature());
+                Log.debug(classDef.getName() + " implementing new method " + methodToImplement.signature());
                     methodToImplement.implement("public",
                             " {" + Utils.LINE_BREAK +
                             "        " +

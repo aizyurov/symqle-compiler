@@ -3,6 +3,7 @@ package org.symqle.processor;
 import org.symqle.model.Model;
 import org.symqle.model.ModelException;
 import org.symqle.parser.SyntaxTree;
+import org.symqle.util.Log;
 
 import java.util.List;
 
@@ -19,9 +20,9 @@ public abstract class ModelProcessor extends ChainedProcessor {
     public void process(List<SyntaxTree> trees, Model model) throws GrammarException {
         try {
             predecessor().process(trees, model);
-            System.err.println("STARTING " + getClass().getSimpleName());
+            Log.info("STARTING " + getClass().getSimpleName());
             process(model);
-            System.err.println("FINISHED " + getClass().getSimpleName());
+            Log.info("FINISHED " + getClass().getSimpleName());
         } catch (ModelException e) {
             throw new GrammarException(e, trees.get(0));
         }

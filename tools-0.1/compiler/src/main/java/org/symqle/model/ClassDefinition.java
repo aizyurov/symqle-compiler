@@ -8,9 +8,15 @@ import org.symqle.parser.SimpleNode;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
 import org.symqle.util.Assert;
+import org.symqle.util.Log;
 import org.symqle.util.Utils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * <br/>19.11.2011
@@ -70,7 +76,7 @@ public class ClassDefinition extends AbstractTypeDefinition {
         for (MethodDefinition method: getAllMethods(model)) {
             if (method.getOtherModifiers().contains("abstract") ||
                     ( method.getOtherModifiers().contains("volatile") && method.isAbstract())) {
-//                System.out.println(getName()+ " made abstract due to "+method);
+                Log.debug(getName() + " made abstract due to " + method);
                 makeAbstract();
 
                 return;

@@ -4,6 +4,7 @@ import org.symqle.model.*;
 import org.symqle.parser.ParseException;
 import org.symqle.parser.SimpleNode;
 import org.symqle.parser.SyntaxTree;
+import org.symqle.util.Log;
 import org.symqle.util.Utils;
 
 import java.io.PrintWriter;
@@ -36,7 +37,7 @@ public class TestClassesProcessor extends ModelProcessor {
                     testInterface.addMethod(newClassTestMethod(classMethod, classDef, testInterface));
                     methodCount++;
                     } else {
-                        System.err.println("NOT a Symqle method: " + classMethod.signature() + " in " + classDef.getName());
+                        Log.debug("NOT a Symqle method: " + classMethod.signature() + " in " + classDef.getName());
                     }
                 }
             }
@@ -59,7 +60,7 @@ public class TestClassesProcessor extends ModelProcessor {
                 model.addTestInterface(testInterface);
             }
         }
-        System.err.println("Test classes completed: " + methodCount + " tests");
+        Log.info("Test classes completed: " + methodCount + " tests");
     }
 
     @Override

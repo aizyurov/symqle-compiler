@@ -1,6 +1,7 @@
 package org.symqle.processor;
 
 import org.symqle.model.*;
+import org.symqle.util.Log;
 import org.symqle.util.Utils;
 
 import java.util.ArrayList;
@@ -19,7 +20,7 @@ public class InterfaceEnhancer extends ModelProcessor {
 
     @Override
     protected void process(final Model model) throws ModelException {
-        System.err.println("All interfaces: " + Utils.map(model.getAllInterfaces(), new F<InterfaceDefinition, String, RuntimeException>() {
+        Log.debug("All interfaces: " + Utils.map(model.getAllInterfaces(), new F<InterfaceDefinition, String, RuntimeException>() {
             @Override
             public String apply(final InterfaceDefinition o) {
                 return o.getName();
@@ -69,7 +70,7 @@ public class InterfaceEnhancer extends ModelProcessor {
                 try {
                     interfaceDefinition.addDelegateMethod(newMethod);
                 } catch (ModelException e) {
-                    System.err.println("Explicit methods are " + model.getExplicitSymqleMethods());
+                    Log.debug("Explicit methods are " + model.getExplicitSymqleMethods());
                     throw new RuntimeException("Internal error", e);
                 }
             }
