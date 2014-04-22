@@ -40,7 +40,8 @@ public class Director {
        ImplementationProcessor
        ClassEnhancer
        InterfaceJavadocProcessor,
-       TestClassesProcessor
+       TestClassesProcessor,
+       FinalizationProcessor
      */
 
 
@@ -60,7 +61,7 @@ public class Director {
             }
         }
         Model model = new Model();
-        new TestClassesProcessor(). process(parsedSources, model);
+        new FinalizationProcessor(). process(parsedSources, model);
         outputDirectory.mkdirs();
         testOutputDirectory.mkdirs();
         new CoreGenerator("org.symqle.sql").generate(model, outputDirectory);

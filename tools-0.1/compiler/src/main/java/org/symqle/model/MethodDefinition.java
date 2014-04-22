@@ -187,9 +187,13 @@ public class MethodDefinition {
             }
         }));
         StringBuilder builder = new StringBuilder();
-        builder.append(accessModifier);
-        if (!"".equals(accessModifier)) {
-            builder.append(" ");
+        // a hack here: protected static methods make little sense (they are not inherited); show them as
+        // package scope
+        if (!(otherModifiers.contains("static") && accessModifier.equals("protected"))) {
+            builder.append(accessModifier);
+            if (!"".equals(accessModifier)) {
+                builder.append(" ");
+            }
         }
         builder.append(Utils.format(new ArrayList<String>(otherModifiers), "", " ", " "));
         builder.append(typeParameters);
