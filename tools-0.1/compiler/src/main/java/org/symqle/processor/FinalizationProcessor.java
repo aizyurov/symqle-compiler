@@ -22,7 +22,7 @@ public class FinalizationProcessor extends ModelProcessor {
             interfaceMethods += definition.getDeclaredMethods().size();
         }
         Log.info("Interfaces: " + allInterfaces.size());
-        Log.info("Interface methods: " + allInterfaces.size());
+        Log.info("Interface methods: " + interfaceMethods);
         final List<ClassDefinition> allClasses = model.getAllClasses();
 
         int classMethods = 0;
