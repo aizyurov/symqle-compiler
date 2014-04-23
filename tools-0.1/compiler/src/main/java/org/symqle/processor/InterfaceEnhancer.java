@@ -66,7 +66,9 @@ public class InterfaceEnhancer extends ModelProcessor {
                 // so types match
                 final MethodDefinition newMethod = createMyMethod(interfaceDefinition, method, myType, mapping);
                 // remove comment from Symqle: moved to interface.
-                method.replaceComment("");
+                method.replaceComment("    /**" + Utils.LINE_BREAK +
+                                        "     *  see {@link " + interfaceDefinition.getName() + "#" + newMethod.signature() + "}" + Utils.LINE_BREAK +
+                                        "     */" + Utils.LINE_BREAK) ;
                 try {
                     interfaceDefinition.addDelegateMethod(newMethod);
                 } catch (ModelException e) {

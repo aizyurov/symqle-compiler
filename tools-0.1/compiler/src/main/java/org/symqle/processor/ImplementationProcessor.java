@@ -19,7 +19,7 @@ public class ImplementationProcessor extends ModelProcessor {
 
     @Override
     protected Processor predecessor() {
-        return new InterfaceEnhancer();
+        return new ClassEnhancer();
     }
 
     @Override
@@ -61,6 +61,7 @@ public class ImplementationProcessor extends ModelProcessor {
         .append("    }").append(Utils.LINE_BREAK);
         final MethodDefinition reimplemented = MethodDefinition.parse(builder.toString(), method.getOwner());
         reimplemented.setSourceRef(method.getSourceRef());
+        reimplemented.replaceComment(method.getComment());
         return reimplemented;
     }
 

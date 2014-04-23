@@ -19,16 +19,20 @@ public class ClassEnhancer extends ModelProcessor {
 
     @Override
     protected Processor predecessor() {
-        return new ImplementationProcessor();
+        return new InterfaceEnhancer();
     }
 
     protected void process(final Model model) throws ModelException {
+        final Map<MethodDefinition, String> commentReplacements = new HashMap<MethodDefinition, String>();
         for (ClassDefinition classDef: model.getSortedClasses()) {
-            enhanceClass(classDef, model);
+            enhanceClass(classDef, model, commentReplacements);
+        }
+        for (final Map.Entry<MethodDefinition, String> entry : commentReplacements.entrySet()) {
+            entry.getKey().replaceComment(entry.getValue());
         }
     }
 
-    private void enhanceClass(final ClassDefinition classDef, final Model model) throws ModelException {
+    private void enhanceClass(final ClassDefinition classDef, final Model model, final Map<MethodDefinition, String> commentReplacements) throws ModelException {
         Map<String, List<MethodDefinition>> ambiguousMethodsByReducedSignature = new HashMap<String, List<MethodDefinition>>();
         for (MethodDefinition method: model.getExplicitSymqleMethods()) {
             if (!model.isUnambiguous(method) &&
@@ -97,7 +101,13 @@ public class ClassEnhancer extends ModelProcessor {
                                         }
                 }));
             } else if (acceptableMethods.size() == 1) {
-                classDef.addMethod(createMyMethod(classDef, acceptableMethods.get(0), model));
+                final MethodDefinition accepted = acceptableMethods.get(0);
+                final MethodDefinition myMethod = createMyMethod(classDef, accepted, model);
+                classDef.addMethod(myMethod);
+                // comment moved to class and is scheduled for remove from Symqle
+                commentReplacements.put(accepted,  "    /**" + Utils.LINE_BREAK +
+                        "     *  see e.g. {@link " + classDef.getName() + "#" + myMethod.signature() + "}" + Utils.LINE_BREAK +
+                        "     */" + Utils.LINE_BREAK);
             }
             // else continue for other candidates
 

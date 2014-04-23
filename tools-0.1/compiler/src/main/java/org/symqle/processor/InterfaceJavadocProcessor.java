@@ -18,7 +18,7 @@ public class InterfaceJavadocProcessor extends ModelProcessor {
 
     @Override
     protected Processor predecessor() {
-        return new ClassEnhancer();
+        return new ImplementationProcessor();
     }
 
     @Override
