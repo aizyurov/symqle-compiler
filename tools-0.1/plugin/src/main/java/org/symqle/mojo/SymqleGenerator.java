@@ -28,7 +28,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 
 /**
- * Goal which touches a timestamp file.
+ * Goal which generates Symqle sources.
  *
  * @goal generate
  * 
