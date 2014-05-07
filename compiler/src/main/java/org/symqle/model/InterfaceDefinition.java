@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * <br/>13.11.2011
+ * Java interface definition.
  *
  * @author Alexander Izyurov
  */
@@ -24,12 +24,18 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
     private final MethodDefinition archetypeMethod;
     private final Set<String> delegatedMethodsSignatures = new HashSet<String>();
 
-    public InterfaceDefinition(SyntaxTree node) throws GrammarException {
+    /**
+     * Constructs from AST.
+     * @param node syntax tree
+     * @throws GrammarException wrong tree
+     */
+    public InterfaceDefinition(final SyntaxTree node) throws GrammarException {
         super(node);
-        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SymqleInterfaceDeclaration");
+        Assert.assertOneOf(new GrammarException("Unexpected type: " + node.getType(), node),
+                node.getType(), "SymqleInterfaceDeclaration");
 
         this.extended = node.find("ExtendsInterfaces.ClassOrInterfaceType", Type.CONSTRUCT);
-        // everything is constructed; apply archetype (by syntax the loo pis
+        // everything is constructed; apply archetype (by syntax the loop is
         // executed 0 or 1 times
         try {
             Archetype.verify(this);
@@ -38,7 +44,9 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
         }
         List<SyntaxTree> archetypeNodes = node.find("Archetype");
         try {
-            final Archetype archetype = archetypeNodes.isEmpty() ? Archetype.NONE : Archetype.create(archetypeNodes.get(0));
+            final Archetype archetype = archetypeNodes.isEmpty()
+                    ? Archetype.NONE
+                    : Archetype.create(archetypeNodes.get(0));
             archetypeMethod = archetype.createArchetypeMethod(this);
             if (archetypeMethod != null) {
                 this.addMethod(archetypeMethod);
@@ -50,22 +58,24 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
         }
     }
 
-    public void addDelegateMethod(final MethodDefinition method) throws ModelException {
+    /**
+     * Add method, which has default implementation as static method of Symqle.
+     * Methods are currently implemented in derived classes; waiting for Java 8.
+     * @param method method, which can have default implementation
+     * @throws ModelException duplicate method
+     */
+    public final void addDelegateMethod(final MethodDefinition method) throws ModelException {
         addMethod(method);
         delegatedMethodsSignatures.add(method.signature());
     }
 
-    public boolean canDelegateToSymqle(final MethodDefinition method) {
-        return delegatedMethodsSignatures.contains(method.signature());
-    }
-
     @Override
-    protected String getTypeKeyword() {
+    protected final String getTypeKeyword() {
         return "interface";
     }
 
     @Override
-    public Set<Type> getAllAncestors(Model model) throws ModelException {
+    public final Set<Type> getAllAncestors(final Model model) throws ModelException {
         final Set<Type> ancestors = new HashSet<Type>();
         for (Type type: extended) {
             ancestors.add(type);
@@ -74,7 +84,12 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
         return ancestors;
     }
 
-    public MethodDefinition getArchetypeMethod() throws ModelException {
+    /**
+     * Archetype method.
+     * @return the method, null if it is not archetyped interface
+     * @throws ModelException
+     */
+    public final MethodDefinition getArchetypeMethod() {
         return archetypeMethod;
     }
 
@@ -92,24 +107,27 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
     }
 
     @Override
-    protected final Type getAncestorTypeByName(final String name) {
+    protected final Type getAncestorTypeByName(final String ancestorName) {
         for (Type t: extended) {
-            if (name.equals(t.getSimpleName())) {
+            if (ancestorName.equals(t.getSimpleName())) {
                 return t;
             }
         }
-        throw new IllegalArgumentException(getName() + " does not implement " + name);
+        throw new IllegalArgumentException(getName() + " does not implement " + ancestorName);
     }
 
     @Override
-    protected String getExtendsImplements() {
+    protected final String getExtendsImplements() {
         return Utils.format(extended, "extends ", ", ", "");
     }
 
-    public static F<SyntaxTree, InterfaceDefinition, GrammarException> CONSTRUCT =
+    /**
+     * Function, which converts SyntaxTree to InterfaceDefinition.
+     */
+    public static final F<SyntaxTree, InterfaceDefinition, GrammarException> CONSTRUCT =
             new F<SyntaxTree, InterfaceDefinition, GrammarException>() {
                 @Override
-                public InterfaceDefinition apply(SyntaxTree syntaxTree) throws GrammarException {
+                public InterfaceDefinition apply(final SyntaxTree syntaxTree) throws GrammarException {
                     return new InterfaceDefinition(syntaxTree);
                 }
             };
@@ -121,7 +139,7 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
     }
 
     @Override
-    public final Set<String> addImplicitMethodModifiers(final MethodDefinition methodDefinition) {
+    public final Set<String> implicitMethodModifiers(final MethodDefinition methodDefinition) {
         // just copy
         return methodDefinition.getOtherModifiers();
     }

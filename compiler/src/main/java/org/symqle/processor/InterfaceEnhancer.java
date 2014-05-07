@@ -59,12 +59,12 @@ public class InterfaceEnhancer extends ModelProcessor {
                 continue;
             }
             if (firstArgType.replaceParams(mapping).equals(myType) ||
-            (firstArgType.getTypeArguments().getArguments().size()==1
+            firstArgType.getTypeArguments().getArguments().size()==1
                     && firstArgType.getTypeArguments().getArguments().get(0).isWildCardArgument()
-                    && myType.getTypeArguments().getArguments().size() == 1)) {
+                    && myType.getTypeArguments().getArguments().size() == 1) {
                 // special case: both have a single parameter, which is wildcard in firstArg,
                 // so types match
-                final MethodDefinition newMethod = createMyMethod(interfaceDefinition, method, myType, mapping);
+                final MethodDefinition newMethod = createMyMethod(interfaceDefinition, method, mapping);
                 // remove comment from Symqle: moved to interface.
                 method.replaceComment("    /**" + Utils.LINE_BREAK +
                                         "     *  see {@link " + interfaceDefinition.getName() + "#" + newMethod.signature() + "}" + Utils.LINE_BREAK +
@@ -79,7 +79,7 @@ public class InterfaceEnhancer extends ModelProcessor {
         }
     }
 
-    private MethodDefinition createMyMethod(final InterfaceDefinition interfaceDefinition, MethodDefinition symqleMethod, Type myType, final Map<String, TypeArgument> mapping) {
+    private MethodDefinition createMyMethod(final InterfaceDefinition interfaceDefinition, MethodDefinition symqleMethod, final Map<String, TypeArgument> mapping) {
         final List<TypeParameter> myTypeParameterList = new ArrayList<TypeParameter>();
         // skip parameters, which are in mapping: they are inferred
         for (TypeParameter typeParameter: symqleMethod.getTypeParameters().list()) {

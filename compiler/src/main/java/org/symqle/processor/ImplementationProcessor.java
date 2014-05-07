@@ -69,7 +69,7 @@ public class ImplementationProcessor extends ModelProcessor {
         Log.info("Implementing " + classDef.getName());
         final boolean isAnonymous = classDef.getClass().equals(AnonymousClass.class);
         if (isAnonymous) {
-            Log.debug(" " + ((AnonymousClass) classDef).getExtendsImplements());
+            Log.debug(": " + ((AnonymousClass) classDef).getParent());
         }
         for (MethodDefinition myMethod: classDef.getAllMethods(model)) {
             final Set<String> modifiers = myMethod.getOtherModifiers();

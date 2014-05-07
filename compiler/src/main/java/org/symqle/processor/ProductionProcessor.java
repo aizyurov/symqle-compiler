@@ -180,7 +180,6 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
             if (!delegate.matches(method)) {
                 throw new ModelException("Cannot implement by delegation "+method.declaration());
             }
-            ;
             final StringBuilder bodyBuilder = new StringBuilder();
             bodyBuilder.append(delegate.delegationInvocation(formalParameter.getName())).append(";").append(Utils.LINE_BREAK);
             return bodyBuilder.toString();

@@ -53,7 +53,9 @@ public class SyntaxTree {
         // for empty non-terminals jjTree sets lastToken = preceding token
         // and firstToken = the first token of following non-terminal
         // in this case we set value to null
-        return (lastToken !=null && lastToken.next == firstToken) ? "" : firstToken.image;
+        return lastToken !=null && lastToken.next == firstToken
+                ? ""
+                : firstToken.image;
     }
 
     public int getLine() {
@@ -113,9 +115,9 @@ public class SyntaxTree {
      * @return
      */
     public List<SyntaxTree> find(String path) {
-        final List<String> nameList = (path==null || path.equals("")) ?
-                Collections.<String>emptyList() :
-                Arrays.asList(path.split("\\."));
+        final List<String> nameList = path==null || path.equals("")
+                ? Collections.<String>emptyList()
+                : Arrays.asList(path.split("\\."));
         return find(nameList);
     }
 

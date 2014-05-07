@@ -6,16 +6,21 @@ import org.symqle.model.Model;
 import java.util.Collection;
 
 /**
+ * Generates test interfaces from Model.
  * @author lvovich
  */
 public class TestSetGenerator extends WriterGenerator {
 
+    /**
+     * Constructs with given package name.
+     * @param packageName full package name, like org.symqle.core
+     */
     public TestSetGenerator(final String packageName) {
         super(packageName);
     }
 
     @Override
-    protected Collection<? extends AbstractTypeDefinition> processedTypes(final Model model) {
+    protected final Collection<? extends AbstractTypeDefinition> processedTypes(final Model model) {
         return model.getTestInterfaces();
     }
 }

@@ -25,8 +25,6 @@ public class Model {
     private final Map<MethodDefinition, AnonymousClass> anonymousClassByMethod = new HashMap<MethodDefinition, AnonymousClass>();
     private final Map<String, List<String>> rulesByTargetTypeName = new HashMap<String, List<String>>();
 
-    private final Map<String, String> dialectNameBySymqleSignature = new HashMap<String, String>();
-
     // key is "reduced signature" -name and afgumetns but the first one
     private final Map<String, Boolean> symqleMethodUniqueness = new HashMap<String, Boolean>();
 

@@ -37,7 +37,7 @@ public class InterfaceJavadocProcessor extends ModelProcessor {
                         LINE_BREAK + " *</pre>" + LINE_BREAK));
                 final TypeParameters typeParameters = def.getTypeParameters();
                 if (typeParameters.size() == 1) {
-                    javadocBuilder.append("* @param ").append(typeParameters).append(" associated Java type").append(Utils.LINE_BREAK);
+                    javadocBuilder.append("* @param ").append(typeParameters).append(" associated Java type").append(LINE_BREAK);
                 }
                 javadocBuilder.append(" */").append(LINE_BREAK);
                 def.replaceComment(javadocBuilder.toString());

@@ -11,20 +11,22 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Created by IntelliJ IDEA.
- * User: aizyurov
- * Date: 01.01.2013
- * Time: 22:17:46
- * To change this template use File | Settings | File Templates.
+ * Field declaration.
  */
 public class FieldDeclaration {
-    public final String accessModifier;
-    public final Set<String> otherModifiers;
+    private final String accessModifier;
+    private final Set<String> otherModifiers;
     private final Type type;
     private final List<VariableDeclarator> variables;
     private final String comment;
 
-    public static FieldDeclaration parse(String source) {
+    /**
+     * Construct from String.
+     * The string should contain valid field declaration.
+     * @param source the string
+     * @return new instance
+     */
+    public static FieldDeclaration parse(final String source) {
         try {
             final SimpleNode simpleNode = Utils.createParser(source).FieldDeclaration();
             SyntaxTree syntaxTree = new SyntaxTree(simpleNode, source);
@@ -36,8 +38,14 @@ public class FieldDeclaration {
         }
     }
 
-    public FieldDeclaration(SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "FieldDeclaration");
+    /**
+     * Construct from AST.
+     * @param node the syntax tree
+     * @throws GrammarException wrong tree
+     */
+    public FieldDeclaration(final SyntaxTree node) throws GrammarException {
+        Assert.assertOneOf(new GrammarException("Unexpected type: " + node.getType(), node),
+                node.getType(), "FieldDeclaration");
         List<SyntaxTree> modifierNodes = node.find("FieldModifiers");
         this.accessModifier = Utils.getAccessModifier(modifierNodes);
         this.otherModifiers = Utils.getNonAccessModifiers(modifierNodes);
@@ -47,9 +55,10 @@ public class FieldDeclaration {
         this.comment = node.getComments();
     }
 
-    public String toString() {
+    @Override
+    public final String toString() {
         return comment + accessModifier + " " + Utils.format(otherModifiers, "", " ", " ")
-                + type + " " +Utils.format(variables, "", ", ", ";");
+                + type + " " + Utils.format(variables, "", ", ", ";");
     }
 
 }

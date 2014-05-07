@@ -50,7 +50,6 @@ public class ClassCompletionProcessor extends ModelProcessor {
                 abstractMethods.add(method);
             }
         }
-        ;
         javadocBuilder.append(" *</ul>").append(LINE_BREAK);
         final TypeParameters typeParameters = classDefinition.getTypeParameters();
         // it typeParameters.size() > 1, need manual javadoc - actually we have no such classes.
@@ -90,24 +89,24 @@ public class ClassCompletionProcessor extends ModelProcessor {
                             continue;
                         }
                         StringBuilder adaptBuilder = new StringBuilder();
-                        adaptBuilder.append("    /**").append(Utils.LINE_BREAK)
+                        adaptBuilder.append("    /**").append(LINE_BREAK)
                                 .append("     * Wraps a ").append(ancestor.getSimpleName())
                                 .append(" creating new ").append(classDefinition.getType())
-                                .append(".").append(Utils.LINE_BREAK)
-                                .append("     * @param adaptee the object to adapt").append(Utils.LINE_BREAK);
+                                .append(".").append(LINE_BREAK)
+                                .append("     * @param adaptee the object to adapt").append(LINE_BREAK);
                         if (typeParameters.size() == 1) {
-                                adaptBuilder.append("     * @param ").append(typeParameters).append(" adaptee type argument").append(Utils.LINE_BREAK);
+                                adaptBuilder.append("     * @param ").append(typeParameters).append(" adaptee type argument").append(LINE_BREAK);
                         }
-                        adaptBuilder.append("     * @return new instance of AbstractFactor").append(Utils.LINE_BREAK)
-                                .append("     */").append(Utils.LINE_BREAK);
+                        adaptBuilder.append("     * @return new instance of AbstractFactor").append(LINE_BREAK)
+                                .append("     */").append(LINE_BREAK);
                         adaptBuilder.append("    public static ")
                                 .append(typeParameters)
                                 .append(" ")
                                 .append(classDefinition.getType())
                                 .append(" adapt(final ")
-                                .append(ancestor).append(" adaptee) {").append(Utils.LINE_BREAK)
+                                .append(ancestor).append(" adaptee) {").append(LINE_BREAK)
                                 .append("        return new ").append(classDefinition.getType()).append("() {")
-                                .append(Utils.LINE_BREAK);
+                                .append(LINE_BREAK);
                         for (MethodDefinition method: abstractMethods) {
                             adaptBuilder.append("            public ").append(method.getTypeParameters()).append(" ")
                                     .append(method.getResultType()).append(" ").append(method.getName()).append("(")
@@ -119,12 +118,12 @@ public class ClassCompletionProcessor extends ModelProcessor {
                                                     "final " + formalParameter;
                                         }
                                     }))
-                                    .append(") {").append(Utils.LINE_BREAK)
+                                    .append(") {").append(LINE_BREAK)
                                     .append("                ")
                                     .append(method.getResultType().equals(Type.VOID) ? "" : "return ")
                                     .append(method.delegationInvocation("adaptee"))
-                                    .append(";").append(Utils.LINE_BREAK)
-                                    .append("            }").append(Utils.LINE_BREAK);
+                                    .append(";").append(LINE_BREAK)
+                                    .append("            }").append(LINE_BREAK);
                         }
                         adaptBuilder.append("        };").append(LINE_BREAK)
                                 .append("    }");

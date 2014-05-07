@@ -9,5 +9,5 @@ package org.symqle.util;
  */
 public interface Callback<T, E extends Exception> {
 
-    public void call(T arg) throws StopException, E;
+    void call(T arg) throws StopException, E;
 }

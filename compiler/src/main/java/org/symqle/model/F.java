@@ -1,12 +1,17 @@
 package org.symqle.model;
 
 /**
- * Created by IntelliJ IDEA.
- * User: aizyurov
- * Date: 24.11.2012
- * Time: 21:40:34
- * To change this template use File | Settings | File Templates.
+ * Function, which may throw exception.
+ * @param <Arg> argunment type
+ * @param <Res> result type
+ * @param <Ex> thrown exception
  */
-public abstract class F<Arg, Res, Ex extends Exception> {
-    public abstract Res apply(Arg arg) throws Ex;
+public interface F<Arg, Res, Ex extends Exception> {
+    /**
+     * Apply this function and return result.
+     * @param arg argument
+     * @return result
+     * @throws Ex implementation-defined
+     */
+    Res apply(Arg arg) throws Ex;
 }

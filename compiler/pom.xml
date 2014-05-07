@@ -1,19 +1,51 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <!--parent>
-    <groupId>org.symqle.symqle</groupId>
-    <artifactId>symqle-base</artifactId>
-    <version>0.0</version>
-    <relativePath>..</relativePath>
-  </parent-->
-  <groupId>org.symqle</groupId>
-  <version>0.0-SNAPSHOT</version>
-  <packaging>jar</packaging>
+
   <artifactId>symqle-compiler</artifactId>
-  <name>symqle-compiler</name>
-  <url>http://maven.apache.org</url>
+  <packaging>jar</packaging>
+  <name>Symqle compiler</name>
+
+  <parent>
+    <groupId>org.symqle</groupId>
+    <artifactId>symqle-tools</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <relativePath>..</relativePath>
+  </parent>
+
+
+  <url>http://tools.symqle.org/compiler</url>
+  <description>Compiles sdl code to java sources</description>
+
+  <scm>
+    <connection>scm:git:git://symqle.org/symqle-settings.git</connection>
+    <developerConnection>scm:git:ssh://git@symqle.org/git/symqle-compiler.git</developerConnection>
+  </scm>
+
+  <distributionManagement>
+    <site>
+      <id>symqle-website</id>
+      <url>scp://symqle.org/var/www/symqle-compiler/compiler</url>
+    </site>
+  </distributionManagement>
+
     <build>
+       <pluginManagement>
+         <plugins>
+           <plugin>
+             <groupId>org.codehaus.mojo</groupId>
+             <artifactId>cobertura-maven-plugin</artifactId>
+             <version>2.6</version>
+               <configuration>
+                   <!-- http://stackoverflow.com/questions/18084436/unit-tests-passing-through-maven-but-failing-through-cobertura-expecting-a-st -->
+                   <argLine>-XX:-UseSplitVerifier</argLine>
+                   <formats>
+                       <format>html</format>
+                   </formats>
+             </configuration>
+           </plugin>
+         </plugins>
+       </pluginManagement>
        <plugins>
           <plugin>
         	<groupId>org.codehaus.mojo</groupId>
@@ -34,36 +66,69 @@
 	          </execution>
         	</executions>
 	     </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+        <version>2.6</version>
+          <configuration>
+              <!-- http://stackoverflow.com/questions/18084436/unit-tests-passing-through-maven-but-failing-through-cobertura-expecting-a-st -->
+              <check>
+                  <branchRate>0</branchRate>
+                  <lineRate>0</lineRate>
+              </check>
+              <argLine>-XX:-UseSplitVerifier</argLine>
+              <instrumentation>
+                <excludes>
+                  <exclude>org/symqle/parser/*.class</exclude>
+                </excludes>
+             </instrumentation>
+        </configuration>
+          <executions>
+              <execution>
+                  <goals>
+                      <goal>clean</goal>
+                      <goal>check</goal>
+                  </goals>
+              </execution>
+          </executions>
+      </plugin>
         </plugins>
     </build>
     <reporting>
     <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.9.1</version>
+            <configuration>
+                <show>protected</show>
+            </configuration>
+        </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <version>2.3</version>
+      </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>cobertura-maven-plugin</artifactId>
-        <version>2.5.1</version>
+        <version>2.6</version>
         <configuration>
-          <instrumentation>
-            <excludes>
-              <exclude>org/symqle/parser/*.class</exclude>
-            </excludes>
-          </instrumentation>
+            <formats>
+              <format>html</format>
+            </formats>
         </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
-        <version>2.3</version>
-         <configuration>
-                  <targetJdk>1.6</targetJdk>
+        <version>3.1</version>
+        <configuration>
+            <excludeRoots>
+                <excludeRoot>target/generated-sources/javacc</excludeRoot>
+                <excludeRoot>target/generated-sources/jjtree</excludeRoot>
+            </excludeRoots>
+            <skipEmptyReport>false</skipEmptyReport>
         </configuration>
       </plugin>
       <plugin>
@@ -72,16 +137,29 @@
         <version>2.0-beta-2</version>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>taglist-maven-plugin</artifactId>
-        <version>2.4</version>
-      </plugin>
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jxr-plugin</artifactId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+          <version>2.12.1</version>
+          <configuration>
+              <configLocation>http://symqle.org/checkstyle/symqle-checks.xml</configLocation>
+              <enableRulesSummary>false</enableRulesSummary>
+          </configuration>
       </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-project-info-reports-plugin</artifactId>
+            <version>2.7</version>
+            <reportSets>
+              <reportSet>
+                <reports>
+                  <report>dependencies</report>
+                </reports>
+              </reportSet>
+            </reportSets>
+        </plugin>
     </plugins>
   </reporting>
+
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
@@ -89,10 +167,10 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
+    <!--dependency>
       <groupId>org.freemarker</groupId>
       <artifactId>freemarker</artifactId>
       <version>2.3.14</version>
-    </dependency>
+    </dependency-->
   </dependencies>
 </project>

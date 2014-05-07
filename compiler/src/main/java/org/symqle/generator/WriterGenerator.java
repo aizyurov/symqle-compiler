@@ -14,14 +14,18 @@ import java.util.Collection;
  * @author lvovich
  */
 public abstract class WriterGenerator implements Generator {
-    protected final String packageName;
+    private final String packageName;
 
+    /**
+     * Constructs with given package name.
+     * @param packageName full package name, like org.symqle.core
+     */
     public WriterGenerator(final String packageName) {
         this.packageName = packageName;
     }
 
     @Override
-    public void generate(final Model model, final File destDir) throws IOException {
+    public final void generate(final Model model, final File destDir) throws IOException {
         final String[] packages = packageName.split("\\.");
         File target = destDir;
         for (String subdir: packages) {
@@ -29,12 +33,14 @@ public abstract class WriterGenerator implements Generator {
         }
         final File targetDir = target;
         targetDir.mkdirs();
-        for (AbstractTypeDefinition def: processedTypes(model)) {
+        for (AbstractTypeDefinition def : processedTypes(model)) {
             final String fileName = def.getName() + ".java";
-            PrintWriter out = new PrintWriter(new OutputStreamWriter(new FileOutputStream(new File(targetDir, fileName))));
+            PrintWriter out = new PrintWriter(
+                    new OutputStreamWriter(
+                            new FileOutputStream(new File(targetDir, fileName))));
             try {
                 out.println("/* THIS IS GENERATED CODE. ALL CHANGES WILL BE LOST");
-                out.println("   See " + def.getSourceRef() +" */");
+                out.println("   See " + def.getSourceRef() + " */");
                 out.println();
                 out.write("package ");
                 out.write(packageName);
@@ -47,5 +53,10 @@ public abstract class WriterGenerator implements Generator {
         }
     }
 
+    /**
+     * Extract from Model all type definitions, which should be converted to Java code by this generator.
+     * @param model the model containing definitions
+     * @return required definitions.
+     */
     protected abstract Collection<? extends AbstractTypeDefinition> processedTypes(Model model);
 }

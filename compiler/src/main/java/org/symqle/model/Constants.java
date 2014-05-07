@@ -11,7 +11,7 @@ import java.util.Set;
  * Time: 20:18
  * To change this template use File | Settings | File Templates.
  */
-public class Constants {
+public final class Constants {
 
     private Constants() {
     }
@@ -21,7 +21,7 @@ public class Constants {
         new Constants();
     }
 
-    private static final String[] constants= {
+    private static final String[] constants = {
         "NE",
         "GE",
         "LE",
@@ -377,9 +377,14 @@ public class Constants {
         "WITHOUT"
     };
 
-    private final static Set<String> constantsSet = new HashSet<String>(Arrays.asList(constants));
+    private static final Set<String> constantsSet = new HashSet<String>(Arrays.asList(constants));
 
-    public static boolean isConstant(String s) {
+    /**
+     * Determines whether {@code s} is a known constant.
+     * @param s the value to check
+     * @return true if known constant.
+     */
+    public static boolean isConstant(final String s) {
         return constantsSet.contains(s);
     }
 }
