@@ -17,14 +17,14 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Copyright (c) Alexander Izyurov, 2011-2012
+/* Copyright (c) Alexander Izyurov, 2011-2014
  * This is JAVACC grammar of Symqle definition language.
  * Symqle grammar includes a subset of Java language grammar,
  * based on Java language specification, 3rd edition
  * http://docs.oracle.com/javase/specs/jls/se5.0/html/j3TOC.html
  * Lexical part is borrowed from Javacc grammar of Java 1.5 by
  * Sreenivasa Viswanadha, see copyright notice above.
- * Productions are derived fron JLS, with appropriate changes
+ * Productions are derived from JLS, with appropriate changes
  * to have LL grammar, comment to each production refers to
  * a section of JLS, which it is based upon
  */
@@ -45,11 +45,15 @@ package org.symqle.parser;
 import java.io.*;
 
 /**
- * Grammar to parse Java version 1.5
- * @author Sreenivasa Viswanadha - Simplified and enhanced for 1.5
+ * Grammar to parse Symqle definition language.
  */
 public class SymqleParser
 {
+
+public static SymqleParser createParser(String source) {
+    Reader reader = new StringReader(source);
+    return new SymqleParser(reader);
+}
 
 public static class MyToken extends Token
 {

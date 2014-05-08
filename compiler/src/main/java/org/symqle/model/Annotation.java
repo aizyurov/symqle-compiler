@@ -5,7 +5,6 @@ package org.symqle.model;
 
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
-import org.symqle.util.Assert;
 
 /**
  * Annotation. Only simple annotations (without parameters) are supported.
@@ -20,8 +19,7 @@ public class Annotation {
      * @throws GrammarException wrong tree
      */
     public Annotation(final SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: " + node.getType(), node),
-                "Annotation", node.getType());
+        AssertNodeType.assertOneOf(node, "Annotation");
         name = node.find("Identifier").get(0).getValue();
     }
 

@@ -5,7 +5,6 @@ package org.symqle.model;
 
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
-import org.symqle.util.Assert;
 import org.symqle.util.Utils;
 
 import java.util.*;
@@ -33,8 +32,8 @@ public class FormalParameter {
      * @throws GrammarException wrong tree
      */
     public FormalParameter(final SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: " + node.getType(), node),
-                node.getType(), "FormalParameter", "FormalParameterWithEllipsis");
+        AssertNodeType.assertOneOf(node,
+                "FormalParameter", "FormalParameterWithEllipsis");
         rawType = node.find("Type", Type.CONSTRUCT).get(0);
         if (node.getType().equals("FormalParameter")) {
             ellipsis = false;
@@ -128,7 +127,7 @@ public class FormalParameter {
      * @return erasure.
      */
     public final String erasure(final Set<String> typeParameterNames) {
-        return getType().erasure(typeParameterNames); 
+        return getType().erasure(typeParameterNames);
     }
 
     /**

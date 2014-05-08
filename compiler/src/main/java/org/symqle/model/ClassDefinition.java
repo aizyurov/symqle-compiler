@@ -5,9 +5,9 @@ package org.symqle.model;
 
 import org.symqle.parser.ParseException;
 import org.symqle.parser.SimpleNode;
+import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
-import org.symqle.util.Assert;
 import org.symqle.util.Log;
 import org.symqle.util.Utils;
 
@@ -43,7 +43,7 @@ public class ClassDefinition extends AbstractTypeDefinition {
      */
     public static ClassDefinition parse(final String source) {
         try {
-            final SimpleNode simpleNode = Utils.createParser(source).NormalClassDeclaration();
+            final SimpleNode simpleNode = SymqleParser.createParser(source).NormalClassDeclaration();
             SyntaxTree syntaxTree = new SyntaxTree(simpleNode, source);
             return new ClassDefinition(syntaxTree);
         } catch (ParseException e) {
@@ -104,8 +104,7 @@ public class ClassDefinition extends AbstractTypeDefinition {
      */
     public ClassDefinition(final SyntaxTree node) throws GrammarException {
         super(node);
-        Assert.assertOneOf(new GrammarException("Unexpected type: " + node.getType(), node),
-                node.getType(), "NormalClassDeclaration");
+        AssertNodeType.assertOneOf(node, "NormalClassDeclaration");
         final List<SyntaxTree> extendedTypes = node.find("Super.ClassOrInterfaceType");
         if (extendedTypes.isEmpty()) {
             this.extendedClass = null;

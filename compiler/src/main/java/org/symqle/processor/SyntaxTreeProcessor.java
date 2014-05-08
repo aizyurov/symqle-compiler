@@ -7,15 +7,11 @@ import org.symqle.util.Log;
 import java.util.List;
 
 /**
- * Created by IntelliJ IDEA.
- * User: aizyurov
- * Date: 07.12.2013
- * Time: 13:09:08
- * To change this template use File | Settings | File Templates.
+ * Processor, which reads all syntax trees and puts results to model.
  */
 public abstract class SyntaxTreeProcessor extends ChainedProcessor {
     @Override
-    public final void process(List<SyntaxTree> trees, Model model) throws GrammarException {
+    public final void process(final List<SyntaxTree> trees, final Model model) throws GrammarException {
         predecessor().process(trees, model);
         Log.info("STARTING " + getClass().getSimpleName());
         for (SyntaxTree tree : trees) {
@@ -24,5 +20,11 @@ public abstract class SyntaxTreeProcessor extends ChainedProcessor {
         Log.info("FINISHED " + getClass().getSimpleName());
     }
 
+    /**
+     * Read one syntax tree and do whatever needed.
+     * @param tree source syntax tree
+     * @param model where to put results
+     * @throws GrammarException something is wrong
+     */
     protected abstract void process(SyntaxTree tree, Model model) throws GrammarException;
 }

@@ -2,7 +2,6 @@ package org.symqle.model;
 
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
-import org.symqle.util.Assert;
 import org.symqle.util.Utils;
 
 import java.util.ArrayList;
@@ -10,11 +9,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by IntelliJ IDEA.
- * User: lvovich
- * Date: 26.06.12
- * Time: 17:05
- * To change this template use File | Settings | File Templates.
+ * All detail of syntax production rule.
+ * Each rule has associated method of Dialect interface.
  */
 public class ProductionRule {
     private final List<FormalParameter> formalParameters = new ArrayList<FormalParameter>();
@@ -25,8 +21,13 @@ public class ProductionRule {
     private final String targetTypeName;
     private final String shortRule;
 
-    public ProductionRule(SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "ProductionRule");
+    /**
+     * Construct from AST.
+     * @param node syntax tree
+     * @throws GrammarException wrong tree
+     */
+    public ProductionRule(final SyntaxTree node) throws GrammarException {
+        AssertNodeType.assertOneOf(node, "ProductionRule");
         final StringBuilder nameBuilder = new StringBuilder();
         final StringBuilder syntaxBuilder = new StringBuilder();
         final StringBuilder shortFormBuilder = new StringBuilder();
@@ -41,64 +42,93 @@ public class ProductionRule {
         for (SyntaxTree element: node.find("ProductionElement")) {
             final List<Type> typeList = element.find("ClassOrInterfaceType", Type.CONSTRUCT);
             final Type type = typeList.isEmpty() ? null : typeList.get(0);
-            final String name = element.find("Identifier").get(0).getValue();
-            final String descriptiveName = type != null ? type.getSimpleName() : name;
-            final String syntaxElement = type != null ? name + ":" + descriptiveName : descriptiveName;
+            final String identifier = element.find("Identifier").get(0).getValue();
+            final String descriptiveName = type != null ? type.getSimpleName() : identifier;
+            final String syntaxElement = type != null ? identifier + ":" + descriptiveName : descriptiveName;
             nameBuilder.append("_").append(descriptiveName);
             shortFormBuilder.append(" ").append(descriptiveName);
             syntaxBuilder.append(" ").append(syntaxElement);
             if (type != null) {
                 formalParameters.add(
-                        new FormalParameter(sqlType, name, Collections.singletonList("final"), false));
+                        new FormalParameter(sqlType, identifier, Collections.singletonList("final"), false));
             }
-            elementNames.add(name);
+            elementNames.add(identifier);
         }
         name = nameBuilder.toString();
         syntax = syntaxBuilder.toString();
         shortRule = shortFormBuilder.toString();
     }
 
-    public String generatedComment() {
+    /**
+     * Javadoc for Dialect method for this rule.
+     * @return formatted javadoc text
+     */
+    public final String generatedComment() {
         return
-            "    /**" + Utils.LINE_BREAK +
-            "    * {@code " + toString() +"}." + Utils.LINE_BREAK +
-            Utils.format(formalParameters, "", Utils.LINE_BREAK, Utils.LINE_BREAK,
+            "    /**" + Utils.LINE_BREAK
+        +   "    * {@code " + toString() + "}." + Utils.LINE_BREAK
+        + Utils.format(formalParameters, "", Utils.LINE_BREAK, Utils.LINE_BREAK,
                 new F<FormalParameter, String, RuntimeException>() {
                     @Override
                     public String apply(final FormalParameter ruleElement) {
-                        return "    * @param "+ruleElement.getName() +" see rule above";
+                        return "    * @param " + ruleElement.getName() + " see rule above";
                     }
-                }) +
-                    "    * @return Sql constructed according to the rule" + Utils.LINE_BREAK +
-                    "    */"  + Utils.LINE_BREAK;
+                })
+        +   "    * @return Sql constructed according to the rule" + Utils.LINE_BREAK
+        +   "    */"  + Utils.LINE_BREAK;
     }
 
-    public String getName() {
+    /**
+     * Name of this rule, also name of associated Dialect method.
+     * @return name
+     */
+    public final String getName() {
         return name;
     }
 
-    public String toString() {
+    @Override
+    public final String toString() {
         return syntax;
     }
 
-    public String asAbstractMethodDeclaration() {
-        return generatedComment()+"SqlBuilder " + name
-                + "(" + Utils.format(formalParameters, "", ", ", "") +")";
+    /**
+     * Method declaration for Dialect interface.
+     * @return formatted declaration
+     */
+    public final String asAbstractMethodDeclaration() {
+        return generatedComment() + "SqlBuilder " + name
+                + "(" + Utils.format(formalParameters, "", ", ", "") + ")";
     }
 
-    public String asMethodArguments() {
+    /**
+     * Comma-separated list of element names (for use in Dialect and GenericDialect).
+     * @return argument list
+     */
+    public final String asMethodArguments() {
         return Utils.format(elementNames, "", ", ", "");
     }
 
-    public List<FormalParameter> getFormalParameters() {
+    /**
+     * Formal parameters of associated method.
+     * @return formal parameters
+     */
+    public final List<FormalParameter> getFormalParameters() {
         return new ArrayList<FormalParameter>(formalParameters);
     }
 
-    public String getTargetTypeName() {
+    /**
+     * Rule target.
+     * @return target
+     */
+    public final String getTarget() {
         return targetTypeName;
     }
 
-    public String getShortRule() {
+    /**
+     * Rule right part with java semantic information skipped.
+     * @return stripped right part
+     */
+    public final String getShortRule() {
         return shortRule;
     }
 }

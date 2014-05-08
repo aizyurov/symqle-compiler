@@ -8,7 +8,6 @@ import org.symqle.processor.GrammarException;
 import org.symqle.processor.ProductionProcessor;
 import org.symqle.test.TestUtils;
 import org.symqle.util.ModelUtils;
-import org.symqle.util.Utils;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -32,7 +31,7 @@ public class ProductionsTest extends TestCase {
         System.out.println("==========");
 
         // make sure that classes are compilable
-        Utils.createParser(symqle.toString()).SymqleDeclarationBlock();
+        SymqleParser.createParser(symqle.toString()).SymqleDeclarationBlock();
 
         //
         assertEquals(1, model.getConversions().size());
@@ -49,7 +48,7 @@ public class ProductionsTest extends TestCase {
         final ClassDefinition symqle = model.getClassDef("Symqle");
         System.out.println(symqle);
 
-        Utils.createParser(symqle.toString()).SymqleDeclarationBlock();
+        SymqleParser.createParser(symqle.toString()).SymqleDeclarationBlock();
 
         //
         assertEquals(1, model.getConversions().size());

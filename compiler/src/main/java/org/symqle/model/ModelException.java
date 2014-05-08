@@ -4,7 +4,7 @@
 package org.symqle.model;
 
 /**
- * <br/>13.11.2011
+ * Indicates invalid state or Model or attempt to make model invalid.
  *
  * @author Alexander Izyurov
  */
@@ -17,7 +17,7 @@ public class ModelException extends Exception {
      * @param message the detail message. The detail message is saved for
      *                later retrieval by the {@link #getMessage()} method.
      */
-    public ModelException(String message) {
+    public ModelException(final String message) {
         super(message);
     }
 }

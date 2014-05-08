@@ -1,12 +1,12 @@
 package org.symqle.processor;
 
 /**
- * Created by IntelliJ IDEA.
- * User: aizyurov
- * Date: 07.12.2013
- * Time: 13:22:50
- * To change this template use File | Settings | File Templates.
+ * Processor, which knows its predecessor.
  */
 public abstract class ChainedProcessor implements Processor {
+    /**
+     * Processor, which should be called before {@code this}.
+     * @return predecessor
+     */
     protected abstract Processor predecessor();
 }

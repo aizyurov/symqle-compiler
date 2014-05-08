@@ -5,11 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by IntelliJ IDEA.
- * User: lvovich
- * Date: 27.06.12
- * Time: 20:18
- * To change this template use File | Settings | File Templates.
+ * Terminal symbols of SQL.
  */
 public final class Constants {
 

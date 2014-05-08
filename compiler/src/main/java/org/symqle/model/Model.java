@@ -9,47 +9,65 @@ import org.symqle.util.Utils;
 import java.util.*;
 
 /**
- * <br/>13.11.2011
- *
+ * Collection of class and interface definitions.
  * @author Alexander Izyurov
  */
-public class Model {
+public final class Model {
 
-    private final Map<String, AbstractTypeDefinition> classMap = new LinkedHashMap<String, AbstractTypeDefinition>();
-    private final Map<String, FactoryMethodModel> factoryMethods = new HashMap<String, FactoryMethodModel>();
+    private final Map<String, AbstractTypeDefinition> classMap = new LinkedHashMap<>();
+    private final Map<String, FactoryMethodModel> factoryMethods = new HashMap<>();
 
-    private final Set<String> caseInsensitiveClassNames = new HashSet<String>();
+    private final Set<String> caseInsensitiveClassNames = new HashSet<>();
 
-    private final List<ImplicitConversion> conversions = new ArrayList<ImplicitConversion>();
-    private final Map<MethodDefinition, Set<String>> explicitSymqleMethods = new LinkedHashMap<MethodDefinition, Set<String>>();
-    private final Map<MethodDefinition, AnonymousClass> anonymousClassByMethod = new HashMap<MethodDefinition, AnonymousClass>();
-    private final Map<String, List<String>> rulesByTargetTypeName = new HashMap<String, List<String>>();
+    private final List<ImplicitConversion> conversions = new ArrayList<>();
+    private final Map<MethodDefinition, Set<String>> explicitSymqleMethods = new LinkedHashMap<>();
+    private final Map<MethodDefinition, AnonymousClass> anonymousClassByMethod = new HashMap<>();
+    private final Map<String, List<String>> rulesByTargetTypeName = new HashMap<>();
 
     // key is "reduced signature" -name and afgumetns but the first one
-    private final Map<String, Boolean> symqleMethodUniqueness = new HashMap<String, Boolean>();
+    private final Map<String, Boolean> symqleMethodUniqueness = new HashMap<>();
 
-    private final List<InterfaceDefinition> testInterfaces = new ArrayList<InterfaceDefinition>();
+    private final List<InterfaceDefinition> testInterfaces = new ArrayList<>();
 
     /**
-     *
+     * Add an implicit conversion to model..
+     * @param conversion what to add
      */
-    public void addConversion(ImplicitConversion conversion) {
+    public void addConversion(final ImplicitConversion conversion) {
         conversions.add(conversion);
     }
 
-    public boolean isUnambiguous(MethodDefinition method) {
+    /**
+     * Determine whether a Symqle method may be used as default implementation of an interface method
+     * (in Java 8 sense).
+     * The signature of would-be interface method should be unique within Symqle for a method to
+     * be considered unambiguous.
+     * @param method the method to investigate
+     * @return true if unabimguous
+     */
+    public boolean isUnambiguous(final MethodDefinition method) {
         return symqleMethodUniqueness.get(reducedSignature(method));
     }
 
-    public boolean mayHaveSymqleImplementation(MethodDefinition method) {
+    /**
+     * Determine whether a class/interface method may be implemented by delegation to a Symqle method.
+     * @param method the method to investigate
+     * @return true if Symqle has a method with appropriate signature
+     */
+    public boolean mayHaveSymqleImplementation(final MethodDefinition method) {
         return symqleMethodUniqueness.containsKey(method.signature());
     }
 
     /**
-     *
-     * @param method
+     * Add a prototype of new Symqle factory method for abstract class or interface construction.
+     * The body of this method would be just "return new ${className}() {}".
+     * @param method the method to add; typically abstract at this point. Body will be generated later.
+     * @param anonymousClass returned anonymous class as described above
+     * @param requiredImports import lines for return type and arguments if in other packages
      */
-    public void addExplicitMethod(MethodDefinition method, AnonymousClass anonymousClass, Collection<String> requiredImports) {
+    public void addExplicitMethod(final MethodDefinition method,
+                                  final AnonymousClass anonymousClass,
+                                  final Collection<String> requiredImports) {
         explicitSymqleMethods.put(method, new HashSet<String>(requiredImports));
         final String key = reducedSignature(method);
         final Boolean isKnown = symqleMethodUniqueness.get(key);
@@ -57,48 +75,83 @@ public class Model {
         anonymousClassByMethod.put(method, anonymousClass);
     }
 
-    public String reducedSignature(MethodDefinition method) {
+    /**
+     * Signature of a method but the first argument.
+     * See {@link org.symqle.model.MethodDefinition#signature()} for signature format.
+     * @param method the method to calculate reduced signature
+     * @return reduced signature. For no-arg method returns method name.
+     */
+    public String reducedSignature(final MethodDefinition method) {
         final List<FormalParameter> formalParameters = method.getFormalParameters();
         if (formalParameters.size() == 0) {
             return method.getName();
         } else {
             HashSet<String> typeParameterNames = new HashSet<String>(method.getTypeParameters().names());
-            return method.getName() + "(" + Utils.format(formalParameters.subList(1, formalParameters.size()), "", ",", "", FormalParameter.f_erasure(typeParameterNames)) +")";
+            return method.getName() + "("
+                    + Utils.format(formalParameters.subList(1, formalParameters.size()),
+                        "", ",", "", FormalParameter.f_erasure(typeParameterNames))
+                    + ")";
         }
     }
 
-    public AnonymousClass getAnonymousClassByMethod(MethodDefinition method) {
+
+    /**
+     * Finds anonymous class to use in implementation of factory method by factory method.
+     * @param method factory method to seek
+     * @return corresponding anonymous class; null if not found
+     */
+    public AnonymousClass getAnonymousClassByMethod(final MethodDefinition method) {
         return anonymousClassByMethod.get(method);
     }
 
+    /**
+     * List all implicit conversions.
+     * @return immutable list of all known implicit conversions
+     */
     public List<ImplicitConversion> getConversions() {
         return Collections.unmodifiableList(conversions);
     }
 
+    /**
+     * List all Symqle methods, not associated with syntax rules.
+     * @return all explicitly declared methods.
+     */
     public List<MethodDefinition> getExplicitSymqleMethods() {
         return new ArrayList<MethodDefinition>(explicitSymqleMethods.keySet());
     }
 
-    public Set<String> getImportsForExplicitMethod(MethodDefinition def) {
-        return Collections.unmodifiableSet(explicitSymqleMethods.get(def));
-    }
-
-    public void addInterface(InterfaceDefinition def) throws ModelException {
+    /**
+     * Add an interface to model.
+     * @param def interface definition
+     * @throws ModelException duplicate class name
+     */
+    public void addInterface(final InterfaceDefinition def) throws ModelException {
         addClassOrInterface(def);
     }
 
-    private void addClassOrInterface(AbstractTypeDefinition def) throws ModelException {
+    /**
+     * Add class or interface to model.
+     * @param def class or interface definition
+     * @throws ModelException duplicate class name
+     */
+    private void addClassOrInterface(final AbstractTypeDefinition def) throws ModelException {
         final String name = def.getName();
         if (classMap.containsKey(name)) {
-            throw new ModelException("Duplicate class name: "+name);
+            throw new ModelException("Duplicate class name: " + name);
         } else if (caseInsensitiveClassNames.contains(name.toUpperCase())) {
-            throw new ModelException("Name duplicate under Windows: "+name);
+            throw new ModelException("Name duplicate under Windows: " + name);
         }
         caseInsensitiveClassNames.add(name.toUpperCase());
         classMap.put(name, def);
     }
 
-    public InterfaceDefinition getInterface(String name) throws ModelException {
+    /**
+     * Find interface by name.
+     * @param name interface simple name
+     * @return interface definition; null if not found
+     * @throws ModelException class with this name is not interface
+     */
+    public InterfaceDefinition getInterface(final String name) throws ModelException {
         try {
             return (InterfaceDefinition) getAbstractType(name);
         } catch (ClassCastException e) {
@@ -106,11 +159,20 @@ public class Model {
         }
     }
 
-    public AbstractTypeDefinition getAbstractType(String name) {
+    /**
+     * Find class or interface by name.
+     * @param name class/interface simple name
+     * @return class or interface definition; null if not found
+     */
+    public AbstractTypeDefinition getAbstractType(final String name) {
         final AbstractTypeDefinition def = classMap.get(name);
         return def;
     }
 
+    /**
+     * List all interfaces.
+     * @return list of interface definitions. The list is mutable, changes in returned list do not affect model.
+     */
     public List<InterfaceDefinition> getAllInterfaces() {
         List<InterfaceDefinition> result = new LinkedList<InterfaceDefinition>();
         for (AbstractTypeDefinition candidate: classMap.values()) {
@@ -121,15 +183,30 @@ public class Model {
         return result;
     }
 
+    /**
+     * All classes and interfaces.
+     * @return immutable collection of class and interface definitions.
+     */
     public Collection<AbstractTypeDefinition> getAllTypes() {
-        return classMap.values();
+        return Collections.unmodifiableCollection(classMap.values());
     }
 
-    public void addClass(ClassDefinition def) throws ModelException {
+    /**
+     * Add class definition to model.
+     * @param def class definition
+     * @throws ModelException duplicate class name
+     */
+    public void addClass(final ClassDefinition def) throws ModelException {
         addClassOrInterface(def);
     }
 
-    public ClassDefinition getClassDef(String name) throws ModelException {
+    /**
+     * Find class definition by name.
+     * @param name class simple name
+     * @return class definition; null if not found
+     * @throws ModelException the name belongs to an interface
+     */
+    public ClassDefinition getClassDef(final String name) throws ModelException {
         try {
             return (ClassDefinition) getAbstractType(name);
         } catch (ClassCastException e) {
@@ -137,6 +214,10 @@ public class Model {
         }
     }
 
+    /**
+     * List all classes. Anonymous classes are not included.
+     * @return list of interface definitions. The list is mutable, changes in returned list do not affect model.
+     */
     public List<ClassDefinition> getAllClasses() {
         List<ClassDefinition> result = new LinkedList<ClassDefinition>();
         for (AbstractTypeDefinition candidate: classMap.values()) {
@@ -147,19 +228,47 @@ public class Model {
         return result;
     }
 
-    public List<FactoryMethodModel> getAllFactoryMethods() {
-        return new ArrayList<FactoryMethodModel>(factoryMethods.values());
-    }
-
-    public InterfaceDefinition getInterface(Type t) throws ModelException {
+    /**
+     * Find interface by type.
+     * @param t type
+     * @return interface definition; null if not found
+     * @throws ModelException type belongs to a class rather then interface
+     */
+    public InterfaceDefinition getInterface(final Type t) throws ModelException {
         return getInterface(t.getSimpleName());
     }
 
-    public ClassDefinition getClassDef(Type t) throws ModelException {
+    /**
+     * Find class by type.
+     * @param t type
+     * @return class definition; null if not found
+     * @throws ModelException type belongs to an interface rather then class
+     */
+    public ClassDefinition getClassDef(final Type t) throws ModelException {
         return getClassDef(t.getSimpleName());
     }
 
-    public void addRule(String targetTypeName, String rule) {
+    /**
+     * Add syntax rule.
+     * Example:
+     * <pre>
+     * <code>SelectStatement ::= QueryExpression
+     *                       | QueryExpression FOR UPDATE
+     * </code>
+     * </pre>
+     * Call this method twice to save these rules:
+     * <pre>
+     * <code>
+     * add("SelectStatement", "QueryExpression");
+     * add("SelectStatement", "QueryExpression FOR UPDATE");
+     * </code>
+     * </pre>
+     * Rules are memorized in this format for later use mostly in javadoc. So, type parameters, variable names and
+     * other java semantic information should be stripped, just plain BNF.
+     * @param targetTypeName rule goal
+     * @param rule rule body
+     */
+    public void addRule(final String targetTypeName, final String rule) {
         List<String> rules = rulesByTargetTypeName.get(targetTypeName);
         if (rules == null) {
             rules = new ArrayList<String>();
@@ -168,11 +277,21 @@ public class Model {
         rules.add(rule);
     }
 
-    public List<String> getRules(String targetTypeName) {
+    /**
+     * Get syntax rules for given target.
+     * See @{link #addRule}.
+     * @param targetTypeName rule target
+     * @return all rules
+     */
+    public List<String> getRules(final String targetTypeName) {
         final List<String> rules = rulesByTargetTypeName.get(targetTypeName);
         return rules == null ? null : Collections.unmodifiableList(rules);
     }
 
+    /**
+     * List all model classes topologically sorted from ancestors to descendants.
+     * @return list of class definitions. The list is mutable, changes do not affect model.
+     */
     public List<ClassDefinition> getSortedClasses() {
         TSort<ClassDefinition> tSort = new TSort<ClassDefinition>();
         for (ClassDefinition classDef: getAllClasses()) {
@@ -191,10 +310,20 @@ public class Model {
         return tSort.sort();
     }
 
+    /**
+     * Add test interface (generated code will go to tests directory).
+     * The method does not check for duplicate interface names. If there are any,
+     * generated test code would not compile.
+     * @param classDef interface definition
+     */
     public void addTestInterface(final InterfaceDefinition classDef) {
         testInterfaces.add(classDef);
     }
 
+    /**
+     * List test interfaces.
+     * @return unmodifiable list of interface definitions.
+     */
     public List<InterfaceDefinition> getTestInterfaces() {
         return Collections.unmodifiableList(testInterfaces);
     }

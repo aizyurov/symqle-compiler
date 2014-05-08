@@ -6,14 +6,16 @@ Symqle Compiler Plugin
 
   The plugin is not available from Maven central yet. To use it, create a profile in your setting.xml with the following:
 
+-------------------------------------
     <pluginRepositories>
         <pluginRepository>
-            <id>syqle</id>
+            <id>symqle</id>
             <url>http://artifactory.symqle.org</url>
             <releases>
               <updatePolicy>never</updatePolicy>
             </releases>
         </pluginRepository>
     </pluginRepositories>
+------------------------------------
 
   Activate this profile when building Symqle.

@@ -4,9 +4,9 @@
 package org.symqle.model;
 
 import org.symqle.parser.ParseException;
+import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
-import org.symqle.util.Assert;
 import org.symqle.util.Utils;
 
 import java.io.File;
@@ -40,7 +40,7 @@ public abstract class AbstractTypeDefinition {
      * @throws GrammarException wrong tree type or semantic error (duplicated methods etc.)
      */
     protected AbstractTypeDefinition(final SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: " + node.getType(), node), node.getType(),
+        AssertNodeType.assertOneOf(node,
                 "SymqleInterfaceDeclaration", "NormalClassDeclaration", "ProductionImplementation");
 
         this.importLines = new TreeSet<String>(node.find("^.^.ImportDeclaration", SyntaxTree.BODY));
@@ -74,7 +74,7 @@ public abstract class AbstractTypeDefinition {
         bodies.addAll(node.find("ClassBody"));
         if (node.getType().equals("ProductionImplementation") && bodies.isEmpty()) {
             try {
-                bodies.add(new SyntaxTree(Utils.createParser("{}").ClassBody(), node.getFileName()));
+                bodies.add(new SyntaxTree(SymqleParser.createParser("{}").ClassBody(), node.getFileName()));
             } catch (ParseException e) {
                 throw new RuntimeException(e);
             }

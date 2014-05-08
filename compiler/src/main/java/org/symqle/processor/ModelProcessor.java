@@ -8,16 +8,13 @@ import org.symqle.util.Log;
 import java.util.List;
 
 /**
- * Created by IntelliJ IDEA.
- * User: aizyurov
- * Date: 02.12.2012
- * Time: 19:52:00
- * To change this template use File | Settings | File Templates.
+ * Processor, which scans and updates model.
+ * It ignores syntax trees provided to its {@link #process(java.util.List, org.symqle.model.Model)}
  */
 public abstract class ModelProcessor extends ChainedProcessor {
 
     @Override
-    public void process(List<SyntaxTree> trees, Model model) throws GrammarException {
+    public final void process(final List<SyntaxTree> trees, final Model model) throws GrammarException {
         try {
             predecessor().process(trees, model);
             Log.info("STARTING " + getClass().getSimpleName());
@@ -28,5 +25,10 @@ public abstract class ModelProcessor extends ChainedProcessor {
         }
     }
 
+    /**
+     * Scan and update model.
+     * @param model the model
+     * @throws ModelException if something goes wrong
+     */
     protected abstract void process(Model model) throws ModelException;
 }

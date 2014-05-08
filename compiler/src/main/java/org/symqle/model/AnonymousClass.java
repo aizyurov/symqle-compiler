@@ -10,13 +10,15 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Anonymous class is created for each ProductionImplementation and each
- * standalone MethodDeclaration
- * the methods (which belong to Symqle class) are always standard:
- * return new ReturnType() {...} - this is the anonymous class.
+ * Anonymous class. It is created for each ProductionImplementation and each
+ * standalone MethodDeclaration.
+ * The created method associated with production or MethodDeclaration is a
+ * static method of Symqle class and its body is standard::
+ * return new ReturnType() {...}; - an instance of anonymous class is returned.
  * The anonymous class always extends its ReturnType (class or interface).
- * Name is composed from methodName; actually it does not matter because
- * anonymous classes are never registered with the Model
+ * Class name is composed from methodName; actually it does not matter because
+ * anonymous classes are never registered with the Model as classes, they are kept separately.
+ * Java compiler will later assign different names to the classes.
  * @author lvovich
  */
 public class AnonymousClass extends AbstractTypeDefinition {
