@@ -6,7 +6,7 @@ package org.symqle.model;
 import org.symqle.parser.ParseException;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
-import org.symqle.util.Assert;
+import org.symqle.util.AssertNodeType;
 import org.symqle.util.Utils;
 
 import java.io.File;
@@ -40,7 +40,7 @@ public abstract class AbstractTypeDefinition {
      * @throws GrammarException wrong tree type or semantic error (duplicated methods etc.)
      */
     protected AbstractTypeDefinition(final SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: " + node.getType(), node), node.getType(),
+        AssertNodeType.assertOneOf(node,
                 "SymqleInterfaceDeclaration", "NormalClassDeclaration", "ProductionImplementation");
 
         this.importLines = new TreeSet<String>(node.find("^.^.ImportDeclaration", SyntaxTree.BODY));

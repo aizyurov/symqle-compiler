@@ -9,21 +9,18 @@ import org.symqle.parser.SyntaxTree;
 import java.util.List;
 
 /**
- * Created by IntelliJ IDEA.
- * User: aizyurov
- * Date: 02.12.2012
- * Time: 10:59:32
+ * Read "standalone" (not production rule related) methods from syntax trees and put to model.
  * To change this template use File | Settings | File Templates.
  */
 public class SymqleMethodProcessor extends SyntaxTreeProcessor {
 
     @Override
-    protected Processor predecessor() {
+    protected final Processor predecessor() {
         return new ProductionProcessor();
     }
 
     @Override
-    protected void process(SyntaxTree tree, Model model) throws GrammarException {
+    protected final void process(final SyntaxTree tree, final Model model) throws GrammarException {
 
         final ClassDefinition symqle;
         try {

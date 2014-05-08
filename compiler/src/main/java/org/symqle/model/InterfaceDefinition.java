@@ -5,7 +5,7 @@ package org.symqle.model;
 
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
-import org.symqle.util.Assert;
+import org.symqle.util.AssertNodeType;
 import org.symqle.util.Utils;
 
 import java.util.HashMap;
@@ -31,8 +31,7 @@ public class InterfaceDefinition extends AbstractTypeDefinition {
      */
     public InterfaceDefinition(final SyntaxTree node) throws GrammarException {
         super(node);
-        Assert.assertOneOf(new GrammarException("Unexpected type: " + node.getType(), node),
-                node.getType(), "SymqleInterfaceDeclaration");
+        AssertNodeType.assertOneOf(node, "SymqleInterfaceDeclaration");
 
         this.extended = node.find("ExtendsInterfaces.ClassOrInterfaceType", Type.CONSTRUCT);
         // everything is constructed; apply archetype (by syntax the loop is

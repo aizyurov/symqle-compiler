@@ -8,37 +8,33 @@ import org.symqle.model.Model;
 import org.symqle.model.ModelException;
 import org.symqle.parser.SyntaxTree;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- * <br/>13.11.2011
- *
+ * Load interface declarations to the model.
  * @author Alexander Izyurov
  */
 public class InterfaceDeclarationsProcessor extends SyntaxTreeProcessor {
 
     @Override
-    protected Processor predecessor() {
+    protected final Processor predecessor() {
         // nothing required
         return new Processor() {
             @Override
-            public void process(List<SyntaxTree> trees, Model model) throws GrammarException {
+            public void process(final List<SyntaxTree> trees, final Model model) throws GrammarException {
                 // do nothing
             }
         };
     }
 
-    protected void process(SyntaxTree tree, Model model) throws GrammarException {
+    @Override
+    protected final void process(final SyntaxTree tree, final Model model) throws GrammarException {
 
-        final Map<String, SyntaxTree> nodeByInterfaceName = new HashMap<String, SyntaxTree>();
         for (SyntaxTree node : tree.find(
                         "SymqleDeclarationBlock.SymqleDeclaration.SymqleInterfaceDeclaration")) {
             try {
                 InterfaceDefinition definition = new InterfaceDefinition(node);
                 model.addInterface(definition);
-                nodeByInterfaceName.put(definition.getName(), node);
             } catch (ModelException e) {
                 throw new GrammarException(e, node);
             }

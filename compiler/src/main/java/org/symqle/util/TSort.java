@@ -3,22 +3,24 @@ package org.symqle.util;
 import java.util.*;
 
 /**
- * Created by IntelliJ IDEA.
- * User: lvovich
- * Date: 27.10.11
- * Time: 18:55
- * To change this template use File | Settings | File Templates.
+ * Topological sort.
+ * @param <T> type of sorted objects
  */
 public class TSort<T> {
 
     private final Map<T, Set<T>> inputData = new HashMap<T, Set<T>>();
 
 
-    public TSort() {
-
-    }
-
-    public void add(T dependent, T... dependencies) {
+    /**
+     * Add dependent object and its dependencies.
+     * Same dependent object may be added multiple times.
+     * Duplicate dependencies are allowed.
+     * If dependencies list is empty, the object will be independent of others.
+     * @param dependent dependent object to add/update
+     * @param dependencies its dependencies
+     */
+    @SafeVarargs
+    public final void add(final T dependent, final T... dependencies) {
         if (!inputData.containsKey(dependent)) {
             inputData.put(dependent, new HashSet<T>());
         }
@@ -31,8 +33,6 @@ public class TSort<T> {
         }
 
     }
-
-
 
     private Collection<SortedItem> createSortedItems() {
         // parallel arrays
@@ -51,16 +51,13 @@ public class TSort<T> {
         return sortedItemsByInputData.values();
     }
 
-//        sortedItems.get(left).addRight(right);
-//        sortedItems.get(right).addLeft(left);
-
     /**
-     * Sorts and returns the sorted list
-     * this method can be called only once for each instance
+     * Sorts and returns the sorted list.
+     * Method does not modify {@code this}.
      * @return the items topologically sorted
      * @throws IllegalStateException there are cyclic dependencies, cannot sort
      */
-    public List<T> sort() throws IllegalStateException {
+    public final List<T> sort() throws IllegalStateException {
         final List<SortedItem> unsorted;
         final List<SortedItem> sorted;
         // invariants:
@@ -104,7 +101,7 @@ public class TSort<T> {
                     cycle.append(sortedItem.getItem());
                     cycle.append(" ");
                 }
-                throw new IllegalStateException("Cyclic dependency: "+cycle.toString());
+                throw new IllegalStateException("Cyclic dependency: " + cycle.toString());
             }
         }
         // done: unsorted.size()=0 && invariant(2) && invariant (0) => sorted is the desired result
@@ -120,7 +117,7 @@ public class TSort<T> {
         private Set<SortedItem> rightNeighbors = new HashSet<SortedItem>();
         private final T item;
 
-        private SortedItem(T item) {
+        public SortedItem(final T item) {
             this.item = item;
         }
 

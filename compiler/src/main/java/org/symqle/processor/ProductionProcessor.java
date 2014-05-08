@@ -13,20 +13,19 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * <br/>20.11.2011
- *
+ * Process all syntax productions in the tree. Create ProductionRules, ProductionImplementations and put to the model.
  * @author Alexander Izyurov
  */
 public class ProductionProcessor extends SyntaxTreeProcessor {
 
 
     @Override
-    protected Processor predecessor() {
+    protected final Processor predecessor() {
         return new ClassCompletionProcessor();
     }
 
     @Override
-    protected void process(final SyntaxTree tree, final Model model) throws GrammarException {
+    protected final void process(final SyntaxTree tree, final Model model) throws GrammarException {
 
         final ClassDefinition symqle;
         final InterfaceDefinition dialect;
@@ -39,17 +38,20 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
             throw new IllegalStateException("Internal error", e);
         }
 
-        for (SyntaxTree productionChoice: tree.find("SymqleDeclarationBlock.SymqleDeclaration.ProductionDeclaration.ProductionChoice")) {
-            // must be exactrly one ProductionRule
+        final List<SyntaxTree> productionChoices =
+                tree.find("SymqleDeclarationBlock.SymqleDeclaration.ProductionDeclaration.ProductionChoice");
+
+        for (SyntaxTree productionChoice: productionChoices) {
+            // must be exactly one ProductionRule
             final SyntaxTree productionRuleNode = productionChoice.find("ProductionRule").get(0);
             ProductionRule productionRule = new ProductionRule(productionRuleNode);
             MethodDefinition dialectMethod = createDialectMethod(productionRule, dialect);
             try {
                 dialect.addMethod(dialectMethod);
                 final MethodDefinition genericDialectMethod = dialectMethod.override(genericDialect, model);
-                genericDialectMethod.implement("public", " {" + Utils.LINE_BREAK +
-                        "        return concat(" + productionRule.asMethodArguments() + ");" + Utils.LINE_BREAK +
-                        "    }", true, false
+                genericDialectMethod.implement("public", " {" + Utils.LINE_BREAK
+                        + "        return concat(" + productionRule.asMethodArguments() + ");" + Utils.LINE_BREAK
+                        + "    }", true, false
                 );
             } catch (ModelException e) {
                 throw new GrammarException(e, productionRuleNode);
@@ -57,9 +59,11 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
             model.addRule(productionRule.getTargetTypeName(), productionRule.getShortRule());
 
             for (SyntaxTree productionImplNode: productionChoice.find("ProductionImplementation")) {
-                final List<String> declarationImports = productionImplNode.find("^.^.^.^.ImportDeclaration", SyntaxTree.BODY);
+                final List<String> declarationImports =
+                        productionImplNode.find("^.^.^.^.ImportDeclaration", SyntaxTree.BODY);
                 symqle.addImportLines(declarationImports);
-                final List<String> implementationImports = productionImplNode.find("ImportDeclaration", SyntaxTree.BODY);
+                final List<String> implementationImports =
+                        productionImplNode.find("ImportDeclaration", SyntaxTree.BODY);
                     // implementation only
                 symqle.addImportLines(implementationImports);
                 final ProductionImplementation productionImpl = new ProductionImplementation(productionImplNode);
@@ -73,25 +77,34 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
                 // create implementing method in Symqle via anonymous class
                 try {
 
-                    final Type implementationType = productionImpl.isImplicit() ?
-                            ImplicitConversion.getImplementationType(productionImpl.getReturnType(), model) :
-                            productionImpl.getImplementationType();
+                    final Type implementationType = productionImpl.isImplicit()
+                            ? ImplicitConversion.getImplementationType(productionImpl.getReturnType(), model)
+                            : productionImpl.getImplementationType();
 
-                    final Type formalReturnType = productionImpl.isImplicit() ? implementationType : productionImpl.getReturnType();
+                    final Type formalReturnType = productionImpl.isImplicit()
+                            ? implementationType
+                            : productionImpl.getReturnType();
                     final String staticMethodDeclaration =
-                            productionImpl.getComment() +
-                                    productionImpl.getAccessModifier() + " " + "static " + productionImpl.getTypeParameters() + " " + formalReturnType + " " + productionImpl.getName()
-                                            + "(" + Utils.format(productionImpl.getFormalParameters(), "", ", ", "", new F<FormalParameter, String, RuntimeException>() {
-                                        @Override
-                                        public String apply(final FormalParameter formalParameter) {
-                                            return "final " + formalParameter.toString();
-                                        }
-                                    }) + ")";
+                            productionImpl.getComment()
+                                    + productionImpl.getAccessModifier()
+                                    + " " + "static "
+                                    + productionImpl.getTypeParameters()
+                                    + " " + formalReturnType + " "
+                                    + productionImpl.getName()
+                                    + "(" + Utils.format(productionImpl.getFormalParameters(), "", ", ", "",
+                                        new F<FormalParameter, String, RuntimeException>() {
+                                            @Override
+                                            public String apply(final FormalParameter formalParameter) {
+                                                return "final " + formalParameter.toString();
+                                            }
+                                        })
+                                    + ")";
 
                     final AnonymousClass anonymousClass = new AnonymousClass(productionImplNode, implementationType);
                         // create implementing method for SymqleGeneric class (uses the anonymous class and the rule)
                         // first implement all non-implemented methods in the class
-                        final Collection<MethodDefinition> anonymousClassAllMethods = anonymousClass.getAllMethods(model);
+                        final Collection<MethodDefinition> anonymousClassAllMethods =
+                                anonymousClass.getAllMethods(model);
                         for (MethodDefinition method: anonymousClassAllMethods) {
                             // implement non-implemented methods
                             final Set<String> modifiers = method.getOtherModifiers();
@@ -99,30 +112,39 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
                                 // must implement
                                 final String delegationCall;
                                 if (Archetype.isArchetypeMethod(method)) {
-                                    delegationCall = delegateArchetypeMethod(model, productionImpl, method, productionRule);
-                                } else if (method.getName().startsWith("get")
-                                        && method.getName().length() > 3
-                                        && method.getFormalParameters().size()==0) {
-                                    // "property getter"
-                                    final String methodName = method.getName();
-                                    String propertyName = methodName.substring(3,4).toLowerCase() +
-                                            methodName.substring(4, methodName.length());
-                                    String fieldDeclarationSource = "        private final " +
-                                            method.getResultType() + " " + propertyName + " = " +
-                                            callLeftmostArg(model, productionImpl, method);
-                                    delegationCall = propertyGetter(propertyName);
-                                    anonymousClass.addFieldDeclaration(FieldDeclaration.parse(fieldDeclarationSource));
+                                    delegationCall =
+                                            delegateArchetypeMethod(model, productionImpl, method, productionRule);
                                 } else {
-                                    delegationCall = delegateToLeftmostArg(model, productionImpl, method);
+                                    final String getterPrefix = "get";
+                                    final int getterPrefixLength = getterPrefix.length();
+                                    if (method.getName().startsWith(getterPrefix)
+                                            && method.getName().length() > getterPrefixLength
+                                            && method.getFormalParameters().size() == 0) {
+                                        // "property getter"
+                                        final String methodName = method.getName();
+                                        String propertyName =
+                                                methodName.substring(getterPrefixLength, getterPrefixLength + 1)
+                                                        .toLowerCase()
+                                                + methodName.substring(getterPrefixLength + 1, methodName.length());
+                                        String fieldDeclarationSource = "        private final "
+                                                + method.getResultType() + " " + propertyName + " = "
+                                                + callLeftmostArg(model, productionImpl, method);
+                                        delegationCall = propertyGetter(propertyName);
+                                        anonymousClass.addFieldDeclaration(
+                                                FieldDeclaration.parse(fieldDeclarationSource));
+                                    } else {
+                                        delegationCall = delegateToLeftmostArg(model, productionImpl, method);
+                                    }
                                 }
                                 method.implement("public", delegationCall, true, false);
                             }
                         }
-                        final MethodDefinition methodToImplement = MethodDefinition.parse(staticMethodDeclaration +
-                                " {" +  Utils.LINE_BREAK +
-                                        "        return new "+implementationType+"()" +
-                                anonymousClass.instanceBodyAsString() + ";"+ Utils.LINE_BREAK +
-                                "    }"+Utils.LINE_BREAK                            , symqle);
+                        final MethodDefinition methodToImplement = MethodDefinition.parse(staticMethodDeclaration
+                                + " {" +  Utils.LINE_BREAK
+                                + "        return new " + implementationType + "()"
+                                + anonymousClass.instanceBodyAsString() + ";" + Utils.LINE_BREAK
+                                + "    }" + Utils.LINE_BREAK,
+                                symqle);
                         methodToImplement.setSourceRef(productionImpl.getSourceRef());
                         if (productionImpl.isImplicit()) {
                             model.addConversion(new ImplicitConversion(productionImpl.getTypeParameters(),
@@ -141,7 +163,7 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
         }
     }
 
-    private String propertyGetter(String propertyName) {
+    private String propertyGetter(final String propertyName) {
         final StringBuilder bodyBuilder = new StringBuilder();
         bodyBuilder.append(" {").append(Utils.LINE_BREAK);
         bodyBuilder.append("                ");
@@ -150,7 +172,9 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
         return bodyBuilder.toString();
     }
 
-    private String delegateToLeftmostArg(final Model model, final ProductionImplementation productionImpl, final MethodDefinition method) throws ModelException {
+    private String delegateToLeftmostArg(final Model model,
+                                         final ProductionImplementation productionImpl,
+                                         final MethodDefinition method) throws ModelException {
         final StringBuilder bodyBuilder = new StringBuilder();
         bodyBuilder.append(" {").append(Utils.LINE_BREAK);
         bodyBuilder.append("                ");
@@ -163,7 +187,9 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
         return bodyBuilder.toString();
     }
 
-    private String callLeftmostArg(final Model model, final ProductionImplementation productionImpl, final MethodDefinition method) throws ModelException {
+    private String callLeftmostArg(final Model model,
+                                   final ProductionImplementation productionImpl,
+                                   final MethodDefinition method) throws ModelException {
 
         // delegate to leftmost argument
         final List<FormalParameter> formalParameters = productionImpl.getFormalParameters();
@@ -171,24 +197,30 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
             final FormalParameter formalParameter = formalParameters.get(0);
             final InterfaceDefinition anInterface = model.getInterface(formalParameter.getType());
             // amInterface may have type parameters; actual type is formalParameter.getType().
-            final Map<String,TypeArgument> mapping = anInterface.getTypeParameters().inferTypeArguments(anInterface.getType(), formalParameter.getType());
+            final Map<String, TypeArgument> mapping =
+                    anInterface.getTypeParameters()
+                            .inferTypeArguments(anInterface.getType(), formalParameter.getType());
             final MethodDefinition candidate = anInterface.getMethodBySignature(method.signature(), model);
             if (candidate == null) {
-                throw new ModelException("Cannot implement by delegation "+method.declaration());
+                throw new ModelException("Cannot implement by delegation " + method.declaration());
             }
             final MethodDefinition delegate = candidate.replaceParams(method.getOwner(), mapping);
             if (!delegate.matches(method)) {
-                throw new ModelException("Cannot implement by delegation "+method.declaration());
+                throw new ModelException("Cannot implement by delegation " + method.declaration());
             }
             final StringBuilder bodyBuilder = new StringBuilder();
-            bodyBuilder.append(delegate.delegationInvocation(formalParameter.getName())).append(";").append(Utils.LINE_BREAK);
+            bodyBuilder.append(delegate.delegationInvocation(formalParameter.getName()))
+                    .append(";").append(Utils.LINE_BREAK);
             return bodyBuilder.toString();
         } else {
             throw new ModelException("Cannot implement " + method.getName());
         }
     }
 
-    private String delegateArchetypeMethod(final Model model, final ProductionImplementation productionImpl, final MethodDefinition method, final ProductionRule rule) throws ModelException {
+    private String delegateArchetypeMethod(final Model model,
+                                           final ProductionImplementation productionImpl,
+                                           final MethodDefinition method,
+                                           final ProductionRule rule) throws ModelException {
         StringBuilder builder = new StringBuilder();
         // find leftmost element, which is FormalParameter
         if (method.getResultType().getSimpleName().equals("SqlBuilder")) {
@@ -199,9 +231,12 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
             builder.append("context.get(Dialect.class).").
                 append(rule.getName())
                     .append("(")
-                    .append(Utils.format(productionImpl.getVariableElements(), "", ", ", "", new F<ProductionImplementation.RuleElement, String, ModelException>() {
+                    .append(
+                            Utils.format(productionImpl.getVariableElements(), "", ", ", "",
+                                    new F<ProductionImplementation.RuleElement, String, ModelException>() {
                         @Override
-                        public String apply(final ProductionImplementation.RuleElement ruleElement) throws ModelException {
+                        public String apply(final ProductionImplementation.RuleElement ruleElement)
+                                throws ModelException {
                             return ruleElement.asMethodArgument(model);
                         }
                     }))
@@ -226,9 +261,12 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
                     .append("context.get(Dialect.class).")
                     .append(rule.getName())
                     .append("(")
-                    .append(Utils.format(productionImpl.getVariableElements(), "", ", ", "", new F<ProductionImplementation.RuleElement, String, ModelException>() {
+                    .append(
+                            Utils.format(productionImpl.getVariableElements(), "", ", ", "",
+                                    new F<ProductionImplementation.RuleElement, String, ModelException>() {
                         @Override
-                        public String apply(final ProductionImplementation.RuleElement ruleElement) throws ModelException {
+                        public String apply(final ProductionImplementation.RuleElement ruleElement)
+                                throws ModelException {
                             return (ruleElement == queryDelegate) ? "rowMapper" : ruleElement.asMethodArgument(model);
                         }
                     }))
@@ -241,7 +279,8 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
         return builder.toString();
     }
 
-    private static ProductionImplementation.RuleElement findVariable(final ProductionImplementation production) throws ModelException {
+    private static ProductionImplementation.RuleElement findVariable(final ProductionImplementation production)
+            throws ModelException {
         for (ProductionImplementation.RuleElement element:production.getElements()) {
             if (!element.isConstant()) {
                 return element;
@@ -250,7 +289,8 @@ public class ProductionProcessor extends SyntaxTreeProcessor {
         throw new ModelException("Cannot generate method");
     }
 
-    private MethodDefinition createDialectMethod(ProductionRule rule, InterfaceDefinition dialect) {
+    private MethodDefinition createDialectMethod(final ProductionRule rule,
+                                                 final InterfaceDefinition dialect) {
         return MethodDefinition.parseAbstract(rule.asAbstractMethodDeclaration() + ";", dialect);
     }
 }

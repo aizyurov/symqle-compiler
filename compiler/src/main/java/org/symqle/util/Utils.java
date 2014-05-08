@@ -94,7 +94,7 @@ public class Utils {
             final String candidate = node.getValue();
             if (ACCESS_MODIFIERS.contains(candidate)) {
                 if (!accessModifier.equals("")) {
-                    throw new GrammarException("Access modifiers conflict: "+accessModifier +", "+candidate, node);
+                    throw new GrammarException("Access modifiers conflict: " + accessModifier + ", " + candidate, node);
                 }
                 accessModifier = candidate;
             }

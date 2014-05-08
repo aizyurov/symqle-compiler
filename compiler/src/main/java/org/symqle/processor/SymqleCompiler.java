@@ -21,13 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <br/>14.11.2011
- *
+ * Entry point for compiler plugin. Parses all sources and generates all code.
  * @author Alexander Izyurov
  */
-public class Director {
+public class SymqleCompiler {
 
-    // processors sequence is define inside processors; currentkry:
+    // processors sequence is define inside processors; currently:
     /*
 
        InterfaceDeclarationsProcessor
@@ -45,8 +44,20 @@ public class Director {
      */
 
 
-
-    public void doAll(final File[] sources, final File outputDirectory, final File testOutputDirectory) throws IOException, GrammarException, ParseException, ModelException {
+    /**
+     * Parses all sources and generates all code.
+     * @param sources source sdl files
+     * @param outputDirectory output directory for production code
+     * @param testOutputDirectory putput directory for test code
+     * @throws IOException error reading/writing
+     * @throws GrammarException semantic error
+     * @throws ParseException syntax error
+     * @throws ModelException semantic error not bound to any specific source location
+     */
+    public final void doAll(final File[] sources,
+                            final File outputDirectory,
+                            final File testOutputDirectory)
+            throws IOException, GrammarException, ParseException, ModelException {
         List<SyntaxTree> parsedSources = new ArrayList<SyntaxTree>(sources.length);
         for (File source: sources) {
             Reader reader = new InputStreamReader(new FileInputStream(source));
@@ -60,8 +71,8 @@ public class Director {
                 reader.close();
             }
         }
-        Model model = new Model();
-        new FinalizationProcessor(). process(parsedSources, model);
+        final Model model = new Model();
+        new FinalizationProcessor().process(parsedSources, model);
         outputDirectory.mkdirs();
         testOutputDirectory.mkdirs();
         new CoreGenerator("org.symqle.sql").generate(model, outputDirectory);

@@ -2,7 +2,7 @@ package org.symqle.model;
 
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
-import org.symqle.util.Assert;
+import org.symqle.util.AssertNodeType;
 import org.symqle.util.Utils;
 
 import java.util.Arrays;
@@ -81,8 +81,7 @@ public abstract class Archetype {
      * @throws GrammarException wrong tree
      */
     public static Archetype create(final SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: " + node.getType(), node),
-                node.getType(), "Archetype");
+        AssertNodeType.assertOneOf(node,"Archetype");
         TypeParameters parameters = new TypeParameters(
                 node.find("TypeParameters.TypeParameter", TypeParameter.CONSTRUCT));
         String name = node.find("Identifier", SyntaxTree.VALUE).get(0);

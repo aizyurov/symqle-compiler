@@ -11,18 +11,18 @@ import java.util.List;
 import static org.symqle.util.Utils.LINE_BREAK;
 
 /**
- * TODO move to ProductionProcessor
+ * Adds generated Javadoc to interfaces.
  * @author lvovich
  */
 public class InterfaceJavadocProcessor extends ModelProcessor {
 
     @Override
-    protected Processor predecessor() {
+    protected final Processor predecessor() {
         return new ImplementationProcessor();
     }
 
     @Override
-    protected void process(final Model model) throws ModelException {
+    protected final void process(final Model model) throws ModelException {
         for (InterfaceDefinition def : model.getAllInterfaces()) {
             final String name = def.getType().getSimpleName();
             final List<String> rules = model.getRules(name);
@@ -37,7 +37,9 @@ public class InterfaceJavadocProcessor extends ModelProcessor {
                         LINE_BREAK + " *</pre>" + LINE_BREAK));
                 final TypeParameters typeParameters = def.getTypeParameters();
                 if (typeParameters.size() == 1) {
-                    javadocBuilder.append("* @param ").append(typeParameters).append(" associated Java type").append(LINE_BREAK);
+                    javadocBuilder.append("* @param ")
+                            .append(typeParameters)
+                            .append(" associated Java type").append(LINE_BREAK);
                 }
                 javadocBuilder.append(" */").append(LINE_BREAK);
                 def.replaceComment(javadocBuilder.toString());

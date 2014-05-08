@@ -9,12 +9,13 @@ import org.symqle.util.Log;
 import java.util.List;
 
 /**
+ * Last step in compilation. Just counts compilation statistics.
  * @author lvovich
  */
 public class FinalizationProcessor extends ModelProcessor {
 
     @Override
-    protected void process(final Model model) throws ModelException {
+    protected final void process(final Model model) throws ModelException {
 
         final List<InterfaceDefinition> allInterfaces = model.getAllInterfaces();
         int interfaceMethods = 0;
@@ -37,7 +38,7 @@ public class FinalizationProcessor extends ModelProcessor {
     }
 
     @Override
-    protected Processor predecessor() {
+    protected final Processor predecessor() {
         return new TestClassesProcessor();
     }
 

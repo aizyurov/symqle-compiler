@@ -4,7 +4,7 @@ import org.symqle.parser.ParseException;
 import org.symqle.parser.SimpleNode;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
-import org.symqle.util.Assert;
+import org.symqle.util.AssertNodeType;
 import org.symqle.util.Utils;
 
 import java.util.List;
@@ -44,8 +44,8 @@ public class FieldDeclaration {
      * @throws GrammarException wrong tree
      */
     public FieldDeclaration(final SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: " + node.getType(), node),
-                node.getType(), "FieldDeclaration");
+        AssertNodeType.assertOneOf(node,
+                "FieldDeclaration");
         List<SyntaxTree> modifierNodes = node.find("FieldModifiers");
         this.accessModifier = Utils.getAccessModifier(modifierNodes);
         this.otherModifiers = Utils.getNonAccessModifiers(modifierNodes);

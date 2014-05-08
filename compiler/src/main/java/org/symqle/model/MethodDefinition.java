@@ -4,7 +4,7 @@ import org.symqle.parser.ParseException;
 import org.symqle.parser.SimpleNode;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
-import org.symqle.util.Assert;
+import org.symqle.util.AssertNodeType;
 import org.symqle.util.Utils;
 
 import java.io.File;
@@ -148,8 +148,7 @@ public class MethodDefinition {
      */
     public MethodDefinition(final SyntaxTree node, final AbstractTypeDefinition owner) throws GrammarException {
         final String nodeType = node.getType();
-        Assert.assertOneOf(new GrammarException("Unexpected type: " + nodeType, node),
-                nodeType, "MethodDeclaration", "AbstractMethodDeclaration");
+        AssertNodeType.assertOneOf(node, "MethodDeclaration", "AbstractMethodDeclaration");
         this.comment = node.getComments();
         List<SyntaxTree> modifierNodes = node.find("MethodModifiers.MethodModifier");
         modifierNodes.addAll(node.find("AbstractMethodModifiers.AbstractMethodModifier"));

@@ -20,7 +20,7 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.symqle.processor.Director;
+import org.symqle.processor.SymqleCompiler;
 import org.symqle.util.Log;
 
 import java.io.File;
@@ -101,9 +101,9 @@ public class SymqleGenerator
                 getLog().debug(s);
             }
         });
-        final Director director = new Director();
+        final SymqleCompiler symqleCompiler = new SymqleCompiler();
         try {
-            director.doAll(getSources(), outputDirectory, testOutputDirectory);
+            symqleCompiler.doAll(getSources(), outputDirectory, testOutputDirectory);
         } catch (Exception e) {
             e.printStackTrace();
             throw new MojoFailureException(e.toString());

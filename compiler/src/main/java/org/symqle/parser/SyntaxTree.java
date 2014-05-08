@@ -8,90 +8,128 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * This is a simplified presentation of SimpleNode, containing exactly what is needed for Symqle
- * User: lvovich
- * Date: 13.10.11
- * Time: 14:56
- * To change this template use File | Settings | File Templates.
+ * Abstract syntax tree. This is a simplified presentation of SimpleNode, containing exactly what is needed for Symqle.
  */
 public class SyntaxTree {
 
     private final SimpleNode node;
     private final String fileName;
 
-    public SyntaxTree(SimpleNode node, String fileName) {
+    /**
+     * Construct from SimpleNode.
+     * @param node source node
+     * @param fileName source file name. Used for diagnostics.
+     */
+    public SyntaxTree(final SimpleNode node, final String fileName) {
         this.node = node;
         this.fileName = fileName;
     }
 
-    private static void collectImage(Token token, StringBuilder builder) {
+    private static void collectImage(final Token token, final StringBuilder builder) {
         // break at the top of special tokens or first shell-style comment
-      if (token!=null && !token.image.startsWith("#")) {
+      if (token != null && !token.image.startsWith("#")) {
           Token specialToken = token.specialToken;
           collectImage(specialToken, builder);
           builder.append(token.image);
       }
     }
 
-    public SyntaxTree getParent() {
+    /**
+     * Parent tree.
+     * @return parent, null if this is top node.
+     */
+    public final SyntaxTree getParent() {
         final Node parent = node.parent;
         return parent == null ? null : new SyntaxTree((SimpleNode) parent, fileName);
     }
 
     @Override
-    public String toString() {
+    public final String toString() {
         return getType() + ":" + getValue();
     }
 
-    public String getType() {
+    /**
+     * Node type (name of syntax symbol).
+     * @return node type.
+     */
+    public final String getType() {
         return node.toString();
     }
 
-    public String getValue() {
+    /**
+     * First token.
+     * @return the text; null of node is non-terminal symbol with no children.
+     */
+    public final String getValue() {
         final Token lastToken = node.jjtGetLastToken();
         final Token firstToken = node.jjtGetFirstToken();
         // for empty non-terminals jjTree sets lastToken = preceding token
         // and firstToken = the first token of following non-terminal
         // in this case we set value to null
-        return lastToken !=null && lastToken.next == firstToken
+        return lastToken != null && lastToken.next == firstToken
                 ? ""
                 : firstToken.image;
     }
 
-    public int getLine() {
+    /**
+     * Source line number.
+     * @return line number
+     */
+    public final int getLine() {
         return node.jjtGetFirstToken().beginLine;
     }
 
-    public int getColumn() {
+    /**
+     * Source column number.
+     * @return column number
+     */
+    public final int getColumn() {
         return node.jjtGetFirstToken().beginColumn;
     }
 
-    public String getComments() {
+    /**
+     * All comments preceding {@code this}.
+     * Symqle counts only java-style comments end empty lines.
+     * Everything from the nearest preceding code or shell-style comment up to {@code this}
+     * is included.
+     * @return comments
+     */
+    public final String getComments() {
         StringBuilder builder = new StringBuilder();
         collectImage(node.jjtGetFirstToken().specialToken, builder);
         return builder.toString();
     }
 
-    public String getImage() {
+    /**
+     * Comments + body.
+     * @return comments + body.
+     */
+    public final String getImage() {
         return getComments() + getBody();
     }
 
-    public String getBody() {
+    /**
+     * Full text of {@code this}.
+     * Preceding comments are excluded.
+     * Comments betwee tokens are included.
+     * @return text of {@code this}. Empty string for non-terminals with no text and no children.
+     */
+    public final String getBody() {
         final Token first = node.jjtGetFirstToken();
         final Token last = node.jjtGetLastToken();
-        if (last!=null && last.next==first) {
+        if (last != null && last.next == first) {
             return "";
         }
         Token current = first;
         final StringBuilder bodyBuilder = new StringBuilder();
-        while(true) {
-            if (current==first) {
+        while (true) {
+            if (current == first) {
                 // skip comments for the first token
                 bodyBuilder.append(current.image);
             } else {
                 collectImage(current, bodyBuilder);
             }
-            if (current==null || current==last) {
+            if (current == null || current == last) {
                 break;
             }
             current = current.next;
@@ -99,38 +137,55 @@ public class SyntaxTree {
         return bodyBuilder.toString();
     }
 
-    public List<SyntaxTree> getChildren() {
+    /**
+     * Child nodes.
+     * @return child nodes
+     */
+    public final List<SyntaxTree> getChildren() {
         final int numChildren = node.jjtGetNumChildren();
         final List<SyntaxTree> result = new ArrayList<SyntaxTree>(numChildren);
-        for (int i=0; i< numChildren; i++) {
+        for (int i = 0; i < numChildren; i++) {
             result.add(new SyntaxTree((SimpleNode) node.jjtGetChild(i), fileName));
         }
         return result;
     }
 
     /**
-     * Returns all descendants by a given path
-     * By convention, null or empty path refers to <code>this</code>
+     * Returns all descendants by a given path.
+     * By convention, null or empty path refers to <code>this</code>.
+     * Path may also include "^", which points to parent.
+     * E.g find("^.VariableDeclarator") will find all sibling variable declarators
+     * (including {@code this} if it is variable declarator too).
      * @param path dot-separated types of descendants down the hierarchy
-     * @return
+     * @return list of found nodes
      */
-    public List<SyntaxTree> find(String path) {
-        final List<String> nameList = path==null || path.equals("")
+    public final List<SyntaxTree> find(final String path) {
+        final List<String> nameList = path == null || path.equals("")
                 ? Collections.<String>emptyList()
                 : Arrays.asList(path.split("\\."));
         return find(nameList);
     }
 
-    public <T, Ex extends Exception> List<T> find(String path, F<SyntaxTree, T, Ex> transformer) throws Ex {
+    /**
+     * Find and convert to desired type.
+     * @param path see {@link #find(String)}
+     * @param transformer converting function
+     * @param <T> desired type
+     * @param <Ex> exception thrown by transformer
+     * @return list of objects of required type
+     * @throws Ex transformer failed
+     */
+    public final <T, Ex extends Exception> List<T> find(final String path,
+                                                        final F<SyntaxTree, T, Ex> transformer) throws Ex {
         List<SyntaxTree> nodes = find(path);
         List<T> result = new ArrayList<T>(nodes.size());
-        for (SyntaxTree node: nodes) {
-            result.add(transformer.apply(node));
+        for (SyntaxTree currentNode: nodes) {
+            result.add(transformer.apply(currentNode));
         }
         return result;
     }
 
-    private List<SyntaxTree> find(List<String> nameList) {
+    private List<SyntaxTree> find(final List<String> nameList) {
         if (nameList.isEmpty()) {
             return Collections.singletonList(this);
         } else {
@@ -150,22 +205,32 @@ public class SyntaxTree {
         }
     }
 
-    public String getFileName() {
+    /**
+     * Source file name.
+     * @return file name
+     */
+    public final String getFileName() {
         return fileName;
     }
 
-    public final static F<SyntaxTree, String, RuntimeException> VALUE =
+    /**
+     * Function, which converts SyntaxTree to the text of its first token.
+     */
+    public static final F<SyntaxTree, String, RuntimeException> VALUE =
             new F<SyntaxTree, String, RuntimeException>() {
                 @Override
-                public String apply(SyntaxTree syntaxTree) {
+                public String apply(final SyntaxTree syntaxTree) {
                     return syntaxTree.getValue();
                 }
             };
 
-    public final static F<SyntaxTree, String, RuntimeException> BODY =
+    /**
+     * Function, which converts SyntaxTree to the text of its full text excluding preceding comment.
+     */
+    public static final F<SyntaxTree, String, RuntimeException> BODY =
             new F<SyntaxTree, String, RuntimeException>() {
                 @Override
-                public String apply(SyntaxTree syntaxTree) {
+                public String apply(final SyntaxTree syntaxTree) {
                     return syntaxTree.getBody();
                 }
             };
