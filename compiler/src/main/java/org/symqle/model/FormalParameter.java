@@ -5,6 +5,7 @@ package org.symqle.model;
 
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
+import org.symqle.util.AssertNodeType;
 import org.symqle.util.Utils;
 
 import java.util.*;

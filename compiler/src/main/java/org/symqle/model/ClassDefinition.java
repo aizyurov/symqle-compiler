@@ -8,6 +8,7 @@ import org.symqle.parser.SimpleNode;
 import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
+import org.symqle.util.AssertNodeType;
 import org.symqle.util.Log;
 import org.symqle.util.Utils;
 
