@@ -57,6 +57,11 @@
       <id>symqle-website</id>
       <url>scp://symqle.org/var/www/symqle-compiler</url>
     </site>
+    <repository>
+      <id>bintray-aizyurov-maven-symqle</id>
+      <name>aizyurov-maven-symqle</name>
+      <url>https://api.bintray.com/maven/aizyurov/maven/symqle</url>
+      </repository>
   </distributionManagement>
 
   <modules>
