@@ -209,7 +209,7 @@ public class Type {
      * is {@code MyListOfLong implements Collection<Long>), Symqle compiler will give up.
      * <p/>
      * If formal type is {@code Collection<T>} and actual type
-     * is {@code Collection<Long>), and T is in parameterMapping, (T, Long) will be put to mapping.
+     * is {@code Collection<Long>)}, and T is in parameterMapping, (T, Long) will be put to mapping.
      * <p/>
      * Symqle compiler does not care about "unknown" type names: if a name is not mapping key, it is assumed it is a
      * valid class name available in current context.

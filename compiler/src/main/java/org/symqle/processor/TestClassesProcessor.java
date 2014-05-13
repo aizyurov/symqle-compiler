@@ -121,7 +121,7 @@ public class TestClassesProcessor extends ModelProcessor {
 
         printWriter.print("void ");
         printWriter.print("test_");
-        printWriter.print(testedMethod.signature().replaceAll("[(,)]", "_"));
+        printWriter.print(testedMethod.signature().replaceAll("[(,)]", "_").replaceAll("\\[|\\]", ""));
         printWriter.print(parameterIndex);
         printWriter.println("() throws Exception;");
         printWriter.flush();
@@ -153,7 +153,7 @@ public class TestClassesProcessor extends ModelProcessor {
 
         printWriter.print("void ");
         printWriter.print("test_");
-        printWriter.print(testedMethod.signature().replaceAll("[(,]", "_").replaceAll("[)]", ""));
+        printWriter.print(testedMethod.signature().replaceAll("[(,]", "_").replaceAll("\\)|\\[|\\]", ""));
         printWriter.println("() throws Exception;");
         printWriter.flush();
         final String source = stringWriter.toString();
