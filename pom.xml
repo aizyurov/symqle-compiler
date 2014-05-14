@@ -39,17 +39,18 @@
   </developers>
 
   <scm>
+    <url>http://git.symqle.org/?p=symqle-compiler.git</url>
     <connection>scm:git:git://symqle.org/symqle-compiler.git</connection>
     <developerConnection>scm:git:ssh://git@symqle.org/git/symqle-compiler.git</developerConnection>
   </scm>
 
     <issueManagement>
-      <system>Bugzilla</system>
-      <url>https://symqle.org/bugs/</url>
+      <system>Redmine</system>
+      <url>https://symqle.org/redmine/projects/symqle-tools/issues/</url>
     </issueManagement>
     <ciManagement>
       <system>Jenkins</system>
-      <url>https://symqle.org/ci</url>
+      <url>https://ci.symqle.org/</url>
     </ciManagement>
 
   <distributionManagement>
