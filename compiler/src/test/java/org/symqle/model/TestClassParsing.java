@@ -70,7 +70,6 @@ public class TestClassParsing extends TestCase {
             processor.process(Arrays.asList(node), model);
         final AbstractTypeDefinition abstractValueExpression = model.getAbstractType("AbstractValueExpression");
         assertNotNull(abstractValueExpression);
-        System.out.println(abstractValueExpression);
         final Collection<MethodDefinition> allMethods = abstractValueExpression.getAllMethods(model);
         assertEquals(3, allMethods.size());
         for (MethodDefinition method : allMethods) {

@@ -27,8 +27,6 @@ public class ProductionsTest extends TestCase {
         final List<SyntaxTree> syntaxTrees = readSyntaxTree(source);
         new ProductionProcessor().process(syntaxTrees, model);
         final ClassDefinition symqle = model.getClassDef("Symqle");
-        System.out.println(symqle);
-        System.out.println("==========");
 
         // make sure that classes are compilable
         SymqleParser.createParser(symqle.toString()).SymqleDeclarationBlock();
@@ -46,7 +44,6 @@ public class ProductionsTest extends TestCase {
         new ProductionProcessor().process(syntaxTrees, model);
 
         final ClassDefinition symqle = model.getClassDef("Symqle");
-        System.out.println(symqle);
 
         SymqleParser.createParser(symqle.toString()).SymqleDeclarationBlock();
 
@@ -71,7 +68,6 @@ public class ProductionsTest extends TestCase {
         assertEquals(1, conversions.size());
         {
             final MethodDefinition method = conversions.get(0).getConversionMethod();
-            System.out.println(method);
             assertEquals(TestUtils.pureCode(
                     "    static <T> ValueExpressionSqlBuilder<T>" +
                     "    z$ValueExpression$from$ValueExpressionPrimary(final ValueExpressionPrimary<T> e) { \n" +

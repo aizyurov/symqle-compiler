@@ -111,11 +111,6 @@ public class TestArchetypes extends TestCase {
         final Model model = ModelUtils.prepareModel();
         new InterfaceDeclarationsProcessor().process(Arrays.asList(syntaxTree), model);
         final InterfaceDefinition child = model.getInterface("Child4");
-        System.out.println(child);
-        for (MethodDefinition method: child.getAllMethods(model)) {
-            System.out.println("------");
-            System.out.println(method);
-        }
         assertEquals("Child4", child.getName());
         assertEquals(1, child.getDeclaredMethods().size());
         assertEquals(3, child.getAllMethods(model).size());

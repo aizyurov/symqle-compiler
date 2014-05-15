@@ -19,7 +19,6 @@ public class TSortTest extends TestCase {
         sort.add("d", "b");
         sort.add("d", "c");
         final List<String> sorted = sort.sort();
-        System.out.println(sorted);
         assertEquals(sorted.get(0), "a");
         assertEquals(sorted.get(3), "d");
     }
@@ -31,7 +30,6 @@ public class TSortTest extends TestCase {
         sort.add("b", "a");
         sort.add("c", "a");
         final List<String> sorted = sort.sort();
-        System.out.println(sorted);
         assertEquals(sorted.get(0), "a");
         assertEquals(sorted.get(3), "d");
     }
@@ -43,7 +41,6 @@ public class TSortTest extends TestCase {
         sort.add("d", "b");
         sort.add("b", "a");
         final List<String> sorted = sort.sort();
-        System.out.println(sorted);
         assertEquals(sorted.get(0), "a");
         assertEquals(sorted.get(3), "d");
     }
@@ -59,7 +56,7 @@ public class TSortTest extends TestCase {
             sorted = sort.sort();
             fail("Exception expected but not thrown");
         } catch (IllegalStateException e) {
-            System.out.println(e.getMessage());
+            // expected
         }
     }
 
@@ -70,7 +67,6 @@ public class TSortTest extends TestCase {
         sort.add("d", "b");
         sort.add("d", "c");
         final List<String> sorted = sort.sort();
-        System.out.println(sorted);
         assertEquals(sorted.get(0), "a");
         assertEquals(sorted.get(3), "d");
         if (sorted.get(1).equals("c")) {

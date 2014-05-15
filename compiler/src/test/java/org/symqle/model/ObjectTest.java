@@ -17,7 +17,11 @@ public class ObjectTest extends TestCase {
         SymqleParser parser = new SymqleParser(new FileReader("src/test-data/model/Object.sdl"));
         SyntaxTree node = new SyntaxTree(parser.SymqleUnit(), "Object.sdl");
         new ClassDeclarationProcessor().process(Arrays.asList(node), model);
-        System.out.println(model.getClassDef("Object"));
+
+        final ClassDefinition object = model.getClassDef("Object");
+        assertNotNull(object);
+        assertNotNull(object.getMethodBySignature("equals(Object)", model));
+        assertNotNull(object.getDeclaredMethodBySignature("equals(Object)"));
     }
 
 }
