@@ -22,10 +22,10 @@
   </scm>
 
   <distributionManagement>
-    <site>
-      <id>symqle-website</id>
-      <url>scp://symqle.org/var/www/symqle-compiler/plugin</url>
-    </site>
+      <site>
+        <id>symqle-tools-website</id>
+        <url>${releaseDeployUrl}/plugin</url>
+      </site>
   </distributionManagement>
 
   <reporting>  

@@ -55,8 +55,8 @@
 
   <distributionManagement>
     <site>
-      <id>symqle-website</id>
-      <url>scp://symqle.org/var/www/symqle-compiler</url>
+      <id>symqle-tools-website</id>
+      <url>${releaseDeployUrl}</url>
     </site>
     <repository>
       <id>bintray-aizyurov-maven-symqle</id>
@@ -73,6 +73,10 @@
     <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+      <!-- override in settings,xml in release environment -->
+      <sitesDeployUrlBase>file:///tmp</sitesDeployUrlBase>
+      <releaseDeployUrl>${sitesDeployUrlBase}/symqle-tools/${project.version}</releaseDeployUrl>
     </properties>
 
   <build>
