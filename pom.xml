@@ -74,7 +74,7 @@
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
       <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-      <!-- override in settings,xml in release environment -->
+      <!-- override in settings.xml in release environment -->
       <sitesDeployUrlBase>file:///tmp</sitesDeployUrlBase>
       <releaseDeployUrl>${sitesDeployUrlBase}/symqle-tools/${project.version}</releaseDeployUrl>
     </properties>
