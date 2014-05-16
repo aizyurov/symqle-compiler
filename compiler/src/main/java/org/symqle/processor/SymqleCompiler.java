@@ -60,7 +60,7 @@ public class SymqleCompiler {
             throws IOException, GrammarException, ParseException, ModelException {
         List<SyntaxTree> parsedSources = new ArrayList<SyntaxTree>(sources.length);
         for (File source: sources) {
-            Reader reader = new InputStreamReader(new FileInputStream(source));
+            Reader reader = new InputStreamReader(new FileInputStream(source), "UTF-8");
             try {
                 SymqleParser parser = new SymqleParser(reader);
                 parsedSources.add(new SyntaxTree(parser.SymqleUnit(), source.getName()));
@@ -73,8 +73,12 @@ public class SymqleCompiler {
         }
         final Model model = new Model();
         new FinalizationProcessor().process(parsedSources, model);
-        outputDirectory.mkdirs();
-        testOutputDirectory.mkdirs();
+        if (!outputDirectory.mkdirs() && !outputDirectory.isDirectory()) {
+            throw new IOException("Failed to create " + outputDirectory);
+        }
+        if (!testOutputDirectory.mkdirs() && !testOutputDirectory.isDirectory()) {
+            throw new IOException("Failed to create " + testOutputDirectory);
+        }
         new CoreGenerator("org.symqle.sql").generate(model, outputDirectory);
         new TestSetGenerator("org.symqle.testset").generate(model, testOutputDirectory);
     }

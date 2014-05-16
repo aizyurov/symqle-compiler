@@ -148,7 +148,6 @@ public class MethodDefinition {
      * @throws GrammarException wrong tree
      */
     public MethodDefinition(final SyntaxTree node, final AbstractTypeDefinition owner) throws GrammarException {
-        final String nodeType = node.getType();
         AssertNodeType.assertOneOf(node, "MethodDeclaration", "AbstractMethodDeclaration");
         this.comment = node.getComments();
         List<SyntaxTree> modifierNodes = node.find("MethodModifiers.MethodModifier");

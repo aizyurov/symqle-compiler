@@ -40,8 +40,9 @@ public class TSort<T> {
         for (T dependent: inputData.keySet()) {
             sortedItemsByInputData.put(dependent, new SortedItem(dependent));
         }
-        for (T dependent: sortedItemsByInputData.keySet()) {
-            final SortedItem dependentItem = sortedItemsByInputData.get(dependent);
+        for (Map.Entry<T, SortedItem> entry: sortedItemsByInputData.entrySet()) {
+            final T dependent = entry.getKey();
+            final SortedItem dependentItem = entry.getValue();
             for (T dependency: inputData.get(dependent)) {
                 final SortedItem dependencyItem = sortedItemsByInputData.get(dependency);
                 dependentItem.addLeft(dependencyItem);
