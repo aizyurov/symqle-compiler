@@ -1,4 +1,13 @@
-/* Copyright and the following disclaimer in the
+/* Copyright (c) 2006, Sun Microsystems, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *     * Redistributions of source code must retain the above copyright notice,
+ *       this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
  *       documentation and/or other materials provided with the distribution.
  *     * Neither the name of the Sun Microsystems, Inc. nor the names of its
  *       contributors may be used to endorse or promote products derived from
@@ -17,14 +26,15 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Copyright (c) Alexander Izyurov, 2011-2014
+/* Modifications by Alexander Izyurov, 2011-2014
  * This is JAVACC grammar of Symqle definition language.
  * Symqle grammar includes a subset of Java language grammar,
  * based on Java language specification, 3rd edition
  * http://docs.oracle.com/javase/specs/jls/se5.0/html/j3TOC.html
- * Lexical part is borrowed from Javacc grammar of Java 1.5 by
- * Sreenivasa Viswanadha, see copyright notice above.
- * Productions are derived from JLS, with appropriate changes
+ * Lexical part is copied from Javacc grammar of Java 1.5
+ * from Microsystems, Inc., see copyright notice above.
+ * A few new lexems added for Symqle definition language.
+ * Productions are derived from JLS 5, with appropriate changes
  * to have LL grammar, comment to each production refers to
  * a section of JLS, which it is based upon
  */
@@ -46,6 +56,8 @@ import java.io.*;
 
 /**
  * Grammar to parse Symqle definition language.
+ * @author Sreenivasa Viswanadha
+ * @author Alexander Izyurov
  */
 public class SymqleParser
 {
