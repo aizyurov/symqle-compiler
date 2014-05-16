@@ -21,6 +21,7 @@
   <body>
     <menu name="Overview">
       <item name="About" href="index.html"/>
+      <item name="Release notes" href="release-notes.html"/>
       <item name="License" href="license.html"/>
       <item name="Sources" href="source-repository.html"/>
       <item name="Bugtracker" href="issue-tracking.html"/>

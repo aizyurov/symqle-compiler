@@ -1,0 +1,2 @@
+Release 0.99
+    preparation to public release
