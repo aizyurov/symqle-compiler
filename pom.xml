@@ -130,7 +130,75 @@
         </plugin>
       </plugins>
     </pluginManagement>
-  </build>
 
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>1.3.1</version>
+        <executions>
+          <execution>
+            <id>maven-central-requirements</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireProperty>
+                  <property>project.modelVersion</property>
+                  <message>modelVersion missing</message>
+                </requireProperty>
+                <requireProperty>
+                  <property>project.groupId</property>
+                  <message>groupId missing</message>
+                </requireProperty>
+                <requireProperty>
+                  <property>project.artifactId</property>
+                  <message>artifactId missing</message>
+                </requireProperty>
+                <requireProperty>
+                  <property>project.version</property>
+                  <message>version missing</message>
+                </requireProperty>
+                <requireProperty>
+                  <property>project.packaging</property>
+                  <message>packaging missing</message>
+                </requireProperty>
+                <requireProperty>
+                  <property>project.name</property>
+                  <message>name missing</message>
+                </requireProperty>
+                <requireProperty>
+                  <property>project.description</property>
+                  <message>description missing</message>
+                </requireProperty>
+                <requireProperty>
+                  <property>project.url</property>
+                  <message>url missing</message>
+                </requireProperty>
+                <requireProperty>
+                  <property>project.licenses</property>
+                  <message>licenses missing</message>
+                </requireProperty>
+                <requireProperty>
+                  <property>project.scm.url</property>
+                  <message>scm.url missing</message>
+                </requireProperty>
+                <requireProperty>
+                  <property>project.scm.connection</property>
+                  <message>scm.connection missing</message>
+                </requireProperty>
+                <requireProperty>
+                  <property>project.developers</property>
+                  <message>developers missing</message>
+                </requireProperty>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
