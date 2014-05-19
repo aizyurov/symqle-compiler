@@ -217,9 +217,9 @@ public class Type {
      * (class or method scope). The method updates values for keys, which it is able to resolve by matching
      * {@code formalType} to {@code this}.
      * <p/>
-     * Note: Current implementation can correctly process oonly exact match of formal type to actual type.
+     * Note: Current implementation can correctly process only exact match of formal type to actual type.
      * For example, if a formal type is {@code Collection<T>} and actual type
-     * is {@code MyListOfLong implements Collection<Long>), Symqle compiler will give up.
+     * is {@code MyListOfLong implements Collection<Long>)}, Symqle compiler will give up.
      * <p/>
      * If formal type is {@code Collection<T>} and actual type
      * is {@code Collection<Long>)}, and T is in parameterMapping, (T, Long) will be put to mapping.

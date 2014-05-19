@@ -24,9 +24,9 @@
     <menu name="Overview">
       <item name="Introduction" href="index.html"/>
       <item name="Goals" href="plugin-info.html"/>
+      <item name="Dependencies" href="dependencies.html"/>
     </menu>
 
-    <menu ref="reports"/>
   </body>
 
 </project>

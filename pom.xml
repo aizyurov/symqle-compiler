@@ -10,7 +10,7 @@
   <packaging>pom</packaging>
   <name>Symqle build tools</name>
 
-  <url>http://tools.symqle.org</url>
+  <url>http://symqle.org/tools</url>
   <description>Internal tools for building Symqle</description>
 
   <organization>
@@ -39,7 +39,7 @@
   </developers>
 
   <scm>
-    <url>http://git.symqle.org/?p=symqle-compiler.git</url>
+    <url>http://symqle.org/git?p=symqle-compiler.git</url>
     <connection>scm:git:git://symqle.org/symqle-compiler.git</connection>
     <developerConnection>scm:git:ssh://git@symqle.org/git/symqle-compiler.git</developerConnection>
   </scm>
@@ -205,5 +205,14 @@
       </plugin>
     </plugins>
   </build>
+    <reporting>
+        <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-site-plugin</artifactId>
+              <version>3.3</version>
+            </plugin>
+        </plugins>
+    </reporting>
 
 </project>
