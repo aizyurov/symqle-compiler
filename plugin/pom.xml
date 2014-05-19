@@ -13,7 +13,7 @@
     <relativePath>..</relativePath>
   </parent>
 
-  <url>http://tools.symqle.org/plugin</url>
+  <url>http://symqle.org/tools/plugin</url>
   <description>Maven Mojo wrapper for Symqle compiler</description>
 
   <scm>

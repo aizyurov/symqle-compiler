@@ -22,12 +22,20 @@
   name="Symqle compiler">
   <body>
 
-    <menu ref="parent"/>
-
     <menu name="Project information">
-      <item name="About" href="./index.html"/>
+        <item name="About" href="./index.html"/>
+        <item name="Dependencies" href="./dependencies.html"/>
+        <item name="Source xref" href="./xref/index.html"/>
+        <item name="Javadoc" href="./apidocs/index.html"/>
     </menu>
 
-    <menu ref="reports"/>
+    <menu name="Quality reports">
+        <item name="CPD report" href="./cpd.html"/>
+        <item name="PMD report" href="./pmd.html"/>
+        <item name="Checkstyle report" href="./checkstyle.html"/>
+        <item name="FindBugs report" href="./findbugs.html"/>
+        <item name="Test coverage report" href="./cobertura/index.html"/>
+    </menu>
+
   </body>
 </project>

@@ -19,7 +19,13 @@
 <project xmlns="http://maven.apache.org/DECORATION/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd">
   <body>
-    <menu name="Overview">
+
+      <breadcrumbs>
+          <item name="Symqle" href="http://symqle.org"/>
+          <item name="Symqle tools" href="./index.html"/>
+      </breadcrumbs>
+
+    <menu name="Project information">
       <item name="About" href="index.html"/>
       <item name="Release notes" href="release-notes.html"/>
       <item name="License" href="license.html"/>
@@ -28,6 +34,7 @@
     </menu>
 
     <menu ref="modules"/>
+
   </body>
     <skin>
       <groupId>org.apache.maven.skins</groupId>
