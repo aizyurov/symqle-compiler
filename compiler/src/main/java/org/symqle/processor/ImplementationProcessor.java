@@ -1,3 +1,19 @@
+/*
+   Copyright 2011-2014 Alexander Izyurov
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.package org.symqle.common;
+*/
+
 package org.symqle.processor;
 
 import org.symqle.model.*;
@@ -9,21 +25,21 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Created by IntelliJ IDEA.
- * User: aizyurov
- * Date: 02.12.2013
- * Time: 6:24:14
- * To change this template use File | Settings | File Templates.
+ * For each class in the model implements all methods, which are not implemented yet and not explicitly abstract.
+ * By the time of call all "virtual interfaces" should be added. The methods of these interfaces
+ * can be implemented by delegation to proper Symqle methods (poor man's JAVA 8).
+ * Then the same is applied to all anonymous classes returned by Symqle factory methods; the methods body are
+ * corrected and the methods put to Symqle class (they are detached before).
  */
 public class ImplementationProcessor extends ModelProcessor {
 
     @Override
-    protected Processor predecessor() {
+    protected final Processor predecessor() {
         return new ClassEnhancer();
     }
 
     @Override
-    protected void process(Model model) throws ModelException {
+    protected final void process(final Model model) throws ModelException {
 
         final ClassDefinition symqle;
         try {
@@ -47,7 +63,7 @@ public class ImplementationProcessor extends ModelProcessor {
         }
     }
 
-    private MethodDefinition reimplementMethod(MethodDefinition method, AnonymousClass classDef) {
+    private MethodDefinition reimplementMethod(final MethodDefinition method, final AnonymousClass classDef) {
         StringBuilder builder = new StringBuilder();
         builder.append(method.getAccessModifier());
         builder.append(Utils.format(method.getOtherModifiers(), " ", " ", " "));
@@ -65,16 +81,17 @@ public class ImplementationProcessor extends ModelProcessor {
         return reimplemented;
     }
 
-    private void implement(AbstractTypeDefinition classDef, Model model) throws ModelException {
+    private void implement(final AbstractTypeDefinition classDef, final Model model) throws ModelException {
         Log.info("Implementing " + classDef.getName());
         final boolean isAnonymous = classDef.getClass().equals(AnonymousClass.class);
         if (isAnonymous) {
-            Log.debug(" " + ((AnonymousClass) classDef).getExtendsImplements());
+            Log.debug(": " + ((AnonymousClass) classDef).getParent());
         }
         for (MethodDefinition myMethod: classDef.getAllMethods(model)) {
             final Set<String> modifiers = myMethod.getOtherModifiers();
             if (modifiers.contains("abstract") && modifiers.contains("volatile")) {
-                Log.debug(classDef.getName() + " implementing " + myMethod.getOtherModifiers() + " " + myMethod.getName());
+                Log.debug(classDef.getName() + " implementing " + myMethod.getOtherModifiers()
+                        + " " + myMethod.getName());
                 List<String> parameters = new ArrayList<String>();
                 parameters.add("this");
                 parameters.addAll(Utils.map(myMethod.getFormalParameters(), FormalParameter.NAME));

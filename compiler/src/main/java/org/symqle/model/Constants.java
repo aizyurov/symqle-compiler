@@ -1,3 +1,19 @@
+/*
+   Copyright 2011-2014 Alexander Izyurov
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.package org.symqle.common;
+*/
+
 package org.symqle.model;
 
 import java.util.Arrays;
@@ -5,13 +21,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by IntelliJ IDEA.
- * User: lvovich
- * Date: 27.06.12
- * Time: 20:18
- * To change this template use File | Settings | File Templates.
+ * Terminal symbols of SQL.
  */
-public class Constants {
+public final class Constants {
 
     private Constants() {
     }
@@ -21,7 +33,7 @@ public class Constants {
         new Constants();
     }
 
-    private static final String[] constants= {
+    private static final String[] constants = {
         "NE",
         "GE",
         "LE",
@@ -377,9 +389,14 @@ public class Constants {
         "WITHOUT"
     };
 
-    private final static Set<String> constantsSet = new HashSet<String>(Arrays.asList(constants));
+    private static final Set<String> constantsSet = new HashSet<String>(Arrays.asList(constants));
 
-    public static boolean isConstant(String s) {
+    /**
+     * Determines whether {@code s} is a known constant.
+     * @param s the value to check
+     * @return true if known constant.
+     */
+    public static boolean isConstant(final String s) {
         return constantsSet.contains(s);
     }
 }

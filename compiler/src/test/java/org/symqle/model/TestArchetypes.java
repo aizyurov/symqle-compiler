@@ -1,3 +1,19 @@
+/*
+   Copyright 2011-2014 Alexander Izyurov
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.package org.symqle.common;
+*/
+
 package org.symqle.model;
 
 import junit.framework.TestCase;
@@ -13,9 +29,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Arrays;
 
-/**
- * @author lvovich
- */
 public class TestArchetypes extends TestCase {
 
     private SyntaxTree readSyntaxTree() throws FileNotFoundException, ParseException {
@@ -111,11 +124,6 @@ public class TestArchetypes extends TestCase {
         final Model model = ModelUtils.prepareModel();
         new InterfaceDeclarationsProcessor().process(Arrays.asList(syntaxTree), model);
         final InterfaceDefinition child = model.getInterface("Child4");
-        System.out.println(child);
-        for (MethodDefinition method: child.getAllMethods(model)) {
-            System.out.println("------");
-            System.out.println(method);
-        }
         assertEquals("Child4", child.getName());
         assertEquals(1, child.getDeclaredMethods().size());
         assertEquals(3, child.getAllMethods(model).size());

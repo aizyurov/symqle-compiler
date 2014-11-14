@@ -1,3 +1,19 @@
+/*
+   Copyright 2011-2014 Alexander Izyurov
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.package org.symqle.common;
+*/
+
 package org.symqle.processor;
 
 import org.symqle.model.*;
@@ -10,12 +26,17 @@ import java.util.Set;
 import static org.symqle.util.Utils.LINE_BREAK;
 
 /**
+ * Should be called after classes are loaded to Model, before class enhancement.
+ * At this point the class implements only its primary interface(s) explicitly declared in
+ * implements clause in SDL file.
+ * It adds generated javadoc comment, which lists abstract methods to implement in derived classes;
+ * generated adapt() method; adds required import lines from primary interfaces
  * @author lvovich
  */
 public class ClassCompletionProcessor extends ModelProcessor {
 
     @Override
-    protected void process(final Model model) throws ModelException {
+    protected final void process(final Model model) throws ModelException {
         for (ClassDefinition classDef: model.getAllClasses()) {
             finalizeClass(model, classDef);
         }
@@ -23,14 +44,14 @@ public class ClassCompletionProcessor extends ModelProcessor {
     }
 
     @Override
-    protected Processor predecessor() {
+    protected final Processor predecessor() {
         return new ClassDeclarationProcessor();
     }
 
-    private void finalizeClass(Model model, ClassDefinition classDefinition) throws ModelException {
+    private void finalizeClass(final Model model, final ClassDefinition classDefinition) throws ModelException {
         StringBuilder javadocBuilder = new StringBuilder();
         javadocBuilder.append("/**").append(LINE_BREAK);
-        javadocBuilder.append(" * Sql building block." ).append(LINE_BREAK);
+        javadocBuilder.append(" * Sql building block.").append(LINE_BREAK);
         javadocBuilder.append(" * Subclasses must implement:").append(LINE_BREAK);
         javadocBuilder.append(" *<ul>").append(LINE_BREAK);
         final Set<String> abstractMethodsSignatures = new HashSet<String>();
@@ -39,7 +60,9 @@ public class ClassCompletionProcessor extends ModelProcessor {
             if (method.getOtherModifiers().contains("volatile") && method.getOtherModifiers().contains("abstract")) {
                 method.declareAbstract("public");
                 javadocBuilder.append(" * <li>{@link #").append(method.getName());
-                javadocBuilder.append(Utils.format(method.getFormalParameters(), "(", ", ", ")", new F<FormalParameter, String, RuntimeException>() {
+                javadocBuilder.append(
+                        Utils.format(method.getFormalParameters(), "(", ", ", ")",
+                        new F<FormalParameter, String, RuntimeException>() {
                     @Override
                     public String apply(final FormalParameter formalParameter) {
                         return formalParameter.getType().getSimpleName();
@@ -50,12 +73,13 @@ public class ClassCompletionProcessor extends ModelProcessor {
                 abstractMethods.add(method);
             }
         }
-        ;
         javadocBuilder.append(" *</ul>").append(LINE_BREAK);
         final TypeParameters typeParameters = classDefinition.getTypeParameters();
         // it typeParameters.size() > 1, need manual javadoc - actually we have no such classes.
         if (typeParameters.size() == 1) {
-            javadocBuilder.append(" * @param ").append(typeParameters.toString()).append(" the type of associated Java objects");
+            javadocBuilder.append(" * @param ")
+                    .append(typeParameters.toString())
+                    .append(" the type of associated Java objects");
         }
         javadocBuilder.append(" */").append(LINE_BREAK);
         if (!abstractMethodsSignatures.isEmpty()) {
@@ -90,50 +114,56 @@ public class ClassCompletionProcessor extends ModelProcessor {
                             continue;
                         }
                         StringBuilder adaptBuilder = new StringBuilder();
-                        adaptBuilder.append("    /**").append(Utils.LINE_BREAK)
+                        adaptBuilder.append("    /**").append(LINE_BREAK)
                                 .append("     * Wraps a ").append(ancestor.getSimpleName())
                                 .append(" creating new ").append(classDefinition.getType())
-                                .append(".").append(Utils.LINE_BREAK)
-                                .append("     * @param adaptee the object to adapt").append(Utils.LINE_BREAK);
+                                .append(".").append(LINE_BREAK)
+                                .append("     * @param adaptee the object to adapt").append(LINE_BREAK);
                         if (typeParameters.size() == 1) {
-                                adaptBuilder.append("     * @param ").append(typeParameters).append(" adaptee type argument").append(Utils.LINE_BREAK);
+                                adaptBuilder.append("     * @param ")
+                                        .append(typeParameters)
+                                        .append(" adaptee type argument")
+                                        .append(LINE_BREAK);
                         }
-                        adaptBuilder.append("     * @return new instance of AbstractFactor").append(Utils.LINE_BREAK)
-                                .append("     */").append(Utils.LINE_BREAK);
+                        adaptBuilder.append("     * @return new instance of AbstractFactor").append(LINE_BREAK)
+                                .append("     */").append(LINE_BREAK);
                         adaptBuilder.append("    public static ")
                                 .append(typeParameters)
                                 .append(" ")
                                 .append(classDefinition.getType())
                                 .append(" adapt(final ")
-                                .append(ancestor).append(" adaptee) {").append(Utils.LINE_BREAK)
+                                .append(ancestor).append(" adaptee) {").append(LINE_BREAK)
                                 .append("        return new ").append(classDefinition.getType()).append("() {")
-                                .append(Utils.LINE_BREAK);
+                                .append(LINE_BREAK);
                         for (MethodDefinition method: abstractMethods) {
                             adaptBuilder.append("            public ").append(method.getTypeParameters()).append(" ")
                                     .append(method.getResultType()).append(" ").append(method.getName()).append("(")
-                                    .append(Utils.format(method.getFormalParameters(), "", ", ", "", new F<FormalParameter, String, RuntimeException>() {
+                                    .append(Utils.format(method.getFormalParameters(), "", ", ", "",
+                                            new F<FormalParameter, String, RuntimeException>() {
                                         @Override
                                         public String apply(final FormalParameter formalParameter) {
-                                            return formalParameter.getModifiers().contains("final") ?
-                                                    formalParameter.toString() :
-                                                    "final " + formalParameter;
+                                            return formalParameter.getModifiers().contains("final")
+                                                    ? formalParameter.toString()
+                                                    : "final " + formalParameter;
                                         }
                                     }))
-                                    .append(") {").append(Utils.LINE_BREAK)
+                                    .append(") {").append(LINE_BREAK)
                                     .append("                ")
                                     .append(method.getResultType().equals(Type.VOID) ? "" : "return ")
                                     .append(method.delegationInvocation("adaptee"))
-                                    .append(";").append(Utils.LINE_BREAK)
-                                    .append("            }").append(Utils.LINE_BREAK);
+                                    .append(";").append(LINE_BREAK)
+                                    .append("            }").append(LINE_BREAK);
                         }
                         adaptBuilder.append("        };").append(LINE_BREAK)
                                 .append("    }");
-                        final MethodDefinition adaptMethod = MethodDefinition.parse(adaptBuilder.toString(), classDefinition);
+                        final MethodDefinition adaptMethod =
+                                MethodDefinition.parse(adaptBuilder.toString(), classDefinition);
                         classDefinition.addMethod(adaptMethod);
                     } else {
                         Set<String> remaining = new HashSet<String>(abstractMethodsSignatures);
                         remaining.removeAll(ancestorMethodsSignatures);
-                        Log.debug(classDefinition.getName() + ": cannot adapt(" + ancestor.getSimpleName() + "), cannot delegate " + remaining);
+                        Log.debug(classDefinition.getName() + ": cannot adapt("
+                                + ancestor.getSimpleName() + "), cannot delegate " + remaining);
                     }
                 }
             }

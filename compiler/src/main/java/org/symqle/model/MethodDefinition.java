@@ -1,21 +1,33 @@
+/*
+   Copyright 2011-2014 Alexander Izyurov
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.package org.symqle.common;
+*/
+
 package org.symqle.model;
 
 import org.symqle.parser.ParseException;
 import org.symqle.parser.SimpleNode;
+import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
-import org.symqle.util.Assert;
 import org.symqle.util.Utils;
 
 import java.io.File;
 import java.util.*;
 
 /**
- * Created by IntelliJ IDEA.
- * User: aizyurov
- * Date: 25.11.2012
- * Time: 8:32:28
- * To change this template use File | Settings | File Templates.
+ * Java method definition.
  */
 public class MethodDefinition {
     private String comment;
@@ -39,29 +51,55 @@ public class MethodDefinition {
 
     private String sourceRef;
 
-    public boolean isPublic() {
+    /**
+     * Is this method public.
+     * @return true if public (declared or interface method)
+     */
+    public final boolean isPublic() {
         return isPublic;
     }
 
-    protected boolean isAbstract() {
+    /**
+     * Is this method abstract.
+     * @return true if abstract (declared or interface method)
+     */
+    protected final boolean isAbstract() {
         return isAbstract;
     }
 
-    public List<FormalParameter> getFormalParameters() {
+    /**
+     * Formal parameters of the method.
+     * @return formal parameters
+     */
+    public final List<FormalParameter> getFormalParameters() {
         return formalParameters;
     }
 
-    public TypeParameters getTypeParameters() {
+    /**
+     * Type parameters of the method.
+     * @return type parameters
+     */
+    public final TypeParameters getTypeParameters() {
         return typeParameters;
     }
 
-    public AbstractTypeDefinition getOwner() {
+    /**
+     * Class or interface to which thid method belong.
+     * @return owner
+     */
+    public final AbstractTypeDefinition getOwner() {
         return owner;
     }
 
+    /**
+     * Parse abstract method (no body).
+     * @param source valid text for interface method or abstract method
+     * @param owner class or interface to which this method belongs
+     * @return constructed method
+     */
     public static MethodDefinition parseAbstract(final String source, final AbstractTypeDefinition owner) {
         try {
-            final SimpleNode simpleNode = Utils.createParser(source).AbstractMethodDeclaration();
+            final SimpleNode simpleNode = SymqleParser.createParser(source).AbstractMethodDeclaration();
             SyntaxTree syntaxTree = new SyntaxTree(simpleNode, source);
             return new MethodDefinition(syntaxTree, owner);
         } catch (ParseException e) {
@@ -71,18 +109,24 @@ public class MethodDefinition {
         }
     }
 
+    /**
+     * Parse class method.
+     * @param source valid text method
+     * @param owner class or interface to which this method belongs
+     * @return constructed method
+     */
     public static MethodDefinition parse(final String source, final AbstractTypeDefinition owner) {
         try {
-            final SimpleNode simpleNode = Utils.createParser(source).MethodDeclaration();
+            final SimpleNode simpleNode = SymqleParser.createParser(source).MethodDeclaration();
             SyntaxTree syntaxTree = new SyntaxTree(simpleNode, source);
             return new MethodDefinition(syntaxTree, owner);
         } catch (ParseException e) {
-            throw new RuntimeException("Internal error in "+Utils.LINE_BREAK + source, e);
+            throw new RuntimeException("Internal error in " + Utils.LINE_BREAK + source, e);
         } catch (GrammarException e) {
-            throw new RuntimeException("Internal error in "+Utils.LINE_BREAK + source, e);
+            throw new RuntimeException("Internal error in " + Utils.LINE_BREAK + source, e);
         }
     }
-    
+
     private MethodDefinition(final String comment,
                              final String accessModifier,
                              final Set<String> otherModifiers,
@@ -112,9 +156,14 @@ public class MethodDefinition {
         isAbstract = anAbstract;
     }
 
-    public MethodDefinition(SyntaxTree node, final AbstractTypeDefinition owner) throws GrammarException {
-        final String nodeType = node.getType();
-        Assert.assertOneOf(new GrammarException("Unexpected type: " + nodeType, node), nodeType, "MethodDeclaration", "AbstractMethodDeclaration");
+    /**
+     * Construct from AST.
+     * @param node syntax tree
+     * @param owner class or interface, which owns the method
+     * @throws GrammarException wrong tree
+     */
+    public MethodDefinition(final SyntaxTree node, final AbstractTypeDefinition owner) throws GrammarException {
+        AssertNodeType.assertOneOf(node, "MethodDeclaration", "AbstractMethodDeclaration");
         this.comment = node.getComments();
         List<SyntaxTree> modifierNodes = node.find("MethodModifiers.MethodModifier");
         modifierNodes.addAll(node.find("AbstractMethodModifiers.AbstractMethodModifier"));
@@ -136,11 +185,10 @@ public class MethodDefinition {
 
         final List<SyntaxTree> nodes = node.find("MethodDeclarator.Identifier");
         name = nodes.get(0).getValue();
-        formalParameters = node.find("MethodDeclarator.FormalParameterList.FormalParameter", FormalParameter.CONSTRUCT);
-        formalParameters.addAll
-                (node.find("MethodDeclarator.FormalParameterList.FormalParameterWithEllipsis", FormalParameter.CONSTRUCT));
-
-        final List<String> throwClauses = node.find("Throws", SyntaxTree.BODY);
+        formalParameters =
+                node.find("MethodDeclarator.FormalParameterList.FormalParameter", FormalParameter.CONSTRUCT);
+        formalParameters.addAll(node.find("MethodDeclarator.FormalParameterList.FormalParameterWithEllipsis",
+                        FormalParameter.CONSTRUCT));
         // may be at most one by grammar
         this.thrownExceptions = new HashSet<Type>(node.find("Throws.ExceptionType", Type.CONSTRUCT));
         this.owner = owner;
@@ -149,28 +197,50 @@ public class MethodDefinition {
 
     }
 
-    public String getName() {
+    /**
+     * Method name.
+     * @return name
+     */
+    public final String getName() {
         return name;
     }
 
-    public String signature() {
+    /**
+     * Method signature.
+     * @return signature. Format is different from JVM format! return type is not included.
+     * primitive types are just their names, not special abbreviations. Arrays are marked with [] after type name.
+     * Example: equal(int[],int[])
+     */
+    public final String signature() {
         // TODO
         HashSet<String> typeParameterNames = new HashSet<String>(typeParameters.names());
         typeParameterNames.addAll(owner.getTypeParameters().names());
         Collection<String> formalParameterErasures =
                 Utils.map(formalParameters, FormalParameter.f_erasure(typeParameterNames));
-        return name+"("+Utils.format(formalParameterErasures, "", ",", "")+")";
+        return name + "(" + Utils.format(formalParameterErasures, "", ",", "") + ")";
     }
 
-    public String getAccessModifier() {
+    /**
+     * Access modifier.
+     * @return miodifier, Empty string for package scope.
+     */
+    public final String getAccessModifier() {
         return accessModifier;
     }
 
-    public Set<String> getOtherModifiers() {
+    /**
+     * Modifiers other than access modifier: static, final etc.
+     * @return modifiers
+     */
+    public final Set<String> getOtherModifiers() {
         return otherModifiers;
     }
 
-    public String declaration() {
+    /**
+     * Nethod declaration - from modifiers to throws clause.
+     * @return declaration
+     */
+    public final String declaration() {
         final String firstAttempt = formatDeclaration(", ");
         if (firstAttempt.length() < 100) {
             return firstAttempt;
@@ -180,9 +250,10 @@ public class MethodDefinition {
     }
 
     private String formatDeclaration(final String parameterSeparator) {
-        Set<String> sortedExceptions = new TreeSet<String>(Utils.map(thrownExceptions, new F<Type, String, RuntimeException>() {
+        Set<String> sortedExceptions =
+                new TreeSet<String>(Utils.map(thrownExceptions, new F<Type, String, RuntimeException>() {
             @Override
-            public String apply(Type type) {
+            public String apply(final Type type) {
                 return type.toString();  //To change body of implemented methods use File | Settings | File Templates.
             }
         }));
@@ -209,23 +280,47 @@ public class MethodDefinition {
         return builder.toString();
     }
 
-    public String toString() {
+    @Override
+    public final String toString() {
         final String sourceRefComment =
                 sourceRef == null
                         ? ""
-                        : Utils.LINE_BREAK + "// "+sourceRef +Utils.LINE_BREAK;
+                        : Utils.LINE_BREAK + "// " + sourceRef + Utils.LINE_BREAK;
         return sourceRefComment + comment + declaration() + body;
     }
 
-    public MethodDefinition override(final AbstractTypeDefinition targetOwner, final Model model) throws ModelException {
+    /**
+     * Create a method for targetOwner, which properly overrides declaration of {@code this}.
+     * The created method has empty body (semicolon) and "volatile" modifier.
+     * All type arguments are adjusted for targetOwner. For example, if targetOwner implements {@code List<String>},
+     * and {@code this} is method {@code boolean add(E e)} where E is declared in List definition:
+     * {@code public interface List<E>},
+     * then the resulting method would be {@code public abstract volatile boolean add(String e);}.
+     * The method is not added to targetOwner; it may be used for further modifications e.g. add body) before adding.
+     * @param targetOwner the recipient of the method
+     * @param model collection of known classes and interfaces
+     * @return constructed method
+     * @throws ModelException wrong model
+     */
+    public final MethodDefinition override(final AbstractTypeDefinition targetOwner, final Model model)
+            throws ModelException {
         final Type type = targetOwner.getAncestorTypeByName(owner.getName());
         final AbstractTypeDefinition abstractType = model.getAbstractType(type.getSimpleName());
-        final Map<String, TypeArgument> mapping = abstractType.getTypeParameters().inferTypeArguments(abstractType.getType(), type);
+        final Map<String, TypeArgument> mapping =
+                abstractType.getTypeParameters().inferTypeArguments(abstractType.getType(), type);
         return replaceParams(targetOwner, mapping);
     }
 
+    /**
+     * Replaces type parameters as necessary for targetOwner.
+     * See example in {@link #override(AbstractTypeDefinition, Model)}
+     * @param targetOwner new owner
+     * @param mapping type paremeters map
+     * @return new method with replaced parameters
+     */
+    public final MethodDefinition replaceParams(final AbstractTypeDefinition targetOwner,
+                                                final Map<String, TypeArgument> mapping) {
     // does not change the owner (this is not correct!)
-    public MethodDefinition replaceParams(final AbstractTypeDefinition targetOwner, final Map<String,TypeArgument> mapping) {
         final List<FormalParameter> newFormalParameters = new ArrayList<FormalParameter>(formalParameters.size());
         for (FormalParameter formalParameter: formalParameters) {
             newFormalParameters.add(formalParameter.replaceParams(mapping));
@@ -237,7 +332,7 @@ public class MethodDefinition {
         }
         final Set<String> newModifiers = new HashSet<String>(otherModifiers);
         newModifiers.add("volatile");
-        newModifiers.addAll(targetOwner.addImplicitMethodModifiers(this));
+        newModifiers.addAll(targetOwner.implicitMethodModifiers(this));
         String newAccessModifier = targetOwner.implicitMethodAccessModifier(this);
         return new MethodDefinition(
                 comment,
@@ -254,54 +349,25 @@ public class MethodDefinition {
                 targetOwner.methodIsAbstract(newModifiers));
     }
 
-//    private MethodDefinition replaceParameters(final AbstractTypeDefinition targetOwner, final TypeParameters typeParameters, final TypeArguments typeArguments) throws ModelException {
-//        final List<FormalParameter> newFormalParameters = new ArrayList<FormalParameter>(formalParameters.size());
-//        for (FormalParameter formalParameter: formalParameters) {
-//            newFormalParameters.add(formalParameter.substituteParameters(typeParameters, typeArguments));
-//        }
-//        final Type newResultType = resultType.substituteParameters(typeParameters, typeArguments);
-//        final Set<Type> newThrownExceptions = new HashSet<Type>();
-//        for (Type exceptionType: thrownExceptions) {
-//            newThrownExceptions.add(exceptionType.substituteParameters(typeParameters, typeArguments));
-//        }
-//        final Set<String> newModifiers = new HashSet<String>(otherModifiers);
-//        newModifiers.add("volatile");
-//        newModifiers.addAll(targetOwner.addImplicitMethodModifiers(this));
-//        String newAccessModifier = targetOwner.implicitMethodAccessModifier(this);
-//        return new MethodDefinition(
-//                comment,
-//                newAccessModifier,
-//                newModifiers,
-//                this.typeParameters,
-//                newResultType,
-//                name,
-//                newFormalParameters,
-//                newThrownExceptions,
-//                ";",
-//                targetOwner,
-//                targetOwner.methodIsPublic(newAccessModifier),
-//                targetOwner.methodIsAbstract(newModifiers));
-//    }
-
     /**
      * A method matches another method, if they have the same
      * return type, name, formal parameters, owner and thrown exceptions.
      * Type parameters may be different, this is taken into account:
      * e.g if the return type is the first type parameter for both, is it OK etc.
      * @param other the method to compare with
-     * @return
+     * @return true if matches
      */
-    public boolean matches(MethodDefinition other) {
+    public final boolean matches(final MethodDefinition other) {
         if (!signature().equals(other.signature())) {
             return false;
         }
         final List<TypeParameter> myParamList = typeParameters.list();
         final List<TypeParameter> otherParamList = other.typeParameters.list();
-        if (myParamList.size()!=otherParamList.size()) {
+        if (myParamList.size() != otherParamList.size()) {
             return false;
         }
         final Map<String, TypeArgument> mapping = new HashMap<String, TypeArgument>();
-        for (int i=0; i<myParamList.size(); i++) {
+        for (int i = 0; i < myParamList.size(); i++) {
             mapping.put(otherParamList.get(i).getName(), new TypeArgument(myParamList.get(i).getName()));
         }
         final MethodDefinition adjusted = other.replaceParams(owner, mapping);
@@ -310,31 +376,48 @@ public class MethodDefinition {
                     && adjusted.thrownExceptions.equals(thrownExceptions);
     }
 
-    private Collection<Type> types(List<FormalParameter> formalParameters) {
-        return Utils.map(formalParameters, new F<FormalParameter, Type, RuntimeException>() {
+
+    private static Collection<Type> types(final List<FormalParameter> parameters) {
+        return Utils.map(parameters, new F<FormalParameter, Type, RuntimeException>() {
             @Override
-            public Type apply(FormalParameter formalParameter) {
+            public Type apply(final FormalParameter formalParameter) {
                 return formalParameter.getType();
             }
         });
     }
 
-    public Type getResultType() {
+    /**
+     * Result type of this method.
+     * @return result type, {@link Type#VOID} for void methods.
+     */
+    public final Type getResultType() {
         return resultType;
     }
 
-    public String delegationInvocation(String objectName) {
-        final Collection<String> parameterNames = Utils.map(formalParameters, new F<FormalParameter, String, RuntimeException>() {
+    /**
+     * Constructs a string, which calls {@code this} on an object, providing parameter names as arguments.
+     * @param objectName the object
+     * @return the constructed text
+     */
+    public final String delegationInvocation(final String objectName) {
+        final Collection<String> parameterNames =
+                Utils.map(formalParameters, new F<FormalParameter, String, RuntimeException>() {
             @Override
             public String apply(final FormalParameter formalParameter) {
                 return formalParameter.getName();
             }
         });
         return invoke(objectName, parameterNames);
-        
+
     }
 
-    public String invoke(String objectName, Collection<String> arguments) {
+    /**
+     * Constructs a string, which calls {@code this} on an object with given arguments.
+     * @param objectName the object
+     * @param arguments arguments to call with
+     * @return the constructed text
+     */
+    public final String invoke(final String objectName, final Collection<String> arguments) {
         StringBuilder builder = new StringBuilder();
         builder.append(objectName);
         builder.append(".");
@@ -345,19 +428,29 @@ public class MethodDefinition {
         return builder.toString();
     }
 
-    public void implement(final String newAccessModifier, final String newBody)  throws ModelException {
-        implement(newAccessModifier, newBody, false, true);
-    }
-
-    public void implement(final String newAccessModifier, final String newBody, boolean makeParametersFinal, boolean makeMethodFinal) throws ModelException {
-        final Collection<FormalParameter> newFormalParameters = makeParametersFinal ?
-                Utils.map(formalParameters, new F<FormalParameter, FormalParameter, RuntimeException>() {
+    /**
+     * Implement a method and add the result to the owner of this.
+     * It is expected that {@code this} is not attached to the owner yet, for example,
+     * it was created by {@link #parse(String, AbstractTypeDefinition)}
+     * or {@link #override(AbstractTypeDefinition, Model)}.
+     * @param newAccessModifier new access modifier
+     * @param newBody implementation
+     * @param makeParametersFinal if true, make all parameters of implemented method final
+     * @param makeMethodFinal if true, make the implemented method final
+     * @throws ModelException duplicate method
+     */
+    public final void implement(final String newAccessModifier,
+                                final String newBody,
+                                final boolean makeParametersFinal,
+                                final boolean makeMethodFinal) throws ModelException {
+        final Collection<FormalParameter> newFormalParameters = makeParametersFinal
+                ? Utils.map(formalParameters, new F<FormalParameter, FormalParameter, RuntimeException>() {
                     @Override
                     public FormalParameter apply(final FormalParameter formalParameter) {
                         return formalParameter.makeFinal(true);
                     }
-                }) :
-                formalParameters;
+                })
+                : formalParameters;
         final Set<String> newModifiers = new HashSet<String>(otherModifiers);
         newModifiers.remove("abstract");
         newModifiers.remove("volatile");
@@ -383,18 +476,27 @@ public class MethodDefinition {
         );
     }
 
-    public void replaceBody(String newBody) {
-        this.body = newBody;
-    }
-
-    public void makeStatic() throws ModelException {
+    /**
+     * Make method static. Modifies {@code this}.
+     * @throws ModelException conflicting modifiers
+     */
+    public final void makeStatic() throws ModelException {
         if (isAbstract()) {
             throw new ModelException("Abstract method cannot be static");
         }
         otherModifiers.add("static");
     }
 
-    public void declareAbstract(final String newAccessModifier) throws ModelException {
+     /**
+      * Create a copy of current method, which is explicitly abstract, and add it
+      * to the owner.
+      * It is expected that {@code this} is not attached to the owner yet, for example,
+      * it was created by {@link #parse(String, AbstractTypeDefinition)}
+      * or {@link #override(AbstractTypeDefinition, Model)}.
+     * @param newAccessModifier new access modifier
+     * @throws ModelException duplicate method
+     */
+    public final void declareAbstract(final String newAccessModifier) throws ModelException {
         final Set<String> newModifiers = new HashSet<String>(otherModifiers);
         newModifiers.add("abstract");
         newModifiers.remove("volatile");
@@ -415,48 +517,53 @@ public class MethodDefinition {
         );
     }
 
-    public void pullUpAbstractMethod(final ClassDefinition newOwner) throws ModelException {
-        final Set<String> newModifiers = new HashSet<String>(otherModifiers);
-        newModifiers.add("abstract");
-        newOwner.addMethod(
-                new MethodDefinition(
-                        comment,
-                        accessModifier,
-                        newModifiers,
-                        typeParameters,
-                        resultType,
-                        name,
-                        formalParameters,
-                        thrownExceptions,
-                        ";",
-                        newOwner,
-                        isPublic,
-                        true)
-        );
-    }
-
-    public Set<Type> getThrownExceptions() {
+    /**
+     * Thrown exceptions.
+     * @return thrown exceptions
+     */
+    public final Set<Type> getThrownExceptions() {
         return thrownExceptions;
     }
 
-    public String getComment() {
+    /**
+     * Method comment.
+     * @return comment
+     */
+    public final String getComment() {
         return comment;
     }
 
-    public void setSourceRef(final SyntaxTree node) {
-        final String name = new File(node.getFileName()).getName();
-        this.sourceRef = name + ":" + node.getLine();
+    /**
+     * Sets location of sdl source - file:line.
+     * @param node the node where the method is defined. For auto-generated methods it may be the node
+     * corresponding to syntax rule or something else.
+     */
+    public final void setSourceRef(final SyntaxTree node) {
+        final String fileName = new File(node.getFileName()).getName();
+        this.sourceRef = fileName + ":" + node.getLine();
     }
 
-    public void setSourceRef(final String sourceRef) {
+     /**
+      * Sets location of sdl source - file:line.
+     * @param sourceRef reference in file:line format
+     */
+    public final void setSourceRef(final String sourceRef) {
         this.sourceRef = sourceRef;
     }
 
-    public String getSourceRef() {
+    /**
+     * Location of sdl source - file:line.
+     * @return location
+     */
+    public final String getSourceRef() {
         return sourceRef;
     }
 
-    public void replaceComment(String newComment) {
+    /**
+     * Replaces a method comment with a new one. Modifies {@code this}.
+     * @param newComment replacement
+     */
+    public final void replaceComment(final String newComment) {
         comment = newComment;
     }
 }

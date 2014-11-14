@@ -1,32 +1,50 @@
+/*
+   Copyright 2011-2014 Alexander Izyurov
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.package org.symqle.common;
+*/
+
 package org.symqle.model;
 
 import org.symqle.parser.ParseException;
 import org.symqle.parser.SimpleNode;
+import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
-import org.symqle.util.Assert;
 import org.symqle.util.Utils;
 
 import java.util.List;
 import java.util.Set;
 
 /**
- * Created by IntelliJ IDEA.
- * User: aizyurov
- * Date: 01.01.2013
- * Time: 22:17:46
- * To change this template use File | Settings | File Templates.
+ * Field declaration.
  */
 public class FieldDeclaration {
-    public final String accessModifier;
-    public final Set<String> otherModifiers;
+    private final String accessModifier;
+    private final Set<String> otherModifiers;
     private final Type type;
     private final List<VariableDeclarator> variables;
     private final String comment;
 
-    public static FieldDeclaration parse(String source) {
+    /**
+     * Construct from String.
+     * The string should contain valid field declaration.
+     * @param source the string
+     * @return new instance
+     */
+    public static FieldDeclaration parse(final String source) {
         try {
-            final SimpleNode simpleNode = Utils.createParser(source).FieldDeclaration();
+            final SimpleNode simpleNode = SymqleParser.createParser(source).FieldDeclaration();
             SyntaxTree syntaxTree = new SyntaxTree(simpleNode, source);
             return new FieldDeclaration(syntaxTree);
         } catch (ParseException e) {
@@ -36,8 +54,14 @@ public class FieldDeclaration {
         }
     }
 
-    public FieldDeclaration(SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "FieldDeclaration");
+    /**
+     * Construct from AST.
+     * @param node the syntax tree
+     * @throws GrammarException wrong tree
+     */
+    public FieldDeclaration(final SyntaxTree node) throws GrammarException {
+        AssertNodeType.assertOneOf(node,
+                "FieldDeclaration");
         List<SyntaxTree> modifierNodes = node.find("FieldModifiers");
         this.accessModifier = Utils.getAccessModifier(modifierNodes);
         this.otherModifiers = Utils.getNonAccessModifiers(modifierNodes);
@@ -47,9 +71,10 @@ public class FieldDeclaration {
         this.comment = node.getComments();
     }
 
-    public String toString() {
+    @Override
+    public final String toString() {
         return comment + accessModifier + " " + Utils.format(otherModifiers, "", " ", " ")
-                + type + " " +Utils.format(variables, "", ", ", ";");
+                + type + " " + Utils.format(variables, "", ", ", ";");
     }
 
 }

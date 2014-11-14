@@ -1,3 +1,19 @@
+/*
+   Copyright 2011-2014 Alexander Izyurov
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.package org.symqle.common;
+*/
+
 package org.symqle.processor;
 
 import org.symqle.model.ClassDefinition;
@@ -9,21 +25,18 @@ import org.symqle.parser.SyntaxTree;
 import java.util.List;
 
 /**
- * Created by IntelliJ IDEA.
- * User: aizyurov
- * Date: 02.12.2012
- * Time: 10:59:32
+ * Read "standalone" (not production rule related) methods from syntax trees and put to model.
  * To change this template use File | Settings | File Templates.
  */
 public class SymqleMethodProcessor extends SyntaxTreeProcessor {
 
     @Override
-    protected Processor predecessor() {
+    protected final Processor predecessor() {
         return new ProductionProcessor();
     }
 
     @Override
-    protected void process(SyntaxTree tree, Model model) throws GrammarException {
+    protected final void process(final SyntaxTree tree, final Model model) throws GrammarException {
 
         final ClassDefinition symqle;
         try {

@@ -1,3 +1,19 @@
+/*
+   Copyright 2011-2014 Alexander Izyurov
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.package org.symqle.common;
+*/
+
 package org.symqle.processor;
 
 import org.symqle.model.*;
@@ -9,18 +25,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author lvovich
+ * Adds to interface methods, which can be delegated to Symqle static methods.
+ * In Java 8, the methods would have default implementations.
  */
 public class InterfaceEnhancer extends ModelProcessor {
 
     @Override
-    protected Processor predecessor() {
+    protected final Processor predecessor() {
         return new InheritanceProcessor();
     }
 
     @Override
-    protected void process(final Model model) throws ModelException {
-        Log.debug("All interfaces: " + Utils.map(model.getAllInterfaces(), new F<InterfaceDefinition, String, RuntimeException>() {
+    protected final void process(final Model model) throws ModelException {
+        Log.debug("All interfaces: "
+                + Utils.map(model.getAllInterfaces(), new F<InterfaceDefinition, String, RuntimeException>() {
             @Override
             public String apply(final InterfaceDefinition o) {
                 return o.getName();
@@ -31,7 +49,8 @@ public class InterfaceEnhancer extends ModelProcessor {
         }
     }
 
-    private void enhanceInterface(final InterfaceDefinition interfaceDefinition, final Model model) throws ModelException {
+    private void enhanceInterface(final InterfaceDefinition interfaceDefinition,
+                                  final Model model) throws ModelException {
         for (MethodDefinition method: model.getExplicitSymqleMethods()) {
             if (!model.isUnambiguous(method)) {
                 continue;
@@ -58,17 +77,17 @@ public class InterfaceEnhancer extends ModelProcessor {
                 // cannot infer type parameter values; skip this method
                 continue;
             }
-            if (firstArgType.replaceParams(mapping).equals(myType) ||
-            (firstArgType.getTypeArguments().getArguments().size()==1
+            if (firstArgType.replaceParams(mapping).equals(myType)
+                    || firstArgType.getTypeArguments().getArguments().size() == 1
                     && firstArgType.getTypeArguments().getArguments().get(0).isWildCardArgument()
-                    && myType.getTypeArguments().getArguments().size() == 1)) {
+                    && myType.getTypeArguments().getArguments().size() == 1) {
                 // special case: both have a single parameter, which is wildcard in firstArg,
                 // so types match
-                final MethodDefinition newMethod = createMyMethod(interfaceDefinition, method, myType, mapping);
+                final MethodDefinition newMethod = createMyMethod(interfaceDefinition, method, mapping);
                 // remove comment from Symqle: moved to interface.
-                method.replaceComment("    /**" + Utils.LINE_BREAK +
-                                        "     *  see {@link " + interfaceDefinition.getName() + "#" + newMethod.signature() + "}" + Utils.LINE_BREAK +
-                                        "     */" + Utils.LINE_BREAK) ;
+                method.replaceComment("    /**" + Utils.LINE_BREAK
+                        + "     *  see {@link " + interfaceDefinition.getName() + "#" + newMethod.signature() + "}"
+                        + Utils.LINE_BREAK + "     */" + Utils.LINE_BREAK);
                 try {
                     interfaceDefinition.addDelegateMethod(newMethod);
                 } catch (ModelException e) {
@@ -79,7 +98,9 @@ public class InterfaceEnhancer extends ModelProcessor {
         }
     }
 
-    private MethodDefinition createMyMethod(final InterfaceDefinition interfaceDefinition, MethodDefinition symqleMethod, Type myType, final Map<String, TypeArgument> mapping) {
+    private MethodDefinition createMyMethod(final InterfaceDefinition interfaceDefinition,
+                                            final MethodDefinition symqleMethod,
+                                            final Map<String, TypeArgument> mapping) {
         final List<TypeParameter> myTypeParameterList = new ArrayList<TypeParameter>();
         // skip parameters, which are in mapping: they are inferred
         for (TypeParameter typeParameter: symqleMethod.getTypeParameters().list()) {
@@ -91,7 +112,7 @@ public class InterfaceEnhancer extends ModelProcessor {
         final TypeParameters myTypeParameters = new TypeParameters(myTypeParameterList);
         List<FormalParameter> myFormalParameters = new ArrayList<FormalParameter>();
         final List<FormalParameter> symqleFormalParameters = symqleMethod.getFormalParameters();
-        for (int i=1; i< symqleFormalParameters.size(); i++) {
+        for (int i = 1; i < symqleFormalParameters.size(); i++) {
             final FormalParameter symqleFormalParameter = symqleFormalParameters.get(i);
             myFormalParameters.add(symqleFormalParameter.replaceParams(mapping));
         }

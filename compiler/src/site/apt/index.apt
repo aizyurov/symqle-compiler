@@ -1,0 +1,11 @@
+Symqle compiler
+
+  It takes a number of sdl (Symqle definition language) and creates java code. SDL is a mix of BNF notation and java code.
+  It defines interfaces and classes (which will constitute symqle core) and syntax rules of SQL language.
+  Each syntax rule produces a method in Dialect intarface and its implementation in GenericDialect class,
+  a method in Symqle class and may add methods to interfaces and classes defined in sdl files. The body of methods
+    are mostly constructed automatically based on conventions but may be overridden in sdl.
+
+    For the time being SDL is not documented, you have to dig into {{{./xref/index.html}sources}} to understand the logic.
+
+    See {{{../index.html}parent documentation}} for links to issue tracking, license etc.

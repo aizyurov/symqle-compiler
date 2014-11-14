@@ -1,19 +1,32 @@
 /*
-* Copyright Alexander Izyurov 2010
+   Copyright 2011-2014 Alexander Izyurov
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.package org.symqle.common;
 */
+
 package org.symqle.model;
 
 import org.symqle.parser.ParseException;
+import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
-import org.symqle.util.Assert;
 import org.symqle.util.Utils;
 
 import java.io.File;
 import java.util.*;
 
 /**
- * <br/>13.11.2011
+ * Class or interface definition.
  *
  * @author Alexander Izyurov
  */
@@ -22,7 +35,7 @@ public abstract class AbstractTypeDefinition {
     private final String name;
     private final String accessModifier;
     private final Set<String> otherModifiers;
-    protected final TypeParameters typeParameters;
+    private final TypeParameters typeParameters;
     private final Map<String, MethodDefinition> methods = new TreeMap<String, MethodDefinition>();
     private final List<String> otherDeclarations = new ArrayList<String>();
     private final List<String> annotations;
@@ -33,8 +46,15 @@ public abstract class AbstractTypeDefinition {
     // presentation part
     private String comment;
 
-    protected AbstractTypeDefinition(SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "SymqleInterfaceDeclaration", "NormalClassDeclaration", "ProductionImplementation");
+    /**
+     * Constructs from AST. The tree shoud be of type
+     * SymqleInterfaceDeclaration, NormalClassDeclaration or ProductionImplementation.
+     * @param node the syntax tree
+     * @throws GrammarException wrong tree type or semantic error (duplicated methods etc.)
+     */
+    protected AbstractTypeDefinition(final SyntaxTree node) throws GrammarException {
+        AssertNodeType.assertOneOf(node,
+                "SymqleInterfaceDeclaration", "NormalClassDeclaration", "ProductionImplementation");
 
         this.importLines = new TreeSet<String>(node.find("^.^.ImportDeclaration", SyntaxTree.BODY));
         // modifiers may be of interface or class; one of collections is empty
@@ -50,10 +70,12 @@ public abstract class AbstractTypeDefinition {
         names.addAll(node.find("^.ProductionImplementation.Identifier", new F<SyntaxTree, String, RuntimeException>() {
             @Override
             public String apply(final SyntaxTree syntaxTree) {
-                return "$$"+syntaxTree.getValue();
+                return "$$" + syntaxTree.getValue();
             }
         }));
-        this.name = names.isEmpty() ? ("anonymous$"+ anonymousClassCounter++ ) : names.get(0);
+        this.name = names.isEmpty()
+                ? "anonymous$" + anonymousClassCounter++
+                : names.get(0);
 
         final List<TypeParameter> typeParams = node.find("TypeParameters.TypeParameter", TypeParameter.CONSTRUCT);
         // one level up for ProductionRule
@@ -65,7 +87,7 @@ public abstract class AbstractTypeDefinition {
         bodies.addAll(node.find("ClassBody"));
         if (node.getType().equals("ProductionImplementation") && bodies.isEmpty()) {
             try {
-                bodies.add(new SyntaxTree(Utils.createParser("{}").ClassBody(), node.getFileName()));
+                bodies.add(new SyntaxTree(SymqleParser.createParser("{}").ClassBody(), node.getFileName()));
             } catch (ParseException e) {
                 throw new RuntimeException(e);
             }
@@ -73,11 +95,11 @@ public abstract class AbstractTypeDefinition {
         final SyntaxTree bodyNode = bodies.get(0);
         final List<SyntaxTree> members = bodyNode.find("InterfaceMemberDeclaration");
         members.addAll(bodyNode.find("ClassBodyDeclaration"));
-        for (SyntaxTree member: members) {
+        for (SyntaxTree member : members) {
             final SyntaxTree child = member.getChildren().get(0);
             String type = child.getType();
-            if (type.equals("AbstractMethodDeclaration") ||
-                    type.equals("MethodDeclaration")) {
+            if (type.equals("AbstractMethodDeclaration")
+                    || type.equals("MethodDeclaration")) {
                 MethodDefinition methodDefinition = new MethodDefinition(child, this);
                 try {
                     addMethod(methodDefinition);
@@ -93,99 +115,175 @@ public abstract class AbstractTypeDefinition {
         sourceRef = new File(node.getFileName()).getName() + ":" + node.getLine();
     }
 
-    public void addFieldDeclaration(FieldDeclaration declaration) {
+    /**
+     * Adds field declaration to {@code this}.
+     * No check for duplicate fields; generated sources will be non-compilable if there are any.
+     * @param declaration field(s) to add
+     */
+    public final void addFieldDeclaration(final FieldDeclaration declaration) {
         // no check for duplicate valiable names!
         otherDeclarations.add(declaration.toString());
     }
 
+    /**
+     * Access modifier to be used in overridden/implemented or delegated method.
+     * @param methodDefinition the source method (from other class/interface)
+     * @return access modifier required for this class/interface
+     */
     public abstract String implicitMethodAccessModifier(MethodDefinition methodDefinition);
-    public abstract Set<String> addImplicitMethodModifiers(MethodDefinition methodDefinition);
 
+    /**
+     * Modifiers to be used in overridden/implemented or delegated method.
+     * @param methodDefinition the source method (from other class/interface)
+     * @return modifiers required for this class/interface
+     */
+    public abstract Set<String> implicitMethodModifiers(MethodDefinition methodDefinition);
+
+    /**
+     * Is a method with these modifiers abstract if appears in {@code this}.
+     * @param modifiers the method modifiers
+     * @return true if abstract (explicitly or interface method).
+     */
     public abstract boolean methodIsAbstract(Set<String> modifiers);
+
+    /**
+     * Is a method with these modifiers public if appears in {@code this}.
+     * @param explicitAccessModifier access modifier
+     * @return true if public (explicitly or interface method).
+     */
     public abstract boolean methodIsPublic(String explicitAccessModifier);
 
-    public Type getType() {
+    /**
+     * Type of {@code this}.
+     * @return the type.
+     */
+    public final Type getType() {
         return new Type(name, typeParameters.asTypeArguments(), 0);
     }
 
 
-
-    public void addMethod(MethodDefinition methodDefinition) throws ModelException {
+    /**
+     * Adds a method to {@code this}.
+     * @param methodDefinition the method to add
+     * @throws ModelException duplicate method
+     */
+    public final void addMethod(final MethodDefinition methodDefinition) throws ModelException {
         if (null != methods.put(methodDefinition.signature(), methodDefinition)) {
-            throw new ModelException("Duplicate method: "+methodDefinition.signature() + " in " + getName());
+            throw new ModelException("Duplicate method: " + methodDefinition.signature() + " in " + getName());
         }
     }
 
-    public void addImportLines(Collection<String> addedImports) {
+    /**
+     * Adds import lines to {@code this}.
+     * Each line must be full inport statement, like "import org.symqle.common.SqlBuilder;".
+     * Syntax is not checked.
+     * @param addedImports import lines to add
+     */
+    public final void addImportLines(final Collection<String> addedImports) {
         this.importLines.addAll(addedImports);
     }
 
-    public String getName() {
+    /**
+     * Name of this type.
+     * @return type name
+     */
+    public final String getName() {
         return name;
     }
 
+    /**
+     * Makes this class abstract. Should be applied to ClassDefinition only.
+     * Does not check for correct usage, may be erroneously applied to an interface,
+     * producing uncompilable code.
+     */
     protected final void makeAbstract() {
         otherModifiers.add("abstract");
     }
 
-    public TypeParameters getTypeParameters() {
+    /**
+     * Type parameters of this type definition.
+     * @return type parameters.
+     */
+    public final TypeParameters getTypeParameters() {
         return typeParameters;
     }
 
     /**
-     * Actually returns only non-static methods
-     * @return
+     * Declared methods of this type definition.
+     * @return declared methods.
      */
-    public Collection<MethodDefinition> getNonStaticMethods() {
-        final Collection<MethodDefinition> methods = this.methods.values();
-        final List<MethodDefinition> nonStaticMethods = new ArrayList<MethodDefinition>();
-        for (MethodDefinition method : methods) {
-            if (!method.getOtherModifiers().contains("static")) {
-                nonStaticMethods.add(method);
-            }
-        }
-        return nonStaticMethods;
-    }
-
-    public Collection<MethodDefinition> getDeclaredMethods() {
+    public final Collection<MethodDefinition> getDeclaredMethods() {
         return Collections.unmodifiableCollection(methods.values());
     }
 
-    public Collection<MethodDefinition> getStaticMethods() {
-        final Collection<MethodDefinition> methods = this.methods.values();
-        final List<MethodDefinition> staticMethods = new ArrayList<MethodDefinition>();
-        for (MethodDefinition method : methods) {
-            if (method.getOtherModifiers().contains("static")) {
-                staticMethods.add(method);
-            }
-        }
-        return staticMethods;
-    }
-
-
-    public final Collection<MethodDefinition> getAllMethods(Model model) throws ModelException {
+    /**
+     * All methods of this type definition, including inherited.
+     * Methods, which are not declared, have "volatile" modifier.
+     * @param model the model to consult for inherited methods.
+     * @return all methods.
+     * @throws ModelException wrong model (e.g. name clash of declared and inherited methods).
+     */
+    public final Collection<MethodDefinition> getAllMethods(final Model model) throws ModelException {
         return getAllMethodsMap(model).values();
     }
 
-    public final MethodDefinition getMethodBySignature(String signature, Model model) throws ModelException {
+    /**
+     * Find method (declared or inherited) by signature.
+     * @param signature the signature to seek. see {@link #getDeclaredMethodBySignature(String)} for signature format.
+     * @param model the model to consult for inherited methods.
+     * @return the method; null if not found
+     * @throws ModelException wrong model (e.g. name clash of declared and inherited methods).
+     */
+    public final MethodDefinition getMethodBySignature(final String signature, final Model model)
+            throws ModelException {
         return getAllMethodsMap(model).get(signature);
     }
 
+    /**
+     * Subclasses should provide implementation, which returns (signature:method) map.
+     * All declared and inherited methods are expected in the map.
+     * @param model the model to consult for inherited methods.
+     * @return map of all methods by signature
+     * @throws ModelException wrong model (e.g. name clash of declared and inherited methods).
+     */
     protected abstract Map<String, MethodDefinition> getAllMethodsMap(Model model) throws ModelException;
 
+    /**
+     * ExtendsImplements clause for {@code this}.
+     * E.g. "extends Column implements Serializable"
+     * @return the extends implements clause
+     */
     protected abstract String getExtendsImplements();
 
-    protected abstract Type getAncestorTypeByName(String name);
+    /**
+     * Gets superclass/superinterface type by name.
+     * @param ancestorName short name
+     * @return the type
+     * @throws IllegalArgumentException no such superclass/superinterface
+     */
+    protected abstract Type getAncestorTypeByName(String ancestorName);
 
-    public final MethodDefinition getDeclaredMethodBySignature(String signature) {
+    /**
+     * Declared method by signature.
+     * @param signature Format is different from JVM format! return type is not included.
+     * primitive types are just their names, not special abbreviations. Arrays are marked with [] after type name.
+     * Example: equal(int[],int[])
+     * @return method; null if not found
+     */
+    public final MethodDefinition getDeclaredMethodBySignature(final String signature) {
         return methods.get(signature);
     }
 
-    public String getSourceRef() {
+    /**
+     * Location of definition of {@code this} in the source (file, line).
+     * @return location in filename:line format
+     */
+    public final String getSourceRef() {
         return sourceRef;
     }
 
-    public String toString() {
+    @Override
+    public final String toString() {
         final StringBuilder builder = new StringBuilder();
         builder.append(Utils.format(importLines, "", Utils.LINE_BREAK, Utils.LINE_BREAK + Utils.LINE_BREAK))
                 .append(comment)
@@ -200,7 +298,7 @@ public abstract class AbstractTypeDefinition {
 
     }
 
-    protected final String declarationString() {
+    private String declarationString() {
         StringBuilder builder = new StringBuilder();
         List<String> modifiers = new ArrayList<String>();
         modifiers.add(accessModifier);
@@ -215,12 +313,24 @@ public abstract class AbstractTypeDefinition {
         return builder.toString();
     }
 
-    public boolean isPublic() {
+    /**
+     * Is this type public.
+     * @return true if public.
+     */
+    public final boolean isPublic() {
         return "public".equals(accessModifier);
     }
 
+    /**
+     * "class" or "interface".
+     * @return one of these
+     */
     protected abstract String getTypeKeyword();
 
+    /**
+     * The type body, without enclosing braces.
+     * @return the body
+     */
     protected final String bodyStringWithoutBraces() {
         final StringBuilder builder = new StringBuilder();
         // we are not expecting inner classes (which should go after methods by convention
@@ -235,14 +345,29 @@ public abstract class AbstractTypeDefinition {
         return builder.toString();
     }
 
-    public Set<String> getImportLines() {
+    /**
+     * Import lines for this type.
+     * @return import lines
+     */
+    public final Set<String> getImportLines() {
         return Collections.unmodifiableSet(importLines);
     }
 
-    protected void addInheritedMethodsToMap(final Model model, final Map<String, MethodDefinition> methodMap, final Type parentType) throws ModelException {
+    /**
+     * Helper method for implementation of {@link #getAllMethodsMap(Model)} in derived classes.
+     * Finds inherited methods from a given superclass/superinterface (including transitive inheritance)
+     * and adds them to a map.
+     * @param model the model
+     * @param methodMap the map to add to
+     * @param parentType parent to take inherited methods from
+     * @throws ModelException something is wrong: no such parent, methods name clash.
+     */
+    protected final void addInheritedMethodsToMap(final Model model,
+                                                  final Map<String, MethodDefinition> methodMap,
+                                                  final Type parentType) throws ModelException {
         AbstractTypeDefinition parent = model.getAbstractType(parentType.getSimpleName());
         if (parent == null) {
-            throw new ModelException("parentType not found : "+parentType.getSimpleName());
+            throw new ModelException("parentType not found : " + parentType.getSimpleName());
         }
         for (MethodDefinition method: parent.getAllMethods(model)) {
             if (!"private".equals(method.getAccessModifier())) {
@@ -253,30 +378,46 @@ public abstract class AbstractTypeDefinition {
                     // add fake method if possible: we do not care about body
                     methodMap.put(signature, candidate);
                 } else {
-                    // make sure it is Ok to override
+                    // is overridden explicitly; make sure it is Ok to override
                     if (!myMethod.matches(candidate)) {
-                        throw new ModelException("Name clash in " + getName() + "#"+myMethod.declaration() + " and " + candidate.declaration());
-                    } else {
-                        // do not add: it isoverridden.
-                        // leaving decrease of access check to Java compiler
+                        throw new ModelException("Name clash in " + getName() + "#"
+                                + myMethod.declaration() + " and " + candidate.declaration());
                     }
                 }
             }
         }
     }
 
+    /**
+     * Find all ancestors of {@code this}.
+     * @param model the model to scan
+     * @return all ancestors
+     * @throws ModelException wrong model (e.g. same interface inherited twice with different type parameters)
+     */
     public abstract Set<Type> getAllAncestors(Model model) throws ModelException;
 
-    public void replaceComment(final String newComment) {
+    /**
+     * Replaces class comment with a new one.
+     * @param newComment replacement
+     */
+    public final void replaceComment(final String newComment) {
         this.comment = newComment;
     }
 
-    protected Set<Type> getInheritedAncestors(final Type parentType, final Model model) throws ModelException {
+    /**
+     * Finds inherited transitively via parentType ancestors. parentType is not included to the result.
+     * @param parentType the parent to inspect
+     * @param model model to consult for inheritance relations
+     * @return inherited from parentType ancestors
+     * @throws ModelException wrong model (e.g. same interface inherited twice with different type parameters)
+     */
+    protected final Set<Type> getInheritedAncestors(final Type parentType, final Model model) throws ModelException {
         final AbstractTypeDefinition parent = model.getAbstractType(parentType.getSimpleName());
         final Set<Type> parentAncestors = parent.getAllAncestors(model);
         final Set<Type> myAncestors = new HashSet<Type>();
         for (Type parentAncestor: parentAncestors) {
-            final Map<String, TypeArgument> replacementMap = parent.getTypeParameters().inferTypeArguments(parent.getType(), parentType);
+            final Map<String, TypeArgument> replacementMap =
+                    parent.getTypeParameters().inferTypeArguments(parent.getType(), parentType);
             myAncestors.add(parentAncestor.replaceParams(replacementMap));
         }
         return myAncestors;

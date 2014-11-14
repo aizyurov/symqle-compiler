@@ -1,3 +1,19 @@
+/*
+   Copyright 2011-2014 Alexander Izyurov
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.package org.symqle.common;
+*/
+
 package org.symqle.model;
 
 import org.symqle.parser.SyntaxTree;
@@ -10,20 +26,28 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Anonymous class is created for each ProductionImplementation and each
- * standalone MethodDeclaration
- * the methods (which belong to Symqle class) are always standard:
- * return new ReturnType() {...} - this is the anonymous class.
+ * Anonymous class. It is created for each ProductionImplementation and each
+ * standalone MethodDeclaration.
+ * The created method associated with production or MethodDeclaration is a
+ * static method of Symqle class and its body is standard::
+ * return new ReturnType() {...}; - an instance of anonymous class is returned.
  * The anonymous class always extends its ReturnType (class or interface).
- * Name is composed from methodName; actually it does not matter because
- * anonymous classes are never registered with the Model
+ * Class name is composed from methodName; actually it does not matter because
+ * anonymous classes are never registered with the Model as classes, they are kept separately.
+ * Java compiler will later assign different names to the classes.
  * @author lvovich
  */
-public class
-        AnonymousClass extends AbstractTypeDefinition {
+public class AnonymousClass extends AbstractTypeDefinition {
     // class or interface - does not matter
     private Type extended;
 
+    /**
+     * Constructs from AST. Extended type is supplied separately
+     * (cannot be determined from ProductionImplementation tree)
+     * @param node should be ProductionImplementation or MethodDeclaration
+     * @param extendedType the parent type
+     * @throws GrammarException wrong tree
+     */
     public AnonymousClass(final SyntaxTree node, final Type extendedType) throws GrammarException {
         super(node);
 
@@ -33,12 +57,12 @@ public class
 
 
     @Override
-    protected String getTypeKeyword() {
+    protected final String getTypeKeyword() {
         return "class";
     }
 
     @Override
-    public Set<Type> getAllAncestors(Model model) throws ModelException {
+    public final Set<Type> getAllAncestors(final Model model) throws ModelException {
         final Set<Type> ancestors = new HashSet<Type>();
         final Type parentType = extended;
         ancestors.add(parentType);
@@ -48,13 +72,14 @@ public class
     }
 
     @Override
-    public String implicitMethodAccessModifier(final MethodDefinition methodDefinition) {
+    public final String implicitMethodAccessModifier(final MethodDefinition methodDefinition) {
         return "public";
     }
 
     @Override
-    public Set<String> addImplicitMethodModifiers(final MethodDefinition methodDefinition) {
-        // add abstract if absent
+    public final Set<String> implicitMethodModifiers(final MethodDefinition methodDefinition) {
+        // add abstract if absent. Anonymous class can temporarily have "abstract volatile" methods.
+        // at the end of construction all methods whould be implemented.
         final HashSet<String> newModifiers = new HashSet<String>(methodDefinition.getOtherModifiers());
         if (methodDefinition.isAbstract()) {
             newModifiers.add("abstract");
@@ -63,23 +88,27 @@ public class
     }
 
     @Override
-    public boolean methodIsAbstract(final Set<String> modifiers) {
+    public final boolean methodIsAbstract(final Set<String> modifiers) {
         return modifiers.contains("abstract");
     }
 
     @Override
-    public boolean methodIsPublic(final String explicitAccessModifier) {
+    public final boolean methodIsPublic(final String explicitAccessModifier) {
         return "public".equals(explicitAccessModifier);
     }
 
-    public String instanceBodyAsString() {
-        return (" {") + Utils.LINE_BREAK +
-                bodyStringWithoutBraces() +
-                Utils.LINE_BREAK +"        }";
+    /**
+     * Class body, including enclosing braces.
+     * @return the body.
+     */
+    public final String instanceBodyAsString() {
+        return " {" + Utils.LINE_BREAK
+                + bodyStringWithoutBraces()
+                + Utils.LINE_BREAK + "        }";
     }
 
     @Override
-    protected Map<String, MethodDefinition> getAllMethodsMap(final Model model) throws ModelException {
+    protected final Map<String, MethodDefinition> getAllMethodsMap(final Model model) throws ModelException {
         final Map<String, MethodDefinition> methodMap = new HashMap<String, MethodDefinition>();
         for (MethodDefinition method: getDeclaredMethods()) {
             methodMap.put(method.signature(), method);
@@ -90,16 +119,23 @@ public class
     }
 
     @Override
-    public String getExtendsImplements() {
-        // will produce non-compilable code if extended is interface
-        return "extends " + extended;
+    public final String getExtendsImplements() {
+        throw new IllegalStateException("Method not applicable");
+    }
+
+    /**
+     * Parent type.
+     * @return parent
+     */
+    public final Type getParent() {
+        return extended;
     }
 
     @Override
-    protected Type getAncestorTypeByName(final String name) {
-        if (name.equals(extended.getSimpleName())) {
+    protected final Type getAncestorTypeByName(final String ancestorName) {
+        if (ancestorName.equals(extended.getSimpleName())) {
             return extended;
         }
-        throw new IllegalArgumentException(getName() + " does not implement " + name);
+        throw new IllegalArgumentException(getName() + " does not implement " + ancestorName);
     }
 }

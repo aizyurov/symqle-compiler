@@ -1,3 +1,19 @@
+/*
+   Copyright 2011-2014 Alexander Izyurov
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.package org.symqle.common;
+*/
+
 package org.symqle.processor;
 
 import org.symqle.model.InterfaceDefinition;
@@ -11,18 +27,18 @@ import java.util.List;
 import static org.symqle.util.Utils.LINE_BREAK;
 
 /**
- * TODO move to ProductionProcessor
+ * Adds generated Javadoc to interfaces.
  * @author lvovich
  */
 public class InterfaceJavadocProcessor extends ModelProcessor {
 
     @Override
-    protected Processor predecessor() {
+    protected final Processor predecessor() {
         return new ImplementationProcessor();
     }
 
     @Override
-    protected void process(final Model model) throws ModelException {
+    protected final void process(final Model model) throws ModelException {
         for (InterfaceDefinition def : model.getAllInterfaces()) {
             final String name = def.getType().getSimpleName();
             final List<String> rules = model.getRules(name);
@@ -37,7 +53,9 @@ public class InterfaceJavadocProcessor extends ModelProcessor {
                         LINE_BREAK + " *</pre>" + LINE_BREAK));
                 final TypeParameters typeParameters = def.getTypeParameters();
                 if (typeParameters.size() == 1) {
-                    javadocBuilder.append("* @param ").append(typeParameters).append(" associated Java type").append(Utils.LINE_BREAK);
+                    javadocBuilder.append("* @param ")
+                            .append(typeParameters)
+                            .append(" associated Java type").append(LINE_BREAK);
                 }
                 javadocBuilder.append(" */").append(LINE_BREAK);
                 def.replaceComment(javadocBuilder.toString());

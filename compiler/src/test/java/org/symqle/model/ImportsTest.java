@@ -1,3 +1,19 @@
+/*
+   Copyright 2011-2014 Alexander Izyurov
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.package org.symqle.common;
+*/
+
 package org.symqle.model;
 
 import junit.framework.TestCase;
@@ -12,13 +28,6 @@ import java.io.Reader;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by IntelliJ IDEA.
- * User: aizyurov
- * Date: 02.12.2012
- * Time: 18:35:36
- * To change this template use File | Settings | File Templates.
- */
 public class ImportsTest extends TestCase {
 
     public void testImports() throws Exception {
@@ -29,23 +38,13 @@ public class ImportsTest extends TestCase {
         final List<SyntaxTree> syntaxTrees = Arrays.asList(new SyntaxTree(parser.SymqleUnit(), source));
         new InterfaceJavadocProcessor().process(syntaxTrees, model);
         final ClassDefinition cursorSpec = model.getClassDef("AbstractCursorSpecification");
-        System.out.println("===");
-        System.out.println(cursorSpec);
-        System.out.println("===");
-        final ClassDefinition selectStatement = model.getClassDef("AbstractSelectStatement");
-        System.out.println(selectStatement);
-        System.out.println("===");
+        final String cursorSpecString = cursorSpec.toString();
+        assertTrue(cursorSpecString, cursorSpecString.startsWith("import org.symqle.common.QueryBuilder;"));
+        assertTrue(cursorSpecString, cursorSpecString.contains("import org.symqle.common.SqlContext;"));
         final ClassDefinition symqle = model.getClassDef("Symqle");
-        System.out.println(symqle);
-        System.out.println(model.getInterface("SelectStatement"));
-//        MethodDefinition delegatedMethod = cursorSpec.getDeclaredMethodBySignature("z$sqlOfzSelectStatement(SqlContext)");
-//        assertEquals(TestUtils.pureCode
-//                ("public final QueryBuilder<T> z$sqlOfzSelectStatement(final SqlContext context) {\n" +
-//                "                return Symqle.get()\n" +
-//                "                    .z$zSelectStatement$from$zCursorSpecification(this)\n" +
-//                "                    .z$sqlOfzSelectStatement(context);\n" +
-//                "            }"), TestUtils.pureCode(delegatedMethod.toString()));
-
+        final String symqleString = symqle.toString();
+        assertTrue(symqleString, symqleString.startsWith("import java.util.ArrayList;"));
+        assertTrue(symqleString, symqleString.contains("import java.util.List;"));
     }
 
 }

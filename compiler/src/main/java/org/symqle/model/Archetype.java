@@ -1,8 +1,23 @@
+/*
+   Copyright 2011-2014 Alexander Izyurov
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.package org.symqle.common;
+*/
+
 package org.symqle.model;
 
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
-import org.symqle.util.Assert;
 import org.symqle.util.Utils;
 
 import java.util.Arrays;
@@ -10,38 +25,80 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by IntelliJ IDEA.
- * User: aizyurov
- * Date: 25.11.2012
- * Time: 18:50:55
- * To change this template use File | Settings | File Templates.
+ * A Symqle notion of interface archetype. Archetyped interfaces have similar methods
+ * with different names. The methods have the same parameter {@code }SqlContext} and different return values.
+ * Currently there are 2 archetypes: arhetype methods of SqlArtetype return {@code SqlBuilder}.
+ * Archetype methods of QueryArchetype return {@code QueryBuilder<T>}, T is type parameter.
+ * SDL uses special syntax:
+ * <pre>
+ * {@code public interface SelectStatement<T> : QueryBuilder<T> {}}
+ * </pre>
+ * is expanded to
+ * <pre>
+  *{@code public interface SelectStatement<T> : QueryBuilder<T> {
+ *     QueryBuilder<T> z$sqlOfSelectStatement(SqlContext context);
+ * }
+ * }
+  * </pre>
  */
 public abstract class Archetype {
     private final TypeParameters typeParameters;
 
-    protected Archetype(TypeParameters typeParameters) {
+    /**
+     * Constructs with given type parameters.
+     * @param typeParameters type parameters
+     */
+    protected Archetype(final TypeParameters typeParameters) {
         this.typeParameters = typeParameters;
     }
 
+    /**
+     * Type parameters of {@code this}.
+     * @return type parameters
+     */
     protected final TypeParameters getTypeParameters() {
         return typeParameters;
     }
 
-    public abstract MethodDefinition createArchetypeMethod(InterfaceDefinition interfaceDefinition) throws ModelException;
+    /**
+     * Build archetype method for this archetype and given interface.
+     * @param interfaceDefinition would-be owner of the method
+     * @return created method.
+     */
+    public abstract MethodDefinition createArchetypeMethod(InterfaceDefinition interfaceDefinition);
+
+    /**
+     * Import lines required for archetyped interface.
+     * Include impores for SqlContext, SqlBuilder or QueryBuilder etc.
+     * @return required import lines.
+     */
     public abstract List<String> getRequiredImports();
 
 
-    public static void verify(InterfaceDefinition interfaceDefinition) throws ModelException {
+    /**
+     * Verifies that interface definition can be archetyped.
+     * @param interfaceDefinition interface
+     * @throws ModelException not compatible to Archetype
+     */
+    public static void verify(final InterfaceDefinition interfaceDefinition) throws ModelException {
         for (MethodDefinition def: interfaceDefinition.getDeclaredMethods()) {
             if (def.getName().startsWith(ARCHETYPE_METHOD_PREFIX)) {
-                throw new ModelException("Prefix \""+ARCHETYPE_METHOD_PREFIX+"\" is reserved for generated methods");
+                throw new ModelException(
+                        "Prefix \"" + ARCHETYPE_METHOD_PREFIX + "\" is reserved for generated methods");
             }
         }
     }
 
+    /**
+     * Creates an Archetype from AST.
+     * @param node syntax tree
+     * @return constructed archetype
+     * @throws GrammarException wrong tree
+     */
     public static Archetype create(final SyntaxTree node) throws GrammarException {
-        Assert.assertOneOf(new GrammarException("Unexpected type: "+node.getType(), node), node.getType(), "Archetype");
-        TypeParameters parameters = new TypeParameters(node.find("TypeParameters.TypeParameter", TypeParameter.CONSTRUCT));
+        AssertNodeType.assertOneOf(node, "Archetype");
+        TypeParameters parameters = new TypeParameters(
+                node.find("TypeParameters.TypeParameter", TypeParameter.CONSTRUCT));
         String name = node.find("Identifier", SyntaxTree.VALUE).get(0);
         try {
             if ("SqlBuilder".equals(name)) {
@@ -56,20 +113,27 @@ public abstract class Archetype {
         }
     }
 
-    public static boolean isArchetypeMethod(MethodDefinition method) {
+    /**
+     * Determines whether a method is archetyped one.
+     * @param method the method to check
+     * @return true if archetyped
+     */
+    public static boolean isArchetypeMethod(final MethodDefinition method) {
         return method.getName().startsWith(ARCHETYPE_METHOD_PREFIX);
     }
 
-    private static class SqlArchetype extends Archetype {
+    private static final class SqlArchetype extends Archetype {
 
-        private SqlArchetype(TypeParameters typeParameters) throws ModelException {
+        private SqlArchetype(final TypeParameters typeParameters) throws ModelException {
             super(typeParameters);
             if (!typeParameters.isEmpty()) {
-                throw new ModelException("SqlBuilder archetype does not take type parameters, found: "+typeParameters.size());
+                throw new ModelException("SqlBuilder archetype does not take type parameters, found: "
+                        + typeParameters.size());
             }
         }
 
-        public MethodDefinition createArchetypeMethod(final InterfaceDefinition interfaceDefinition) throws ModelException {
+        @Override
+        public MethodDefinition createArchetypeMethod(final InterfaceDefinition interfaceDefinition) {
             return MethodDefinition.parseAbstract(
                     String.format(SQL_METHOD_FORMAT, interfaceDefinition.getName(),
                             interfaceDefinition.getName(), ""), interfaceDefinition);
@@ -82,17 +146,18 @@ public abstract class Archetype {
 
     }
 
-    private static class QueryArchetype extends Archetype {
+    private static final class QueryArchetype extends Archetype {
 
-        private QueryArchetype(TypeParameters typeParameters) throws ModelException {
+        private QueryArchetype(final TypeParameters typeParameters) throws ModelException {
             super(typeParameters);
-            if (typeParameters.size()!=1) {
-                throw new ModelException("Query archetype requires 1 type parameter, found: "+typeParameters.size());
+            if (typeParameters.size() != 1) {
+                throw new ModelException("Query archetype requires 1 type parameter, found: " + typeParameters.size());
             }
 
         }
 
-        public MethodDefinition createArchetypeMethod(final InterfaceDefinition interfaceDefinition) throws ModelException {
+        @Override
+        public MethodDefinition createArchetypeMethod(final InterfaceDefinition interfaceDefinition) {
             return MethodDefinition.parseAbstract(
                     String.format(QUERY_METHOD_FORMAT, interfaceDefinition.getName(),
                             getTypeParameters(),
@@ -108,7 +173,7 @@ public abstract class Archetype {
     private static final String ARCHETYPE_METHOD_PREFIX = "z$sqlOf";
 
 
-    private final static String QUERY_METHOD_FORMAT = Utils.indent(4,
+    private static final String QUERY_METHOD_FORMAT = Utils.indent(4,
             "/**",
             "* Creates a QueryBuilder, which constructs SQL conforming to {@link %s}.",
             "* @param context the Sql construction context",
@@ -117,7 +182,7 @@ public abstract class Archetype {
             "QueryBuilder%s " + ARCHETYPE_METHOD_PREFIX + "%s(%sSqlContext context);"
             );
 
-    private final static String SQL_METHOD_FORMAT = Utils.indent(4,
+    private static final String SQL_METHOD_FORMAT = Utils.indent(4,
             "/**",
             "* Creates an SqlBuilder, which constructs SQL conforming to {@link %s}.",
             "* @param context the Sql construction context",
@@ -126,10 +191,13 @@ public abstract class Archetype {
             "SqlBuilder " + ARCHETYPE_METHOD_PREFIX + "%s(%sSqlContext context);"
     );
 
+    /**
+     * No archetype.
+     */
     public static final Archetype NONE = new Archetype(new TypeParameters(Collections.<TypeParameter>emptyList())) {
 
         @Override
-        public MethodDefinition createArchetypeMethod(InterfaceDefinition interfaceDefinition) throws ModelException {
+        public MethodDefinition createArchetypeMethod(final InterfaceDefinition interfaceDefinition) {
             return null;
         }
 
