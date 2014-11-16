@@ -58,7 +58,12 @@
       <id>symqle-tools-website</id>
       <url>${releaseDeployUrl}</url>
     </site>
-  </distributionManagement>
+    <repository>
+        <id>symqle-release-repository</id>
+        <name>symqle</name>
+        <url>${releaseRepositoryUrl}</url>
+    </repository>
+    </distributionManagement>
 
   <modules>
     <module>compiler</module>
@@ -72,6 +77,7 @@
       <!-- override in settings.xml in release environment -->
       <sitesDeployUrlBase>file:///tmp</sitesDeployUrlBase>
       <releaseDeployUrl>${sitesDeployUrlBase}/symqle-tools/${project.version}</releaseDeployUrl>
+      <releaseRepositoryUrl>${sitesDeployUrlBase}/symqle-tools/${project.version}/binaries</releaseRepositoryUrl>
     </properties>
 
   <build>
