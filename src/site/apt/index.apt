@@ -1,6 +1,6 @@
 Symqle Build Tools
 
-   A couple of internal tools for building Symqle.
+   Internal tools for building {{{http://symqle.org}Symqle}}.
    Symqle compiler contains the logic of transformation of sdl (symqle definition language) files to java code. It is not intended for any use but by compiler plugin.
    The Tools are built as 2 separate modules just for convenience of development and debugging.
    Symqle compiler plugin is a maven mojo wrapper around symqle compiler. It is used in Symqle build cycle.
