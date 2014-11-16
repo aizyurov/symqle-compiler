@@ -59,11 +59,11 @@
       <url>${releaseDeployUrl}</url>
     </site>
     <repository>
-      <id>bintray-aizyurov-maven-symqle</id>
-      <name>aizyurov-maven-symqle</name>
-      <url>https://api.bintray.com/maven/aizyurov/maven/symqle</url>
-      </repository>
-  </distributionManagement>
+        <id>symqle-release-repository</id>
+        <name>symqle</name>
+        <url>${releaseRepositoryUrl}</url>
+    </repository>
+    </distributionManagement>
 
   <modules>
     <module>compiler</module>
@@ -77,6 +77,7 @@
       <!-- override in settings.xml in release environment -->
       <sitesDeployUrlBase>file:///tmp</sitesDeployUrlBase>
       <releaseDeployUrl>${sitesDeployUrlBase}/symqle-tools/${project.version}</releaseDeployUrl>
+      <releaseRepositoryUrl>${sitesDeployUrlBase}/symqle-tools/${project.version}/binaries</releaseRepositoryUrl>
     </properties>
 
   <build>
@@ -214,5 +215,55 @@
             </plugin>
         </plugins>
     </reporting>
+
+    <profiles>
+        <profile>
+            <id>Release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.2.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.9.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
