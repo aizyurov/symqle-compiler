@@ -30,10 +30,13 @@
       <item name="Release notes" href="release-notes.html"/>
       <item name="License" href="license.html"/>
       <item name="Sources" href="source-repository.html"/>
-      <item name="Bugtracker" href="issue-tracking.html"/>
+      <item name="Bugs" href="issue-tracking.html"/>
     </menu>
 
-    <menu ref="modules"/>
+    <menu name="Subprojects">
+        <item name="Symqle-compiler" href="compiler/index.html"/>
+        <item name="Symqle-compiler-plugin" href="plugin/index.html"/>
+    </menu>
 
   </body>
     <skin>
