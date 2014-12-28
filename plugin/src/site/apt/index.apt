@@ -1,4 +1,4 @@
-Symqle Compiler Plugin
+    See {{{../index.html}parent documentation}} for links to issue tracking, license etc.Symqle Compiler Plugin
 
   This plugin is used in Symqle build cycle. See {{{./plugin-info.html}documentation}} for usage.
 
@@ -19,3 +19,6 @@ Symqle Compiler Plugin
 ------------------------------------
 
   Activate this profile when building Symqle.
+
+  See {{{../index.html}parent documentation}} for links to issue tracking, license etc.
+

@@ -19,6 +19,10 @@ package org.symqle.mojo;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 import org.symqle.processor.SymqleCompiler;
 import org.symqle.util.Log;
@@ -28,38 +32,30 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 
 /**
- * Goal which generates Symqle sources.
- *
- * @goal generate
- * 
- * @phase generate-sources
+ * Generates Symqle sources from sdl files.
  */
-public class SymqleGenerator
+@Mojo(name = "generate", requiresProject = true, threadSafe = false, defaultPhase =  LifecyclePhase.GENERATE_SOURCES)
+public class GenerateMojo
     extends AbstractMojo
 {
     /**
      * The current Maven project.
-     *
-     * @parameter default-value="${project}"
-     * @readonly
-     * @required
      */
+    @Component
     private MavenProject project;
 
     /**
      * The directory where generated sources are put. This directory is included
      * to project sources.
-     * @parameter expression="${outputDirectory}" default-value="${project.build.directory}/generated-sources/main/"
-     * @required
      */
+    @Parameter(property = "outputDirectory", defaultValue = "${project.build.directory}/generated-sources/main/")
     private File outputDirectory;
 
     /**
      * The directory where generated test sources are put. This directory is included
      * to project test sources.
-     * @parameter expression="${testOutputDirectory}" default-value="${project.build.directory}/generated-sources/test/"
-     * @required
      */
+    @Parameter(property = "testOutputDirectory", defaultValue = "${project.build.directory}/generated-sources/test/")
     private File testOutputDirectory;
 
     /**
@@ -69,6 +65,7 @@ public class SymqleGenerator
      * @parameter expression="${sourceDirectory}" default-value="${basedir}/src/main/symqle"
      * @required
      */
+    @Parameter(property = "sourceDirectory", defaultValue = "${basedir}/src/main/symqle")
     private File sourceDirectory;
 
     public void execute()

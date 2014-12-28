@@ -20,17 +20,14 @@
   xsi:schemaLocation="http://maven.apache.org/DECORATION/1.0.0 http://maven.apache.org/xsd/decoration-1.0.0.xsd">
   <body>
 
-      <breadcrumbs>
-          <item name="Symqle" href="http://symqle.org"/>
-          <item name="Symqle tools" href="./index.html"/>
-      </breadcrumbs>
-
     <menu name="Project information">
       <item name="About" href="index.html"/>
       <item name="Release notes" href="release-notes.html"/>
       <item name="License" href="license.html"/>
       <item name="Sources" href="source-repository.html"/>
-      <item name="Bugs" href="issue-tracking.html"/>
+      <item name="Issue tracking" href="issue-tracking.html"/>
+      <item name="Continuous integration" href="https://ci.symqle.org"/>
+      <item name="Team" href="./team-list.html"/>
     </menu>
 
     <menu name="Subprojects">

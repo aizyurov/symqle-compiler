@@ -10,7 +10,7 @@
   <packaging>pom</packaging>
   <name>Symqle build tools</name>
 
-  <url>http://symqle.org/tools</url>
+    <url>http://tools.symqle.org</url>
   <description>Internal tools for building Symqle</description>
 
   <organization>
