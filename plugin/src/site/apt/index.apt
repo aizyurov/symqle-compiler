@@ -4,21 +4,5 @@
 
   It binds itself to <<generate-sources>> phase.
 
-  The plugin is not available from Maven central yet. To use it, create a profile in your setting.xml with the following:
-
--------------------------------------
-    <pluginRepositories>
-        <pluginRepository>
-            <id>symqle</id>
-            <url>http://artifactory.symqle.org</url>
-            <releases>
-              <updatePolicy>never</updatePolicy>
-            </releases>
-        </pluginRepository>
-    </pluginRepositories>
-------------------------------------
-
-  Activate this profile when building Symqle.
-
   See {{{../index.html}parent documentation}} for links to issue tracking, license etc.
 
