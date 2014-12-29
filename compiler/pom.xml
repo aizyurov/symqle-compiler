@@ -7,14 +7,14 @@
   <name>Symqle compiler</name>
 
   <parent>
-    <groupId>org.symqle</groupId>
+    <groupId>org.symqle.tools</groupId>
     <artifactId>symqle-tools</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
 
 
-  <url>http://symqle.org/tools/compiler</url>
+  <url>http://tools.symqle.org/compiler</url>
   <description>Compiles sdl code to java sources</description>
 
   <scm>
@@ -153,6 +153,7 @@
               <reportSet>
                 <reports>
                   <report>dependencies</report>
+                    <report>summary</report>
                 </reports>
               </reportSet>
             </reportSets>

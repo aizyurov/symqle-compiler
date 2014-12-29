@@ -7,13 +7,13 @@
   <name>Symqle compiler plugin</name>
 
   <parent>
-    <groupId>org.symqle</groupId>
+    <groupId>org.symqle.tools</groupId>
     <artifactId>symqle-tools</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
 
-  <url>http://tools.symqle.org</url>
+  <url>http://tools.symqle.org/plugin</url>
   <description>Maven Mojo wrapper for Symqle compiler</description>
 
   <scm>
@@ -27,6 +27,7 @@
         <url>${releaseDeployUrl}/plugin</url>
       </site>
   </distributionManagement>
+
 
     <build>
         <plugins>
@@ -58,10 +59,10 @@
 
     <reporting>
     <plugins>  
-      <plugin>  
+      <plugin>
          <groupId>org.apache.maven.plugins</groupId>  
          <artifactId>maven-plugin-plugin</artifactId>  
-         <version>2.4.1</version>  
+         <version>3.3</version>
       </plugin>
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
@@ -71,6 +72,7 @@
               <reportSet>
                 <reports>
                   <report>dependencies</report>
+                  <report>summary</report>
                 </reports>
               </reportSet>
             </reportSets>
@@ -101,7 +103,7 @@
       <version>2.0</version>
     </dependency>
     <dependency>
-        <groupId>org.symqle</groupId>
+        <groupId>${project.groupId}</groupId>
         <artifactId>symqle-compiler</artifactId>
         <version>${project.version}</version>
         <scope>compile</scope>
