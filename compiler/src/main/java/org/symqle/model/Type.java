@@ -252,7 +252,7 @@ public class Type {
             final List<TypeArgument> actualArguments = this.getTypeArguments().getArguments();
             final List<TypeArgument> formalArguments = formalType.getTypeArguments().getArguments();
             if (actualArguments.size() != formalArguments.size()) {
-                throw new ModelException("formal parameter type arguments differ from actual parameter type arguments");
+                throw new ModelException("formal parameter type arguments differ from actual parameter type arguments: " +formalArguments + " and " + actualArguments + " for type " + formalType);
             }
             for (int i = 0; i < actualArguments.size(); i++) {
                 actualArguments.get(i).addInferredTypeArguments(formalArguments.get(i), parameterMapping);

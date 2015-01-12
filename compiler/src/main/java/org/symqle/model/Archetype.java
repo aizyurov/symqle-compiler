@@ -42,22 +42,22 @@ import java.util.List;
   * </pre>
  */
 public abstract class Archetype {
-    private final TypeParameters typeParameters;
+    private final TypeArguments typeArguments;
 
     /**
-     * Constructs with given type parameters.
-     * @param typeParameters type parameters
+     * Constructs with given type arguments.
+     * @param typeArguments type arguments
      */
-    protected Archetype(final TypeParameters typeParameters) {
-        this.typeParameters = typeParameters;
+    protected Archetype(final TypeArguments typeArguments) {
+        this.typeArguments = typeArguments;
     }
 
     /**
      * Type parameters of {@code this}.
      * @return type parameters
      */
-    protected final TypeParameters getTypeParameters() {
-        return typeParameters;
+    protected final TypeArguments getTypeArguments() {
+        return typeArguments;
     }
 
     /**
@@ -97,14 +97,13 @@ public abstract class Archetype {
      */
     public static Archetype create(final SyntaxTree node) throws GrammarException {
         AssertNodeType.assertOneOf(node, "Archetype");
-        TypeParameters parameters = new TypeParameters(
-                node.find("TypeParameters.TypeParameter", TypeParameter.CONSTRUCT));
+        final TypeArguments typeArguments = new TypeArguments(node.find("TypeArguments.TypeArgument", TypeArgument.CONSTRUCT));
         String name = node.find("Identifier", SyntaxTree.VALUE).get(0);
         try {
             if ("SqlBuilder".equals(name)) {
-                return new SqlArchetype(parameters);
+                return new SqlArchetype(typeArguments);
             } else if ("QueryBuilder".equals(name)) {
-                return new QueryArchetype(parameters);
+                return new QueryArchetype(typeArguments);
             } else {
                 throw new GrammarException("Unknown archetype: " + name, node);
             }
@@ -124,11 +123,11 @@ public abstract class Archetype {
 
     private static final class SqlArchetype extends Archetype {
 
-        private SqlArchetype(final TypeParameters typeParameters) throws ModelException {
-            super(typeParameters);
-            if (!typeParameters.isEmpty()) {
+        private SqlArchetype(final TypeArguments typeArguments) throws ModelException {
+            super(typeArguments);
+            if (!typeArguments.getArguments().isEmpty()) {
                 throw new ModelException("SqlBuilder archetype does not take type parameters, found: "
-                        + typeParameters.size());
+                        + typeArguments.getArguments().size());
             }
         }
 
@@ -148,10 +147,10 @@ public abstract class Archetype {
 
     private static final class QueryArchetype extends Archetype {
 
-        private QueryArchetype(final TypeParameters typeParameters) throws ModelException {
-            super(typeParameters);
-            if (typeParameters.size() != 1) {
-                throw new ModelException("Query archetype requires 1 type parameter, found: " + typeParameters.size());
+        private QueryArchetype(final TypeArguments typeArguments) throws ModelException {
+            super(typeArguments);
+            if (typeArguments.getArguments().size() != 1) {
+                throw new ModelException("Query archetype requires 1 type parameter, found: " + typeArguments.getArguments().size());
             }
 
         }
@@ -160,7 +159,7 @@ public abstract class Archetype {
         public MethodDefinition createArchetypeMethod(final InterfaceDefinition interfaceDefinition) {
             return MethodDefinition.parseAbstract(
                     String.format(QUERY_METHOD_FORMAT, interfaceDefinition.getName(),
-                            getTypeParameters(),
+                            getTypeArguments(),
                             interfaceDefinition.getName(), ""), interfaceDefinition);
         }
 
@@ -194,7 +193,7 @@ public abstract class Archetype {
     /**
      * No archetype.
      */
-    public static final Archetype NONE = new Archetype(new TypeParameters(Collections.<TypeParameter>emptyList())) {
+    public static final Archetype NONE = new Archetype(new TypeArguments(Collections.<TypeArgument>emptyList())) {
 
         @Override
         public MethodDefinition createArchetypeMethod(final InterfaceDefinition interfaceDefinition) {

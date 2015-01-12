@@ -1060,7 +1060,7 @@ void Archetype():
 {}
 {
      Identifier()
-     [ TypeParameters() ]
+     [ TypeArguments() ]
 }
 
 void ProductionDeclaration():
