@@ -21,6 +21,7 @@ import org.symqle.parser.ParseException;
 import org.symqle.parser.SymqleParser;
 import org.symqle.parser.SyntaxTree;
 import org.symqle.processor.GrammarException;
+import org.symqle.processor.InheritanceProcessor;
 import org.symqle.processor.ProductionProcessor;
 import org.symqle.test.TestUtils;
 import org.symqle.util.ModelUtils;
@@ -92,6 +93,21 @@ public class ProductionsTest extends TestCase {
                     "   }"),
                     TestUtils.pureCode(method.toString()));
         }
+    }
+
+    public void testProductionWithNonTrivialInheritance() throws Exception {
+        final Model model = ModelUtils.prepareModel();
+        String source = "src/test-data/model/ProductionWithNonTrivialInheritance.sdl";
+        final List<SyntaxTree> syntaxTree = readSyntaxTree(source);
+        new InheritanceProcessor().process(syntaxTree, model);
+
+        final List<ImplicitConversion> conversions = model.getConversions();
+        assertEquals(1, conversions.size());
+        {
+            final MethodDefinition method = conversions.get(0).getConversionMethod();
+            assertEquals("<Pair<T, U>>", method.getResultType().getTypeArguments().toString());
+        }
+
     }
 
     private List<SyntaxTree> readSyntaxTree(String source) throws FileNotFoundException, ParseException {

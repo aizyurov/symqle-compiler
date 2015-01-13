@@ -1,0 +1,18 @@
+import java.sql.SQLException;
+import org.symqle.Element;
+public interface Pair<T, U> {}
+
+public interface SelectSublist<T, U> : SqlBuilder
+{}
+
+public interface QueryBase<T> : SqlBuilder
+{}
+
+<T, U> QueryBase<Pair<T, U>> ::=
+		s:SelectSublist<T, U>
+		:: implicit
+;
+
+public class AbstractSelectSublist<T, U> extends SelectSublist<T, U> {}
+
+
